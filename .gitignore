@@ -1,6 +1,9 @@
 .DS_Store
 node_modules
 /build
+/pb_data
+/pb_migrations
+pocketbase
 /.svelte-kit
 /package
 .env
