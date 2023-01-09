@@ -18,7 +18,7 @@
 </script>
 <div class="relative {$$props.class}"> 
 
-    <input type="text" bind:value class="p-2 border border-zinc-500 bg-zinc-100 rounded-sm" placeholder="Rechercher un article" on:focus={() => focused = true} />
+    <input type="text" bind:value class="p-2 border border-zinc-500/50 bg-zinc-100 rounded-sm" placeholder="Rechercher un article" on:focus={() => focused = true} />
 
     {#if focused}
         <div class="absolute top-12 z-30 w-max">

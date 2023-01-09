@@ -48,7 +48,7 @@
       <div class="border border-t-zinc-500/50 p-6">
         <h3 class="capitalize">{$page.data.user?.username}</h3>
         <p class="text-sm">{$page.data.user?.created}</p>
-        <a href="/auth/logout" class="mt-4 block">
+        <a href="/auth/logout" class="mt-4 block" data-sveltekit-preload-data="off">
           <Button>Se déconnecter</Button>
         </a>
       </div>
