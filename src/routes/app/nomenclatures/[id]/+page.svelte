@@ -12,6 +12,7 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import PredictInput from "$lib/components/PredictInput.svelte";
     import type { ArticleRecord, ArticleResponse } from "$lib/DBTypes";
+    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -76,7 +77,9 @@
         {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
             {#each data.nomenclature.expand['nomenclature_row(parent_nomenclature)'] as row}
                 <tr>    
-                    <td><a href="/app/articles/{row.expand.child_article.id}" class="font-medium hover:text-violet-500">{row.expand.child_article.name}</a></td>
+                    <td>
+                        <ArticleRow article={row.expand?.child_article} />
+                    </td>
                     <td>{row.group}</td>
                     <td>{row.quantity_required}</td>
                     <td>

@@ -12,6 +12,7 @@
     import Input from "$lib/components/Input.svelte";
     import type { NomenclatureRowResponse } from "$lib/DBTypes";
     import { enhance } from "$app/forms";
+    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -157,23 +158,23 @@
     <svelte:fragment slot="body">
         {#if data.nomenclature_rows.length > 0}
             {#each data.nomenclature_rows.filter((k) => listRowFilter(k, filter)) as row}
+            
                 {@const linked_row = data.list_rows.find(k => k.parent_nomenclature_row === row.id)}
                 {@const isValid = row.quantity_required == linked_row?.quantity}
                 {@const remainingQuantity = row.quantity_required - (linked_row?.quantity ?? 0)}
+
                 <tr>    
                     <td>
-                        <a href="/app/articles/{row.expand?.child_article.id}" class="block font-medium hover:text-violet-500">{row.expand?.child_article.name}</a>
-                        <span class="text-sm block">{row.expand?.child_article.manufacturer}: {row.expand?.child_article.reference}</span>
-                        <span class="text-sm">{row.expand?.child_article.supplier}: {row.expand?.child_article.price} €</span>
+                        <ArticleRow article={row.expand?.child_article} />
                     </td>
                     <td>{row.group}</td>
                     <td>
                         <form action="?/updateRow" method="post" use:enhance>
-                            <Flex gap={2}>
+                            <Flex gap={2} items="center">
                                 {#if linked_row?.id !== undefined} <input type="hidden" name="id" value={linked_row?.id} /> {/if}
                                 <input type="hidden" name="parent_nomenclature_row" value={row.id} />
                                 <FormInput name="quantity" type="number" value={(linked_row?.quantity) ?? 0} min={0} max={row.quantity_required} />
-                                <Button><Icon src={Check} class="h-6 w-6" /></Button>
+                                <Button class="rounded-full self-center py-1 px-1"><Icon src={Check} class="h-4 w-4" /></Button>
                             </Flex>
                         </form>
                         
