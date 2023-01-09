@@ -133,13 +133,17 @@
 <Flex class="mt-6">
     <Input bind:value={filter} placeholder={"Filtre"}/>
     <Button on:click={() => filterHelp = !filterHelp}>{!filterHelp ? "Aide filtres" : "Masquer aide filtres"}</Button>
-    <a href="/app/lists/{data.list.id}/export"><Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Export Excel</Button></a>
+    <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500" on:click={() => {
+        window.open(`/app/lists/${data.list.id}/export/`, '_blank')?.focus();
+    }}>
+        Export Excel
+    </Button>
     {#if confirmDelete}
         <form action="?/removeList" method="post" use:enhance>
             <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Etes vous sur ?</Button>
         </form>
     {:else}
-        <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => confirmDelete = true}>Supprimer la liste.</Button>
+        <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => confirmDelete = true}>Supprimer la liste</Button>
     {/if}
 </Flex>
 

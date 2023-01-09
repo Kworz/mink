@@ -1,16 +1,16 @@
 import { error, type Actions, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { Collections, type ListResponse, type NomenclatureRecord, type ListRecord } from "$lib/DBTypes";
+import { Collections, type ListResponse, type NomenclatureResponse } from "$lib/DBTypes";
 
 export const load = (async ({ locals }) => {
 
     try
     {
-        const lists = await locals.pb.collection(Collections.List).getFullList<ListRecord>(undefined, {
+        const lists = await locals.pb.collection(Collections.List).getFullList<ListResponse>(undefined, {
             expand: "parent_nomenclature"
         });
 
-        const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureRecord>();
+        const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();
 
         return {
             lists: structuredClone(lists),

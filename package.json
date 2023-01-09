@@ -19,6 +19,7 @@
     "autoprefixer": "^10.4.7",
     "eslint": "^8.28.0",
     "eslint-plugin-svelte3": "^4.0.0",
+    "node-xlsx": "^0.21.0",
     "pocketbase-typegen": "^1.1.2",
     "postcss": "^8.4.14",
     "postcss-load-config": "^4.0.1",

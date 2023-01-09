@@ -19,7 +19,7 @@
     <Flex class="mt-8">
         {#if addList}
             <FormInput label="Nom de la liste" labelMandatory={true} name="name"/>
-            <select name="parent_nomenclature" class="ring-2 ring-inset h-[40px] p-2 self-end ring-zinc-500 rounded-md">
+            <select name="parent_nomenclature" class="border border-zinc-500/50 bg-zinc-100 h-[42px] p-2 self-end rounded-sm">
                 {#each data.nomenclatures as nomenclature}
                     <option value={nomenclature.id}>{nomenclature.name}</option>
                 {/each}
