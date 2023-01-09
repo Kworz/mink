@@ -1,7 +1,7 @@
 <script lang="ts">
     import Flex from "./layout/flex.svelte";
 
-    export let type: "number" | "text" | "password" | "email" = "text";
+    export let type: "number" | "text" | "password" | "email" | "file" = "text";
     export let name: string;
 
     export let label: string | undefined = undefined;
@@ -26,5 +26,5 @@
         </span>
     {/if}
     
-    <input {type} {name} {value} {min} {max} class="ring-2 ring-inset ring-zinc-500 p-2 rounded-md bg-transparent duration-200" class:ring-red-500={invalid}/>
+    <input {type} {name} {value} {min} {max} class="ring-2 ring-inset ring-zinc-500 p-2 rounded-md bg-transparent duration-200" class:ring-red-500={invalid} on:change/>
 </Flex>
