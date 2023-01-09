@@ -18,6 +18,7 @@
     
     let editList = false;
     let filterHelp = false;
+    let confirmDelete = false;
 
     let filter: string = "";
     let nameFilter: string | undefined = undefined;
@@ -67,6 +68,7 @@
     }
 
     $: if(form?.success === true && browser) { invalidateAll(); }
+    
     $: filter, computeFilters();
     $: remainingElements = data.nomenclature_rows.filter(row => {
         const list_row = data.list_rows.find(lr => lr.parent_nomenclature_row == row.id);
@@ -80,6 +82,8 @@
 
         return (nr.expand?.child_article.price ?? 0) * (nr.quantity_required - list_row_remain)
     }).reduce((p, c) => p+c, 0);
+
+    $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 5000); };
 
 </script>
 
@@ -129,9 +133,13 @@
     <Input bind:value={filter} placeholder={"Filtre"}/>
     <Button on:click={() => filterHelp = !filterHelp}>{!filterHelp ? "Aide filtres" : "Masquer aide filtres"}</Button>
     <a href="/app/lists/{data.list.id}/export"><Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Export Excel</Button></a>
-    <form action="?/removeList" method="post" use:enhance>
-        <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer la liste</Button>
-    </form>
+    {#if confirmDelete}
+        <form action="?/removeList" method="post" use:enhance>
+            <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Etes vous sur ?</Button>
+        </form>
+    {:else}
+        <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => confirmDelete = true}>Supprimer la liste.</Button>
+    {/if}
 </Flex>
 
 <Table>
