@@ -14,10 +14,10 @@
 
 <Flex class="h-screen w-screen" items="center" justify="center">
 
-    <div class="bg-zinc-100/50 min-w-[33%] p-6 rounded-xl border border-violet-500/50 shadow-xl">
+    <div class="bg-zinc-100/50 min-w-[33%] p-6 rounded-sm border border-violet-500/50 shadow-xl">
 
         <h1>Connexion</h1>
-        <p>Connectez vous pour utiliser Nomenclaturize2.</p>
+        <p>Connectez vous pour utiliser Nomenclaturize.</p>
 
         <form method="post">
             <Flex direction="col" gap={2} class="mt-8">
@@ -29,7 +29,7 @@
 
                 <Grid cols={2}>
                     <a href="/auth/register">
-                        <Button class="w-full ring-gray-600 hover:bg-gray-600">S'inscrire</Button>
+                        <Button class="w-full" borderColor="border-zinc-500" hoverColor="hover:bg-zinc-500">S'inscrire</Button>
                     </a>
                     <Button>Connexion</Button>
                 </Grid>

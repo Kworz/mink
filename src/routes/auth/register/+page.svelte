@@ -12,10 +12,10 @@
 
 <Flex class="h-screen w-screen" items="center" justify="center">
 
-    <div class="bg-zinc-100/50 min-w-[33%] p-6 rounded-xl border border-violet-500/50 shadow-xl">
+    <div class="bg-zinc-100/50 min-w-[33%] p-6 rounded-sm border border-violet-500/50 shadow-xl">
 
         <h1>S'inscrire</h1>
-        <p>Inscrivez vous sur Nomenclaturize2.</p>
+        <p>Inscrivez vous sur Nomenclaturize.</p>
 
         <form method="post">
             <Flex direction="col" gap={2} class="mt-8">
@@ -29,10 +29,10 @@
                 <div class="h-[1px] mx-auto w-2/3 my-4 bg-violet-500/50"/>
 
                 <Grid cols={2}>
-                    <a href="/auth/register">
-                        <Button class="w-full ring-gray-600 hover:bg-gray-600">Connexion</Button>
+                    <a href="/auth/login">
+                        <Button class="w-full" borderColor="border-zinc-500" hoverColor="hover:bg-zinc-500">Connexion</Button>
                     </a>
-                    <Button borderColor="ring-blue-500" hoverColor="hover:bg-blue-500">S'inscrire</Button>
+                    <Button>S'inscrire</Button>
                 </Grid>
             </Flex>    
         </form>
