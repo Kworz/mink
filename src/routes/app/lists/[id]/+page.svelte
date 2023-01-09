@@ -9,13 +9,74 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import { ExclamationTriangle, Wrench, Check } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
+    import Input from "$lib/components/Input.svelte";
+    import type { NomenclatureRowResponse } from "$lib/DBTypes";
+    import { enhance } from "$app/forms";
+    import { page } from "$app/stores";
 
     export let data: PageData;
     export let form: ActionData;
     
     let editList = false;
 
+    let filterHelp = false;
+
+    let filter: string = "";
+    
+    let nameFilter: string | undefined = undefined;
+    let supplierFilter: string | undefined = undefined;
+    let manufacturerFilter: string | undefined = undefined;
+    let referenceFilter: string | undefined = undefined;
+    let validFilter: boolean | undefined = undefined;
+
+    const computeFilters = () => {
+        
+        const filterQueries = filter.split(" && ");
+
+        supplierFilter = filterQueries.find(k => k.startsWith("supplier:"))?.replace("supplier:", "");
+        manufacturerFilter = filterQueries.find(k => k.startsWith("manufacturer:"))?.replace("manufacturer:", "");
+        referenceFilter = filterQueries.find(k => k.startsWith("reference:"))?.replace("reference:", "");
+
+        const validQuery = filterQueries.find(k => k.startsWith("valid:"))?.replace("valid:", "")
+
+        validFilter =  validQuery === undefined ? undefined : validQuery === "true";
+
+        console.log("validFilter", validFilter);
+
+        nameFilter = filterQueries.find(k => !k.includes(":"));
+
+    }
+
+    const listRowFilter = (nomRow: NomenclatureRowResponse): boolean => {
+
+        let result = true;
+
+        if(nameFilter)
+            result = result && nomRow.expand?.child_article.name.toLowerCase().includes(nameFilter.toLowerCase())
+        if(referenceFilter)
+            result = result && nomRow.expand?.child_article.reference.toLowerCase().includes(referenceFilter.toLowerCase());
+        if(supplierFilter)
+            result = result && nomRow.expand?.child_article.supplier.toLowerCase().includes(supplierFilter.toLowerCase());
+        if(manufacturerFilter)
+            result = result && nomRow.expand?.child_article.manufacturer.toLowerCase().includes(manufacturerFilter.toLowerCase());
+
+        if(validFilter !== undefined)
+        {
+            const list_row_reference = data.list_rows.find(listRow => listRow.parent_nomenclature_row === nomRow.id);
+            const isRowValid = nomRow.quantity_required === (list_row_reference?.quantity ?? 0);
+
+            if(validFilter === true)
+                result = result && isRowValid;
+            else
+                result = result && !isRowValid;
+        }
+
+        return result;
+    }
+
     $: if(form?.success === true && browser) { invalidateAll(); }
+
+    $: filter, computeFilters();
 
 </script>
 
@@ -34,32 +95,61 @@
     <p>Nomenclature de base: {data.list.expand?.parent_nomenclature.name}</p>
     <button
         on:click={() => editList = true}
-        class="my-2 text-violet-500 hover:text-blue-500 duration-200"
+        class="mt-2 text-violet-500 hover:text-blue-500 duration-200"
     >
         <Icon src={Wrench} class="h-5 w-5 inline"/>
         Editer les informations
     </button>
 {/if}
 
+{#if filterHelp}
+    <div class="mt-6 p-4 bg-zinc-100 rounded-sm border border-zinc-500/50">
+    
+        <h4 class="leading-10">Filtres de recherche:</h4>
+    
+        <p>Entrez le nom de l'élément recherché dans la zone de recherche. Vous pouvez aussi rechercher par fournisseur en utilisant le préfixe <b>supplier:Nom du founisseur</b>.</p>
+        <p>Il est possible de combiner plusieurs filtres en délimitant les filtres avec " && ".</p>
+        <span class="my-2 block">Les filtres suivants sont disponibles:</span>
+        <ul style="list-style:disc; margin-left: 2rem;">
+            <li>supplier:[Nom du fournisseur]</li>
+            <li>reference:[référence article]</li>
+            <li>manufacturer:[Nom du fabricant]</li>
+            <li>valid:[true/false]</li>
+        </ul>
+    </div>
+{/if}
+
+<Flex class="mt-6">
+    <Input bind:value={filter} placeholder={"Filtre"}/>
+    <Button on:click={() => filterHelp = !filterHelp}>{!filterHelp ? "Aide filtres" : "Masquer aide filtres"}</Button>
+    <a href="/app/lists/{data.list.id}/export"><Button ringColor="ring-emerald-500" hoverColor="hover:bg-emerald-500">Export Excel</Button></a>
+</Flex>
+
 <Table>
     <svelte:fragment slot="head">
         <tr>
-            <th>Éléments</th>
+            <th>Éléments ({data.nomenclature_rows.filter((k) => listRowFilter(k , filter)).length})</th>
             <th>Groupe</th>
             <th>Quantité</th>
             <th>Quantité nécéssaire</th>
+            <th>Validé</th>
         </tr>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
         {#if data.nomenclature_rows.length > 0}
-            {#each data.nomenclature_rows as row}
+            {#each data.nomenclature_rows.filter((k) => listRowFilter(k , filter)) as row}
                 {@const linked_row = data.list_rows.find(k => k.parent_nomenclature_row === row.id)}
+                {@const isValid = row.quantity_required == linked_row?.quantity}
                 <tr>    
-                    <td><a href="/app/articles/{row.expand.child_article.id}" class="font-medium hover:text-violet-500">{row.expand.child_article.name}</a></td>
+                    <td>
+                        <a href="/app/articles/{row.expand.child_article.id}" class="block font-medium hover:text-violet-500">{row.expand.child_article.name}</a>
+                        <span class="text-sm block">{row.expand.child_article.manufacturer}: {row.expand.child_article.reference}</span>
+                        <span class="text-sm">{row.expand.child_article.supplier}</span>
+                    </td>
                     <td>{row.group}</td>
                     <td>
-                        <form action="?/updateRow" method="post">
+                        <form action="?/updateRow" method="post" use:enhance>
                             <Flex gap={2}>
                                 {#if linked_row?.id !== undefined} <input type="hidden" name="id" value={linked_row?.id} /> {/if}
                                 <input type="hidden" name="parent_nomenclature_row" value={row.id} />
@@ -70,6 +160,7 @@
                         
                     </td>
                     <td>{row.quantity_required}</td>
+                    <td><span class="font-semibold" class:text-red-500={!isValid} class:text-emerald-500={isValid}>{isValid ? "Complet" : "Incomplet"}</span></td>
                 </tr>
             {/each}
         {:else}
