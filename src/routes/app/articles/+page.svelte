@@ -34,7 +34,7 @@
 
 <Flex class="mt-8">
     <a href="/app/articles/new"><Button>Ajouter un article</Button></a>
-    <a href="/app/articles/import"><Button>Importer des articles</Button></a>
+    <a href="/app/articles/import"><Button borderColor="border-amber-500" hoverColor="hover:bg-amber-500">Importer des articles</Button></a>
     <Input bind:value={filter} placeholder="Filtre" />
 </Flex>
 

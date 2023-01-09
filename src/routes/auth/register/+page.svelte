@@ -32,7 +32,7 @@
                     <a href="/auth/register">
                         <Button class="w-full ring-gray-600 hover:bg-gray-600">Connexion</Button>
                     </a>
-                    <Button ringColor="ring-blue-500" hoverColor="hover:bg-blue-500">S'inscrire</Button>
+                    <Button borderColor="ring-blue-500" hoverColor="hover:bg-blue-500">S'inscrire</Button>
                 </Grid>
             </Flex>    
         </form>

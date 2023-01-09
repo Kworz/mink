@@ -24,7 +24,7 @@
         <FormInput name="supplier" label="Fournisseur" value={data.article.supplier} />
         <FormInput name="manufacturer" label="Fabricant" value={data.article.manufacturer} />
         
-        <Button class="self-start" ringColor="ring-amber-500" hoverColor="hover:bg-amber-500">Modifier</Button>
+        <Button class="self-start" borderColor="ring-amber-500" hoverColor="hover:bg-amber-500">Modifier</Button>
     </Flex>
 
 </form>
@@ -32,5 +32,5 @@
 <h3 class="leading-10">Zone de danger</h3>
 
 <form action="?/deleteArticle" method="post">
-    <Button ringColor="ring-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>
+    <Button borderColor="ring-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>
 </form>

@@ -32,8 +32,8 @@
             <FormInput label="Description" name="description" value={data.nomenclature.description}/>
 
             <Flex>
-                <Button ringColor="ring-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
-                <Button ringColor="ring-red-500" hoverColor="hover:bg-red-500" on:click={() => editNomenclature = false}>Annuler</Button>
+                <Button borderColor="ring-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
+                <Button borderColor="ring-red-500" hoverColor="hover:bg-red-500" on:click={() => editNomenclature = false}>Annuler</Button>
             </Flex>
         </Flex>
     </form>

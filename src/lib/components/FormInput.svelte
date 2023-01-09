@@ -26,5 +26,5 @@
         </span>
     {/if}
     
-    <input {type} {name} {value} {min} {max} class="ring-2 ring-inset ring-zinc-500 p-2 rounded-md bg-transparent duration-200" class:ring-red-500={invalid} on:change/>
+    <input {type} {name} {value} {min} {max} class="border border-zinc-500/50 p-2 rounded-sm bg-zinc-100 duration-200" class:ring-red-500={invalid} on:change/>
 </Flex>

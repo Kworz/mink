@@ -1,4 +1,4 @@
-import { error, type Actions } from "@sveltejs/kit";
+import { error, type Actions, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "../$types";
 import { Collections, type NomenclatureRowResponse, type ListResponse, type ListRowResponse } from "$lib/DBTypes";
 
@@ -76,6 +76,17 @@ export const actions: Actions = {
         {
             console.log(ex);
             return { error: "Failed to edit list properties" };
+        }
+    },
+    removeList: async ({ params, locals }) => {
+        try
+        {
+            await locals.pb.collection(Collections.List).delete(params.id);
+            throw redirect(303, "/app/lists/");
+        }
+        catch(ex)
+        {
+            return { error: "Failed to delete list" };
         }
     }
 }

@@ -12,17 +12,14 @@
     import Input from "$lib/components/Input.svelte";
     import type { NomenclatureRowResponse } from "$lib/DBTypes";
     import { enhance } from "$app/forms";
-    import { page } from "$app/stores";
 
     export let data: PageData;
     export let form: ActionData;
     
     let editList = false;
-
     let filterHelp = false;
 
     let filter: string = "";
-    
     let nameFilter: string | undefined = undefined;
     let supplierFilter: string | undefined = undefined;
     let manufacturerFilter: string | undefined = undefined;
@@ -30,7 +27,6 @@
     let validFilter: boolean | undefined = undefined;
 
     const computeFilters = () => {
-        
         const filterQueries = filter.split(" && ");
 
         supplierFilter = filterQueries.find(k => k.startsWith("supplier:"))?.replace("supplier:", "");
@@ -38,16 +34,12 @@
         referenceFilter = filterQueries.find(k => k.startsWith("reference:"))?.replace("reference:", "");
 
         const validQuery = filterQueries.find(k => k.startsWith("valid:"))?.replace("valid:", "")
-
         validFilter =  validQuery === undefined ? undefined : validQuery === "true";
 
-        console.log("validFilter", validFilter);
-
         nameFilter = filterQueries.find(k => !k.includes(":"));
-
     }
 
-    const listRowFilter = (nomRow: NomenclatureRowResponse): boolean => {
+    const listRowFilter = (nomRow: NomenclatureRowResponse, filter: string): boolean => {
 
         let result = true;
 
@@ -75,8 +67,19 @@
     }
 
     $: if(form?.success === true && browser) { invalidateAll(); }
-
     $: filter, computeFilters();
+    $: remainingElements = data.nomenclature_rows.filter(row => {
+        const list_row = data.list_rows.find(lr => lr.parent_nomenclature_row == row.id);
+
+        return row.quantity_required === (list_row?.quantity ?? 0)
+
+    }).length;
+
+    $: remainingPrice = data.nomenclature_rows.map(nr => {
+        const list_row_remain = data.list_rows.find(lr => lr.parent_nomenclature_row == nr.id)?.quantity ?? 0;
+
+        return (nr.expand?.child_article.price ?? 0) * (nr.quantity_required - list_row_remain)
+    }).reduce((p, c) => p+c, 0);
 
 </script>
 
@@ -85,14 +88,16 @@
         <Flex direction="col" class="w-1/3">
             <FormInput label="Nom de la liste" labelMandatory={true} name="name" value={data.list.name}/>
             <Flex>
-                <Button ringColor="ring-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
-                <Button ringColor="ring-red-500" hoverColor="hover:bg-red-500" on:click={() => editList = false}>Annuler</Button>
+                <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
+                <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => editList = false}>Annuler</Button>
             </Flex>
         </Flex>
     </form>
 {:else}
     <h2>{data.list.name}</h2>
-    <p>Nomenclature de base: {data.list.expand?.parent_nomenclature.name}</p>
+    <p>Nomenclature de base: <span class="text-violet-500 font-medium"> {data.list.expand?.parent_nomenclature.name}</span>.</p>
+    <p>Montant restant pour terminer la liste: <span class="text-violet-500 font-medium"> {remainingPrice} €</span>.</p>
+    <p>Articles validés: <span class="text-violet-500 font-medium">{remainingElements} / {data.nomenclature_rows.length}</span>.</p>
     <button
         on:click={() => editList = true}
         class="mt-2 text-violet-500 hover:text-blue-500 duration-200"
@@ -105,10 +110,11 @@
 {#if filterHelp}
     <div class="mt-6 p-4 bg-zinc-100 rounded-sm border border-zinc-500/50">
     
-        <h4 class="leading-10">Filtres de recherche:</h4>
+        <h4 class="leading-10">Filtres de recherche</h4>
     
         <p>Entrez le nom de l'élément recherché dans la zone de recherche. Vous pouvez aussi rechercher par fournisseur en utilisant le préfixe <b>supplier:Nom du founisseur</b>.</p>
         <p>Il est possible de combiner plusieurs filtres en délimitant les filtres avec " && ".</p>
+
         <span class="my-2 block">Les filtres suivants sont disponibles:</span>
         <ul style="list-style:disc; margin-left: 2rem;">
             <li>supplier:[Nom du fournisseur]</li>
@@ -122,7 +128,10 @@
 <Flex class="mt-6">
     <Input bind:value={filter} placeholder={"Filtre"}/>
     <Button on:click={() => filterHelp = !filterHelp}>{!filterHelp ? "Aide filtres" : "Masquer aide filtres"}</Button>
-    <a href="/app/lists/{data.list.id}/export"><Button ringColor="ring-emerald-500" hoverColor="hover:bg-emerald-500">Export Excel</Button></a>
+    <a href="/app/lists/{data.list.id}/export"><Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Export Excel</Button></a>
+    <form action="?/removeList" method="post" use:enhance>
+        <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer la liste</Button>
+    </form>
 </Flex>
 
 <Table>
@@ -132,20 +141,22 @@
             <th>Groupe</th>
             <th>Quantité</th>
             <th>Quantité nécéssaire</th>
+            <th>Cout restant</th>
             <th>Validé</th>
         </tr>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
         {#if data.nomenclature_rows.length > 0}
-            {#each data.nomenclature_rows.filter((k) => listRowFilter(k , filter)) as row}
+            {#each data.nomenclature_rows.filter((k) => listRowFilter(k, filter)) as row}
                 {@const linked_row = data.list_rows.find(k => k.parent_nomenclature_row === row.id)}
                 {@const isValid = row.quantity_required == linked_row?.quantity}
+                {@const remainingQuantity = row.quantity_required - (linked_row?.quantity ?? 0)}
                 <tr>    
                     <td>
-                        <a href="/app/articles/{row.expand.child_article.id}" class="block font-medium hover:text-violet-500">{row.expand.child_article.name}</a>
-                        <span class="text-sm block">{row.expand.child_article.manufacturer}: {row.expand.child_article.reference}</span>
-                        <span class="text-sm">{row.expand.child_article.supplier}</span>
+                        <a href="/app/articles/{row.expand?.child_article.id}" class="block font-medium hover:text-violet-500">{row.expand?.child_article.name}</a>
+                        <span class="text-sm block">{row.expand?.child_article.manufacturer}: {row.expand?.child_article.reference}</span>
+                        <span class="text-sm">{row.expand?.child_article.supplier}: {row.expand?.child_article.price} €</span>
                     </td>
                     <td>{row.group}</td>
                     <td>
@@ -160,6 +171,9 @@
                         
                     </td>
                     <td>{row.quantity_required}</td>
+                    <td>
+                        {(remainingQuantity * (row.expand?.child_article.price)) ? remainingQuantity * (row.expand?.child_article.price) : "—"} €
+                    </td>
                     <td><span class="font-semibold" class:text-red-500={!isValid} class:text-emerald-500={isValid}>{isValid ? "Complet" : "Incomplet"}</span></td>
                 </tr>
             {/each}
