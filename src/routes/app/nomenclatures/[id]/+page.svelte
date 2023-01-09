@@ -10,13 +10,15 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import { ExclamationTriangle, Wrench } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
+    import PredictInput from "$lib/components/PredictInput.svelte";
+    import type { ArticleRecord, ArticleResponse } from "$lib/DBTypes";
 
     export let data: PageData;
     export let form: ActionData;
     
-    let expandAddItem = false;
-
     let editNomenclature = false;
+
+    let selectedArticle: ArticleResponse | undefined = undefined;
 
     $: if(form?.success === true && browser) { invalidateAll(); }
 
@@ -47,29 +49,18 @@
     </button>
 {/if}
 
+<form action="?/addItem" method="post" class="mt-8">
+    <Flex>
 
-<div class="mt-8">
-    {#if expandAddItem === true}
-        <form action="?/addItem" method="post">
-            <Flex>
+        <PredictInput articleArray={data.articles} bind:selectedArticle class="self-end"/>
+        <input type="hidden" name="child_article" value={selectedArticle?.id} />
 
-                <select class="py-1 px-2 ring-2 rounded-md ring-zinc-600 self-end" name="child_article">
-                    <!-- TODO: Filter arry to not add item twice -->
-                    {#each data.articles as article}
-                        <option value={article.id}>{article.name}</option>
-                    {/each}
-                </select>
+        <Input label="Quantité nécéssaire" name="quantity_required" labelMandatory={true}/>
+        <Input label="Groupe" name="group" />
 
-                <Input label="Quantité nécéssaire" name="quantity_required" labelMandatory={true}/>
-                <Input label="Groupe" name="group" />
-
-                <Button class="self-end">Ajouter!</Button>
-            </Flex>
-        </form>
-    {:else}
-        <Button on:click={() => expandAddItem = true}>Ajouter un article dans la nomenclature</Button>
-    {/if}
-</div>
+        <Button class="self-end">Ajouter!</Button>
+    </Flex>
+</form>
 
 <Table>
     <svelte:fragment slot="head">
