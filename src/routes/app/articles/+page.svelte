@@ -34,6 +34,7 @@
 
 <Flex class="mt-8">
     <a href="/app/articles/new"><Button>Ajouter un article</Button></a>
+    <a href="/app/articles/import"><Button>Importer des articles</Button></a>
     <Input bind:value={filter} placeholder="Filtre" />
 </Flex>
 
@@ -57,7 +58,7 @@
                 <td>{article.reference}</td>
                 <td>{article.supplier}</td>
                 <td>{article.manufacturer}</td>
-                <td>{article.price}</td>
+                <td>{article.price ?? "—"} €</td>
             </tr>
         {/each}
     </svelte:fragment>
