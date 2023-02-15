@@ -8,16 +8,39 @@
     import type { ActionData, PageData } from "./$types";
 
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { ExclamationTriangle, Wrench } from "@steeze-ui/heroicons";
+    import { Check, ExclamationTriangle, Wrench } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
     import PredictInput from "$lib/components/PredictInput.svelte";
-    import type { ArticleRecord, ArticleResponse } from "$lib/DBTypes";
+    import type { ArticleResponse, NomenclatureRowResponse } from "$lib/DBTypes";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
+    import { enhance } from "$app/forms";
+    import Filter from "$lib/components/filter/Filter.svelte";
+    import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
 
     export let data: PageData;
     export let form: ActionData;
     
     let editNomenclature = false;
+
+    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "group"> = {};
+
+    const listRowFilter = (nomRow: NomenclatureRowResponse, qf: typeof queryFilters): boolean => {
+
+        let result = true;
+
+        if(queryFilters.name !== undefined)
+            result = result && filterCompatible(nomRow.expand?.child_article.name, queryFilters.name);
+        if(queryFilters.reference !== undefined)
+            result = result && filterCompatible(nomRow.expand?.child_article.reference, queryFilters.reference);
+        if(queryFilters.supplier !== undefined)
+            result = result && filterCompatible(nomRow.expand?.child_article.supplier, queryFilters.supplier);
+        if(queryFilters.manufacturer !== undefined)
+            result = result && filterCompatible(nomRow.expand?.child_article.manufacturer, queryFilters.manufacturer);
+        if(queryFilters.group !== undefined)
+            result = result && filterCompatible(nomRow.group, queryFilters.group)
+
+        return result;
+    }
 
     let selectedArticle: ArticleResponse | undefined = undefined;
 
@@ -33,8 +56,8 @@
             <FormInput label="Description" name="description" value={data.nomenclature.description}/>
 
             <Flex>
-                <Button borderColor="ring-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
-                <Button borderColor="ring-red-500" hoverColor="hover:bg-red-500" on:click={() => editNomenclature = false}>Annuler</Button>
+                <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
+                <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => editNomenclature = false}>Annuler</Button>
             </Flex>
         </Flex>
     </form>
@@ -50,19 +73,32 @@
     </button>
 {/if}
 
-<form action="?/addItem" method="post" class="mt-8">
-    <Flex>
-
-        <PredictInput articleArray={data.articles} bind:selectedArticle class="self-end"/>
-        <input type="hidden" name="child_article" value={selectedArticle?.id} />
-
-        <Input label="Quantité nécéssaire" name="quantity_required" labelMandatory={true}/>
-        <Input label="Groupe" name="group" />
-
-        <Button class="self-end">Ajouter!</Button>
+<Flex direction="col" gap={4} class="mt-6">
+    <Flex gap={4} items="end">
+    
+        <form action="?/addItem" method="post" use:enhance>
+            <Flex>
+        
+                <PredictInput articleArray={data.articles} bind:selectedArticle class="self-end"/>
+                <input type="hidden" name="child_article" value={selectedArticle?.id} />
+        
+                <Input label="Quantité nécéssaire" name="quantity_required" labelMandatory={true}/>
+                <Input label="Groupe" name="group" />
+        
+                <Button class="self-end">Ajouter!</Button>
+                
+        
+            </Flex>
+        </form>
+        
+        <form action="?/copyNomenclature" method="post" use:enhance>
+            <Button hoverColor="hover:bg-amber-500" borderColor="border-amber-500">Copier</Button>
+        </form>
     </Flex>
-</form>
 
+    <Filter availableFilters={["name", "manufacturer", "supplier", "reference", "group"]} bind:filterResult={queryFilters}/>
+</Flex>
+ 
 <Table>
     <svelte:fragment slot="head">
         <tr>
@@ -75,13 +111,25 @@
 
     <svelte:fragment slot="body">
         {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
-            {#each data.nomenclature.expand['nomenclature_row(parent_nomenclature)'] as row}
+            {#each data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].filter(k => listRowFilter(k, queryFilters)) as row}
                 <tr>    
                     <td>
                         <ArticleRow article={row.expand?.child_article} />
                     </td>
-                    <td>{row.group}</td>
-                    <td>{row.quantity_required}</td>
+                    <td>
+                        <form action="?/editItem" method="post" use:enhance>
+                            <input type="hidden" id="row_id" value={row.id} name="row_id"/>
+                            <input type="text" bind:value={row.group} name="group"  class="p-1 rounded-md"/>
+                            <Button><Icon src={Check} class="h-4 w-4"/></Button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="?/editItem" method="post" use:enhance>
+                            <input type="hidden" id="row_id" value={row.id} name="row_id"/>
+                            <input type="number" bind:value={row.quantity_required} name="quantity_required"  class="p-1 rounded-md"/>
+                            <Button><Icon src={Check} class="h-4 w-4"/></Button>
+                        </form>
+                    </td>
                     <td>
                         <form action="?/deleteItem" method="post">
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>

@@ -26,8 +26,6 @@ export const actions: Actions = {
             if(email !== undefined && password !== undefined)
             {
                 await locals.pb.collection('users').authWithPassword(email, password);
-
-                console.log(locals.user);
             }
             else
             {
@@ -35,7 +33,6 @@ export const actions: Actions = {
                     error: "Failed to login with given data"
                 }
             }
-
         }
         catch(ex)
         {

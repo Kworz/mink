@@ -9,59 +9,41 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import { ExclamationTriangle, Wrench, Check } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
-    import Input from "$lib/components/Input.svelte";
     import type { NomenclatureRowResponse } from "$lib/DBTypes";
     import { enhance } from "$app/forms";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
+    import Filter from "$lib/components/filter/Filter.svelte";
+    import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
 
     export let data: PageData;
     export let form: ActionData;
     
     let editList = false;
-    let filterHelp = false;
     let confirmDelete = false;
 
-    let filter: string = "";
-    let nameFilter: string | undefined = undefined;
-    let supplierFilter: string | undefined = undefined;
-    let manufacturerFilter: string | undefined = undefined;
-    let referenceFilter: string | undefined = undefined;
-    let validFilter: boolean | undefined = undefined;
+    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "valid"> = {};
 
-    const computeFilters = () => {
-        const filterQueries = filter.split(" && ");
-
-        supplierFilter = filterQueries.find(k => k.startsWith("supplier:"))?.replace("supplier:", "");
-        manufacturerFilter = filterQueries.find(k => k.startsWith("manufacturer:"))?.replace("manufacturer:", "");
-        referenceFilter = filterQueries.find(k => k.startsWith("reference:"))?.replace("reference:", "");
-
-        const validQuery = filterQueries.find(k => k.startsWith("valid:"))?.replace("valid:", "")
-        validFilter =  validQuery === undefined ? undefined : validQuery === "true";
-
-        nameFilter = filterQueries.find(k => !k.includes(":"));
-    }
-
-    const listRowFilter = (nomRow: NomenclatureRowResponse, filter: string): boolean => {
+    const listRowFilter = (nomRow: NomenclatureRowResponse, qf: typeof queryFilters): boolean => {
 
         let result = true;
 
-        if(nameFilter)
-            result = result && nomRow.expand?.child_article.name.toLowerCase().includes(nameFilter.toLowerCase())
-        if(referenceFilter)
-            result = result && nomRow.expand?.child_article.reference.toLowerCase().includes(referenceFilter.toLowerCase());
-        if(supplierFilter)
-            result = result && nomRow.expand?.child_article.supplier.toLowerCase().includes(supplierFilter.toLowerCase());
-        if(manufacturerFilter)
-            result = result && nomRow.expand?.child_article.manufacturer.toLowerCase().includes(manufacturerFilter.toLowerCase());
+        if(queryFilters.name !== undefined)
+            result = result && filterCompatible(nomRow.expand?.child_article.name, queryFilters.name);
+        if(queryFilters.reference !== undefined)
+            result = result && filterCompatible(nomRow.expand?.child_article.reference, queryFilters.reference);
+        if(queryFilters.supplier !== undefined)
+            result = result && filterCompatible(nomRow.expand?.child_article.supplier, queryFilters.supplier);
+        if(queryFilters.manufacturer !== undefined)
+            result = result && filterCompatible(nomRow.expand?.child_article.manufacturer, queryFilters.manufacturer);
 
-        if(validFilter !== undefined)
+        if(queryFilters.valid !== undefined)
         {
             const list_row_reference = data.list_rows.find(listRow => listRow.parent_nomenclature_row === nomRow.id);
             const isRowValid = nomRow.quantity_required === (list_row_reference?.quantity ?? 0);
 
-            if(validFilter === true)
+            if(queryFilters.valid === "true")
                 result = result && isRowValid;
-            else
+            else if(queryFilters.valid === "false")
                 result = result && !isRowValid;
         }
 
@@ -70,7 +52,6 @@
 
     $: if(form?.success === true && browser) { invalidateAll(); }
     
-    $: filter, computeFilters();
     $: remainingElements = data.nomenclature_rows.filter(row => {
         const list_row = data.list_rows.find(lr => lr.parent_nomenclature_row == row.id);
 
@@ -112,45 +93,30 @@
     </button>
 {/if}
 
-{#if filterHelp}
-    <div class="mt-6 p-4 bg-zinc-100 rounded-sm border border-zinc-500/50">
-    
-        <h4 class="leading-10">Filtres de recherche</h4>
-    
-        <p>Entrez le nom de l'élément recherché dans la zone de recherche. Vous pouvez aussi rechercher par fournisseur en utilisant le préfixe <b>supplier:Nom du founisseur</b>.</p>
-        <p>Il est possible de combiner plusieurs filtres en délimitant les filtres avec " && ".</p>
+<Flex items="end">
 
-        <span class="my-2 block">Les filtres suivants sont disponibles:</span>
-        <ul style="list-style:disc; margin-left: 2rem;">
-            <li>supplier:[Nom du fournisseur]</li>
-            <li>reference:[référence article]</li>
-            <li>manufacturer:[Nom du fabricant]</li>
-            <li>valid:[true/false]</li>
-        </ul>
-    </div>
-{/if}
+    <Filter availableFilters={["name", "manufacturer", "supplier", "reference", "valid"]} bind:filterResult={queryFilters}/>
 
-<Flex class="mt-6">
-    <Input bind:value={filter} placeholder={"Filtre"}/>
-    <Button on:click={() => filterHelp = !filterHelp}>{!filterHelp ? "Aide filtres" : "Masquer aide filtres"}</Button>
-    <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500" on:click={() => {
-        window.open(`/app/lists/${data.list.id}/export/`, '_blank')?.focus();
-    }}>
-        Export Excel
-    </Button>
-    {#if confirmDelete}
-        <form action="?/removeList" method="post" use:enhance>
-            <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Etes vous sur ?</Button>
-        </form>
-    {:else}
-        <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => confirmDelete = true}>Supprimer la liste</Button>
-    {/if}
+    <Flex class="mt-6">
+        <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500" on:click={() => {
+            window.open(`/app/lists/${data.list.id}/export/`, '_blank')?.focus();
+        }}>
+            Export Excel
+        </Button>
+        {#if confirmDelete}
+            <form action="?/removeList" method="post" use:enhance>
+                <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Etes vous sur ?</Button>
+            </form>
+        {:else}
+            <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => confirmDelete = true}>Supprimer la liste</Button>
+        {/if}
+    </Flex>
 </Flex>
 
 <Table>
     <svelte:fragment slot="head">
         <tr>
-            <th>Éléments ({data.nomenclature_rows.filter((k) => listRowFilter(k , filter)).length})</th>
+            <th>Éléments ({data.nomenclature_rows.filter((k) => listRowFilter(k , queryFilters)).length})</th>
             <th>Groupe</th>
             <th>Quantité</th>
             <th>Quantité nécéssaire</th>
@@ -161,7 +127,7 @@
 
     <svelte:fragment slot="body">
         {#if data.nomenclature_rows.length > 0}
-            {#each data.nomenclature_rows.filter((k) => listRowFilter(k, filter)) as row}
+            {#each data.nomenclature_rows.filter((k) => listRowFilter(k, queryFilters)) as row}
             
                 {@const linked_row = data.list_rows.find(k => k.parent_nomenclature_row === row.id)}
                 {@const isValid = row.quantity_required == linked_row?.quantity}
