@@ -49,7 +49,7 @@
         <h3 class="capitalize">{$page.data.user?.username}</h3>
         <p class="text-sm">{$page.data.user?.created}</p>
         <a href="/auth/logout" class="mt-4 block" data-sveltekit-preload-data="off">
-          <Button>Se déconnecter</Button>
+          <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Se déconnecter</Button>
         </a>
       </div>
 

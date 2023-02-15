@@ -24,17 +24,20 @@
         <FormInput name="supplier" label="Fournisseur" value={data.article.supplier} />
         <FormInput name="manufacturer" label="Fabricant" value={data.article.manufacturer} />
         
-        <Button class="self-start" borderColor="ring-amber-500" hoverColor="hover:bg-amber-500">Modifier</Button>
+        <Button class="self-start" borderColor="border-amber-500" hoverColor="hover:bg-amber-500">Modifier</Button>
     </Flex>
 
 </form>
 
 <h3 class="leading-10">Zone de danger</h3>
 
-<form action="?/deleteArticle" method="post">
-    <Button borderColor="ring-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>
-</form>
+<Flex gap={4}>
+    <form action="?/deleteArticle" method="post">
+        <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>
+    </form>
+    
+    <form action="?/copyArticle" method="post">
+        <Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Copier l'article</Button>
+    </form>
+</Flex>
 
-<form action="?/copyArticle" method="post">
-    <Button borderColor="ring-amber-500" hoverColor="hover:bg-amber-500">Copier l'article</Button>
-</form>
