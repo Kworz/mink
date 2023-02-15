@@ -1,31 +1,31 @@
 <script lang="ts">
     import Button from "$lib/components/Button.svelte";
-    import Input from "$lib/components/Input.svelte";
+    import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
+    import Filter from "$lib/components/filter/Filter.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Table from "$lib/components/Table.svelte";
-    import type { Record } from "pocketbase";
+    import type { ArticleResponse } from "$lib/DBTypes";
 
     import type { PageData } from "./$types";
     export let data: PageData;
 
-    let filter = "";
+    let filterQuery: FilterQueryResult<"name" | "manufacturer" | "supplier" | "reference"> = {};
 
-    const filterFn = (k: Record, filterString: string): boolean => {
+    const filterFn = (article: ArticleResponse, filterQ: typeof filterQuery): boolean => {
 
-        if(filterString.startsWith("reference:"))
-        {
-            const referenceToFind = filterString.replace("reference:", "");
-            return k.reference.includes(referenceToFind);
-        }
+        let result = true;
 
-        if(filterString.startsWith("supplier:"))
-        {
-            const supplierToFind = filterString.replace("supplier:", "");
-            return k.supplier.includes(supplierToFind);
-        }
+        if(filterQuery.name !== undefined)
+            result = result && filterCompatible(article.name, filterQuery.name)
+        if(filterQuery.manufacturer !== undefined && article.manufacturer !== undefined)
+            result = result && filterCompatible(article.manufacturer, filterQuery.manufacturer)
+        if(filterQuery.reference !== undefined && article.reference !== undefined)
+            result = result && filterCompatible(article.reference, filterQuery.reference)
+        if(filterQuery.supplier !== undefined && article.supplier !== undefined)
+            result = result && filterCompatible(article.supplier, filterQuery.supplier)
 
-        return k.name.includes(filterString);
-    };
+        return result;
+    }
 
 </script>
 
@@ -33,9 +33,9 @@
 <p>Liste des articles disponible dans la base.</p>
 
 <Flex class="mt-8">
+    <Filter availableFilters={["name", "manufacturer", "supplier", "reference"]} bind:filterResult={filterQuery} />
     <a href="/app/articles/new"><Button>Ajouter un article</Button></a>
-    <a href="/app/articles/import"><Button borderColor="border-amber-500" hoverColor="hover:bg-amber-500">Importer des articles</Button></a>
-    <Input bind:value={filter} placeholder="Filtre" />
+    <a href="/app/articles/import"><Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Importer des articles</Button></a>
 </Flex>
 
 <Table>
@@ -51,7 +51,7 @@
     </svelte:fragment>
 
     <svelte:fragment slot="body">
-        {#each data.articles.filter((k) => filterFn(k, filter)) as article (article.id)}
+        {#each data.articles.filter((k) => filterFn(k, filterQuery)) as article (article.id)}
             <tr>
                 <td><a href="/app/articles/{article.id}" class="font-medium hover:text-violet-500 duration-100">{article.name}</a></td>
                 <td>{article.quantity}</td>
