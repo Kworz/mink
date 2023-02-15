@@ -47,5 +47,20 @@ export const actions: Actions = {
             console.log(ex);
             return { error: "Failed to update object" };
         }
+    },
+
+    copyArticle: async ({ params, locals }) => {
+        try
+        {
+            const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
+            const newArticle = await locals.pb.collection(Collections.Article).create({...article, id: undefined });
+
+            throw redirect(303, "/app/articles/" + newArticle.id);
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return { error: "Failed to copyt article" };
+        }
     }
 }

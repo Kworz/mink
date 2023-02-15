@@ -34,3 +34,7 @@
 <form action="?/deleteArticle" method="post">
     <Button borderColor="ring-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>
 </form>
+
+<form action="?/copyArticle" method="post">
+    <Button borderColor="ring-amber-500" hoverColor="hover:bg-amber-500">Copier l'article</Button>
+</form>
