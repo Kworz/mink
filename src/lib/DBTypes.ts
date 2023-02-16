@@ -4,6 +4,7 @@
 
 export enum Collections {
 	Article = "article",
+	ArticleMovements = "article_movements",
 	List = "list",
 	ListRow = "list_row",
 	Nomenclature = "nomenclature",
@@ -14,23 +15,24 @@ export enum Collections {
 // Alias types for improved usability
 export type IsoDateString = string
 export type RecordIdString = string
+export type HTMLString = string
 
 // System fields
-export type BaseSystemFields = {
+export type BaseSystemFields<T = never> = {
 	id: RecordIdString
 	created: IsoDateString
 	updated: IsoDateString
 	collectionId: string
 	collectionName: Collections
-	expand?: { [key: string]: any }
+	expand?: T
 }
 
-export type AuthSystemFields = {
+export type AuthSystemFields<T = never> = {
 	email: string
 	emailVisibility: boolean
 	username: string
 	verified: boolean
-} & BaseSystemFields
+} & BaseSystemFields<T>
 
 // Record types for each collection
 
@@ -44,6 +46,12 @@ export type ArticleRecord = {
 	attached_files?: string[]
 }
 
+export type ArticleMovementsRecord = {
+	article: RecordIdString
+	quantity_update: number
+	reason?: string
+}
+
 export type ListRecord = {
 	name: string
 	parent_nomenclature: RecordIdString
@@ -52,7 +60,7 @@ export type ListRecord = {
 export type ListRowRecord = {
 	parent_list: RecordIdString
 	parent_nomenclature_row: RecordIdString
-	quantity: number
+	quantity?: number
 }
 
 export type NomenclatureRecord = {
@@ -67,18 +75,22 @@ export type NomenclatureRowRecord = {
 	group?: string
 }
 
-export type UsersRecord = Record<string, never>
+export type UsersRecord = {
+
+}
 
 // Response types include system fields and match responses from the PocketBase API
 export type ArticleResponse = ArticleRecord & BaseSystemFields
-export type ListResponse = ListRecord & BaseSystemFields
-export type ListRowResponse = ListRowRecord & BaseSystemFields
+export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
+export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texpand>
+export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
 export type NomenclatureResponse = NomenclatureRecord & BaseSystemFields
-export type NomenclatureRowResponse = NomenclatureRowRecord & BaseSystemFields
+export type NomenclatureRowResponse<Texpand = unknown> = NomenclatureRowRecord & BaseSystemFields<Texpand>
 export type UsersResponse = UsersRecord & AuthSystemFields
 
 export type CollectionRecords = {
 	article: ArticleRecord
+	article_movements: ArticleMovementsRecord
 	list: ListRecord
 	list_row: ListRowRecord
 	nomenclature: NomenclatureRecord

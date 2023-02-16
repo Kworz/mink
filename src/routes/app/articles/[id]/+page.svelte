@@ -6,6 +6,7 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Grid from "$lib/components/layout/grid.svelte";
+    import Table from "$lib/components/Table.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import type { ActionData, PageData } from "./$types";
 
@@ -19,7 +20,7 @@
 <h2>{data.article.name}</h2>
 <p>Editez l'article en utilisant le formulaire ci dessous</p>
 
-<Grid cols={2} gap={8} class="mt-6">
+<Grid cols={2} gap={8} class="my-6">
 
     <Wrapper>
         {#if form?.error} <p class="text-red-500">{form.error}</p> {/if}
@@ -74,4 +75,41 @@
     </div>
 </Grid>
 
+{#if data.articleMovements.length > 0}
+    <h3>Historique movement article</h3>
+    <Table>
+        <svelte:fragment slot="head">
+            <tr>
+                <th>Movement quantité</th>
+                <th>Date</th>
+                <th>Raison</th>
+            </tr>
+        </svelte:fragment>
 
+        <svelte:fragment slot="body">
+            {#each data.articleMovements as movement}
+                <tr>    
+                    <td>{movement.quantity_update}</td>
+                    <td>{movement.created}</td>
+                    <td>{movement.reason ?? "—"}</td>
+                </tr>
+            {/each}
+        </svelte:fragment>
+    </Table>
+{/if}
+
+<style>
+
+    th {
+        @apply p-4 border-b border-b-violet-500/75 text-left;
+    }
+
+    td {
+
+        @apply p-4 border-b border-b-violet-500/25;
+    }
+
+    tr:last-child > td{
+        @apply border-0;
+    }
+</style>

@@ -1,6 +1,6 @@
 import { redirect, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "../$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, ArticleMovementsResponse, type ArticleMovementsRecord } from "$lib/DBTypes";
 
 export const load = (async ({ params, locals }) => {
 
@@ -8,14 +8,18 @@ export const load = (async ({ params, locals }) => {
     {
         const itemId = params.id;
         const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(itemId);
+        const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse>(undefined, { filter: `article="${itemId}"`, sort: "-created" });
         const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();
     
         return {
             article: structuredClone(article),
+            articleMovements: structuredClone(articleMovements),
             nomenclatures: structuredClone(nomenclatures)
         }
-    }catch(ex) 
+    }
+    catch(ex) 
     {
+        console.log(ex);
         throw redirect(303, "/app/articles");
     }
 
@@ -39,8 +43,18 @@ export const actions: Actions = {
     editArticle: async ({ params, request, locals }) => {
         try
         {
+            if(params.id === undefined)
+                throw "params id not given";
+            
             const form = await request.formData();
-            await locals.pb.collection(Collections.Article).update(params.id, form);
+            const oldArticle = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
+            const newArticle = await locals.pb.collection(Collections.Article).update<ArticleResponse>(params.id, form);
+
+            if(oldArticle.quantity !== newArticle.quantity)
+            {
+                const articleMovement: ArticleMovementsRecord = { article: params.id, quantity_update: (Number(newArticle.quantity) - Number(oldArticle.quantity)), reason: "Article update"} 
+                await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
+            }
 
             return { success: "Updated object successfully" };
         }
