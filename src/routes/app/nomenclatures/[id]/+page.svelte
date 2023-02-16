@@ -5,7 +5,7 @@
     import Input from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Table from "$lib/components/Table.svelte";
-    import type { ActionData, PageData } from "./$types";
+    import type { ActionData, PageData, Snapshot } from "./$types";
 
     import { Icon } from "@steeze-ui/svelte-icon";
     import { Check, ExclamationTriangle, Wrench } from "@steeze-ui/heroicons";
@@ -22,6 +22,7 @@
     
     let editNomenclature = false;
 
+    let currentFilter = "";
     let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "group"> = {};
 
     const listRowFilter = (nomRow: NomenclatureRowResponse, qf: typeof queryFilters): boolean => {
@@ -44,12 +45,18 @@
 
     let selectedArticle: ArticleResponse | undefined = undefined;
 
+    // Save filter
+    export const snapshot: Snapshot<string> = {
+        capture: () => currentFilter,
+        restore: (value) => (currentFilter = value)
+    }
+
     $: if(form?.success === true && browser) { invalidateAll(); }
 
 </script>
 
 {#if editNomenclature}
-    <form action="?/editNomenclature" method="post">
+    <form action="?/editNomenclature" method="post" use:enhance>
 
         <Flex direction="col" class="w-1/3">
             <FormInput label="Nom de la nomenclature" labelMandatory={true} name="name" value={data.nomenclature.name}/>
@@ -78,7 +85,6 @@
     
         <form action="?/addItem" method="post" use:enhance>
             <Flex>
-        
                 <PredictInput articleArray={data.articles} bind:selectedArticle class="self-end"/>
                 <input type="hidden" name="child_article" value={selectedArticle?.id} />
         
@@ -86,8 +92,6 @@
                 <Input label="Groupe" name="group" />
         
                 <Button class="self-end">Ajouter!</Button>
-                
-        
             </Flex>
         </form>
         
@@ -96,13 +100,18 @@
         </form>
     </Flex>
 
-    <Filter availableFilters={["name", "manufacturer", "supplier", "reference", "group"]} bind:filterResult={queryFilters}/>
+    <Filter bind:filter={currentFilter} availableFilters={["name", "manufacturer", "supplier", "reference", "group"]} bind:filterResult={queryFilters}/>
 </Flex>
  
 <Table>
     <svelte:fragment slot="head">
         <tr>
-            <th>Éléments</th>
+            <th>
+                Éléments
+                {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
+                    ({data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].filter(k => listRowFilter(k, queryFilters)).length})
+                {/if} 
+            </th>
             <th>Groupe</th>
             <th>Quantité nécéssaire</th>
             <th>Supprimer</th>
@@ -119,21 +128,26 @@
                     <td>
                         <form action="?/editItem" method="post" use:enhance>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
-                            <input type="text" bind:value={row.group} name="group"  class="p-1 rounded-md"/>
-                            <Button><Icon src={Check} class="h-4 w-4"/></Button>
+                            <Flex>
+                                <FormInput type="text" name="group" bind:value={row.group} inputClass="bg-white" />
+                                <Button><Icon src={Check} class="h-4 w-4"/></Button>
+                            </Flex>
+                            
                         </form>
                     </td>
                     <td>
                         <form action="?/editItem" method="post" use:enhance>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
-                            <input type="number" bind:value={row.quantity_required} name="quantity_required"  class="p-1 rounded-md"/>
-                            <Button><Icon src={Check} class="h-4 w-4"/></Button>
+                            <Flex>
+                                <FormInput type="number" name="quantity_required" bind:value={row.quantity_required} inputClass="bg-white" />
+                                <Button><Icon src={Check} class="h-4 w-4"/></Button>
+                            </Flex>
                         </form>
                     </td>
                     <td>
-                        <form action="?/deleteItem" method="post">
+                        <form action="?/deleteItem" method="post" use:enhance>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
-                            <Button>Supprimer</Button>
+                            <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer</Button>
                         </form>
                     </td>
                 </tr>
