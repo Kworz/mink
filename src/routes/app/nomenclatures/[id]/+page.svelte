@@ -129,7 +129,7 @@
                         <form action="?/editItem" method="post" use:enhance>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
                             <Flex>
-                                <FormInput type="text" name="group" bind:value={row.group} inputClass="bg-white" />
+                                <FormInput type="text" name="group" bind:value={row.group} backgroundColor="bg-white" />
                                 <Button><Icon src={Check} class="h-4 w-4"/></Button>
                             </Flex>
                             
@@ -139,7 +139,7 @@
                         <form action="?/editItem" method="post" use:enhance>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
                             <Flex>
-                                <FormInput type="number" name="quantity_required" bind:value={row.quantity_required} inputClass="bg-white" />
+                                <FormInput type="number" name="quantity_required" bind:value={row.quantity_required} backgroundColor="bg-white" />
                                 <Button><Icon src={Check} class="h-4 w-4"/></Button>
                             </Flex>
                         </form>
