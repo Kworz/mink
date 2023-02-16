@@ -5,8 +5,8 @@
     import { filterQuery, type FilterQueryResult } from "./filter";
 
     let filterHelp = false;
-    let filter: string = "";
-
+    
+    export let filter: string = "";
     export let availableFilters: Array<string>;
     export let filterResult: FilterQueryResult<typeof availableFilters[number]>;
 
@@ -23,6 +23,7 @@
             <p>Entrez le nom de l'élément recherché dans la zone de recherche. Vous pouvez aussi rechercher par fournisseur en utilisant le préfixe <em>supplier:Nom du founisseur</em>.</p>
             <p>Il est possible de combiner plusieurs filtres en délimitant les filtres avec <em>" && "</em>.</p>
             <p>Il est aussi possible d'utiliser un filtre plusieurs fois. ex: <em>supplier:x && supplier:y</em></p>
+            <p>Vous pouvez aussi utiliser un point d'exclamation en guise de d'inversion du filtre<em>!</em>.</p>
 
             <span class="my-2 block">Les filtres suivants sont disponibles:</span>
             <ul style="list-style:disc; margin-left: 2rem;">

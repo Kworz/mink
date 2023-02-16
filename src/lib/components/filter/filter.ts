@@ -46,7 +46,17 @@ export function filterQuery<T extends string>(query: string, availableFilters: T
 export function filterCompatible(value: string, filter: string[] | string | undefined): boolean
 {
     if(filter === undefined) return false;
-    else if(typeof filter === "string") return value.toLowerCase().includes(filter.toLowerCase());
-    else if(Array.isArray(filter)) return filter.map(k => value.toLowerCase().includes(k.toLowerCase())).reduce((p, c) => p || c, false);
+    else if(typeof filter === "string")
+    {
+        const negativeFilter = filter.startsWith("!");
+        const filter2 = negativeFilter ? filter.replace("!", "") : filter;
+        const result = value.toLowerCase().includes(filter2.toLowerCase());
+        
+        return negativeFilter ? !result : result;
+    } 
+    else if(Array.isArray(filter))
+    { 
+        return filter.map(k => filterCompatible(value.toLowerCase(), k.toLowerCase())).reduce((p, c) => p || c, false);
+    }
     else return false;
 }
