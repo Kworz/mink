@@ -24,14 +24,13 @@ export const actions: Actions = {
         try
         {
             await locals.pb.collection("article").delete(params.id);
-
-            throw redirect(303, "/app/articles");
         }
         catch(ex)
         {
             return { error: "Failed to delete item" };
         }
 
+        throw redirect(303, "/app/articles");
     },
     
     editArticle: async ({ params, request, locals }) => {
@@ -50,17 +49,20 @@ export const actions: Actions = {
     },
 
     copyArticle: async ({ params, locals }) => {
+
+        let newArticle = undefined;
+
         try
         {
             const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
-            const newArticle = await locals.pb.collection(Collections.Article).create({...article, id: undefined });
-
-            throw redirect(303, "/app/articles/" + newArticle.id);
+            newArticle = await locals.pb.collection(Collections.Article).create({...article, id: undefined, name: article.name + " - Copy" });
         }
         catch(ex)
         {
             console.log(ex);
             return { error: "Failed to copyt article" };
         }
+
+        throw redirect(303, "/app/articles/" + newArticle.id);
     }
 }

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { browser } from "$app/environment";
+    import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
@@ -15,7 +16,7 @@
 
 <h2 class="leading-10">{data.article.name}</h2>
 
-<form action="?/editArticle" method="post">
+<form action="?/editArticle" method="post" use:enhance>
 
     <Flex direction="col" gap={2} class="w-1/3 my-4">
         <FormInput name="name" label="Nom de l'article" labelMandatory={true} value={data.article.name} />
@@ -32,11 +33,11 @@
 <h3 class="leading-10">Zone de danger</h3>
 
 <Flex gap={4}>
-    <form action="?/deleteArticle" method="post">
+    <form action="?/deleteArticle" method="post" use:enhance>
         <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>
     </form>
     
-    <form action="?/copyArticle" method="post">
+    <form action="?/copyArticle" method="post" use:enhance>
         <Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Copier l'article</Button>
     </form>
 </Flex>
