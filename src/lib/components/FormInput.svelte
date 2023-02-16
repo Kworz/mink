@@ -1,7 +1,7 @@
 <script lang="ts">
     import Flex from "./layout/flex.svelte";
 
-    export let type: "number" | "text" | "password" | "email" | "file" = "text";
+    export let type: "number" | "text" | "password" | "email" | "file" | "select" = "text";
     export let name: string;
 
     export let label: string | undefined = undefined;
@@ -16,6 +16,10 @@
 
     export let backgroundColor = "bg-zinc-100";
 
+    function typeAction(node: HTMLInputElement) {
+        node.type = type;
+    }
+
 </script>
 
 <Flex gap={1} direction="col">
@@ -27,6 +31,13 @@
             {/if}
         </span>
     {/if}
+
+    {#if type !== "select"}
+        <input use:typeAction {name} bind:value {min} {max} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change/>
+    {:else}
+        <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change>
+            <slot />
+        </select>
+    {/if}
     
-    <input {type} {name} {value} {min} {max} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change/>
 </Flex>
