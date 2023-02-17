@@ -13,6 +13,7 @@
 
     export let min: number | null | undefined = undefined;
     export let max: number | null | undefined = undefined;
+    export let step: number | null | undefined = undefined;
 
     export let backgroundColor = "bg-zinc-100";
 
@@ -33,7 +34,7 @@
     {/if}
 
     {#if type !== "select"}
-        <input use:typeAction {name} bind:value {min} {max} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change/>
+        <input use:typeAction {name} bind:value {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change/>
     {:else}
         <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change>
             <slot />

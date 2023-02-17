@@ -1,5 +1,6 @@
 <script lang="ts">
-    import Button from "../Button.svelte";
+    import { QuestionMarkCircle } from "@steeze-ui/heroicons";
+    import { Icon } from "@steeze-ui/svelte-icon";
     import Input from "../Input.svelte";
     import Flex from "../layout/flex.svelte";
     import { filterQuery, type FilterQueryResult } from "./filter";
@@ -11,7 +12,6 @@
     export let filterResult: FilterQueryResult<typeof availableFilters[number]>;
 
     $: filterResult = filterQuery(filter, availableFilters);
-
 </script>
 
 <div>
@@ -35,8 +35,11 @@
     {/if}
 
     <Flex>
-        <Input bind:value={filter} placeholder={"Filtre"}/>
-        <Button on:click={() => filterHelp = !filterHelp}>{!filterHelp ? "Aide filtres" : "Masquer aide filtres"}</Button>
+        <Input bind:value={filter} placeholder={"Filtre"}>
+            <button on:click={() => filterHelp = !filterHelp}>
+                <Icon src={QuestionMarkCircle} class="h-6 w-6 m-2 text-violet-500 hover:text-violet-500/75 duration-300 inline-block" alt="" />
+            </button>
+        </Input>
     </Flex>
 
 </div>
