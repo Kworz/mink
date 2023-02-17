@@ -48,6 +48,7 @@ export type ArticleRecord = {
 
 export type ArticleMovementsRecord = {
 	article: RecordIdString
+	user: RecordIdString
 	quantity_update: number
 	reason?: string
 }

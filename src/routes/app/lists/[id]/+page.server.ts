@@ -56,11 +56,15 @@ export const actions: Actions = {
             if(listID === undefined)
                 throw "List id undefined";
 
+            if(locals.user?.id === undefined)
+                throw "User not authed";
+
             const list = await locals.pb.collection(Collections.List).getOne<ListResponse>(listID);
             const parentNomenclatureRow = await locals.pb.collection(Collections.NomenclatureRow).getOne<NomenclatureRowResponse>(parentNomenclatureRowID.toString());
 
             const articleMovement: ArticleMovementsRecord = {
                 article: parentNomenclatureRow.child_article,
+                user: locals.user.id,
                 quantity_update: 0,
                 reason: `Ajout a la liste: ${list.name}.`
             } 

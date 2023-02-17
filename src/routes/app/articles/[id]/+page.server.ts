@@ -1,6 +1,6 @@
 import { redirect, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "../$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, ArticleMovementsResponse, type ArticleMovementsRecord } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse } from "$lib/DBTypes";
 
 export const load = (async ({ params, locals }) => {
 
@@ -8,7 +8,7 @@ export const load = (async ({ params, locals }) => {
     {
         const itemId = params.id;
         const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(itemId);
-        const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse>(undefined, { filter: `article="${itemId}"`, sort: "-created" });
+        const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{"user": UsersResponse}>>(undefined, { filter: `article="${itemId}"`, sort: "-created", expand: "user" });
         const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();
     
         return {
@@ -30,6 +30,9 @@ export const actions: Actions = {
     deleteArticle: async ({ params, locals }) => {
         try
         {
+            if(params.id === undefined)
+                throw "Id not given";
+            
             await locals.pb.collection("article").delete(params.id);
         }
         catch(ex)
@@ -45,6 +48,9 @@ export const actions: Actions = {
         {
             if(params.id === undefined)
                 throw "params id not given";
+
+            if(locals.user?.id === undefined)
+                throw "user not authed";
             
             const form = await request.formData();
             const oldArticle = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
@@ -52,7 +58,7 @@ export const actions: Actions = {
 
             if(oldArticle.quantity !== newArticle.quantity)
             {
-                const articleMovement: ArticleMovementsRecord = { article: params.id, quantity_update: (Number(newArticle.quantity) - Number(oldArticle.quantity)), reason: "Article update"} 
+                const articleMovement: ArticleMovementsRecord = { article: params.id, user: locals.user.id, quantity_update: (Number(newArticle.quantity) - Number(oldArticle.quantity)), reason: "Article update"} 
                 await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
             }
 
@@ -71,6 +77,10 @@ export const actions: Actions = {
 
         try
         {
+
+            if(params.id === undefined)
+                throw "Article id undefined";
+
             const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
             newArticle = await locals.pb.collection(Collections.Article).create({...article, id: undefined, name: article.name + " - Copy" });
 

@@ -8,6 +8,7 @@
     import Flex from "$lib/components/layout/flex.svelte";
     import Grid from "$lib/components/layout/grid.svelte";
     import Table from "$lib/components/Table.svelte";
+    import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import type { ActionData, PageData } from "./$types";
 
@@ -86,8 +87,9 @@
         <svelte:fragment slot="head">
             <tr>
                 <th>Movement quantité</th>
-                <th>Date</th>
                 <th>Raison</th>
+                <th>Utilisateur</th>
+                <th>Date</th>
             </tr>
         </svelte:fragment>
 
@@ -96,6 +98,13 @@
                 <tr>    
                     <td>{movement.quantity_update}</td>
                     <td>{movement.created}</td>
+                    <td>
+                        {#if movement.expand?.user !== undefined}
+                            <User user={movement.expand.user} />
+                        {:else}
+                            —
+                        {/if}
+                    </td>
                     <td>{movement.reason ?? "—"}</td>
                 </tr>
             {/each}
