@@ -1,6 +1,6 @@
 import { redirect, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "../$types";
-import { Collections, type NomenclatureResponse, type ArticleResponse, NomenclatureRecord, type ListRowRecord } from "$lib/DBTypes";
+import { Collections, type NomenclatureResponse, type ListRowRecord } from "$lib/DBTypes";
 
 export const load = (async ({ params, locals }) => {
 
@@ -9,11 +9,8 @@ export const load = (async ({ params, locals }) => {
             expand: `nomenclature_row(parent_nomenclature).child_article`
         });
 
-        const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponse>();
-
         return {
             nomenclature: structuredClone(nomenclature),
-            articles: structuredClone(articles),
         }
     }
     catch(ex)

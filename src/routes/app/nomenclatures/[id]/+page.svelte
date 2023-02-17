@@ -2,7 +2,6 @@
     import { browser } from "$app/environment";
     import { invalidateAll } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
-    import Input from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Table from "$lib/components/Table.svelte";
     import type { ActionData, PageData, Snapshot } from "./$types";
@@ -10,8 +9,7 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import { Check, ExclamationTriangle, Wrench } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
-    import PredictInput from "$lib/components/PredictInput.svelte";
-    import type { ArticleResponse, NomenclatureRowResponse } from "$lib/DBTypes";
+    import type { NomenclatureRowResponse } from "$lib/DBTypes";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import { enhance } from "$app/forms";
     import Filter from "$lib/components/filter/Filter.svelte";
@@ -23,7 +21,7 @@
     let editNomenclature = false;
 
     let currentFilter = "";
-    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "group"> = {};
+    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "group" | "price"> = {};
 
     const listRowFilter = (nomRow: NomenclatureRowResponse, qf: typeof queryFilters): boolean => {
 
@@ -39,11 +37,11 @@
             result = result && filterCompatible(nomRow.expand?.child_article.manufacturer, queryFilters.manufacturer);
         if(queryFilters.group !== undefined)
             result = result && filterCompatible(nomRow.group, queryFilters.group)
+        if(queryFilters.price !== undefined)
+            result = result && filterCompatible(String(nomRow.expand?.child_article.price), queryFilters.price)
 
         return result;
     }
-
-    let selectedArticle: ArticleResponse | undefined = undefined;
 
     export const snapshot: Snapshot<string> = {
         capture: () => currentFilter,
@@ -72,6 +70,14 @@
 {:else}
     <h2>{data.nomenclature.name}</h2>
     <p>{data.nomenclature.description}</p>
+    {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
+        <p>Cout estimé de la nomenclature:
+            <span class="text-violet-500 font-medium">
+                {data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'].reduce((p, c) => p + (c.expand.child_article.price ?? 0) * c.quantity_required, 0)} €
+            </span>.
+        </p>
+    {/if}
+
     <button
         on:click={() => editNomenclature = true}
         class="my-2 text-violet-500 hover:text-blue-500 duration-200"
@@ -83,25 +89,12 @@
 
 <Flex direction="col" gap={4} class="mt-6">
     <Flex gap={4} items="end">
-    
-        <form action="?/addItem" method="post" use:enhance>
-            <Flex>
-                <PredictInput articleArray={data.articles} bind:selectedArticle class="self-end"/>
-                <input type="hidden" name="child_article" value={selectedArticle?.id} />
-        
-                <Input label="Quantité nécéssaire" name="quantity_required" labelMandatory={true}/>
-                <Input label="Groupe" name="group" />
-        
-                <Button class="self-end">Ajouter!</Button>
-            </Flex>
-        </form>
-        
         <form action="?/copyNomenclature" method="post" use:enhance>
             <Button hoverColor="hover:bg-amber-500" borderColor="border-amber-500">Copier</Button>
         </form>
     </Flex>
 
-    <Filter bind:filter={currentFilter} availableFilters={["name", "manufacturer", "supplier", "reference", "group"]} bind:filterResult={queryFilters}/>
+    <Filter bind:filter={currentFilter} availableFilters={["name", "manufacturer", "supplier", "reference", "group", "price"]} bind:filterResult={queryFilters}/>
 </Flex>
  
 <Table>
@@ -162,19 +155,8 @@
     </svelte:fragment>
 </Table>
 
-
 <style>
-
-    th {
-        @apply p-4 border-b border-b-violet-500/75 text-left;
-    }
-
-    td {
-
-        @apply p-4 border-b border-b-violet-500/25;
-    }
-
-    tr:last-child > td{
-        @apply border-0;
-    }
+    th { @apply p-4 border-b border-b-violet-500/75 text-left; }
+    td { @apply p-4 border-b border-b-violet-500/25; }
+    tr:last-child > td { @apply border-0; }
 </style>
