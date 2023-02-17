@@ -38,8 +38,6 @@ export function filterQuery<T extends string>(query: string, availableFilters: T
         appendResult(filterName, filterValue);
     }
 
-    console.log("Filter results", results);
-
     return results;
 }
 
