@@ -69,6 +69,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Liste — {data.list.name}</title>
+</svelte:head>
+
 {#if editList}
     <form action="?/editList" method="post">
         <Flex direction="col" class="w-1/3">

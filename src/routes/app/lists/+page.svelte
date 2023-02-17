@@ -12,6 +12,8 @@
 
 </script>
 
+<svelte:head><title>Nomenclaturize — Listes</title></svelte:head>
+
 <h2>Listes</h2>
 <p>Listes basées sur les nomenclatures.</p>
 

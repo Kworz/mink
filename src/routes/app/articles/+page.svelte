@@ -6,10 +6,11 @@
     import Table from "$lib/components/Table.svelte";
     import type { ArticleResponse } from "$lib/DBTypes";
 
-    import type { PageData } from "./$types";
+    import type { PageData, Snapshot } from "./$types";
     export let data: PageData;
 
     let filterQuery: FilterQueryResult<"name" | "manufacturer" | "supplier" | "reference"> = {};
+    let filter = "";
 
     const filterFn = (article: ArticleResponse, filterQ: typeof filterQuery): boolean => {
 
@@ -27,13 +28,22 @@
         return result;
     }
 
+    export const snapshot: Snapshot<string> = {
+        capture: () => filter,
+        restore: (value) => filter = value
+    }
+
 </script>
+
+<svelte:head>
+    <title>Nomenclaturize — Articles</title>
+</svelte:head>
 
 <h2>Articles</h2>
 <p>Liste des articles disponible dans la base.</p>
 
 <Flex class="mt-8">
-    <Filter availableFilters={["name", "manufacturer", "supplier", "reference"]} bind:filterResult={filterQuery} />
+    <Filter bind:filter availableFilters={["name", "manufacturer", "supplier", "reference"]} bind:filterResult={filterQuery} />
     <a href="/app/articles/new"><Button>Ajouter un article</Button></a>
     <a href="/app/articles/import"><Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Importer des articles</Button></a>
 </Flex>

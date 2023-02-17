@@ -5,10 +5,10 @@
     import Table from "$lib/components/Table.svelte";
 
     let file: File | undefined = undefined;
-
     let fileGoodContent = false;
-
 </script>
+
+<svelte:head><title>Article — Import</title></svelte:head>
 
 <h2>Importer des articles</h2>
 <p>Importer des articles a l'aide d'un fichier.</p>
@@ -17,7 +17,6 @@
     <Flex direction="col" class="w-1/3">
 
         <FormInput type="file" name="file" labelMandatory={true} on:change={(e)=> {
-            console.log(e);
             file = e.target.files.item(0);
         }}/>
 

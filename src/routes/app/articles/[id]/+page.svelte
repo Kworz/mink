@@ -2,6 +2,7 @@
     import { browser } from "$app/environment";
     import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
+    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
@@ -14,8 +15,11 @@
     export let form: ActionData;
 
     $: if(form !== null && browser) { invalidateAll() }
-
 </script>
+
+<svelte:head>
+    <title>Article — {data.article.name}</title>
+</svelte:head>
 
 <h2>{data.article.name}</h2>
 <p>Editez l'article en utilisant le formulaire ci dessous</p>
@@ -30,6 +34,7 @@
             <Flex direction="col" gap={2}>
                 <FormInput name="name" label="Nom de l'article" labelMandatory={true} bind:value={data.article.name} backgroundColor="bg-white"/>
                 <FormInput name="quantity" type="number" label="Quantité en stock" labelMandatory={true} bind:value={data.article.quantity} backgroundColor="bg-white"/>
+                <FormInput name="price" type="number" label="Prix" step={0.01} bind:value={data.article.price} backgroundColor="bg-white" />
                 <FormInput name="reference" label="Référence" bind:value={data.article.reference} backgroundColor="bg-white" />
                 <FormInput name="supplier" label="Fournisseur" bind:value={data.article.supplier} backgroundColor="bg-white"/>
                 <FormInput name="manufacturer" label="Fabricant" bind:value={data.article.manufacturer} backgroundColor="bg-white"/>
