@@ -45,7 +45,6 @@
 
     let selectedArticle: ArticleResponse | undefined = undefined;
 
-    // Save filter
     export const snapshot: Snapshot<string> = {
         capture: () => currentFilter,
         restore: (value) => (currentFilter = value)
@@ -54,6 +53,8 @@
     $: if(form?.success === true && browser) { invalidateAll(); }
 
 </script>
+
+<svelte:head><title>Nomenclature — {data.nomenclature.name}</title></svelte:head>
 
 {#if editNomenclature}
     <form action="?/editNomenclature" method="post" use:enhance>

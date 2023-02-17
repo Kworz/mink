@@ -1,7 +1,6 @@
 <script lang="ts">
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
-    import Input from "$lib/components/Input.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
 
     import Table from "$lib/components/Table.svelte";
@@ -12,6 +11,8 @@
     let createNomenclature = false;
 
 </script>
+
+<svelte:head><title>Nomenclaturize — Nomenclatures</title></svelte:head>
 
 <h2>Nomenclatures</h2>
 <p>Liste des nomenclatures dans la base</p>
@@ -53,17 +54,7 @@
 </Table>
 
 <style>
-
-    th {
-        @apply p-4 border-b border-b-violet-500/75 text-left;
-    }
-
-    td {
-
-        @apply p-4 border-b border-b-violet-500/25;
-    }
-
-    tr:last-child > td{
-        @apply border-0;
-    }
+    th { @apply p-4 border-b border-b-violet-500/75 text-left; }
+    td { @apply p-4 border-b border-b-violet-500/25;}
+    tr:last-child > td{ @apply border-0; }
 </style>
