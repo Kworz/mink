@@ -1,6 +1,6 @@
 import { error, type Actions, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "../$types";
-import { Collections, type NomenclatureRowResponse, type ListResponse, type ListRowResponse } from "$lib/DBTypes";
+import { Collections, type NomenclatureRowResponse, type ListResponse, type ListRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type ArticleResponse } from "$lib/DBTypes";
 
 export const load = (async ({ params, locals }) => {
 
@@ -46,14 +46,62 @@ export const actions: Actions = {
 
             data.set("parent_list", id);
 
-            if(data.has("id"))
+            const listRowID = data.get("id");
+            const listID = params.id;
+            const parentNomenclatureRowID = data.get("parent_nomenclature_row");
+
+            if(parentNomenclatureRowID === null)
+                throw "Parent nomenclature row not found";
+
+            if(listID === undefined)
+                throw "List id undefined";
+
+            const list = await locals.pb.collection(Collections.List).getOne<ListResponse>(listID);
+            const parentNomenclatureRow = await locals.pb.collection(Collections.NomenclatureRow).getOne<NomenclatureRowResponse>(parentNomenclatureRowID.toString());
+
+            const articleMovement: ArticleMovementsRecord = {
+                article: parentNomenclatureRow.child_article,
+                quantity_update: 0,
+                reason: `Ajout a la liste: ${list.name}.`
+            } 
+
+            if(listRowID !== null)
             {
-                await locals.pb.collection(Collections.ListRow).update(data.get("id") as string, data)
+                const oldRow = await locals.pb.collection(Collections.ListRow).getOne<ListRowResponse>(listRowID.toString());
+                
+                const oldQuantity = oldRow.quantity ?? 0;
+                const newQuantity = data.get("quantity");
+
+                if(newQuantity === null)
+                    throw "New quantity not defined";
+
+                articleMovement.quantity_update = oldQuantity - Number(newQuantity.toString());
+
+                console.log(Number(newQuantity.toString()), oldQuantity, articleMovement.quantity_update);
+    
+                await locals.pb.collection(Collections.ListRow).update(data.get("id") as string, data);
             }
             else
             {
-                await locals.pb.collection(Collections.ListRow).create(data)
+                const formQuantity = data.get("quantity");
+
+                if(formQuantity === null)
+                    throw "Quantity not defined";
+
+                articleMovement.quantity_update = -Number(formQuantity.toString());
+
+                await locals.pb.collection(Collections.ListRow).create(data);
+
             }
+
+            await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
+            const oldArticle = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(articleMovement.article);
+
+            const newQuantity = Number(oldArticle.quantity) + articleMovement.quantity_update;
+
+            await locals.pb.collection(Collections.Article).update<ArticleResponse>(articleMovement.article, {
+                quantity: newQuantity
+            });
 
             return { success: true }
         }

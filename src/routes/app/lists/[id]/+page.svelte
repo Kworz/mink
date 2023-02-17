@@ -143,7 +143,7 @@
                             <Flex gap={2} items="center">
                                 {#if linked_row?.id !== undefined} <input type="hidden" name="id" value={linked_row?.id} /> {/if}
                                 <input type="hidden" name="parent_nomenclature_row" value={row.id} />
-                                <FormInput name="quantity" type="number" value={(linked_row?.quantity) ?? 0} min={0} max={row.quantity_required} />
+                                <FormInput name="quantity" type="number" value={(linked_row?.quantity) ?? 0} min={0} max={row.quantity_required} backgroundColor="bg-white" />
                                 <Button class="rounded-full self-center py-1 px-1"><Icon src={Check} class="h-4 w-4" /></Button>
                             </Flex>
                         </form>
