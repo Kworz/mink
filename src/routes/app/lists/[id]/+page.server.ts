@@ -134,11 +134,12 @@ export const actions: Actions = {
         try
         {
             await locals.pb.collection(Collections.List).delete(params.id);
-            throw redirect(303, "/app/lists/");
         }
         catch(ex)
         {
             return { error: "Failed to delete list" };
         }
+
+        throw redirect(303, "/app/lists/");
     }
 }
