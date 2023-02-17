@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { QuestionMarkCircle } from "@steeze-ui/heroicons";
+    import { QuestionMarkCircle, XMark } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import Input from "../Input.svelte";
     import Flex from "../layout/flex.svelte";
@@ -36,9 +36,14 @@
 
     <Flex>
         <Input bind:value={filter} placeholder={"Filtre"}>
-            <button on:click={() => filterHelp = !filterHelp}>
-                <Icon src={QuestionMarkCircle} class="h-6 w-6 m-2 text-violet-500 hover:text-violet-500/75 duration-300 inline-block" alt="" />
-            </button>
+            <Flex gap={2} class="mr-2">
+                <button on:click={() => filter = ""}>
+                    <Icon src={XMark}  class="h-6 w-6 text-red-500 hover:text-red-500/75 duration-300"/>
+                </button>
+                <button on:click={() => filterHelp = !filterHelp}>
+                    <Icon src={QuestionMarkCircle} class="h-6 w-6 text-violet-500 hover:text-violet-500/75 duration-300"/>
+                </button>
+            </Flex>
         </Input>
     </Flex>
 
