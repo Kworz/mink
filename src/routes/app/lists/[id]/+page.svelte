@@ -139,7 +139,7 @@
 
                 <tr>    
                     <td>
-                        <ArticleRow article={row.expand?.child_article} />
+                        <ArticleRow article={row.expand?.child_article} displayStock={true} />
                     </td>
                     <td>{row.group}</td>
                     <td>
