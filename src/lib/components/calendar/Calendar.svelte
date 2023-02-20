@@ -64,7 +64,7 @@
             {#each Array.from(Array(35)).map((k, i) => i) as block}
                 {@const blockDate = layout[block]}
                 <CalendarBlock 
-                    date={blockDate} isToday={blockDate.year === currentDate.year && blockDate.month === currentDate.month && blockDate.day === currentDate.day} 
+                    date={blockDate} todayDate={currentDate} 
                     borderSides={[block >= 7, (block + 1) % 7 != 0, false, false]}
                 />
             {/each}
