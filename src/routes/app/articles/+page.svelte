@@ -1,9 +1,12 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
     import Button from "$lib/components/Button.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
     import Filter from "$lib/components/filter/Filter.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Table from "$lib/components/Table.svelte";
+    import TableTitle from "$lib/components/table/TableTitle.svelte";
     import type { ArticleResponse } from "$lib/DBTypes";
 
     import type { PageData, Snapshot } from "./$types";
@@ -11,6 +14,8 @@
 
     let filterQuery: FilterQueryResult<"name" | "manufacturer" | "supplier" | "reference"> = {};
     let filter = "";
+
+    let activeSort = $page.url.searchParams.get("sort") ?? "name";
 
     const filterFn = (article: ArticleResponse, filterQ: typeof filterQuery): boolean => {
 
@@ -33,6 +38,11 @@
         restore: (value) => filter = value
     }
 
+    export const setSort = (value: string) => {
+        activeSort = value;
+        goto(`/app/articles?sort=${value}`)
+    }
+
 </script>
 
 <svelte:head>
@@ -51,12 +61,12 @@
 <Table>
     <svelte:fragment slot="head">
         <tr>
-            <th>Article</th>
-            <th>Quantité disponible</th>
-            <th>Référence</th>
-            <th>Fournisseur</th>
-            <th>Fabricant</th>
-            <th>Prix</th>
+            <TableTitle col="name" {activeSort} sortFn={setSort}>Article</TableTitle>
+            <TableTitle col="quantity" {activeSort} sortFn={setSort}>Quantité disponible</TableTitle>
+            <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
+            <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
+            <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
+            <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
         </tr>
     </svelte:fragment>
 
@@ -75,10 +85,6 @@
 </Table>
 
 <style>
-
-    th {
-        @apply p-4 border-b border-b-violet-500/75 text-left;
-    }
 
     td {
 

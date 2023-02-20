@@ -1,9 +1,11 @@
 import { Collections, type ArticleResponse } from "$lib/DBTypes";
 import type { PageServerLoad } from "./$types";
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ locals, url }) => {
 
-    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponse>();
+    const sort = url.searchParams.get("sort") ?? "name";
+
+    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponse>(undefined, { sort });
 
     return {
         user: locals.user,

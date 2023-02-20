@@ -4,7 +4,8 @@
     import Button from "$lib/components/Button.svelte";
 
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { ListBullet, CircleStack, Calendar } from "@steeze-ui/heroicons";
+    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench } from "@steeze-ui/heroicons";
+    import User from "$lib/components/user/User.svelte";
 </script>
 
 <Flex gap={0} class="h-screen overflow-hidden">
@@ -45,8 +46,8 @@
                             "/app/lists"
                         )}
                     >
-                        <Icon src={ListBullet} class="h-5 w-5 mb-0.5 inline" />
-                        Listes
+                        <Icon src={ClipboardDocumentCheck} class="h-5 w-5 mb-0.5 inline" />
+                        Listes d'achat
                     </a>
                     <a
                         href="/app/projects"
@@ -55,7 +56,7 @@
                             "/app/projects"
                         )}
                     >
-                        <Icon src={ListBullet} class="h-5 w-5 mb-0.5 inline" />
+                        <Icon src={DocumentText} class="h-5 w-5 mb-0.5 inline" />
                         Affaires
                     </a>
                     <a
@@ -68,12 +69,21 @@
                         <Icon src={Calendar} class="h-5 w-5 mb-0.5 inline" />
                         Planning
                     </a>
+                    <a
+                        href="/app/fabrication_orders"
+                        class="hover:text-violet-500 hover:font-medium"
+                        class:text-blue-500={$page.route.id?.includes(
+                            "/app/fabrication_orders"
+                        )}
+                    >
+                        <Icon src={Wrench} class="h-5 w-5 mb-0.5 inline" />
+                        Ordres des fabrication
+                    </a>
                 </Flex>
             </div>
 
             <div class="border border-t-zinc-500/50 p-6">
-                <h3 class="capitalize">{$page.data.user?.username}</h3>
-                <p class="text-sm">{$page.data.user?.created}</p>
+                <User user={$page.data.user} />
                 <a
                     href="/auth/logout"
                     class="mt-4 block"
@@ -81,8 +91,11 @@
                 >
                     <Button
                         borderColor="border-red-500"
-                        hoverColor="hover:bg-red-500">Se déconnecter</Button
+                        hoverColor="hover:bg-red-500"
+                        size="small"
                     >
+                        Se déconnecter
+                    </Button>
                 </a>
             </div>
         </Flex>
