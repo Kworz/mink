@@ -122,9 +122,9 @@
                     <td>
                         <form action="?/editItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
-                            <Flex>
+                            <Flex items="center">
                                 <FormInput type="text" name="group" bind:value={row.group} backgroundColor="bg-white" />
-                                <Button><Icon src={Check} class="h-4 w-4"/></Button>
+                                <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                             </Flex>
                             
                         </form>
@@ -132,16 +132,16 @@
                     <td>
                         <form action="?/editItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
-                            <Flex>
+                            <Flex items="center">
                                 <FormInput type="number" name="quantity_required" bind:value={row.quantity_required} backgroundColor="bg-white" />
-                                <Button><Icon src={Check} class="h-4 w-4"/></Button>
+                                <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                             </Flex>
                         </form>
                     </td>
                     <td>
                         <form action="?/deleteItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
-                            <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer</Button>
+                            <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" size="small">Supprimer</Button>
                         </form>
                     </td>
                 </tr>
