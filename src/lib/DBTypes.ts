@@ -9,6 +9,7 @@ export enum Collections {
 	ListRow = "list_row",
 	Nomenclature = "nomenclature",
 	NomenclatureRow = "nomenclature_row",
+	Projects = "projects",
 	Users = "users",
 }
 
@@ -56,6 +57,7 @@ export type ArticleMovementsRecord = {
 export type ListRecord = {
 	name: string
 	parent_nomenclature: RecordIdString
+	project?: RecordIdString
 }
 
 export type ListRowRecord = {
@@ -76,6 +78,13 @@ export type NomenclatureRowRecord = {
 	group?: string
 }
 
+export type ProjectsRecord = {
+	name: string
+	start_date: IsoDateString
+	end_date: IsoDateString
+	attached_users?: RecordIdString[]
+}
+
 export type UsersRecord = {
 
 }
@@ -87,6 +96,7 @@ export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texp
 export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
 export type NomenclatureResponse = NomenclatureRecord & BaseSystemFields
 export type NomenclatureRowResponse<Texpand = unknown> = NomenclatureRowRecord & BaseSystemFields<Texpand>
+export type ProjectsResponse<Texpand = unknown> = ProjectsRecord & BaseSystemFields<Texpand>
 export type UsersResponse = UsersRecord & AuthSystemFields
 
 export type CollectionRecords = {
@@ -96,5 +106,6 @@ export type CollectionRecords = {
 	list_row: ListRowRecord
 	nomenclature: NomenclatureRecord
 	nomenclature_row: NomenclatureRowRecord
+	projects: ProjectsRecord
 	users: UsersRecord
 }
