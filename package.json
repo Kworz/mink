@@ -37,6 +37,7 @@
   "type": "module",
   "dependencies": {
     "@fontsource/inter": "^4.5.15",
+    "@js-temporal/polyfill": "^0.4.3",
     "@steeze-ui/heroicons": "^2.2.1",
     "@steeze-ui/svelte-icon": "^1.3.2",
     "jspdf": "^2.5.1",
