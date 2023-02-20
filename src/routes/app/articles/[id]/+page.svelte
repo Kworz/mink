@@ -1,6 +1,5 @@
 <script lang="ts">
     import { browser } from "$app/environment";
-    import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
@@ -9,6 +8,7 @@
     import Table from "$lib/components/Table.svelte";
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
+    import { enhanceNoReset } from "$lib/enhanceNoReset";
     import type { ActionData, PageData } from "./$types";
 
     export let data: PageData;
@@ -30,7 +30,7 @@
         {#if form?.error} <p class="text-red-500">{form.error}</p> {/if}
         {#if form?.success} <p class="text-green-500">{form.success}</p> {/if}
 
-        <form action="?/editArticle" method="post" use:enhance>
+        <form action="?/editArticle" method="post" use:enhanceNoReset>
             <Flex direction="col" gap={2}>
                 <FormInput name="name" label="Nom de l'article" labelMandatory={true} bind:value={data.article.name} backgroundColor="bg-white"/>
                 <FormInput name="quantity" type="number" label="Quantité en stock" labelMandatory={true} bind:value={data.article.quantity} backgroundColor="bg-white"/>
@@ -49,7 +49,7 @@
             <Wrapper>
                 
                 <h3>Ajouter a une nomenclature</h3>
-                <form action="?/addToNomenclature" method="post" use:enhance>
+                <form action="?/addToNomenclature" method="post" use:enhanceNoReset>
                     <Flex items="end">
                 
                         <FormInput name="parent_nomenclature" type="select" label="nomenclature" labelMandatory={true} backgroundColor="white">
@@ -67,11 +67,11 @@
             <Wrapper>
                 <h3 class="leading-10">Zone de danger</h3>
                 <Flex gap={4}>
-                    <form action="?/deleteArticle" method="post" use:enhance>
+                    <form action="?/deleteArticle" method="post" use:enhanceNoReset>
                         <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>
                     </form>
                     
-                    <form action="?/copyArticle" method="post" use:enhance>
+                    <form action="?/copyArticle" method="post" use:enhanceNoReset>
                         <Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Copier l'article</Button>
                     </form>
                 </Flex>

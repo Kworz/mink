@@ -11,9 +11,9 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import type { NomenclatureRowResponse } from "$lib/DBTypes";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import { enhance } from "$app/forms";
     import Filter from "$lib/components/filter/Filter.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
+    import { enhanceNoReset } from "$lib/enhanceNoReset";
 
     export let data: PageData;
     export let form: ActionData;
@@ -55,7 +55,7 @@
 <svelte:head><title>Nomenclature — {data.nomenclature.name}</title></svelte:head>
 
 {#if editNomenclature}
-    <form action="?/editNomenclature" method="post" use:enhance>
+    <form action="?/editNomenclature" method="post" use:enhanceNoReset>
 
         <Flex direction="col" class="w-1/3">
             <FormInput label="Nom de la nomenclature" labelMandatory={true} name="name" value={data.nomenclature.name}/>
@@ -89,7 +89,7 @@
 
 <Flex direction="col" gap={4} class="mt-6">
     <Flex gap={4} items="end">
-        <form action="?/copyNomenclature" method="post" use:enhance>
+        <form action="?/copyNomenclature" method="post" use:enhanceNoReset>
             <Button hoverColor="hover:bg-amber-500" borderColor="border-amber-500">Copier</Button>
         </form>
     </Flex>
@@ -120,7 +120,7 @@
                         <ArticleRow article={row.expand?.child_article} />
                     </td>
                     <td>
-                        <form action="?/editItem" method="post" use:enhance>
+                        <form action="?/editItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
                             <Flex>
                                 <FormInput type="text" name="group" bind:value={row.group} backgroundColor="bg-white" />
@@ -130,7 +130,7 @@
                         </form>
                     </td>
                     <td>
-                        <form action="?/editItem" method="post" use:enhance>
+                        <form action="?/editItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
                             <Flex>
                                 <FormInput type="number" name="quantity_required" bind:value={row.quantity_required} backgroundColor="bg-white" />
@@ -139,7 +139,7 @@
                         </form>
                     </td>
                     <td>
-                        <form action="?/deleteItem" method="post" use:enhance>
+                        <form action="?/deleteItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
                             <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer</Button>
                         </form>

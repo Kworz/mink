@@ -10,10 +10,10 @@
     import { ExclamationTriangle, Wrench, Check } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
     import type { NomenclatureRowResponse } from "$lib/DBTypes";
-    import { enhance } from "$app/forms";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Filter from "$lib/components/filter/Filter.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
+    import { enhanceNoReset } from "$lib/enhanceNoReset";
 
     export let data: PageData;
     export let form: ActionData;
@@ -108,7 +108,7 @@
             Export Excel
         </Button>
         {#if confirmDelete}
-            <form action="?/removeList" method="post" use:enhance>
+            <form action="?/removeList" method="post" use:enhanceNoReset>
                 <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Etes vous sur ?</Button>
             </form>
         {:else}
@@ -143,7 +143,7 @@
                     </td>
                     <td>{row.group}</td>
                     <td>
-                        <form action="?/updateRow" method="post" use:enhance>
+                        <form action="?/updateRow" method="post" use:enhanceNoReset>
                             <Flex gap={2} items="center">
                                 {#if linked_row?.id !== undefined} <input type="hidden" name="id" value={linked_row?.id} /> {/if}
                                 <input type="hidden" name="parent_nomenclature_row" value={row.id} />
