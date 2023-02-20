@@ -2,7 +2,6 @@
     import { browser } from "$app/environment";
     import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
-    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
@@ -59,7 +58,7 @@
                             {/each}
                         </FormInput>
                 
-                        <FormInput name="item_quantity" type="number" label="Quantité requise" labelMandatory={true} value={0} backgroundColor="white"/>
+                        <FormInput name="item_quantity" type="number" min={0} label="Quantité requise" labelMandatory={true} value={0} backgroundColor="white"/>
                         <Button>Ajouter</Button>
                     </Flex>
                 </form>
