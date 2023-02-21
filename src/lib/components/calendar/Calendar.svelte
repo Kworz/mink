@@ -40,7 +40,7 @@
 
 </script>
 
-<div class="border border-zinc-500/50 bg-zinc-100 rounded-sm">
+<div class="border border-zinc-500/50 bg-zinc-100 rounded-[3px] drop-shadow-lg">
     <section class="py-4">
         <Flex justify={"center"} gap={8} items="center">
             <Button size="tiny" on:click={decrement}>Mois précédant</Button>

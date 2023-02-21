@@ -8,7 +8,6 @@
 
 </script>
 
-
 <button
     class="flex flex-row items-center gap-2 bg-zinc-300 border-zinc-500/50 border-y py-0.5 px-2 m-2 mt-1"
     class:ml-0={hasEventOnSides[0]}

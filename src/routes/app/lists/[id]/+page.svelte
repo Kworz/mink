@@ -4,7 +4,7 @@
     import Button from "$lib/components/Button.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Table from "$lib/components/Table.svelte";
-    import type { ActionData, PageData } from "./$types";
+    import type { ActionData, PageData, Snapshot } from "./$types";
 
     import { Icon } from "@steeze-ui/svelte-icon";
     import { ExclamationTriangle, Wrench, Check } from "@steeze-ui/heroicons";
@@ -22,6 +22,7 @@
     let confirmDelete = false;
 
     let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "valid"> = {};
+    let filter: string = "";
 
     const listRowFilter = (nomRow: NomenclatureRowResponse, qf: typeof queryFilters): boolean => {
 
@@ -67,6 +68,11 @@
 
     $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 5000); };
 
+    export const snapshot: Snapshot<string> = {
+        capture: () => filter,
+        restore: (value: string) => filter = value
+    }
+
 </script>
 
 <svelte:head>
@@ -99,7 +105,7 @@
 
 <Flex items="end">
 
-    <Filter availableFilters={["name", "manufacturer", "supplier", "reference", "valid"]} bind:filterResult={queryFilters}/>
+    <Filter bind:filter availableFilters={["name", "manufacturer", "supplier", "reference", "valid"]} bind:filterResult={queryFilters}/>
 
     <Flex class="mt-6">
         <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500" on:click={() => {
