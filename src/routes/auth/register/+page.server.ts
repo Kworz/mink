@@ -1,3 +1,4 @@
+import { Collections, type UsersResponse } from "$lib/DBTypes";
 import { redirect, type Actions, fail } from "@sveltejs/kit";
 
 export const actions: Actions = {
@@ -5,11 +6,16 @@ export const actions: Actions = {
 
         const formData = await request.formData();
 
+        //console.log(formData);
+
         try {
-            await locals.pb.collection("users").create(formData);
+            const user = await locals.pb.collection(Collections.Users).create<UsersResponse>(formData);
+            console.log(user);
+            
         }
         catch(ex)
         {            
+            console.log(ex);
             return fail(400, { error: 'failed to create account'});
         }
 

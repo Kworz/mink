@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { enhance } from "$app/forms";
     import Button from "$lib/components/Button.svelte";
     import Input from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
@@ -17,7 +18,7 @@
         <h1>S'inscrire</h1>
         <p>Inscrivez vous sur Nomenclaturize.</p>
 
-        <form method="post">
+        <form method="post" use:enhance>
             <Flex direction="col" gap={2} class="mt-8">
                 <Input name="username" label="Nom d'utilisateur" labelMandatory={true} />
 
