@@ -2,6 +2,7 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import Button from "$lib/components/Button.svelte";
+    import DetailLabel from "$lib/components/DetailLabel.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
     import Filter from "$lib/components/filter/Filter.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
@@ -51,6 +52,7 @@
 
 <h2>Articles</h2>
 <p>Liste des articles disponible dans la base.</p>
+<p>Valeur du stock: <DetailLabel>{data.articles.reduce((p, c) => (c.price ?? 0) * (Number(c.quantity) ?? 0) + p, 0)} €</DetailLabel>.</p>
 
 <Flex class="mt-8">
     <Filter bind:filter availableFilters={["name", "manufacturer", "supplier", "reference"]} bind:filterResult={filterQuery} />
@@ -67,6 +69,7 @@
             <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
             <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
             <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
+            <th class="p-4 border-b border-b-violet-500/75 text-left">Prix global</th>
         </tr>
     </svelte:fragment>
 
@@ -79,6 +82,7 @@
                 <td>{article.supplier}</td>
                 <td>{article.manufacturer}</td>
                 <td>{article.price ?? "—"} €</td>
+                <td>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</td>
             </tr>
         {/each}
     </svelte:fragment>

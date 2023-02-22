@@ -37,7 +37,7 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            return { error: "Failed to delete item" };
+            return { delete: { error: "Failed to delete item" }};
         }
 
         throw redirect(303, "/app/articles");
@@ -62,12 +62,12 @@ export const actions: Actions = {
                 await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
             }
 
-            return { success: "Updated object successfully" };
+            return { edit: { success: "Updated object successfully" }};
         }
         catch(ex)
         {
             console.log(ex);
-            return { error: "Failed to update object" };
+            return { edit: { error: "Failed to update object" }};
         }
     },
 
@@ -77,7 +77,6 @@ export const actions: Actions = {
 
         try
         {
-
             if(params.id === undefined)
                 throw "Article id undefined";
 
@@ -88,7 +87,7 @@ export const actions: Actions = {
         catch(ex)
         {
             console.log(ex);
-            return { error: "Failed to copy article" };
+            return { copy: { error: "Failed to copy article" }};
         }
 
         throw redirect(303, "/app/articles/" + newArticle.id);
@@ -114,11 +113,73 @@ export const actions: Actions = {
 
             await locals.pb.collection(Collections.NomenclatureRow).create<NomenclatureRowResponse>(nomRow);
 
-            return { success: "Article added successfully" };
+            return { addToNomenclature: { success: "Article added successfully" }};
         }
         catch(ex)
         {
-            return { error: "Failed to add to nomenclature" };
+            return { addToNomenclature: { error: "Failed to add to nomenclature" }};
         }
+    },
+
+    addAttachedFile: async ({ locals, params, request }) => {
+        const form = await request.formData();
+        const articleID = params.id;
+
+        console.log(form);
+
+        try {
+            if(articleID === undefined)
+                throw "could not find article id";
+
+            await locals.pb.collection(Collections.Article).update(articleID, form);
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return { addAttachedFile: { error: ex }};
+        }
+
+        return { addAttachedFile: { success: "Successfully added file" }};
+    },
+
+    removeAttachedFile: async ({ locals, params, request }) => {
+        const form = await request.formData();
+        const articleID = params.id;
+
+        try {
+
+            if(articleID === undefined)
+                throw "Article ID not found";
+
+            await locals.pb.collection(Collections.Article).update(articleID, form);
+        }
+
+        catch(ex)
+        {
+            console.log(ex);
+            return { removeAttachedFile: { error: ex }};
+        }
+
+        return { removeAttachedFile: { success: "Successfully remove file" }};
+    },
+
+    pinAttachedFile: async ({ locals, params, request }) => {
+        const form = await request.formData();
+        const articleID = params.id;
+
+        try 
+        {
+            if(articleID === undefined)
+                throw "Failed to find articleID";
+
+            await locals.pb.collection(Collections.Article).update(articleID, form);
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return { pinAttachedFile: { error: ex }};
+        }
+
+        return { pinAttachedFile: { success: "Successfully pinned file"}}
     }
 }
