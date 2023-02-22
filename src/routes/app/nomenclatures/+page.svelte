@@ -4,6 +4,7 @@
     import Flex from "$lib/components/layout/flex.svelte";
 
     import Table from "$lib/components/Table.svelte";
+    import User from "$lib/components/user/User.svelte";
     import type { PageData } from "./$types";
 
     export let data: PageData;
@@ -35,8 +36,8 @@
             <th>Nomenclature</th>
             <th>Description</th>
             <th>Éléments</th>
-            <th>Crée le</th>
-            <th>Modifié le</th>
+            <th>Créé par</th>
+            <th>Créé le</th>
         </tr>
     </svelte:fragment>
 
@@ -46,8 +47,10 @@
                 <td><a href="/app/nomenclatures/{nomenclature.id}" class="font-medium hover:text-violet-500 duration-100">{nomenclature.name}</a></td>
                 <td>{nomenclature.description}</td>
                 <td>{nomenclature.expand["nomenclature_row(parent_nomenclature)"]?.length ?? 0}</td>
+                <td>{#if nomenclature.expand.created_by !== undefined}
+                    <User user={nomenclature.expand.created_by} />
+                {/if}</td>
                 <td>{nomenclature.created}</td>
-                <td>{nomenclature.updated}</td>
             </tr>
         {/each}
     </svelte:fragment>

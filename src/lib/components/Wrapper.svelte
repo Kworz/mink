@@ -1,1 +1,1 @@
-<div class="p-4 rounded-sm ring-1 ring-zinc-500/50 drop-shadow-lg bg-zinc-100"><slot /></div>
+<div class="p-4 rounded-sm ring-1 ring-zinc-500/50 drop-shadow-lg bg-zinc-100 {$$props.class}"><slot /></div>

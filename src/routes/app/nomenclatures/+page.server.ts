@@ -4,7 +4,7 @@ import type { PageServerLoad } from "./$types";
 export const load = (async ({ locals }) => {
 
     const nomenclatures = await locals.pb.collection("nomenclature").getFullList(undefined, {
-        expand: "nomenclature_row(parent_nomenclature).child_group,nomenclature_row(parent_nomenclature).child_article"
+        expand: "nomenclature_row(parent_nomenclature).child_group,nomenclature_row(parent_nomenclature).child_article,created_by"
     })
 
     return {
