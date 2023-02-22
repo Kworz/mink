@@ -6,7 +6,7 @@
     "node": "18.x"
   },
   "scripts": {
-    "dev": "./pocketbase serve --http=\"127.0.0.1:8090\" & vite dev",
+    "dev": "./pocketbase serve --http=\"0.0.0.0:8090\" & vite dev --host",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

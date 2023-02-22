@@ -45,6 +45,7 @@ export type ArticleRecord = {
 	supplier?: string
 	manufacturer?: string
 	attached_files?: string[]
+	pinned_file?: string
 }
 
 export type ArticleMovementsRecord = {
@@ -69,6 +70,7 @@ export type ListRowRecord = {
 export type NomenclatureRecord = {
 	name: string
 	description?: string
+	created_by?: RecordIdString
 }
 
 export type NomenclatureRowRecord = {
@@ -94,7 +96,7 @@ export type ArticleResponse = ArticleRecord & BaseSystemFields
 export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
 export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texpand>
 export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
-export type NomenclatureResponse = NomenclatureRecord & BaseSystemFields
+export type NomenclatureResponse<Texpand = unknown> = NomenclatureRecord & BaseSystemFields<Texpand>
 export type NomenclatureRowResponse<Texpand = unknown> = NomenclatureRowRecord & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = ProjectsRecord & BaseSystemFields<Texpand>
 export type UsersResponse = UsersRecord & AuthSystemFields
