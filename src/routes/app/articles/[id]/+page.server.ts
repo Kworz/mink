@@ -1,6 +1,6 @@
 import { redirect, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "../$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type ArticleRecord } from "$lib/DBTypes";
 
 export const load = (async ({ params, locals }) => {
 
@@ -75,13 +75,24 @@ export const actions: Actions = {
 
         let newArticle = undefined;
 
+        console.log("copy article")
+
         try
         {
             if(params.id === undefined)
                 throw "Article id undefined";
 
             const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
-            newArticle = await locals.pb.collection(Collections.Article).create({...article, id: undefined, name: article.name + " - Copy" });
+
+            const newArticleObject: ArticleRecord = {
+                ...article,
+                id: undefined,
+                attached_files: undefined,
+                pinned_file: undefined,
+                name: article.name + " — Copy"
+            };
+            
+            newArticle = await locals.pb.collection(Collections.Article).create(newArticleObject);
 
         }
         catch(ex)
@@ -104,7 +115,19 @@ export const actions: Actions = {
 
             if(parent_nomenclature === null || item_id === undefined || item_quantity === null)
                 throw "too few arguments"
-            
+
+            try
+            {
+                const existingNomRow = await locals.pb.collection(Collections.NomenclatureRow).getFirstListItem<NomenclatureRowResponse>(`child_article="${item_id}" && parent_nomenclature="${parent_nomenclature.toString()}"`);
+                await locals.pb.collection(Collections.NomenclatureRow).update<NomenclatureRowResponse>(existingNomRow.id, { "quantity_required+": Number(item_quantity.toString()) });
+
+                return { addToNomenclature: { success: "Nomenclature updated successfully" }};
+            }
+            catch(ex)
+            {
+                console.log(ex);
+            }
+
             const nomRow: NomenclatureRowRecord = {
                 parent_nomenclature: parent_nomenclature.toString(),
                 child_article: item_id,
@@ -117,6 +140,7 @@ export const actions: Actions = {
         }
         catch(ex)
         {
+            console.log(ex);
             return { addToNomenclature: { error: "Failed to add to nomenclature" }};
         }
     },
@@ -124,8 +148,6 @@ export const actions: Actions = {
     addAttachedFile: async ({ locals, params, request }) => {
         const form = await request.formData();
         const articleID = params.id;
-
-        console.log(form);
 
         try {
             if(articleID === undefined)

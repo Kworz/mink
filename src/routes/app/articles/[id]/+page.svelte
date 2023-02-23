@@ -154,7 +154,7 @@
         <div class="p-4 rounded-[3px] border border-zinc-500/50 aspect-[2/1] col-span-2 bg-white">
             <Flex justify="between" direction="col">
                 <h4>Ajouter un fichier</h4>
-                <form action="?/addAttachedFile" method="post" use:enhanceNoReset>
+                <form action="?/addAttachedFile" method="post" use:enhance>
                     <Flex direction="col" items="start">
                         <FormInput type="file" name="attached_files" label="Fichier a ajouter" labelMandatory={true} />
                         <Button>Ajouter le fichier</Button>
