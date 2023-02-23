@@ -23,7 +23,7 @@
             <button><Icon src={Star} class="h-8 w-8 text-blue-500" theme={isPinned ? "solid" : ""}/></button>
         </form>
     </Flex>
-    {#if fileName.match(/(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP|JPEG)/)?.at(0) !== undefined}
+    {#if fileName.match(/(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|webp|PNG|JPG|GIF|BMP|JPEG|WEBP)/)?.at(0) !== undefined}
         <img src="http://192.168.49.240:8090/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover" />
     {:else}
         <Flex class="inset-0">
