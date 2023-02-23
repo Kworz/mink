@@ -64,6 +64,7 @@
     <svelte:fragment slot="head">
         <tr>
             <TableTitle col="name" {activeSort} sortFn={setSort}>Article</TableTitle>
+            <th class="p-4 border-b border-b-violet-500/75 text-left">Miniature</th>
             <TableTitle col="quantity" {activeSort} sortFn={setSort}>Quantité disponible</TableTitle>
             <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
             <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
@@ -77,6 +78,13 @@
         {#each data.articles.filter((k) => filterFn(k, filterQuery)) as article (article.id)}
             <tr>
                 <td><a href="/app/articles/{article.id}" class="font-medium hover:text-violet-500 duration-100">{article.name}</a></td>
+                <td>
+                    {#if (article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file))}
+                        <span class="text-emerald-500 font-semibold">Oui</span>
+                    {:else}
+                        <span class="text-red-500 font-semibold">Non</span>
+                    {/if}
+                </td>
                 <td>{article.quantity}</td>
                 <td>{article.reference}</td>
                 <td>{article.supplier}</td>
