@@ -57,7 +57,14 @@
 <Flex class="mt-8">
     <Filter bind:filter availableFilters={["name", "manufacturer", "supplier", "reference"]} bind:filterResult={filterQuery} />
     <a href="/app/articles/new"><Button>Créer un article</Button></a>
+    <a href="/app/articles/scan"><Button>Scanner code QR</Button></a>
+    
     <a href="/app/articles/import"><Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Importer des articles</Button></a>
+    <Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500" on:click={() => {
+        window.open(`/app/articles/export/`, '_blank')?.focus();
+    }}>
+        Export
+    </Button>
 </Flex>
 
 <Table>
