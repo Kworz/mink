@@ -1,6 +1,8 @@
 import preprocess from "svelte-preprocess";
 import adapter from "@sveltejs/adapter-auto";
 import { vitePreprocess } from "@sveltejs/kit/vite";
+import seqPreprocessor from "svelte-sequential-preprocessor";
+import { preprocessThrelte } from '@threlte/preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -8,9 +10,7 @@ const config = {
   // for more information about preprocessors
   preprocess: [
     vitePreprocess(),
-    preprocess({
-      postcss: true,
-    }),
+    seqPreprocessor([preprocess({postcss: true}), preprocessThrelte()])
   ],
 
   kit: {

@@ -17,6 +17,10 @@
   "devDependencies": {
     "@sveltejs/adapter-auto": "^2.0.0",
     "@sveltejs/kit": "^1.7.0",
+    "@threlte/core": "^5.0.9",
+    "@threlte/extras": "^4.9.3",
+    "@threlte/preprocess": "^0.0.2",
+    "@types/three": "^0.149.0",
     "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^5.52.0",
     "autoprefixer": "^10.4.13",
@@ -29,7 +33,9 @@
     "svelte": "^3.55.1",
     "svelte-check": "^3.0.3",
     "svelte-preprocess": "^5.0.1",
+    "svelte-sequential-preprocessor": "^0.0.7",
     "tailwindcss": "^3.2.6",
+    "three": "^0.150.0",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5",
     "vite": "^4.1.1"
