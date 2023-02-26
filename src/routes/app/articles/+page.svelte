@@ -20,7 +20,7 @@
 
     let activeSort = $page.url.searchParams.get("sort") ?? "name";
 
-    const filterFn = (article: ArticleResponse, filterQ: typeof filterQuery): boolean => {
+    const filterFn = (article: typeof data.articles[number], filterQ: typeof filterQuery): boolean => {
 
         let result = true;
 
@@ -30,7 +30,7 @@
             result = result && filterCompatible(article.manufacturer, filterQuery.manufacturer)
         if(filterQuery.reference !== undefined && article.reference !== undefined)
             result = result && filterCompatible(article.reference, filterQuery.reference)
-        if(filterQuery.supplier !== undefined && article.supplier !== undefined)
+        if(filterQuery.supplier !== undefined && article.expand?.supplier.name !== undefined)
             result = result && filterCompatible(article.supplier, filterQuery.supplier)
 
         return result;
@@ -94,7 +94,7 @@
                 </TableCell>
                 <TableCell>{article.quantity}</TableCell>
                 <TableCell>{article.reference}</TableCell>
-                <TableCell>{article.supplier}</TableCell>
+                <TableCell>{article.expand?.supplier?.name ?? "—"}</TableCell>
                 <TableCell>{article.manufacturer}</TableCell>
                 <TableCell>{article.price ?? "—"} €</TableCell>
                 <TableCell>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</TableCell>
