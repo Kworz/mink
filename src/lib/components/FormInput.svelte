@@ -1,7 +1,7 @@
 <script lang="ts">
     import Flex from "./layout/flex.svelte";
 
-    export let type: "number" | "text" | "password" | "email" | "file" | "select" = "text";
+    export let type: "number" | "text" | "password" | "email" | "file" | "select" | "date" = "text";
     export let name: string;
 
     export let label: string | undefined = undefined;
