@@ -1,3 +1,4 @@
+/** Filter query result type */
 export type FilterQueryResult<T extends string> = { 
     [K in T]: (string[] | string | undefined);
 };
@@ -41,9 +42,9 @@ export function filterQuery<T extends string>(query: string, availableFilters: T
     return results;
 }
 
-export function filterCompatible(value: string, filter: string[] | string | undefined): boolean
+export function filterCompatible(value: string | undefined, filter: string[] | string | undefined): boolean
 {
-    if(filter === undefined) return false;
+    if(filter === undefined || value === undefined) return false;
     else if(typeof filter === "string")
     {
         const negativeFilter = filter.startsWith("!");
