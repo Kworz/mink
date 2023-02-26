@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+
     
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Button from "$lib/components/Button.svelte";
@@ -32,7 +34,7 @@
     </svelte:fragment>
     <svelte:fragment slot="body">
         {#each data.fabricationOrders as fabOrder}
-            <TableRow>
+            <TableRow on:click={() => goto(`/app/fabrication_orders/${fabOrder.id}`)}>
                 <TableCell>
                     {#if fabOrder.expand?.article !== undefined}
                         <ArticleRow article={fabOrder.expand.article} displayStock={false} />

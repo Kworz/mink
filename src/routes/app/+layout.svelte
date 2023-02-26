@@ -4,7 +4,7 @@
     import Button from "$lib/components/Button.svelte";
 
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, BuildingLibrary, Bars3 } from "@steeze-ui/heroicons";
+    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3 } from "@steeze-ui/heroicons";
     import User from "$lib/components/user/User.svelte";
 
     let menuShown = false;
@@ -86,7 +86,7 @@
                             )}
                         >
                             <Icon src={Wrench} class="h-5 w-5 mb-0.5 inline" />
-                            Ordres des fabrication
+                            Ordres de fabrication
                         </a>
                     </Flex>
                 </div>
