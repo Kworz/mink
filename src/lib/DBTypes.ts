@@ -5,6 +5,7 @@
 export enum Collections {
 	Article = "article",
 	ArticleMovements = "article_movements",
+	FabricationOrders = "fabrication_orders",
 	List = "list",
 	ListRow = "list_row",
 	Nomenclature = "nomenclature",
@@ -55,6 +56,16 @@ export type ArticleMovementsRecord = {
 	reason?: string
 }
 
+export type FabricationOrdersRecord = {
+	article: RecordIdString
+	quantity: number
+	applicant: RecordIdString
+	receiver: RecordIdString
+	project?: RecordIdString
+	start_date: IsoDateString
+	end_date: IsoDateString
+}
+
 export type ListRecord = {
 	name: string
 	parent_nomenclature: RecordIdString
@@ -94,6 +105,7 @@ export type UsersRecord = {
 // Response types include system fields and match responses from the PocketBase API
 export type ArticleResponse = ArticleRecord & BaseSystemFields
 export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
+export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersRecord & BaseSystemFields<Texpand>
 export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texpand>
 export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
 export type NomenclatureResponse<Texpand = unknown> = NomenclatureRecord & BaseSystemFields<Texpand>
@@ -104,6 +116,7 @@ export type UsersResponse = UsersRecord & AuthSystemFields
 export type CollectionRecords = {
 	article: ArticleRecord
 	article_movements: ArticleMovementsRecord
+	fabrication_orders: FabricationOrdersRecord
 	list: ListRecord
 	list_row: ListRowRecord
 	nomenclature: NomenclatureRecord
