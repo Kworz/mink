@@ -19,7 +19,7 @@
 >
     {#if firstOfRow}
         <div class="h-2 w-2 rounded-full {event.color}" />
-        <span class="text-zinc-800">{event.name}</span>
+        <span class="text-zinc-800 truncate">{event.name}</span>
         {:else}
             <span class="text-transparent invisible">{event.name}</span>
     {/if}

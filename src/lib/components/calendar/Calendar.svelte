@@ -52,7 +52,13 @@
     <section>
         <Grid cols={7} gap={0}>
             {#each Array.from(Array(7)).map((k, i) => i) as day}
-                <div class="border-b-2 border-t {day < 6 ? "border-r border-r-zinc-500/50" : ""} border-t-zinc-500/50 border-b-violet-500 bg-zinc-200 text-zinc-800 text-center p-2 font-semibold capitalize">
+                <div 
+                    class="border-b-2 border-t border-t-zinc-500/50 bg-zinc-200 text-zinc-800 text-center p-2 font-semibold capitalize"
+                    class:border-r={day < 6}
+                    class:border-r-zinc-500={day < 6}
+                    class:border-b-violet-500={day <= 4}
+                    class:border-b-red-500={day > 4}
+                >
                     {weekDays[day]}
                 </div>
             {/each}
