@@ -27,7 +27,7 @@
             </form>
         {/if}
         {#if !isImage}
-            <a href="http://192.168.49.240:8090/api/files/{collectionName}/{collectionID}/{fileName}">
+            <a href="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}">
                 <Icon src={ArrowDownTray} class="h-6 w-6 text-blue-400" />
             </a>
         {/if}
@@ -37,9 +37,9 @@
         </form>
     </Flex>
     {#if isImage}
-        <img src="http://192.168.49.240:8090/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover" />
+        <img src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover" />
     {:else if isStlFile}
-        <StlFile url="http://192.168.49.240:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
+        <StlFile url="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
     {:else}
         <Flex class="inset-0 m-2" direction="col">
             <Icon src={Document} class="h-32 aspect-square text-zinc-800/50" />

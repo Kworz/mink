@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { browser } from "$app/environment";
+
 
     import type { ArticleResponse } from "$lib/DBTypes";
     import DetailLabel from "../DetailLabel.svelte";
@@ -15,8 +17,8 @@
 
 <Flex items="center">
 
-    {#if displayThumb === true && article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file)}
-        <img src="http://192.168.49.240:8090/api/files/{article.collectionName}/{article.id}/{article.pinned_file}?thumb=200x200" alt={article.pinned_file} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
+    {#if displayThumb === true && article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file) && browser}
+        <img src="http://{window.location.hostname}:8090/api/files/{article.collectionName}/{article.id}/{article.pinned_file}?thumb=200x200" alt={article.pinned_file} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
     {/if}
 
     <div>
