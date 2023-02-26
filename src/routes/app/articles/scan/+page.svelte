@@ -51,8 +51,5 @@
 
 <svelte:head><title>Article — Scan</title></svelte:head>
 
-<video bind:this={videoSource} class=" rounded-md border border-zinc-500/50" on:play={() => {
-    requestAnimationFrame(analyzeFrame);
-}} />
-
+<video bind:this={videoSource} class=" rounded-md border border-zinc-500/50" on:play={() => requestAnimationFrame(analyzeFrame)} />
 <canvas bind:this={canvas} class="hidden"/>

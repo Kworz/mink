@@ -1,6 +1,6 @@
 import { redirect, type Actions } from "@sveltejs/kit";
-import type { PageServerLoad } from "../$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type ArticleRecord } from "$lib/DBTypes";
+import type { PageServerLoad } from "./$types";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse } from "$lib/DBTypes";
 
 export const load = (async ({ params, locals }) => {
 
@@ -84,7 +84,7 @@ export const actions: Actions = {
 
             const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
 
-            const newArticleObject: ArticleRecord = {
+            const newArticleObject: Partial<ArticleResponse> = {
                 ...article,
                 id: undefined,
                 attached_files: undefined,
@@ -140,7 +140,6 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            console.log(ex);
             return { addToNomenclature: { error: "Failed to add to nomenclature" }};
         }
     },
@@ -157,7 +156,6 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            console.log(ex);
             return { addAttachedFile: { error: ex }};
         }
 
@@ -178,7 +176,6 @@ export const actions: Actions = {
 
         catch(ex)
         {
-            console.log(ex);
             return { removeAttachedFile: { error: ex }};
         }
 
@@ -198,7 +195,6 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            console.log(ex);
             return { pinAttachedFile: { error: ex }};
         }
 

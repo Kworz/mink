@@ -3,7 +3,10 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
 
-    import Table from "$lib/components/Table.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
+    import TableHead from "$lib/components/table/TableHead.svelte";
+    import TableRow from "$lib/components/table/TableRow.svelte";
     import User from "$lib/components/user/User.svelte";
     import type { PageData } from "./$types";
 
@@ -32,32 +35,26 @@
 
 <Table>
     <svelte:fragment slot="head">
-        <tr>
-            <th>Nomenclature</th>
-            <th>Description</th>
-            <th>Éléments</th>
-            <th>Créé par</th>
-            <th>Créé le</th>
-        </tr>
+        <TableHead>Nomenclature</TableHead>
+        <TableHead>Description</TableHead>
+        <TableHead>Éléments</TableHead>
+        <TableHead>Créé par</TableHead>
+        <TableHead>Créé le</TableHead>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
         {#each data.nomenclatures as nomenclature}
-            <tr>
-                <td><a href="/app/nomenclatures/{nomenclature.id}" class="font-medium hover:text-violet-500 duration-100">{nomenclature.name}</a></td>
-                <td>{nomenclature.description}</td>
-                <td>{nomenclature.expand["nomenclature_row(parent_nomenclature)"]?.length ?? 0}</td>
-                <td>{#if nomenclature.expand.created_by !== undefined}
-                    <User user={nomenclature.expand.created_by} />
-                {/if}</td>
-                <td>{nomenclature.created}</td>
-            </tr>
+            <TableRow>
+                <TableCell><a href="/app/nomenclatures/{nomenclature.id}" class="font-medium hover:text-violet-500 duration-100">{nomenclature.name}</a></TableCell>
+                <TableCell>{nomenclature.description}</TableCell>
+                <TableCell>{nomenclature.expand["nomenclature_row(parent_nomenclature)"]?.length ?? 0}</TableCell>
+                <TableCell>
+                    {#if nomenclature.expand.created_by !== undefined}
+                        <User user={nomenclature.expand.created_by} />
+                    {/if}
+                </TableCell>
+                <TableCell>{nomenclature.created}</TableCell>
+            </TableRow>
         {/each}
     </svelte:fragment>
 </Table>
-
-<style>
-    th { @apply p-4 border-b border-b-violet-500/75 text-left; }
-    td { @apply p-4 border-b border-b-violet-500/25;}
-    tr:last-child > td{ @apply border-0; }
-</style>

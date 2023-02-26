@@ -8,7 +8,10 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Grid from "$lib/components/layout/grid.svelte";
-    import Table from "$lib/components/Table.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
+    import TableHead from "$lib/components/table/TableHead.svelte";
+    import TableRow from "$lib/components/table/TableRow.svelte";
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
@@ -119,28 +122,26 @@
         {#if data.articleMovements.length > 0}
             <Table marginTop="">
                 <svelte:fragment slot="head">
-                    <tr>
-                        <th>Movement quantité</th>
-                        <th>Raison</th>
-                        <th>Utilisateur</th>
-                        <th>Date</th>
-                    </tr>
+                    <TableHead>Movement quantité</TableHead>
+                    <TableHead>Raison</TableHead>
+                    <TableHead>Utilisateur</TableHead>
+                    <TableHead>Date</TableHead>
                 </svelte:fragment>
 
                 <svelte:fragment slot="body">
                     {#each data.articleMovements as movement}
-                        <tr>    
-                            <td>{movement.quantity_update}</td>
-                            <td>{movement.reason ?? "—"}</td>
-                            <td>
+                        <TableRow>
+                            <TableCell>{movement.quantity_update}</TableCell>
+                            <TableCell>{movement.reason ?? "—"}</TableCell>
+                            <TableCell>
                                 {#if movement.expand?.user !== undefined}
                                     <User user={movement.expand.user} />
                                 {:else}
                                     —
                                 {/if}
-                            </td>
-                            <td>{movement.created}</td>
-                        </tr>
+                            </TableCell>
+                            <TableCell>{movement.created}</TableCell>
+                        </TableRow>
                     {/each}
                 </svelte:fragment>
             </Table>
@@ -170,9 +171,3 @@
         {/if}
     </Grid>
 </Wrapper>
-
-<style>
-    th { @apply p-4 border-b border-b-violet-500/75 text-left; }
-    td { @apply p-4 border-b border-b-violet-500/25; }
-    tr:last-child > td { @apply border-0; }
-</style>

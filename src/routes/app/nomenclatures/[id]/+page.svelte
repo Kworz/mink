@@ -3,17 +3,20 @@
     import { invalidateAll } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Table from "$lib/components/Table.svelte";
+    import Table from "$lib/components/table/Table.svelte";
     import type { ActionData, PageData, Snapshot } from "./$types";
 
     import { Icon } from "@steeze-ui/svelte-icon";
     import { Check, ExclamationTriangle, Wrench } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
-    import type { NomenclatureRowResponse } from "$lib/DBTypes";
+    import type { NomenclatureRowResponseExpanded } from "./+page.server";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Filter from "$lib/components/filter/Filter.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
+    import TableHead from "$lib/components/table/TableHead.svelte";
+    import TableRow from "$lib/components/table/TableRow.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -21,11 +24,14 @@
     let editNomenclature = false;
 
     let currentFilter = "";
-    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "group" | "price"> = {};
+    let queryFilters: Partial<FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "group" | "price">> = {};
 
-    const listRowFilter = (nomRow: NomenclatureRowResponse, qf: typeof queryFilters): boolean => {
+    const listRowFilter = (nomRow: NomenclatureRowResponseExpanded, qf: typeof queryFilters): boolean => {
 
         let result = true;
+
+        if(nomRow.expand === undefined)
+            return false;
 
         if(queryFilters.name !== undefined)
             result = result && filterCompatible(nomRow.expand?.child_article.name, queryFilters.name);
@@ -73,7 +79,7 @@
     {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
         <p>Cout estimé de la nomenclature:
             <span class="text-violet-500 font-medium">
-                {data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'].reduce((p, c) => p + (c.expand.child_article.price ?? 0) * c.quantity_required, 0)} €
+                {data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'].reduce((p, c) => p + (c.expand?.child_article.price ?? 0) * c.quantity_required, 0)} €
             </span>.
         </p>
     {/if}
@@ -99,27 +105,29 @@
  
 <Table>
     <svelte:fragment slot="head">
-        <tr>
-            <th>
-                Éléments
-                {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
-                    ({data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].filter(k => listRowFilter(k, queryFilters)).length})
-                {/if} 
-            </th>
-            <th>Groupe</th>
-            <th>Quantité nécéssaire</th>
-            <th>Supprimer</th>
-        </tr>
+        <TableHead>
+            Éléments
+            {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
+                ({data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].filter(k => listRowFilter(k, queryFilters)).length})
+            {/if} 
+        </TableHead>
+        <TableHead>Groupe</TableHead>
+        <TableHead>Quantité nécéssaire</TableHead>
+        <TableHead>Supprimer</TableHead>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
         {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
             {#each data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].filter(k => listRowFilter(k, queryFilters)) as row}
-                <tr>    
-                    <td>
-                        <ArticleRow article={row.expand?.child_article} />
-                    </td>
-                    <td>
+                <TableRow>
+                    <TableCell>
+                        {#if row.expand?.child_article !== undefined}
+                            <ArticleRow article={row.expand?.child_article} />
+                        {:else}
+                            <span class="text-red-500">Failed to load Article data.</span>
+                        {/if}
+                    </TableCell>
+                    <TableCell>
                         <form action="?/editItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
                             <Flex items="center">
@@ -128,8 +136,8 @@
                             </Flex>
                             
                         </form>
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                         <form action="?/editItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
                             <Flex items="center">
@@ -137,26 +145,20 @@
                                 <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                             </Flex>
                         </form>
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                         <form action="?/deleteItem" method="post" use:enhanceNoReset>
                             <input type="hidden" id="row_id" value={row.id} name="row_id"/>
                             <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" size="small">Supprimer</Button>
                         </form>
-                    </td>
-                </tr>
+                    </TableCell>
+                </TableRow>  
             {/each}
         {:else}
-                <p class="p-6 font-medium text-lg">
-                    <Icon src={ExclamationTriangle} theme="solid" class="h-10 w-10 mr-2 text-orange-500 inline"/>
-                    Aucun élément présent dans la nomenclature.
-                </p>
+            <p class="p-6 font-medium text-lg">
+                <Icon src={ExclamationTriangle} theme="solid" class="h-10 w-10 mr-2 text-orange-500 inline"/>
+                Aucun élément présent dans la nomenclature.
+            </p>
         {/if}
     </svelte:fragment>
 </Table>
-
-<style>
-    th { @apply p-4 border-b border-b-violet-500/75 text-left; }
-    td { @apply p-4 border-b border-b-violet-500/25; }
-    tr:last-child > td { @apply border-0; }
-</style>

@@ -3,7 +3,7 @@
     import { invalidateAll } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Table from "$lib/components/Table.svelte";
+    import Table from "$lib/components/table/Table.svelte";
     import type { ActionData, PageData, Snapshot } from "./$types";
 
     import { Icon } from "@steeze-ui/svelte-icon";
@@ -14,6 +14,10 @@
     import Filter from "$lib/components/filter/Filter.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
+    import DetailLabel from "$lib/components/DetailLabel.svelte";
+    import TableHead from "$lib/components/table/TableHead.svelte";
+    import TableRow from "$lib/components/table/TableRow.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -21,7 +25,7 @@
     let editList = false;
     let confirmDelete = false;
 
-    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "valid"> = {};
+    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "valid"> = {} as typeof queryFilters;
     let filter: string = "";
 
     const listRowFilter = (nomRow: NomenclatureRowResponse, qf: typeof queryFilters): boolean => {
@@ -83,6 +87,12 @@
     <form action="?/editList" method="post">
         <Flex direction="col" class="w-1/3">
             <FormInput label="Nom de la liste" labelMandatory={true} name="name" value={data.list.name}/>
+            <FormInput type="select" label="Affaire" labelMandatory={false} name="project" value={data.list.project}>
+                <option value={undefined}>—</option>
+                {#each data.projects as project}
+                    <option value={project.id}>{project.name}</option>
+                {/each}
+            </FormInput>   
             <Flex>
                 <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
                 <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => editList = false}>Annuler</Button>
@@ -91,9 +101,11 @@
     </form>
 {:else}
     <h2>{data.list.name}</h2>
-    <p>Nomenclature de base: <span class="text-violet-500 font-medium"> {data.list.expand?.parent_nomenclature.name}</span>.</p>
-    <p>Montant restant pour terminer la liste: <span class="text-violet-500 font-medium"> {remainingPrice} €</span>.</p>
-    <p>Articles validés: <span class="text-violet-500 font-medium">{remainingElements} / {data.nomenclature_rows.length}</span>.</p>
+    <p>Nomenclature de base: <DetailLabel>{data.list.expand?.parent_nomenclature.name}</DetailLabel>.</p>
+    {#if data.list.expand?.project} <p>Affaire: <DetailLabel>{data.list.expand?.project.name}</DetailLabel>.</p> {/if}
+    <p>Montant restant pour terminer la liste: <DetailLabel> {remainingPrice} €</DetailLabel>.</p>
+    <p>Articles validés: <DetailLabel>{remainingElements} / {data.nomenclature_rows.length}</DetailLabel>.</p>
+
     <button
         on:click={() => editList = true}
         class="mt-2 text-violet-500 hover:text-blue-500 duration-200"
@@ -125,14 +137,12 @@
 
 <Table>
     <svelte:fragment slot="head">
-        <tr>
-            <th>Éléments ({data.nomenclature_rows.filter((k) => listRowFilter(k , queryFilters)).length})</th>
-            <th>Groupe</th>
-            <th>Quantité</th>
-            <th>Quantité nécéssaire</th>
-            <th>Cout restant</th>
-            <th>Validé</th>
-        </tr>
+        <TableHead>Éléments ({data.nomenclature_rows.filter((k) => listRowFilter(k , queryFilters)).length})</TableHead>
+        <TableHead>Groupe</TableHead>
+        <TableHead>Quantité</TableHead>
+        <TableHead>Quantité nécéssaire</TableHead>
+        <TableHead>Cout restant</TableHead>
+        <TableHead>Validé</TableHead>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
@@ -143,12 +153,10 @@
                 {@const isValid = row.quantity_required == linked_row?.quantity}
                 {@const remainingQuantity = row.quantity_required - (linked_row?.quantity ?? 0)}
 
-                <tr>    
-                    <td>
-                        <ArticleRow article={row.expand?.child_article} displayStock={true} />
-                    </td>
-                    <td>{row.group}</td>
-                    <td>
+                <TableRow>
+                    <TableCell><ArticleRow article={row.expand?.child_article} displayStock={true} /></TableCell>
+                    <TableCell>{row.group}</TableCell>
+                    <TableCell>
                         <form action="?/updateRow" method="post" use:enhanceNoReset>
                             <Flex gap={2} items="center">
                                 {#if linked_row?.id !== undefined} <input type="hidden" name="id" value={linked_row?.id} /> {/if}
@@ -157,14 +165,13 @@
                                 <Button class="rounded-full self-center py-1 px-1"><Icon src={Check} class="h-4 w-4" /></Button>
                             </Flex>
                         </form>
-                        
-                    </td>
-                    <td>{row.quantity_required}</td>
-                    <td>
+                    </TableCell>
+                    <TableCell>{row.quantity_required}</TableCell>
+                    <TableCell>
                         {(remainingQuantity * (row.expand?.child_article.price)) ? remainingQuantity * (row.expand?.child_article.price) : "—"} €
-                    </td>
-                    <td><span class="font-semibold" class:text-red-500={!isValid} class:text-emerald-500={isValid}>{isValid ? "Complet" : "Incomplet"}</span></td>
-                </tr>
+                    </TableCell>
+                    <TableCell><span class="font-semibold" class:text-red-500={!isValid} class:text-emerald-500={isValid}>{isValid ? "Complet" : "Incomplet"}</span></TableCell>
+                </TableRow>
             {/each}
         {:else}
             <p class="p-6 font-medium text-lg">
@@ -174,19 +181,3 @@
         {/if}
     </svelte:fragment>
 </Table>
-
-<style>
-
-    th {
-        @apply p-4 border-b border-b-violet-500/75 text-left;
-    }
-
-    td {
-
-        @apply p-4 border-b border-b-violet-500/25;
-    }
-
-    tr:last-child > td{
-        @apply border-0;
-    }
-</style>

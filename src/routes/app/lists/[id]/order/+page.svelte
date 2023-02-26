@@ -1,7 +1,7 @@
 <script lang="ts">
     import Button from "$lib/components/Button.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Table from "$lib/components/Table.svelte";
+    import Table from "$lib/components/table/Table.svelte";
     import type { PageData } from "./$types";
 
     import { Icon } from "@steeze-ui/svelte-icon";

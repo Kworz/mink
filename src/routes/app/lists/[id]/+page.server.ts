@@ -1,13 +1,13 @@
-import { error, type Actions, redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "../$types";
-import { Collections, type NomenclatureRowResponse, type ListResponse, type ListRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type ArticleResponse } from "$lib/DBTypes";
+import { error, redirect } from "@sveltejs/kit";
+import type { PageServerLoad, Actions } from "./$types";
+import { Collections, type NomenclatureRowResponse, type ListResponse, type ListRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type ArticleResponse, type NomenclatureResponse, type ProjectsResponse } from "$lib/DBTypes";
 
 export const load = (async ({ params, locals }) => {
 
     try
     {
-        const list = await locals.pb.collection(Collections.List).getOne<ListResponse>(params.id, {
-            expand: "parent_nomenclature"
+        const list = await locals.pb.collection(Collections.List).getOne<ListResponse<{parent_nomenclature: NomenclatureResponse, project?: ProjectsResponse}>>(params.id, {
+            expand: "parent_nomenclature,project"
         });
 
         const list_rows = await locals.pb.collection(Collections.ListRow).getFullList<ListRowResponse>(undefined, {
@@ -20,10 +20,13 @@ export const load = (async ({ params, locals }) => {
             expand: `child_article`
         });
 
+        const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
+
         return {
             list: structuredClone(list),
             list_rows: structuredClone(list_rows),
-            nomenclature_rows: structuredClone(nomenclature_rows)
+            nomenclature_rows: structuredClone(nomenclature_rows),
+            projects: structuredClone(projects)
         }
     }
     catch(ex)

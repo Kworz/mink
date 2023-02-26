@@ -2,7 +2,7 @@
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Table from "$lib/components/Table.svelte";
+    import Table from "$lib/components/table/Table.svelte";
 
     let file: File | undefined = undefined;
     let fileGoodContent = false;

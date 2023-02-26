@@ -1,13 +1,18 @@
 import { error, type Actions, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { Collections, type ListResponse, type NomenclatureResponse } from "$lib/DBTypes";
+import { Collections, type ListResponse, type NomenclatureResponse, type ProjectsResponse } from "$lib/DBTypes";
+
+type ListResponseExpanded = ListResponse<{
+    parent_nomenclature: NomenclatureResponse,
+    project: ProjectsResponse
+}>;
 
 export const load = (async ({ locals }) => {
 
     try
     {
-        const lists = await locals.pb.collection(Collections.List).getFullList<ListResponse>(undefined, {
-            expand: "parent_nomenclature"
+        const lists = await locals.pb.collection(Collections.List).getFullList<ListResponseExpanded>(undefined, {
+            expand: "parent_nomenclature,project"
         });
 
         const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();

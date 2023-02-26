@@ -6,8 +6,10 @@
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
     import Filter from "$lib/components/filter/Filter.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Table from "$lib/components/Table.svelte";
-    import TableTitle from "$lib/components/table/TableTitle.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
+    import TableTitle from "$lib/components/table/TableHead.svelte";
+    import TableRow from "$lib/components/table/TableRow.svelte";
     import type { ArticleResponse } from "$lib/DBTypes";
 
     import type { PageData, Snapshot } from "./$types";
@@ -69,48 +71,34 @@
 
 <Table>
     <svelte:fragment slot="head">
-        <tr>
-            <TableTitle col="name" {activeSort} sortFn={setSort}>Article</TableTitle>
-            <th class="p-4 border-b border-b-violet-500/75 text-left">Miniature</th>
-            <TableTitle col="quantity" {activeSort} sortFn={setSort}>Quantité disponible</TableTitle>
-            <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
-            <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
-            <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
-            <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
-            <th class="p-4 border-b border-b-violet-500/75 text-left">Prix global</th>
-        </tr>
+        <TableTitle col="name" {activeSort} sortFn={setSort}>Article</TableTitle>
+        <TableTitle>Miniature</TableTitle>
+        <TableTitle col="quantity" {activeSort} sortFn={setSort}>Quantité disponible</TableTitle>
+        <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
+        <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
+        <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
+        <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
+        <TableTitle>Prix global</TableTitle>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
         {#each data.articles.filter((k) => filterFn(k, filterQuery)) as article (article.id)}
-            <tr>
-                <td><a href="/app/articles/{article.id}" class="font-medium hover:text-violet-500 duration-100">{article.name}</a></td>
-                <td>
+            <TableRow>
+                <TableCell><a href="/app/articles/{article.id}" class="font-medium hover:text-violet-500 duration-100">{article.name}</a></TableCell>
+                <TableCell>
                     {#if (article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file))}
                         <span class="text-emerald-500 font-semibold">Oui</span>
                     {:else}
                         <span class="text-red-500 font-semibold">Non</span>
                     {/if}
-                </td>
-                <td>{article.quantity}</td>
-                <td>{article.reference}</td>
-                <td>{article.supplier}</td>
-                <td>{article.manufacturer}</td>
-                <td>{article.price ?? "—"} €</td>
-                <td>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</td>
-            </tr>
+                </TableCell>
+                <TableCell>{article.quantity}</TableCell>
+                <TableCell>{article.reference}</TableCell>
+                <TableCell>{article.supplier}</TableCell>
+                <TableCell>{article.manufacturer}</TableCell>
+                <TableCell>{article.price ?? "—"} €</TableCell>
+                <TableCell>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</TableCell>
+            </TableRow>
         {/each}
     </svelte:fragment>
 </Table>
-
-<style>
-
-    td {
-
-        @apply p-4 border-b border-b-violet-500/25;
-    }
-
-    tr:last-child > td{
-        @apply border-0;
-    }
-</style>

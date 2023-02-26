@@ -1,11 +1,20 @@
-import { redirect, type Actions } from "@sveltejs/kit";
-import type { PageServerLoad } from "../$types";
-import { Collections, type NomenclatureResponse, type ListRowRecord } from "$lib/DBTypes";
+import { redirect } from "@sveltejs/kit";
+import type { PageServerLoad, Actions } from "./$types";
+import { Collections, type NomenclatureResponse, type NomenclatureRowResponse, type NomenclatureRowRecord, type ArticleResponse } from "$lib/DBTypes";
+
+type NomenclatureResponseExpanded = NomenclatureResponse<{
+    "nomenclature_row(parent_nomenclature)": Array<NomenclatureRowResponseExpanded>
+}>;
+
+export type NomenclatureRowResponseExpanded = NomenclatureRowResponse<{
+    "child_article": ArticleResponse
+}>
 
 export const load = (async ({ params, locals }) => {
 
     try {
-        const nomenclature = await locals.pb.collection(Collections.Nomenclature).getOne<NomenclatureResponse>(params.id, {
+
+        const nomenclature = await locals.pb.collection(Collections.Nomenclature).getOne<NomenclatureResponseExpanded>(params.id, {
             expand: `nomenclature_row(parent_nomenclature).child_article`
         });
 
@@ -26,7 +35,6 @@ export const actions: Actions = {
     addItem: async ({ params, request, locals }) => {
         
         try {
-        
             const formData = await request.formData();
 
             formData.set("parent_nomenclature", params.id);
@@ -34,52 +42,52 @@ export const actions: Actions = {
             await locals.pb.collection("nomenclature_row").create(formData);
 
             return { success: true };
-
         }
         catch(ex)
         {
-            console.log(ex);
-            return { error: "failed to create new row" };
+            return { error: ex };
         }
-
     },
 
     deleteItem: async ({ request, locals }) => {
-        try {
+        try
+        {
             const form = await request.formData();
-            await locals.pb.collection("nomenclature_row").delete(form.get("row_id"));
+            const row_id = form.get("row_id")?.toString();
+
+            if(row_id === undefined)
+                throw "Could not find item id to delete";
+
+            await locals.pb.collection("nomenclature_row").delete(row_id);
 
             return { success: true };
         }
         catch(ex)
         {
-            console.log(ex);
-            return { error: "failed to delete row" };
+            return { error: ex };
         } 
     },
 
     editItem: async ({ request, locals }) => {
         try{
             const form = await request.formData();
+            const row_id = form.get("row_id")?.toString();
 
-            console.log(form);
+            if(row_id === undefined)
+                throw "Could not find item id to update";
 
-            let item = {};
+            const item = {
+                quantity_required: Number(form.get("quantity_required")?.toString()),
+                group: form.get("group")?.toString()
+            } satisfies Partial<NomenclatureRowRecord>;
 
-            if(form.has("quantity_required"))
-                item.quantity_required = form.get("quantity_required")
-        
-            if(form.has("group"))
-                item.group = form.get("group");
-
-            await locals.pb.collection(Collections.NomenclatureRow).update<ListRowRecord>(form.get("row_id"), item);
+            await locals.pb.collection(Collections.NomenclatureRow).update<NomenclatureRowResponse>(row_id, item);
 
             return { success: true };
         }
         catch(ex)
         {
-            console.log(ex);
-            return { error: "Failed to update item" };
+            return { error: ex };
         }
     },
 
@@ -94,14 +102,14 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            console.log(ex);
-            return { error: "Failed to edit nomenclature properties" };
+            return { error: ex };
         }
     },
 
     copyNomenclature: async ({ params, locals }) => {
         try {
-            const nom = await locals.pb.collection(Collections.Nomenclature).getOne<NomenclatureResponse>(params.id);
+            const nom = await locals.pb.collection(Collections.Nomenclature).getOne<Partial<NomenclatureResponse>>(params.id);
+
             const nom_rows = await locals.pb.collection(Collections.NomenclatureRow).getFullList(undefined, {
                 filter: `parent_nomenclature="${params.id}"` 
             });
@@ -120,8 +128,7 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            console.log(ex);
-            return { error: "Failed to copy nomenclature" };
+            return { error: ex };
         }
     }
 }

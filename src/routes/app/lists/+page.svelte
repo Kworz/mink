@@ -3,7 +3,10 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
 
-    import Table from "$lib/components/Table.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
+    import TableHead from "$lib/components/table/TableHead.svelte";
+    import TableRow from "$lib/components/table/TableRow.svelte";
     import type { PageData } from "./$types";
 
     export let data: PageData;
@@ -35,38 +38,32 @@
 
 <Table>
     <svelte:fragment slot="head">
-        <tr>
-            <th>Liste</th>
-            <th>Nomenclature de base</th>
-            <th>Crée le</th>
-            <th>Modifié le</th>
-        </tr>
+        <TableHead>Liste</TableHead>
+        <TableHead>Nomenclature de base</TableHead>
+        <TableHead>Créé le</TableHead>
+        <TableHead>Affaire</TableHead>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
         {#each data.lists as list}
-            <tr>
-                <td><a href="/app/lists/{list.id}" class="font-medium hover:text-violet-500 duration-100">{list.name}</a></td>
-                <td>{list.expand.parent_nomenclature.name}</td>
-                <td>{list.created}</td>
-                <td>{list.updated}</td>
-            </tr>
+            <TableRow>
+                <TableCell><a href="/app/lists/{list.id}" class="font-medium hover:text-violet-500 duration-100">{list.name}</a></TableCell>
+                <TableCell>
+                    {#if list.expand?.parent_nomenclature !== undefined}
+                        <a href="/app/nomenclatures/{list.expand.parent_nomenclature.id}" class="hover:text-violet-500 duration-100">{list.expand.parent_nomenclature.name}</a>
+                    {:else}
+                        Aucune liste ???
+                    {/if}                
+                </TableCell>
+                <TableCell>{list.created}</TableCell>
+                <TableCell>
+                    {#if list.expand?.project !== undefined}
+                        <a href="/app/projects/{list.expand.project.id}" class="hover:text-violet-500 duration-100">{list.expand.project.name}</a>
+                    {:else}
+                        Aucun
+                    {/if}
+                </TableCell>
+            </TableRow>
         {/each}
     </svelte:fragment>
 </Table>
-
-<style>
-
-    th {
-        @apply p-4 border-b border-b-violet-500/75 text-left;
-    }
-
-    td {
-
-        @apply p-4 border-b border-b-violet-500/25;
-    }
-
-    tr:last-child > td{
-        @apply border-0;
-    }
-</style>

@@ -15,7 +15,7 @@
 
     {#if menuShown}
         <div
-            class="shrink-0 bg-zinc-100 border-r-zinc-500/50 shadow-2xl border"
+            class="shrink-0 bg-zinc-100 border-r-zinc-500/50 shadow-2xl border duration-300"
             class:h-screen={menuShown}
         >
             <Flex gap={0} direction="col" class="h-[calc(100vh-2px)]">
