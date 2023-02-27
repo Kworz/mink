@@ -83,8 +83,6 @@ export const actions: Actions = {
                     throw "New quantity not defined";
 
                 articleMovement.quantity_update = oldQuantity - Number(newQuantity.toString());
-
-                console.log(Number(newQuantity.toString()), oldQuantity, articleMovement.quantity_update);
     
                 await locals.pb.collection(Collections.ListRow).update(data.get("id") as string, data);
             }

@@ -10,7 +10,6 @@
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableTitle from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
-    import type { ArticleResponse } from "$lib/DBTypes";
 
     import type { PageData, Snapshot } from "./$types";
     export let data: PageData;
@@ -26,12 +25,12 @@
 
         if(filterQuery.name !== undefined)
             result = result && filterCompatible(article.name, filterQuery.name)
-        if(filterQuery.manufacturer !== undefined && article.manufacturer !== undefined)
+        if(filterQuery.manufacturer !== undefined)
             result = result && filterCompatible(article.manufacturer, filterQuery.manufacturer)
-        if(filterQuery.reference !== undefined && article.reference !== undefined)
+        if(filterQuery.reference !== undefined)
             result = result && filterCompatible(article.reference, filterQuery.reference)
-        if(filterQuery.supplier !== undefined && article.expand?.supplier.name !== undefined)
-            result = result && filterCompatible(article.supplier, filterQuery.supplier)
+        if(filterQuery.supplier !== undefined)
+            result = result && filterCompatible(article.expand?.supplier?.name, filterQuery.supplier)
 
         return result;
     }

@@ -4,7 +4,7 @@
     import Button from "$lib/components/Button.svelte";
 
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3 } from "@steeze-ui/heroicons";
+    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck } from "@steeze-ui/heroicons";
     import User from "$lib/components/user/User.svelte";
 
     let menuShown = false;
@@ -28,6 +28,7 @@
 
                 <div class="grow p-6">
                     <Flex direction="col" gap={3}>
+                        <h3 class="mb-2">Articles</h3>
                         <a
                             href="/app/articles"
                             class="hover:text-violet-500 hover:font-medium"
@@ -38,6 +39,17 @@
                             <Icon src={CircleStack} class="h-5 w-5 mb-0.5 inline" />
                             Base articles
                         </a>
+                        <a
+                            href="/app/suppliers"
+                            class="hover:text-violet-500 hover:font-medium"
+                            class:text-blue-500={$page.route.id?.includes(
+                                "/app/suppliers"
+                            )}
+                        >
+                            <Icon src={Truck} class="h-5 w-5 mb-0.5 inline" />
+                            Fournisseurs
+                        </a>
+                        <h3 class="my-2">Nomenclatures</h3>
                         <a
                             href="/app/nomenclatures"
                             class="hover:text-violet-500 hover:font-medium"
@@ -58,6 +70,7 @@
                             <Icon src={ClipboardDocumentCheck} class="h-5 w-5 mb-0.5 inline" />
                             Listes d'achat
                         </a>
+                        <h3 class="my-2">Gestion</h3>
                         <a
                             href="/app/projects"
                             class="hover:text-violet-500 hover:font-medium"

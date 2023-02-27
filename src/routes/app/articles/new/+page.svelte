@@ -1,8 +1,12 @@
-<script>
+<script lang="ts">
 
     import Button from "$lib/components/Button.svelte";
+    import FormInput from "$lib/components/FormInput.svelte";
     import Input from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
+    import type { PageData } from "./$types";
+
+    export let data: PageData;
 
 </script>
 
@@ -20,7 +24,14 @@
         <h3>Informations complémentaires</h3>
 
         <Input name="price" label="Prix" />
-        <Input name="supplier" label="Fournisseur" />
+        <FormInput type="select" name="supplier" label="Fournisseur">
+            <option value={undefined}>—</option>
+            {#if data.suppliers !== undefined}
+                {#each data.suppliers as supplier}
+                    <option value={supplier.id}>{supplier.name}</option>
+                {/each}
+            {/if}
+        </FormInput>
         <Input name="reference" label="Référence" />
         <Input name="manufacturer" label="Fabricant" />
 

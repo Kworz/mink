@@ -1,6 +1,22 @@
 import { redirect } from "@sveltejs/kit";
-import type { Actions } from "../$types";
-import { Collections, type ArticleResponse } from "$lib/DBTypes";
+import type { Actions, PageServerLoad } from "./$types";
+import { Collections, type ArticleResponse, type SuppliersResponse } from "$lib/DBTypes";
+
+export const load = (async ({ locals }) => {
+
+    try {
+        const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
+        
+        return {
+            suppliers: structuredClone(suppliers)
+        };
+
+    } catch(ex)
+    {
+        return { error: ex };
+    }
+
+}) satisfies PageServerLoad;
 
 export const actions: Actions = {
     create: async ({ request, locals }) =>

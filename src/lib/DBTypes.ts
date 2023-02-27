@@ -41,8 +41,8 @@ export type AuthSystemFields<T = never> = {
 
 export type ArticleRecord = {
 	name: string
-	quantity: number
-	quantity_old: string
+	quantity?: number
+	quantity_old?: string
 	supplier?: RecordIdString
 	supplier_old?: string
 	price?: number
@@ -103,7 +103,9 @@ export type ProjectsRecord = {
 
 export type SuppliersRecord = {
 	name: string
+	internal?: boolean
 	address: string
+	website?: string
 	contact_email?: string
 }
 

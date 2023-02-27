@@ -45,7 +45,7 @@
             <h4>Informations générales</h4>
             <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
-            <p>Fournisseur: <DetailLabel>{data.article.supplier}</DetailLabel>.</p>
+            <p>Fournisseur: <DetailLabel>{data.article.expand?.supplier?.name ?? "—"}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
             <p>Quantité en stock: <DetailLabel>{data.article.quantity}</DetailLabel>.</p>
 
@@ -77,7 +77,12 @@
                     <FormInput name="quantity" type="number" label="Quantité en stock" labelMandatory={true} bind:value={data.article.quantity} backgroundColor="bg-white"/>
                     <FormInput name="price" type="number" label="Prix" step={0.01} bind:value={data.article.price} backgroundColor="bg-white" />
                     <FormInput name="reference" label="Référence" bind:value={data.article.reference} backgroundColor="bg-white" />
-                    <FormInput name="supplier" label="Fournisseur" bind:value={data.article.supplier} backgroundColor="bg-white"/>
+                    <FormInput type="select" name="supplier" label="Fournisseur" bind:value={data.article.supplier} backgroundColor="bg-white">
+                        <option value={undefined}>—</option>
+                        {#each data.suppliers as supplier}
+                            <option value={supplier.id}>{supplier.name}</option>
+                        {/each}
+                    </FormInput>
                     <FormInput name="manufacturer" label="Fabricant" bind:value={data.article.manufacturer} backgroundColor="bg-white"/>       
                 </Flex>
                 

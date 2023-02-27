@@ -1,20 +1,23 @@
-import { redirect, type Actions } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse } from "$lib/DBTypes";
+import { redirect } from "@sveltejs/kit";
+import type { PageServerLoad, Actions } from "./$types";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type SuppliersResponse } from "$lib/DBTypes";
+import type { ArticleResponseExpanded } from "../+page.server";
 
 export const load = (async ({ params, locals }) => {
 
     try
     {
         const itemId = params.id;
-        const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(itemId);
+        const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(itemId, { expand: "supplier"});
         const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{"user": UsersResponse}>>(undefined, { filter: `article="${itemId}"`, sort: "-created", expand: "user" });
         const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();
+        const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
     
         return {
             article: structuredClone(article),
             articleMovements: structuredClone(articleMovements),
-            nomenclatures: structuredClone(nomenclatures)
+            nomenclatures: structuredClone(nomenclatures),
+            suppliers: structuredClone(suppliers)
         }
     }
     catch(ex) 
@@ -29,10 +32,7 @@ export const actions: Actions = {
 
     deleteArticle: async ({ params, locals }) => {
         try
-        {
-            if(params.id === undefined)
-                throw "Id not given";
-            
+        {            
             await locals.pb.collection("article").delete(params.id);
         }
         catch(ex)
@@ -46,9 +46,6 @@ export const actions: Actions = {
     editArticle: async ({ params, request, locals }) => {
         try
         {
-            if(params.id === undefined)
-                throw "params id not given";
-
             if(locals.user?.id === undefined)
                 throw "user not authed";
             
@@ -75,13 +72,8 @@ export const actions: Actions = {
 
         let newArticle = undefined;
 
-        console.log("copy article")
-
         try
         {
-            if(params.id === undefined)
-                throw "Article id undefined";
-
             const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
 
             const newArticleObject: Partial<ArticleResponse> = {
@@ -146,13 +138,9 @@ export const actions: Actions = {
 
     addAttachedFile: async ({ locals, params, request }) => {
         const form = await request.formData();
-        const articleID = params.id;
 
         try {
-            if(articleID === undefined)
-                throw "could not find article id";
-
-            await locals.pb.collection(Collections.Article).update(articleID, form);
+            await locals.pb.collection(Collections.Article).update(params.id, form);
         }
         catch(ex)
         {

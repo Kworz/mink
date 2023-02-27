@@ -22,7 +22,6 @@
     onMount(async () => {
         const loader = new STLLoader();
         bufferGeometry = await loader.loadAsync(url);
-        console.log("mesh loaded");
     });
 
     $: if(mesh !== undefined) {
