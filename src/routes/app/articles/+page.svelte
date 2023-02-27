@@ -84,6 +84,7 @@
         <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
         <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
         <TableTitle>Prix global</TableTitle>
+        <TableTitle col="updated" {activeSort} sortFn={setSort}>Updated</TableTitle>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
@@ -99,6 +100,7 @@
                 <TableCell>{article.manufacturer}</TableCell>
                 <TableCell>{article.price ?? "—"} €</TableCell>
                 <TableCell>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</TableCell>
+                <TableCell>{article.updated}</TableCell>
             </TableRow>
         {/each}
     </svelte:fragment>

@@ -15,6 +15,7 @@ import DetailLabel from "$lib/components/DetailLabel.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import User from "$lib/components/user/User.svelte";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
+    import OrderTable from "../../orders/OrderTable.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -104,5 +105,9 @@ import DetailLabel from "$lib/components/DetailLabel.svelte";
             {/each}
         </svelte:fragment>
     </Table>
+
+    <h2>Commandes</h2>
+
+    <OrderTable bind:orders={data.orders} />
 
 </div>

@@ -4,7 +4,7 @@
     import Button from "$lib/components/Button.svelte";
 
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck } from "@steeze-ui/heroicons";
+    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar } from "@steeze-ui/heroicons";
     import User from "$lib/components/user/User.svelte";
 
     let menuShown = false;
@@ -80,6 +80,16 @@
                         >
                             <Icon src={DocumentText} class="h-5 w-5 mb-0.5 inline" />
                             Affaires
+                        </a>
+                        <a
+                            href="/app/orders"
+                            class="hover:text-violet-500 hover:font-medium"
+                            class:text-blue-500={$page.route.id?.includes(
+                                "/app/orders"
+                            )}
+                        >
+                            <Icon src={DocumentChartBar} class="h-5 w-5 mb-0.5 inline" />
+                            Commandes
                         </a>
                         <a
                             href="/app/planning"

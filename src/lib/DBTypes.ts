@@ -10,6 +10,8 @@ export enum Collections {
 	ListRow = "list_row",
 	Nomenclature = "nomenclature",
 	NomenclatureRow = "nomenclature_row",
+	Orders = "orders",
+	OrdersRows = "orders_rows",
 	Projects = "projects",
 	Suppliers = "suppliers",
 	Users = "users",
@@ -94,6 +96,26 @@ export type NomenclatureRowRecord = {
 	group?: string
 }
 
+export enum OrdersStateOptions {
+	"draft" = "draft",
+	"ordered" = "ordered",
+	"completed" = "completed",
+	"cancelled" = "cancelled",
+}
+export type OrdersRecord = {
+	project?: RecordIdString
+	supplier: RecordIdString
+	issuer: RecordIdString
+	state: OrdersStateOptions
+}
+
+export type OrdersRowsRecord = {
+	order: RecordIdString
+	article: RecordIdString
+	quantity: number
+	delivery_date?: IsoDateString
+}
+
 export type ProjectsRecord = {
 	name: string
 	start_date: IsoDateString
@@ -104,7 +126,7 @@ export type ProjectsRecord = {
 export type SuppliersRecord = {
 	name: string
 	internal?: boolean
-	address: string
+	address?: string
 	website?: string
 	contact_email?: string
 }
@@ -121,6 +143,8 @@ export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texp
 export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
 export type NomenclatureResponse<Texpand = unknown> = NomenclatureRecord & BaseSystemFields<Texpand>
 export type NomenclatureRowResponse<Texpand = unknown> = NomenclatureRowRecord & BaseSystemFields<Texpand>
+export type OrdersResponse<Texpand = unknown> = OrdersRecord & BaseSystemFields<Texpand>
+export type OrdersRowsResponse<Texpand = unknown> = OrdersRowsRecord & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = ProjectsRecord & BaseSystemFields<Texpand>
 export type SuppliersResponse = SuppliersRecord & BaseSystemFields
 export type UsersResponse = UsersRecord & AuthSystemFields
@@ -133,6 +157,8 @@ export type CollectionRecords = {
 	list_row: ListRowRecord
 	nomenclature: NomenclatureRecord
 	nomenclature_row: NomenclatureRowRecord
+	orders: OrdersRecord
+	orders_rows: OrdersRowsRecord
 	projects: ProjectsRecord
 	suppliers: SuppliersRecord
 	users: UsersRecord
