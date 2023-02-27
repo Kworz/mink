@@ -5,6 +5,7 @@
     import Button from "$lib/components/Button.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import File from "$lib/components/file/File.svelte";
+    import PreviewFile from "$lib/components/file/PreviewFile.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Grid from "$lib/components/layout/grid.svelte";
@@ -15,7 +16,7 @@
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { Check, Wrench } from "@steeze-ui/heroicons";
+    import { Check, PlusCircle, Wrench } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
 
@@ -24,6 +25,8 @@
 
     let editArticle = false;
     let showConfirmDelete = false;
+
+    let selectedFile: string = "";
 
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(showConfirmDelete === true) { setTimeout(() => showConfirmDelete = false, 3000); }
@@ -34,7 +37,7 @@
     <title>Article — {data.article.name}</title>
 </svelte:head>
 
-<Grid cols={2} gap={6}>
+<Flex gap={6} justify="between">
     {#if !editArticle}
         <section>
             <h2>{data.article.name}</h2>
@@ -100,79 +103,86 @@
         </Wrapper>
     {/if}
 
-    <Flex direction="col" gap={6}>
-        <Wrapper>
-            <h3>Ajouter a une nomenclature</h3>
-
-            {#if form?.addToNomenclature !== undefined}
-                {#if form.addToNomenclature.success} <p class="text-emerald-500">{form.addToNomenclature.success}</p> {/if}
-                {#if form.addToNomenclature.error} <p class="text-red-500">{form.addToNomenclature.error}</p> {/if}
-            {/if}
-
-            <form action="?/addToNomenclature" method="post" use:enhanceNoReset>
-                <Flex items="end">
-            
-                    <FormInput name="parent_nomenclature" type="select" label="nomenclature" labelMandatory={true} backgroundColor="white">
-                        {#each data.nomenclatures as nomenclature}
-                            <option value={nomenclature.id}>{nomenclature.name}</option>
-                        {/each}
-                    </FormInput>
-            
-                    <FormInput name="item_quantity" type="number" min={0} label="Quantité requise" labelMandatory={true} value={0} backgroundColor="white"/>
-                    <Button>Ajouter</Button>
-                </Flex>
-            </form>
-        </Wrapper>
-
-        {#if data.articleMovements.length > 0}
-            <Table marginTop="">
-                <svelte:fragment slot="head">
-                    <TableHead>Movement quantité</TableHead>
-                    <TableHead>Raison</TableHead>
-                    <TableHead>Utilisateur</TableHead>
-                    <TableHead>Date</TableHead>
-                </svelte:fragment>
-
-                <svelte:fragment slot="body">
-                    {#each data.articleMovements as movement}
-                        <TableRow>
-                            <TableCell>{movement.quantity_update}</TableCell>
-                            <TableCell>{movement.reason ?? "—"}</TableCell>
-                            <TableCell>
-                                {#if movement.expand?.user !== undefined}
-                                    <User user={movement.expand.user} />
-                                {:else}
-                                    —
-                                {/if}
-                            </TableCell>
-                            <TableCell>{movement.created}</TableCell>
-                        </TableRow>
-                    {/each}
-                </svelte:fragment>
-            </Table>
-        {/if}
-    </Flex>
-</Grid>
-
-<Wrapper class="mt-6">
-    <h3 class="mb-3">Fichiers liés</h3>
-    <Grid cols={8}>
-        <div class="p-4 rounded-[3px] border border-zinc-500/50 aspect-[2/1] col-span-2 bg-white">
-            <Flex justify="between" direction="col">
-                <h4>Ajouter un fichier</h4>
-                <form action="?/addAttachedFile" method="post" use:enhance>
-                    <Flex direction="col" items="start">
-                        <FormInput type="file" name="attached_files" label="Fichier a ajouter" labelMandatory={true} />
-                        <Button>Ajouter le fichier</Button>
+    <Flex items="start">
+        <div class="h-96">
+            {#if selectedFile !== ""}
+                <File fileName={selectedFile} collectionName={data.article.collectionName} collectionID={data.article.id} isPinned={data.article.pinned_file === selectedFile} />
+            {:else}
+                <Wrapper class="h-full">
+                    <Flex justify="between" direction="col">
+                        <h4>Ajouter un fichier</h4>
+                        <form action="?/addAttachedFile" method="post" use:enhance>
+                            <Flex direction="col" items="start">
+                                <FormInput type="file" name="attached_files" label="Fichier a ajouter" labelMandatory={true} backgroundColor="bg-white" />
+                                <Button>Ajouter le fichier</Button>
+                            </Flex>
+                        </form>
                     </Flex>
-                </form>
-            </Flex>
+                </Wrapper>
+            {/if}
         </div>
+        <Grid cols={1}>
+            <button class="aspect-square border {selectedFile !== "" ? "border-zinc-500/50" : "border-blue-500/50"} rounded-[3px] bg-white relative" on:click={() => selectedFile = ""}>
+                <Icon src={PlusCircle} class="h-12 w-12 m-auto text-zinc-500" />
+            </button>
+            {#if data.article.attached_files !== undefined}
+                {#each data.article.attached_files as file}
+                    <PreviewFile selected={selectedFile === file} fileName={file} collectionName={data.article.collectionName} collectionID={data.article.id} on:click={() => selectedFile = file} />
+                {/each}
+            {/if}
+        </Grid>
+    </Flex>
+</Flex>
 
-        {#if data.article.attached_files !== undefined}
-            {#each data.article.attached_files as file}
-                <File fileName={file} collectionName={data.article.collectionName} collectionID={data.article.id} isPinned={data.article.pinned_file === file} />
-            {/each}
+<Flex direction="col" gap={6} class="mt-6">
+    <Wrapper>
+        <h3>Ajouter a une nomenclature</h3>
+
+        {#if form?.addToNomenclature !== undefined}
+            {#if form.addToNomenclature.success} <p class="text-emerald-500">{form.addToNomenclature.success}</p> {/if}
+            {#if form.addToNomenclature.error} <p class="text-red-500">{form.addToNomenclature.error}</p> {/if}
         {/if}
-    </Grid>
-</Wrapper>
+
+        <form action="?/addToNomenclature" method="post" use:enhanceNoReset>
+            <Flex items="end">
+        
+                <FormInput name="parent_nomenclature" type="select" label="nomenclature" labelMandatory={true} backgroundColor="white">
+                    {#each data.nomenclatures as nomenclature}
+                        <option value={nomenclature.id}>{nomenclature.name}</option>
+                    {/each}
+                </FormInput>
+        
+                <FormInput name="item_quantity" type="number" min={0} label="Quantité requise" labelMandatory={true} value={0} backgroundColor="white"/>
+                <Button>Ajouter</Button>
+            </Flex>
+        </form>
+    </Wrapper>
+
+    {#if data.articleMovements.length > 0}
+        <Table marginTop="">
+            <svelte:fragment slot="head">
+                <TableHead>Movement quantité</TableHead>
+                <TableHead>Raison</TableHead>
+                <TableHead>Utilisateur</TableHead>
+                <TableHead>Date</TableHead>
+            </svelte:fragment>
+
+            <svelte:fragment slot="body">
+                {#each data.articleMovements as movement}
+                    <TableRow>
+                        <TableCell>{movement.quantity_update}</TableCell>
+                        <TableCell>{movement.reason ?? "—"}</TableCell>
+                        <TableCell>
+                            {#if movement.expand?.user !== undefined}
+                                <User user={movement.expand.user} />
+                            {:else}
+                                —
+                            {/if}
+                        </TableCell>
+                        <TableCell>{movement.created}</TableCell>
+                    </TableRow>
+                {/each}
+            </svelte:fragment>
+        </Table>
+    {/if}
+</Flex>

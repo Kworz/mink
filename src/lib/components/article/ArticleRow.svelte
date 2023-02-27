@@ -1,7 +1,6 @@
 <script lang="ts">
     import { browser } from "$app/environment";
 
-
     import type { ArticleResponse } from "$lib/DBTypes";
     import DetailLabel from "../DetailLabel.svelte";
     import Flex from "../layout/flex.svelte";
@@ -13,6 +12,12 @@
     /** Wether the thumb image is displayed or not */
     export let displayThumb = true;
 
+    /** Wether the supplier and price are displayed */
+    export let displaySupplier = true;
+
+    /** Wether the manufacturer and reference are displayed */
+    export let displayManufacturer = true;
+
 </script>
 
 <Flex items="center">
@@ -23,8 +28,8 @@
 
     <div>
         <a href="/app/articles/{article.id}" class="block font-medium hover:text-violet-500">{article.name}</a>
-        <span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>
-        <span class="text-sm block">{article.supplier}: <DetailLabel>{article.price} €</DetailLabel></span>
-        {#if Number(article.quantity) > 0 && displayStock === true} <span class="text-sm text-emerald-600 block">{article.quantity} En stock.</span> {/if}
+        {#if displayManufacturer}<span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
+        {#if displaySupplier}<span class="text-sm block">{article.supplier}: <DetailLabel>{article.price} €</DetailLabel></span>{/if}
+        {#if (article.quantity ?? 0) > 0 && displayStock === true} <span class="text-sm text-emerald-600 block">{article.quantity} En stock.</span> {/if}
     </div>
 </Flex>

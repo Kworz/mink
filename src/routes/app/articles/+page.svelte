@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
+    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Button from "$lib/components/Button.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
@@ -16,6 +17,9 @@
 
     let filterQuery: FilterQueryResult<"name" | "manufacturer" | "supplier" | "reference"> = {};
     let filter = "";
+
+    let displayThumbs = true;
+    let selected: Array<typeof data.articles[number]> = [];
 
     let activeSort = $page.url.searchParams.get("sort") ?? "name";
 
@@ -54,8 +58,10 @@
 <h2>Articles</h2>
 <p>Liste des articles disponible dans la base.</p>
 <p>Valeur du stock: <DetailLabel>{data.articles.reduce((p, c) => (c.price ?? 0) * (Number(c.quantity) ?? 0) + p, 0)} €</DetailLabel>.</p>
+<h4 class="mt-3">Réglages liste</h4>
+<p><input type="checkbox" bind:checked={displayThumbs} /> Afficher les miniatures.</p>
 
-<Flex class="mt-8">
+<Flex class="mt-6">
     <Filter bind:filter availableFilters={["name", "manufacturer", "supplier", "reference"]} bind:filterResult={filterQuery} />
     <a href="/app/articles/new"><Button>Créer un article</Button></a>
     <a href="/app/articles/scan"><Button>Scanner code QR</Button></a>
@@ -70,8 +76,8 @@
 
 <Table>
     <svelte:fragment slot="head">
+        <TableTitle><input type="checkbox" on:change={() => selected = (selected.length === 0 ? data.articles : [])} checked={selected.length === data.articles.length}></TableTitle>
         <TableTitle col="name" {activeSort} sortFn={setSort}>Article</TableTitle>
-        <TableTitle>Miniature</TableTitle>
         <TableTitle col="quantity" {activeSort} sortFn={setSort}>Quantité disponible</TableTitle>
         <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
         <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
@@ -83,13 +89,9 @@
     <svelte:fragment slot="body">
         {#each data.articles.filter((k) => filterFn(k, filterQuery)) as article (article.id)}
             <TableRow>
-                <TableCell><a href="/app/articles/{article.id}" class="font-medium hover:text-violet-500 duration-100">{article.name}</a></TableCell>
+                <TableCell><input type="checkbox" bind:group={selected} value={article} /></TableCell>
                 <TableCell>
-                    {#if (article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file))}
-                        <span class="text-emerald-500 font-semibold">Oui</span>
-                    {:else}
-                        <span class="text-red-500 font-semibold">Non</span>
-                    {/if}
+                    <ArticleRow {article} displaySupplier={false} displayManufacturer={false} bind:displayThumb={displayThumbs} />
                 </TableCell>
                 <TableCell>{article.quantity}</TableCell>
                 <TableCell>{article.reference}</TableCell>

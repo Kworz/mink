@@ -19,7 +19,7 @@
 </script>
 
 {#if browser}
-    <div class="aspect-square border border-zinc-500/50 rounded-[3px] bg-white relative">
+    <div class="aspect-square h-full border border-zinc-500/50 rounded-[3px] bg-white relative">
     
         <Flex class="absolute top-2 right-2 opacity-50 hover:opacity-100 duration-200" gap={1}>
             {#if isImage}
@@ -39,7 +39,7 @@
             </form>
         </Flex>
         {#if isImage}
-            <img src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover" />
+            <img src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover h-full" />
         {:else if isStlFile}
             <StlFile url="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
         {:else}
