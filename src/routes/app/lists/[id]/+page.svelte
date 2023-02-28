@@ -9,7 +9,6 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import { ExclamationTriangle, Wrench, Check } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
-    import type { NomenclatureRowResponse } from "$lib/DBTypes";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Filter from "$lib/components/filter/Filter.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
@@ -25,10 +24,10 @@
     let editList = false;
     let confirmDelete = false;
 
-    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "valid"> = {} as typeof queryFilters;
+    let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "valid"> = {};
     let filter: string = "";
 
-    const listRowFilter = (nomRow: NomenclatureRowResponse, qf: typeof queryFilters): boolean => {
+    const listRowFilter = (nomRow: typeof data.nomenclature_rows[number], qf: typeof queryFilters): boolean => {
 
         let result = true;
 
@@ -37,7 +36,7 @@
         if(queryFilters.reference !== undefined)
             result = result && filterCompatible(nomRow.expand?.child_article.reference, queryFilters.reference);
         if(queryFilters.supplier !== undefined)
-            result = result && filterCompatible(nomRow.expand?.child_article.supplier, queryFilters.supplier);
+            result = result && filterCompatible(nomRow.expand?.child_article.expand?.supplier?.name, queryFilters.supplier);
         if(queryFilters.manufacturer !== undefined)
             result = result && filterCompatible(nomRow.expand?.child_article.manufacturer, queryFilters.manufacturer);
 

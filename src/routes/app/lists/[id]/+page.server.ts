@@ -1,6 +1,7 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type NomenclatureRowResponse, type ListResponse, type ListRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type ArticleResponse, type NomenclatureResponse, type ProjectsResponse } from "$lib/DBTypes";
+import { Collections, type NomenclatureRowResponse, type ListResponse, type ListRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type ArticleResponse, type NomenclatureResponse, type ProjectsResponse, type OrdersRecord, OrdersStateOptions, type OrdersRowsRecord, type OrdersRowsResponse, type OrdersResponse } from "$lib/DBTypes";
+import type { NomenclatureRowResponseExpanded, NomenclatureRowResponseExpandedWithArticle } from "../../nomenclatures/[id]/+page.server";
 
 export const load = (async ({ params, locals }) => {
 
@@ -15,9 +16,9 @@ export const load = (async ({ params, locals }) => {
             expand: ``
         });
 
-        const nomenclature_rows = await locals.pb.collection(Collections.NomenclatureRow).getFullList<NomenclatureRowResponse>(undefined, {
+        const nomenclature_rows = await locals.pb.collection(Collections.NomenclatureRow).getFullList<NomenclatureRowResponseExpandedWithArticle>(undefined, {
             filter: `parent_nomenclature="${list.parent_nomenclature}"`,
-            expand: `child_article`
+            expand: `child_article.supplier`
         });
 
         const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
@@ -142,5 +143,61 @@ export const actions: Actions = {
         }
 
         throw redirect(303, "/app/lists/");
+    },
+    generateOrder: async ({ request, params, locals }) => {
+        
+        let order: OrdersResponse | undefined = undefined;
+
+        try
+        {
+            const form = await request.formData();
+
+            const projectID = form.get("project");
+            const supplierID = form.get("supplier");
+
+            if(locals.user === undefined || locals.user === null)
+                throw "User not logged in";
+
+            if(projectID === null || supplierID === null)
+                throw "Could create order for undefined supplier";
+
+            const order_object: OrdersRecord = {
+                issuer: locals.user.id,
+                supplier: supplierID?.toString(),
+                state: OrdersStateOptions.draft,
+                project: projectID.toString()
+            } ;
+
+            const list = await locals.pb.collection(Collections.List).getOne<ListResponse>(params.id);
+            const list_rows = await locals.pb.collection(Collections.ListRow).getFullList<ListRowResponse>({ filter: `parent_list="${params.id}"`});
+            const nomenclature_rows = await locals.pb.collection(Collections.NomenclatureRow).getFullList<NomenclatureRowResponseExpanded>(undefined, {
+                filter: `parent_nomenclature="${list.parent_nomenclature}"`,
+                expand: `child_article`
+            });
+
+            order = await locals.pb.collection(Collections.Orders).create<OrdersResponse>(order_object);
+
+            for(const nomRow of nomenclature_rows.filter(k => k.expand?.child_article.supplier === order_object.supplier))
+            {
+                const listRow = list_rows.find(k => k.parent_nomenclature_row === nomRow.id);
+
+                const orderAmount = nomRow.quantity_required - (listRow?.quantity ?? 0);
+
+                const order_row: OrdersRowsRecord = {
+                    order: order.id,
+                    article: nomRow.child_article,
+                    quantity: orderAmount
+                };
+
+                await locals.pb.collection(Collections.OrdersRows).create<OrdersRowsResponse>(order_row);
+            }
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return { generateOrder: { error: ex }};
+        }
+
+        throw redirect(303, `/app/orders/${order.id}`)
     }
 }
