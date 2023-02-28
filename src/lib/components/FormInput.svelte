@@ -17,8 +17,25 @@
 
     export let backgroundColor = "bg-zinc-100";
 
+    export let validateOnBlur = false;
+    export let validateOnChange = false;
+
+    $: validateButton = validateOnBlur || validateOnChange;
+
+    let exitButton: HTMLButtonElement | undefined = undefined;
+
     function typeAction(node: HTMLInputElement) {
         node.type = type;
+    }
+
+    function onBlur() {
+        if(validateOnBlur && exitButton)
+            exitButton.click();
+    }
+
+    function onChange() {
+        if(validateOnChange && exitButton)
+            exitButton.click();
     }
 
 </script>
@@ -34,11 +51,15 @@
     {/if}
 
     {#if type !== "select"}
-        <input use:typeAction {name} bind:value {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change/>
+        <input use:typeAction {name} bind:value {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
     {:else}
-        <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change>
+        <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
             <slot />
         </select>
+    {/if}
+
+    {#if validateButton}
+        <button class="invisible" bind:this={exitButton}></button>
     {/if}
     
 </Flex>

@@ -45,7 +45,6 @@
         {:else}
             <Flex class="inset-0 m-2" direction="col">
                 <Icon src={Document} class="h-32 aspect-square text-zinc-800/50" />
-                <span>{fileName}</span>
             </Flex>
         {/if}
     </div>

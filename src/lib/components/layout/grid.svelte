@@ -1,8 +1,11 @@
 <script lang="ts">
+
+	import { itemsPosition } from "./flexTypes";
 	/**
 	 * Columns amount
 	 */
 	export let cols: null | keyof typeof colsData = 1;
+	export let items: null | keyof typeof itemsPosition = null;
 
 	const colsData = {
 		1: 'grid-cols-1',
@@ -64,6 +67,7 @@
 	class="grid 
 	{cols != null ? colsData[cols] : ''}
 	{gap != null ? gaps[gap] : ''}
+	{items != null ? itemsPosition[items] : ''}
 	{$$props.class || ''}"
 >
 	<slot />
