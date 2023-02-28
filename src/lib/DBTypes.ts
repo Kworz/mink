@@ -44,9 +44,8 @@ export type AuthSystemFields<T = never> = {
 export type ArticleRecord = {
 	name: string
 	quantity?: number
-	quantity_old?: string
+	order_quantity?: number
 	supplier?: RecordIdString
-	supplier_old?: string
 	price?: number
 	reference?: string
 	manufacturer?: string
@@ -103,14 +102,16 @@ export enum OrdersStateOptions {
 	"cancelled" = "cancelled",
 }
 export type OrdersRecord = {
-	project?: RecordIdString
+	name: string
 	supplier: RecordIdString
 	issuer: RecordIdString
 	state: OrdersStateOptions
+	attached_files?: string[]
 }
 
 export type OrdersRowsRecord = {
 	order: RecordIdString
+	project?: RecordIdString
 	article: RecordIdString
 	quantity: number
 	delivery_date?: IsoDateString
@@ -129,6 +130,7 @@ export type SuppliersRecord = {
 	address?: string
 	website?: string
 	contact_email?: string
+	payment_rules?: string
 }
 
 export type UsersRecord = {
