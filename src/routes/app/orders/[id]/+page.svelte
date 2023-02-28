@@ -20,8 +20,6 @@
     export let data: PageData;
     export let form: ActionData;
 
-    let selectedRows: Array<string> = [];
-
     $: htTotal = (data.order.expand?.["orders_rows(order)"].map(k => k.quantity * (k.expand?.article.price ?? 0)).reduce((p, c) => p + c, 0) ?? 0);
     $: tvaSubtotal = Math.floor(((htTotal * 1.20) - htTotal) * 100) / 100;
     $: completeTotal = htTotal + tvaSubtotal;
@@ -84,7 +82,6 @@
     
         <Table backgroundColor="bg-white">
             <svelte:fragment slot="head">
-                <TableHead>Selection</TableHead>
                 <TableHead>Projet</TableHead>
                 <TableHead>Désignation</TableHead>
                 <TableHead>Référence</TableHead>
@@ -98,7 +95,6 @@
                 {#if data.order.expand?.["orders_rows(order)"]}
                     {#each data.order.expand?.["orders_rows(order)"] as order_row (order_row.id)}
                         <TableRow>
-                            <TableCell><input type="checkbox" bind:group={selectedRows} value={order_row.id} /></TableCell>
                             <TableCell>
                                 <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                                     <input type="hidden" name="id" value={order_row.id} />
