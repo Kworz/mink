@@ -15,7 +15,7 @@
         <slot name="body" />
     </tbody>
 
-    <tfoot>
+    <tfoot class="border-t border-t-violet-500 font-semibold">
         <slot name="foot" />
     </tfoot>
 </table>
