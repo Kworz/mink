@@ -50,6 +50,7 @@
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
             <p>Fournisseur: <DetailLabel>{data.article.expand?.supplier?.name ?? "—"}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
+            {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity}</DetailLabel>.</p>
 
             <Flex class="my-6" items="center">
@@ -77,7 +78,10 @@
             <form action="?/editArticle" method="post" use:enhanceNoReset>
                 <Flex direction="col" gap={2}>
                     <FormInput name="name" label="Nom de l'article" labelMandatory={true} bind:value={data.article.name} backgroundColor="bg-white"/>
+
                     <FormInput name="quantity" type="number" label="Quantité en stock" labelMandatory={true} bind:value={data.article.quantity} backgroundColor="bg-white"/>
+                    <FormInput name="order_quantity" type="number" label="Quantité minimale de commande" bind:value={data.article.order_quantity} backgroundColor="bg-white"/>
+
                     <FormInput name="price" type="number" label="Prix" step={0.01} bind:value={data.article.price} backgroundColor="bg-white" />
                     <FormInput name="reference" label="Référence" bind:value={data.article.reference} backgroundColor="bg-white" />
                     <FormInput type="select" name="supplier" label="Fournisseur" bind:value={data.article.supplier} backgroundColor="bg-white">
@@ -121,7 +125,7 @@
                 </Wrapper>
             {/if}
         </div>
-        <Grid cols={1}>
+        <Grid cols={1} class="w-24">
             <button class="aspect-square border {selectedFile !== "" ? "border-zinc-500/50" : "border-blue-500/50"} rounded-[3px] bg-white relative" on:click={() => selectedFile = ""}>
                 <Icon src={PlusCircle} class="h-12 w-12 m-auto text-zinc-500" />
             </button>

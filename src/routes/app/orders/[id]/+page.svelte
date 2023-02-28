@@ -15,10 +15,12 @@
 
     import type { ActionData, PageData } from "./$types";
 
-    let states = [OrdersStateOptions.draft, OrdersStateOptions.ordered, OrdersStateOptions.completed, OrdersStateOptions.cancelled]
+    let states = [OrdersStateOptions.draft, OrdersStateOptions.placed, OrdersStateOptions.cancelled]
 
     export let data: PageData;
     export let form: ActionData;
+
+    let selectedRows: Array<string> = [];
 
     $: htTotal = (data.order.expand?.["orders_rows(order)"].map(k => k.quantity * (k.expand?.article.price ?? 0)).reduce((p, c) => p + c, 0) ?? 0);
     $: tvaSubtotal = Math.floor(((htTotal * 1.20) - htTotal) * 100) / 100;
@@ -39,7 +41,6 @@
                 {#each states as state}
                     <option value={state} class="capitalize">{state}</option>
                 {/each}
-            
             </FormInput>
         </form>
 
@@ -83,6 +84,7 @@
     
         <Table backgroundColor="bg-white">
             <svelte:fragment slot="head">
+                <TableHead>Selection</TableHead>
                 <TableHead>Projet</TableHead>
                 <TableHead>Désignation</TableHead>
                 <TableHead>Référence</TableHead>
@@ -94,8 +96,9 @@
     
             <svelte:fragment slot="body">
                 {#if data.order.expand?.["orders_rows(order)"]}
-                    {#each data.order.expand?.["orders_rows(order)"] as order_row}
+                    {#each data.order.expand?.["orders_rows(order)"] as order_row (order_row.id)}
                         <TableRow>
+                            <TableCell><input type="checkbox" bind:group={selectedRows} value={order_row.id} /></TableCell>
                             <TableCell>
                                 <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                                     <input type="hidden" name="id" value={order_row.id} />
@@ -107,12 +110,12 @@
                                     </FormInput>
                                 </form>
                             </TableCell>
-                            <TableCell>{order_row.expand?.article.name}</TableCell>
+                            <TableCell><a href="/app/articles/{order_row.expand?.article.id}" class="hover:text-violet-500 duration-200 font-medium">{order_row.expand?.article.name}</a></TableCell>
                             <TableCell>{order_row.expand?.article.reference}</TableCell>
                             <TableCell>
                                 <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                                     <input type="hidden" name="id" value={order_row.id} />
-                                    <FormInput type="number" name="quantity" bind:value={order_row.quantity} validateOnChange={true} min={1} step={order_row.expand?.article?.order_quantity}/>
+                                    <FormInput type="number" name="quantity" bind:value={order_row.quantity} validateOnChange={true} min={order_row.expand?.article?.order_quantity} step={order_row.expand?.article?.order_quantity}/>
                                 </form>
                             </TableCell>
                             <TableCell>

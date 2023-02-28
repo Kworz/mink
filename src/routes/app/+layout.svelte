@@ -4,7 +4,7 @@
     import Button from "$lib/components/Button.svelte";
 
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar } from "@steeze-ui/heroicons";
+    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar, QueueList } from "@steeze-ui/heroicons";
     import User from "$lib/components/user/User.svelte";
 
     let menuShown = false;
@@ -48,6 +48,16 @@
                         >
                             <Icon src={Truck} class="h-5 w-5 mb-0.5 inline" />
                             Fournisseurs
+                        </a>
+                        <a
+                            href="/app/approx"
+                            class="hover:text-violet-500 hover:font-medium"
+                            class:text-blue-500={$page.route.id?.includes(
+                                "/app/approx"
+                            )}
+                        >
+                            <Icon src={QueueList} class="h-5 w-5 mb-0.5 inline" />
+                            Approvisionements
                         </a>
                         <h3 class="my-2">Nomenclatures</h3>
                         <a

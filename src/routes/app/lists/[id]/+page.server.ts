@@ -180,12 +180,20 @@ export const actions: Actions = {
             for(const nomRow of nomenclature_rows.filter(k => k.expand?.child_article.supplier === order_object.supplier))
             {
                 const listRow = list_rows.find(k => k.parent_nomenclature_row === nomRow.id);
-
-                const orderAmount = nomRow.quantity_required - (listRow?.quantity ?? 0);
-
+                let orderAmount = nomRow.quantity_required - (listRow?.quantity ?? 0);
+                
                 if(orderAmount <= 0)
                     continue;
 
+                const minOrderQuantity = nomRow.expand?.child_article.order_quantity;
+
+                if(minOrderQuantity !== undefined && orderAmount % minOrderQuantity != 0)
+                {
+                    const missingquantity = (orderAmount % minOrderQuantity);
+                    console.log("Ajusted order amount", orderAmount, missingquantity, orderAmount + missingquantity);
+                    orderAmount = orderAmount + missingquantity;
+                }
+                
                 const order_row: OrdersRowsRecord = {
                     order: order.id,
                     article: nomRow.child_article,

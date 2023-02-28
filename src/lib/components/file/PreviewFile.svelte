@@ -15,7 +15,7 @@
 </script>
 
 {#if browser}
-    <button class="aspect-square border {selected === false ? "border-zinc-500/50" : "border-blue-500/50"} rounded-[3px] bg-white relative" on:click>
+    <button class="aspect-square {selected === false ? "border-zinc-500/50 border" : "border-blue-500/50 border-2"} duration-100 rounded-[3px] bg-white relative" on:click>
         {#if isImage}
             <img src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}?thumb=100x100" alt={fileName} class="aspect-square object-cover" />
         {:else if isStlFile}

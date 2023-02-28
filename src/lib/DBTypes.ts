@@ -97,8 +97,7 @@ export type NomenclatureRowRecord = {
 
 export enum OrdersStateOptions {
 	"draft" = "draft",
-	"ordered" = "ordered",
-	"completed" = "completed",
+	"placed" = "placed",
 	"cancelled" = "cancelled",
 }
 export type OrdersRecord = {
@@ -115,6 +114,7 @@ export type OrdersRowsRecord = {
 	article: RecordIdString
 	quantity: number
 	delivery_date?: IsoDateString
+	quantity_received?: number
 }
 
 export type ProjectsRecord = {
