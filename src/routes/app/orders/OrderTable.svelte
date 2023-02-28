@@ -15,22 +15,20 @@
         <TableHead>Fournisseur</TableHead>
         <TableHead>Montant (HT)</TableHead>
         <TableHead>État</TableHead>
-        <TableHead>Affaire</TableHead>
         <TableHead>Demandeur</TableHead>
     </svelte:fragment>
 
     <svelte:fragment slot="body">
         {#each orders as order}
             <TableRow>
-                <TableCell><a href="/app/orders/{order.id}" class="hover:text-violet-500 duration-100 font-medium">{order.id}</a></TableCell>
-                <TableCell>{order.expand?.supplier.name}</TableCell>
+                <TableCell><a href="/app/orders/{order.id}" class="hover:text-violet-500 duration-100 font-medium">{order.name}</a></TableCell>
+                <TableCell>{order.expand?.supplier?.name}</TableCell>
                 <TableCell>
                     {order.expand?.["orders_rows(order)"].map(k => {
                         return (k.expand?.article.price ?? 0) * k.quantity
                     }).reduce((p, c) => c = p + c, 0)} €
                 </TableCell>
                 <TableCell>{order.state}</TableCell>
-                <TableCell>{order?.expand?.project.name}</TableCell>
                 <TableCell><User user={order?.expand?.issuer}/></TableCell>
             </TableRow>
         {/each}
