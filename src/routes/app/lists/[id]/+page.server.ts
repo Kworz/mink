@@ -158,15 +158,15 @@ export const actions: Actions = {
             if(locals.user === undefined || locals.user === null)
                 throw "User not logged in";
 
-            if(projectID === null || supplierID === null)
+            if(supplierID === null)
                 throw "Could create order for undefined supplier";
 
             const order_object: OrdersRecord = {
                 issuer: locals.user.id,
                 supplier: supplierID?.toString(),
                 state: OrdersStateOptions.draft,
-                project: projectID.toString()
-            } ;
+                project: projectID?.toString()
+            };
 
             const list = await locals.pb.collection(Collections.List).getOne<ListResponse>(params.id);
             const list_rows = await locals.pb.collection(Collections.ListRow).getFullList<ListRowResponse>({ filter: `parent_list="${params.id}"`});
@@ -182,6 +182,9 @@ export const actions: Actions = {
                 const listRow = list_rows.find(k => k.parent_nomenclature_row === nomRow.id);
 
                 const orderAmount = nomRow.quantity_required - (listRow?.quantity ?? 0);
+
+                if(orderAmount <= 0)
+                    continue;
 
                 const order_row: OrdersRowsRecord = {
                     order: order.id,

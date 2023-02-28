@@ -17,12 +17,15 @@
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
+    import { enhance } from "$app/forms";
+    import type { SuppliersResponse } from "$lib/DBTypes";
 
     export let data: PageData;
     export let form: ActionData;
     
     let editList = false;
     let confirmDelete = false;
+    let createOrder = false;
 
     let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "valid"> = {};
     let filter: string = "";
@@ -69,6 +72,18 @@
         return (nr.expand?.child_article.price ?? 0) * (nr.quantity_required - list_row_remain)
     }).reduce((p, c) => p+c, 0);
 
+    $: invalidatedList = data.nomenclature_rows.filter(nr => {
+        const list_row = data.list_rows.find(lr => lr.parent_nomenclature_row == nr.id);
+        return nr.quantity_required !== list_row?.quantity;
+    });
+
+    const supplierFilter = (k: SuppliersResponse | undefined): k is SuppliersResponse => k !== undefined;
+    const supplierDuplicates = (k: SuppliersResponse, i: number, a: Array<SuppliersResponse>) => a.findIndex(k2 => k2.id === k.id) === i
+
+    $: suppliersInvalidated = invalidatedList.map(k => {
+        return k.expand?.child_article.expand?.supplier;
+    }).filter(supplierFilter).filter(supplierDuplicates);
+
     $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 5000); };
 
     export const snapshot: Snapshot<string> = {
@@ -105,6 +120,8 @@
     <p>Montant restant pour terminer la liste: <DetailLabel> {remainingPrice} €</DetailLabel>.</p>
     <p>Articles validés: <DetailLabel>{remainingElements} / {data.nomenclature_rows.length}</DetailLabel>.</p>
 
+    <pre>{suppliersInvalidated.length}</pre>
+
     <button
         on:click={() => editList = true}
         class="mt-2 text-violet-500 hover:text-blue-500 duration-200"
@@ -130,6 +147,21 @@
             </form>
         {:else}
             <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => confirmDelete = true}>Supprimer la liste</Button>
+        {/if}
+
+        {#if createOrder}
+            <form action="?/generateOrder" method="post" use:enhance class="flex flex-row gap-6 items-center">
+                <input type="hidden" name="project" value={data.list.project} />
+                <FormInput type="select" name="supplier" label="Fournisseur" labelMandatory={true}>
+                    <option value={undefined}>—</option>
+                    {#each suppliersInvalidated as supplier}
+                        <option value={supplier.id}>{supplier.name}</option>
+                    {/each}
+                </FormInput>
+                <Button>Générer la commande</Button>
+            </form>
+        {:else}
+            <Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500" on:click={() => createOrder = true}>Créer une commande</Button>
         {/if}
     </Flex>
 </Flex>

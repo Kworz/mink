@@ -11,7 +11,7 @@ export type NomenclatureRowResponseExpanded = NomenclatureRowResponse<{
     "child_article": ArticleResponse
 }>
 
-export type NomenclatureRowResponseExpandedWithArticle = NomenclatureResponse<{
+export type NomenclatureRowResponseExpandedWithArticle = NomenclatureRowResponse<{
     child_article: ArticleResponseExpanded
 }>
 
