@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
@@ -6,6 +7,7 @@
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
     import Filter from "$lib/components/filter/Filter.svelte";
+    import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
@@ -19,7 +21,7 @@
     let filter = "";
 
     let displayThumbs = true;
-    let selected: Array<typeof data.articles[number]> = [];
+    let selected: Array<string> = [];
 
     let activeSort = $page.url.searchParams.get("sort") ?? "name";
 
@@ -37,6 +39,10 @@
             result = result && filterCompatible(article.expand?.supplier?.name, filterQuery.supplier)
 
         return result;
+    }
+
+    const labelPrint = () => {
+        window.open(`/app/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus();
     }
 
     export const snapshot: Snapshot<string> = {
@@ -72,12 +78,16 @@
     }}>
         Export
     </Button>
+    {#if selected.length > 0}
+        <Button borderColor="border-pink-500" hoverColor="hover:bg-pink-500" on:click={labelPrint}>Imprimer etiquettes</Button>
+    {/if}
 </Flex>
 
 <Table>
     <svelte:fragment slot="head">
-        <TableTitle><input type="checkbox" on:change={() => selected = (selected.length === 0 ? data.articles : [])} checked={selected.length === data.articles.length}></TableTitle>
+        <TableTitle></TableTitle>
         <TableTitle col="name" {activeSort} sortFn={setSort}>Article</TableTitle>
+        <TableTitle col="label" {activeSort} sortFn={setSort}>Etiquette</TableTitle>
         <TableTitle col="quantity" {activeSort} sortFn={setSort}>Quantité disponible</TableTitle>
         <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
         <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
@@ -90,9 +100,14 @@
     <svelte:fragment slot="body">
         {#each data.articles.filter((k) => filterFn(k, filterQuery)) as article (article.id)}
             <TableRow>
-                <TableCell><input type="checkbox" bind:group={selected} value={article} /></TableCell>
+                <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                 <TableCell>
                     <ArticleRow {article} displaySupplier={false} displayManufacturer={false} bind:displayThumb={displayThumbs} />
+                </TableCell>
+                <TableCell>
+                    <form action="/app/articles/{article.id}?/editArticle" method="post" use:enhance>
+                        <FormInput type="checkbox" name="label" validateOnChange={true} bind:checked={article.label}/>
+                    </form>
                 </TableCell>
                 <TableCell>{article.quantity}</TableCell>
                 <TableCell>{article.reference}</TableCell>

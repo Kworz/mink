@@ -20,7 +20,7 @@ export const GET: RequestHandler = async ({ locals }) => {
             excel.push([
                 article.id,
                 article.name,
-                article.quantity,
+                article.quantity ?? "",
                 article.manufacturer ?? "",
                 article.supplier ?? "",
                 article.reference ?? "",

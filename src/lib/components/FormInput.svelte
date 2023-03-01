@@ -1,7 +1,7 @@
 <script lang="ts">
     import Flex from "./layout/flex.svelte";
 
-    export let type: "number" | "text" | "password" | "email" | "file" | "select" | "date" = "text";
+    export let type: "number" | "text" | "password" | "email" | "file" | "select" | "date" | "checkbox" = "text";
     export let name: string;
 
     export let label: string | undefined = undefined;
@@ -10,6 +10,7 @@
     export let invalid = false;
 
     export let value: string | number = "";
+    export let checked: boolean | undefined = undefined;
 
     export let min: number | null | undefined = undefined;
     export let max: number | null | undefined = undefined;
@@ -51,12 +52,14 @@
         </span>
     {/if}
 
-    {#if type !== "select"}
-        <input use:typeAction {name} bind:value {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
-    {:else}
+    {#if type == "select"}
         <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
             <slot />
         </select>
+    {:else if type == "checkbox"}
+        <input type="checkbox" {name} bind:checked {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
+    {:else}
+        <input use:typeAction {name} bind:value {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
     {/if}
 
     {#if validateButton}

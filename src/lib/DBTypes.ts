@@ -51,6 +51,7 @@ export type ArticleRecord = {
 	manufacturer?: string
 	attached_files?: string[]
 	pinned_file?: string
+	label?: boolean
 }
 
 export type ArticleMovementsRecord = {

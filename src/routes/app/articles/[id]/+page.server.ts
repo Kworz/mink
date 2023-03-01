@@ -50,6 +50,8 @@ export const actions: Actions = {
                 throw "user not authed";
             
             const form = await request.formData();
+            form.set("label", String(form.has("label")));
+
             const oldArticle = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
             const newArticle = await locals.pb.collection(Collections.Article).update<ArticleResponse>(params.id, form);
 

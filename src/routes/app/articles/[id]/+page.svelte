@@ -71,6 +71,12 @@
                     <Button on:click={() => showConfirmDelete = true} size="small" borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>                
                 {/if}
 
+                <Button size="small" borderColor="border-pink-500" hoverColor="hover:bg-pink-500" on:click={() => 
+                        window.open(`/app/articles/print/?articles=${data.article.id}`, '_blank')?.focus()
+                }>
+                    Imprimer l'etiquette
+                </Button>
+
             </Flex>
         </section>
     {:else}
