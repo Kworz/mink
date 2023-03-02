@@ -9,14 +9,12 @@
 
     export let invalid = false;
 
-    export let value: string | number = "";
+    export let value: string[] | string | number = "";
     export let checked: boolean | undefined = undefined;
 
     export let min: number | null | undefined = undefined;
     export let max: number | null | undefined = undefined;
     export let step: number | null | undefined = undefined;
-
-    export let multiple: boolean | undefined = undefined;
 
     export let backgroundColor = "bg-zinc-100";
 

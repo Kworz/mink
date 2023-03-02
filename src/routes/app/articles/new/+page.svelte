@@ -24,7 +24,7 @@
         <h3>Informations complémentaires</h3>
 
         <Input name="price" label="Prix" />
-        <FormInput type="select" name="supplier" label="Fournisseur">
+        <FormInput type="select" name="supplier" label="Fournisseur" value={[]}>
             <option value={undefined}>—</option>
             {#if data.suppliers !== undefined}
                 {#each data.suppliers as supplier}
