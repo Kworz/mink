@@ -8,7 +8,7 @@ export const load = (async ({ params, locals }) => {
     const order = await locals.pb.collection(Collections.Orders).getOne<OrdersResponseExpanded>(params.id, { expand: "issuer,project,orders_rows(order).article,supplier" });
     const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
 
-    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>({ filter: `supplier = "${order.supplier}"`});
+    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>({ filter: `supplier ~ "${order.supplier}"`});
 
     return {
         order: structuredClone(order),
@@ -81,7 +81,6 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            console.log(ex);
             return { deleteRow: { error: ex }};
         }
     }

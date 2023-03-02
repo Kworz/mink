@@ -13,7 +13,7 @@ export type OrdersResponseExpanded = OrdersResponse<{
 
 export const load = (async ({ locals }) => {
 
-    const orders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ expand: "issuer,project,orders_rows(order).article,supplier"});
+    const orders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ expand: "issuer,orders_rows(order).article,supplier"});
 
     return {
         orders: structuredClone(orders)
