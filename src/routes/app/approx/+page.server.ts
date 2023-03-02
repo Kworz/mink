@@ -1,12 +1,12 @@
-import { Collections, type ArticleMovementsRecord, type OrdersRowsResponse, type OrdersResponse } from "$lib/DBTypes";
+import { Collections, type ArticleMovementsRecord, type OrdersRowsResponse, type OrdersResponse, type SuppliersResponse } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../articles/+page.server";
 import type { Actions, PageServerLoad } from "./$types";
 
-export type OrderRowsResponseExpanded = OrdersRowsResponse<{ article: ArticleResponseExpanded }>;
+export type OrderRowsResponseExpanded = OrdersRowsResponse<{ article: ArticleResponseExpanded, order: OrdersResponse<{ supplier: SuppliersResponse}> }>;
 
 export const load = (async ({ locals}) => {
 
-    const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ expand: "article.supplier", filter: `order.state = "placed" && quantity != quantity_received`});
+    const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ expand: "article.supplier,order.supplier", filter: `(order.state = "placed" || order.state = "acknowledged") && quantity != quantity_received`});
 
     return {
         order_rows: structuredClone(order_rows)
