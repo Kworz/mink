@@ -14,7 +14,7 @@
     $: filterResult = filterQuery(filter, availableFilters);
 </script>
 
-<div>
+<div class={$$props.class}>
     {#if filterHelp}
         <div class="mb-4 p-4 bg-zinc-100 rounded-sm border border-zinc-500/50">
         
@@ -33,20 +33,16 @@
             </ul>
         </div>
     {/if}
-
-    <Flex>
-        <Input bind:value={filter} placeholder={"Filtre"}>
-            <Flex gap={2} class="mr-2">
-                <button on:click={() => filter = ""}>
-                    <Icon src={XMark}  class="h-6 w-6 text-red-500 hover:text-red-500/75 duration-300"/>
-                </button>
-                <button on:click={() => filterHelp = !filterHelp}>
-                    <Icon src={QuestionMarkCircle} class="h-6 w-6 text-violet-500 hover:text-violet-500/75 duration-300"/>
-                </button>
-            </Flex>
-        </Input>
-    </Flex>
-
+    <Input bind:value={filter} placeholder={"Filtre"}>
+        <Flex gap={2} class="mr-2">
+            <button on:click={() => filter = ""}>
+                <Icon src={XMark}  class="h-6 w-6 text-red-500 hover:text-red-500/75 duration-300"/>
+            </button>
+            <button on:click={() => filterHelp = !filterHelp}>
+                <Icon src={QuestionMarkCircle} class="h-6 w-6 text-violet-500 hover:text-violet-500/75 duration-300"/>
+            </button>
+        </Flex>
+    </Input>
 </div>
 
 
