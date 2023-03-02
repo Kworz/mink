@@ -3,13 +3,14 @@
     import Flex from "../layout/flex.svelte";
     import SortButton from "./SortButton.svelte";
     
+    export let colWidth: string | undefined = undefined;
     export let col: string | undefined = undefined;
     export let activeSort: string | undefined = undefined;
     export let sortFn: ((value: string) => void) | undefined = undefined;
 
 </script>
 
-<th class="p-4 border-b border-b-violet-500/75 text-left">
+<th class="{colWidth} p-4 border-b border-b-violet-500/75 text-left">
     <Flex items="center" gap={1}>
         <span><slot /></span>
         {#if col !== undefined && sortFn !== undefined && activeSort !== undefined}

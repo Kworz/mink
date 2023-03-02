@@ -13,7 +13,7 @@
     export let displayThumb = true;
 
     /** Wether the supplier and price are displayed */
-    export let displaySupplier = true;
+    export let displayPrice = true;
 
     /** Wether the manufacturer and reference are displayed */
     export let displayManufacturer = true;
@@ -29,7 +29,7 @@
     <div>
         <a href="/app/articles/{article.id}" class="block font-medium hover:text-violet-500">{article.name}</a>
         {#if displayManufacturer}<span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
-        {#if displaySupplier}<span class="text-sm block">{article.expand?.supplier?.name}: <DetailLabel>{article.price} €</DetailLabel></span>{/if}
+        {#if displayPrice}<span class="text-sm block"><DetailLabel>{article.price} €</DetailLabel></span>{/if}
         {#if (article.quantity ?? 0) > 0 && displayStock === true} <span class="text-sm text-emerald-600 block">{article.quantity} En stock.</span> {/if}
     </div>
 </Flex>

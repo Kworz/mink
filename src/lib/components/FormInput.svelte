@@ -16,6 +16,8 @@
     export let max: number | null | undefined = undefined;
     export let step: number | null | undefined = undefined;
 
+    export let multiple: boolean | undefined = undefined;
+
     export let backgroundColor = "bg-zinc-100";
 
     export let validateOnBlur = false;
@@ -53,9 +55,15 @@
     {/if}
 
     {#if type == "select"}
-        <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
-            <slot />
-        </select>
+        {#if Array.isArray(value)} 
+            <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} multiple on:change={onChange} on:blur={onBlur}>
+                <slot />
+            </select>
+        {:else}
+            <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
+                <slot />
+            </select>
+        {/if}
     {:else if type == "checkbox"}
         <input type="checkbox" {name} bind:checked {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
     {:else}

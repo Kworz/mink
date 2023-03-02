@@ -132,6 +132,7 @@ export type SuppliersRecord = {
 	website?: string
 	contact_email?: string
 	payment_rules?: string
+	thumbnail?: string
 }
 
 export type UsersRecord = {

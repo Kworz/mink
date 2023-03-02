@@ -48,7 +48,7 @@
             <h4>Informations générales</h4>
             <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
-            <p>Fournisseur: <DetailLabel>{data.article.expand?.supplier?.name ?? "—"}</DetailLabel>.</p>
+            <p>Fournisseurs: <DetailLabel>{data.article.expand?.supplier?.map(k => k.name).join(", ") ?? "Aucun"}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity}</DetailLabel>.</p>

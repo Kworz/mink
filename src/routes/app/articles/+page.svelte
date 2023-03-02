@@ -9,6 +9,7 @@
     import Filter from "$lib/components/filter/Filter.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
+    import Supplier from "$lib/components/supplier/Supplier.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableTitle from "$lib/components/table/TableHead.svelte";
@@ -85,15 +86,15 @@
 
 <Table>
     <svelte:fragment slot="head">
-        <TableTitle></TableTitle>
-        <TableTitle col="name" {activeSort} sortFn={setSort}>Article</TableTitle>
-        <TableTitle col="label" {activeSort} sortFn={setSort}>Etiquette</TableTitle>
-        <TableTitle col="quantity" {activeSort} sortFn={setSort}>Quantité disponible</TableTitle>
+        <TableTitle colWidth="w-8"></TableTitle>
+        <TableTitle col="name" {activeSort} sortFn={setSort} colWidth="w-1/6">Article</TableTitle>
+        <TableTitle col="quantity" {activeSort} sortFn={setSort}>Stock</TableTitle>
         <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
         <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
         <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
         <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
         <TableTitle>Prix global</TableTitle>
+        <TableTitle col="label" {activeSort} sortFn={setSort}>Etiquette</TableTitle>
         <TableTitle col="updated" {activeSort} sortFn={setSort}>Updated</TableTitle>
     </svelte:fragment>
 
@@ -102,19 +103,31 @@
             <TableRow>
                 <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                 <TableCell>
-                    <ArticleRow {article} displaySupplier={false} displayManufacturer={false} bind:displayThumb={displayThumbs} />
+                    <ArticleRow {article} displayPrice={false} displayManufacturer={false} bind:displayThumb={displayThumbs} />
                 </TableCell>
+                <TableCell>{article.quantity}</TableCell>
+                <TableCell>{article.reference}</TableCell>
+                <TableCell>
+                    <div class="overflow-scroll">
+                        <Flex gap={2} direction="col" items="start">
+                            {#if article.expand?.supplier !== undefined}
+                                {#each article.expand.supplier as supplier}
+                                    <Supplier {supplier} />
+                                {/each}
+                            {:else}
+                                —
+                            {/if}
+                        </Flex>
+                    </div>
+                </TableCell>
+                <TableCell>{article.manufacturer}</TableCell>
+                <TableCell>{article.price ?? "—"} €</TableCell>
+                <TableCell>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</TableCell>
                 <TableCell>
                     <form action="/app/articles/{article.id}?/editArticle" method="post" use:enhance>
                         <FormInput type="checkbox" name="label" validateOnChange={true} bind:checked={article.label}/>
                     </form>
                 </TableCell>
-                <TableCell>{article.quantity}</TableCell>
-                <TableCell>{article.reference}</TableCell>
-                <TableCell>{article.expand?.supplier?.name ?? "—"}</TableCell>
-                <TableCell>{article.manufacturer}</TableCell>
-                <TableCell>{article.price ?? "—"} €</TableCell>
-                <TableCell>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</TableCell>
                 <TableCell>{article.updated}</TableCell>
             </TableRow>
         {/each}

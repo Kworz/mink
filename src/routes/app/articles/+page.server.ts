@@ -2,7 +2,7 @@ import { Collections, type ArticleResponse, type SuppliersResponse } from "$lib/
 import type { PageServerLoad } from "./$types";
 
 export type ArticleResponseExpanded = ArticleResponse<{
-    supplier: SuppliersResponse
+    supplier: Array<SuppliersResponse>
 }>;
 
 export const load = (async ({ locals, url }) => {

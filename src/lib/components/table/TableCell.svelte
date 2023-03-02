@@ -1,1 +1,1 @@
-<td class="p-4"><slot /></td>
+<td class="p-4 {$$props.class}"><slot /></td>
