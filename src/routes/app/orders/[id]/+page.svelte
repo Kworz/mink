@@ -1,5 +1,8 @@
 <script lang="ts">
+    import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
+    import ArticleFinder from "$lib/components/article/ArticleFinder.svelte";
+    import Button from "$lib/components/Button.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
@@ -12,10 +15,22 @@
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { OrdersStateOptions } from "$lib/DBTypes";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
+    import type { ArticleResponseExpanded } from "../../articles/+page.server";
 
     import type { ActionData, PageData } from "./$types";
+    import OrderRow from "./OrderRow.svelte";
 
-    let states = [OrdersStateOptions.draft, OrdersStateOptions.placed, OrdersStateOptions.cancelled]
+    const states: Record<OrdersStateOptions, string> = {
+        "draft": "Brouillon",
+        "placed": "Commandé",
+        "acknowledged": "AR réceptionné",
+        "completed": "Terminée",
+        "cancelled": "Annulée"
+    }
+
+    const statesKeys = Object.keys(states) as Array<OrdersStateOptions>;
+
+    let selectedArticle: ArticleResponseExpanded | undefined = undefined;
 
     export let data: PageData;
     export let form: ActionData;
@@ -24,20 +39,21 @@
     $: tvaSubtotal = Math.floor(((htTotal * 1.20) - htTotal) * 100) / 100;
     $: completeTotal = htTotal + tvaSubtotal;
     
-    $: if(form !== null) { invalidateAll() }
+    $: if(form !== null) { invalidateAll(); selectedArticle = undefined; }
 
 </script>
 
 <SidebarWrapper>
     <svelte:fragment slot="sidebar">
+
         <h2>Commande</h2>
         <p>Réglages de la commande</p>
 
         <form action="?/editOrder" method="post" use:enhanceNoReset class="flex flex-col gap-4 mt-6">
-            <FormInput bind:value={data.order.name} name="name" label="Nom de la commande" labelMandatory={true} backgroundColor="bg-white" />
-            <FormInput type="select" bind:value={data.order.state} name="state" label="État de la commande" labelMandatory={true} backgroundColor="bg-white">
-                {#each states as state}
-                    <option value={state} class="capitalize">{state}</option>
+            <FormInput bind:value={data.order.name} name="name" label="Nom de la commande" labelMandatory={true} backgroundColor="bg-white" validateOnChange={true}/>
+            <FormInput type="select" bind:value={data.order.state} name="state" label="État de la commande" labelMandatory={true} backgroundColor="bg-white" validateOnChange={true}>
+                {#each statesKeys as state}
+                    <option value={state} class="capitalize">{states[state]}</option>
                 {/each}
             </FormInput>
         </form>
@@ -86,46 +102,47 @@
                 <TableHead>Désignation</TableHead>
                 <TableHead>Référence</TableHead>
                 <TableHead>Quantité</TableHead>
-                <TableHead>Délai</TableHead>
+                <TableHead>Délai Souhaité</TableHead>
+                {#if data.order.state === OrdersStateOptions.acknowledged}
+                    <TableHead>Délai A/R</TableHead>
+                {/if}
                 <TableHead>Prix </TableHead>
                 <TableHead>Total</TableHead>
+                {#if data.order.state == OrdersStateOptions.draft}
+                    <TableHead>Supprimer</TableHead>
+                {/if}
             </svelte:fragment>
     
             <svelte:fragment slot="body">
                 {#if data.order.expand?.["orders_rows(order)"]}
                     {#each data.order.expand?.["orders_rows(order)"] as order_row (order_row.id)}
-                        <TableRow>
-                            <TableCell>
-                                <form action="?/editOrderRow" method="post" use:enhanceNoReset>
-                                    <input type="hidden" name="id" value={order_row.id} />
-                                    <FormInput type="select" name="project" bind:value={order_row.project} validateOnChange={true}>
-                                        <option value="">—</option>
-                                        {#each data.projects as project}
-                                            <option value={project.id}>{project.name}</option>
-                                        {/each}
-                                    </FormInput>
-                                </form>
-                            </TableCell>
-                            <TableCell><a href="/app/articles/{order_row.expand?.article.id}" class="hover:text-violet-500 duration-200 font-medium">{order_row.expand?.article.name}</a></TableCell>
-                            <TableCell>{order_row.expand?.article.reference}</TableCell>
-                            <TableCell>
-                                <form action="?/editOrderRow" method="post" use:enhanceNoReset>
-                                    <input type="hidden" name="id" value={order_row.id} />
-                                    <FormInput type="number" name="quantity" bind:value={order_row.quantity} validateOnChange={true} min={order_row.expand?.article?.order_quantity} step={order_row.expand?.article?.order_quantity}/>
-                                </form>
-                            </TableCell>
-                            <TableCell>
-                                <form action="?/editOrderRow" method="post" use:enhanceNoReset>
-                                    <input type="hidden" name="id" value={order_row.id} />
-                                    <FormInput type="date" name="delivery_date" value={order_row.delivery_date?.split(" ").at(0) ?? undefined} validateOnChange={true} />
-                                </form>
-                            </TableCell>
-                            <TableCell><Price value={order_row.expand?.article.price ?? 0} /></TableCell>
-                            <TableCell><Price value={((order_row.expand?.article.price ?? 0) * order_row.quantity)} /></TableCell>
-                        </TableRow>
+                        <OrderRow bind:order={data.order} bind:orderRow={order_row} projects={data.projects} />
                     {/each}
                 {/if}
             </svelte:fragment>
+
+            <svelte:fragment slot="foot">
+                {#if data.order.state === OrdersStateOptions.draft}
+                    <TableRow>
+                        <TableCell colspan={8}>
+                            <h3 class="mb-3">Ajouter un article a la commande</h3>
+                            <form action="?/createOrderRow" method="post" use:enhance class="flex flex-row gap-4 items-end">
+                                
+                                <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
+                                    <ArticleFinder articleList={data.articles} bind:selectedArticle/>
+                                </div>
+                                {#if selectedArticle !== undefined}
+                                    <input type="hidden" name="order" value={data.order.id} />
+                                    <input type="hidden" name="article" value={selectedArticle?.id} />
+                                    <FormInput name="quantity" type="number" min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
+                                    <Button class="ml-auto">Ajouter l'article</Button>
+                                {/if}
+                            </form>
+                        </TableCell>
+                    </TableRow>
+                {/if}
+            </svelte:fragment>
+
         </Table>
     
         <Table class="w-auto ml-auto" backgroundColor="bg-white">

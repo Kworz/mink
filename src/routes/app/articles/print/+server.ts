@@ -56,7 +56,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         document.addFileToVFS('mplus-medium.ttf', font);
         document.addFont('mplus-medium.ttf', 'NotoSansSymbols-SemiBold', 'normal');
         
-        console.log(document.getFontList());
         document.setFont('NotoSansSymbols-SemiBold', "normal");
 
         printResizeText(document, article.manufacturer ?? "", 6, 31, 38.5, 8, { align: "center" });
@@ -68,7 +67,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
             document.addPage();        
     }
 
-    const documentData = document.output(undefined, { filename: "labels.pdf"});
+    const documentData = document.output();
 
     return new Response(documentData, { headers: { 
         "content-type": "application/pdf; charset=utf-8",

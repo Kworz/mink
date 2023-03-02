@@ -90,7 +90,7 @@
         <TableTitle col="name" {activeSort} sortFn={setSort} colWidth="w-1/6">Article</TableTitle>
         <TableTitle col="quantity" {activeSort} sortFn={setSort}>Stock</TableTitle>
         <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
-        <TableTitle col="supplier" {activeSort} sortFn={setSort}>Fournisseur</TableTitle>
+        <TableTitle col="supplier" {activeSort} sortFn={setSort} colWidth="w-1/6">Fournisseur</TableTitle>
         <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
         <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
         <TableTitle>Prix global</TableTitle>
@@ -108,17 +108,15 @@
                 <TableCell>{article.quantity}</TableCell>
                 <TableCell>{article.reference}</TableCell>
                 <TableCell>
-                    <div class="overflow-scroll">
-                        <Flex gap={2} direction="col" items="start">
-                            {#if article.expand?.supplier !== undefined}
-                                {#each article.expand.supplier as supplier}
-                                    <Supplier {supplier} />
-                                {/each}
-                            {:else}
-                                —
-                            {/if}
-                        </Flex>
-                    </div>
+                    <Flex gap={2} direction="col" items="start">
+                        {#if article.expand?.supplier !== undefined}
+                            {#each article.expand.supplier as supplier}
+                                <Supplier {supplier} />
+                            {/each}
+                        {:else}
+                            —
+                        {/if}
+                    </Flex>
                 </TableCell>
                 <TableCell>{article.manufacturer}</TableCell>
                 <TableCell>{article.price ?? "—"} €</TableCell>

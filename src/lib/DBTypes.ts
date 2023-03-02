@@ -5,6 +5,7 @@
 export enum Collections {
 	Article = "article",
 	ArticleMovements = "article_movements",
+	ArticlePricepoint = "article_pricepoint",
 	FabricationOrders = "fabrication_orders",
 	List = "list",
 	ListRow = "list_row",
@@ -45,7 +46,7 @@ export type ArticleRecord = {
 	name: string
 	quantity?: number
 	order_quantity?: number
-	supplier?: RecordIdString
+	supplier?: RecordIdString[]
 	price?: number
 	reference?: string
 	manufacturer?: string
@@ -59,6 +60,12 @@ export type ArticleMovementsRecord = {
 	user: RecordIdString
 	quantity_update: number
 	reason?: string
+}
+
+export type ArticlePricepointRecord = {
+	article: RecordIdString
+	supplier: RecordIdString
+	price?: number
 }
 
 export type FabricationOrdersRecord = {
@@ -99,6 +106,8 @@ export type NomenclatureRowRecord = {
 export enum OrdersStateOptions {
 	"draft" = "draft",
 	"placed" = "placed",
+	"acknowledged" = "acknowledged",
+	"completed" = "completed",
 	"cancelled" = "cancelled",
 }
 export type OrdersRecord = {
@@ -114,7 +123,9 @@ export type OrdersRowsRecord = {
 	project?: RecordIdString
 	article: RecordIdString
 	quantity: number
-	delivery_date?: IsoDateString
+	needed_date?: IsoDateString
+	ack_date?: IsoDateString
+	ack_price?: number
 	quantity_received?: number
 }
 
@@ -142,6 +153,7 @@ export type UsersRecord = {
 // Response types include system fields and match responses from the PocketBase API
 export type ArticleResponse<Texpand = unknown> = ArticleRecord & BaseSystemFields<Texpand>
 export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
+export type ArticlePricepointResponse<Texpand = unknown> = ArticlePricepointRecord & BaseSystemFields<Texpand>
 export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersRecord & BaseSystemFields<Texpand>
 export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texpand>
 export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
@@ -156,6 +168,7 @@ export type UsersResponse = UsersRecord & AuthSystemFields
 export type CollectionRecords = {
 	article: ArticleRecord
 	article_movements: ArticleMovementsRecord
+	article_pricepoint: ArticlePricepointRecord
 	fabrication_orders: FabricationOrdersRecord
 	list: ListRecord
 	list_row: ListRowRecord

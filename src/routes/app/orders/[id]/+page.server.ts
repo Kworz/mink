@@ -1,5 +1,6 @@
 import { Collections, type ProjectsResponse } from "$lib/DBTypes";
 import type { OrdersResponseExpanded } from "../+page.server";
+import type { ArticleResponseExpanded } from "../../articles/+page.server";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load = (async ({ params, locals }) => {
@@ -7,9 +8,12 @@ export const load = (async ({ params, locals }) => {
     const order = await locals.pb.collection(Collections.Orders).getOne<OrdersResponseExpanded>(params.id, { expand: "issuer,project,orders_rows(order).article,supplier" });
     const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
 
+    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>({ filter: `supplier = "${order.supplier}"`});
+
     return {
         order: structuredClone(order),
-        projects: structuredClone(projects)
+        projects: structuredClone(projects),
+        articles: structuredClone(articles)
     }
 
 }) satisfies PageServerLoad;
@@ -45,6 +49,40 @@ export const actions: Actions = {
         {
             console.log(ex);
             return { editRow: { error: ex }};
+        }
+    },
+
+    createOrderRow: async ({ request, locals }) => {
+        try
+        {
+            const form = await request.formData();
+            await locals.pb.collection(Collections.OrdersRows).create(form);
+            return { createRow: { success: "Created new order row" }};
+
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return { createRow: { error: "" }};
+        }
+    },
+
+    deleteOrderRow: async ({ request, locals }) => {
+        try {
+            const form = await request.formData();
+            const rowId = form.get("id");
+
+            if(rowId === null) 
+                throw "Row id is not defined";
+
+            await locals.pb.collection(Collections.OrdersRows).delete(rowId.toString());
+
+            return { deleteRow: { success: "Successfully deleted order row" }};
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return { deleteRow: { error: ex }};
         }
     }
 }
