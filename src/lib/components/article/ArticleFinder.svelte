@@ -23,7 +23,6 @@
             result = result && filterCompatible(article.reference, filterResult.reference)
 
         return result;
-
     }
 
     $: filteredArticles = articleList.filter((k) => filterFunction(k, filterResult));
