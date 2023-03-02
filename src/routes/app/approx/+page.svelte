@@ -3,7 +3,6 @@
     import { invalidateAll } from "$app/navigation";
     import Date from "$lib/components/formatters/Date.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import { onMount } from "svelte";
     import type { ActionData, PageData } from "./$types";
     import ApproxTable from "./ApproxTable.svelte";
 
@@ -38,12 +37,12 @@
 {#if splitView === "supplier"}
     {#each suppliersSplittedRows as orderRows}
         <h3 class="mb-4 mt-6">{orderRows.supplier}</h3>
-        <ApproxTable orderRows={orderRows.rows} />
+        <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
     {/each}
 {:else}
     {#each datesSplittedRows as orderRows}
         <h3 class="mb-4 mt-6"><Date date={orderRows.date} format="long"/></h3>
-        <ApproxTable orderRows={orderRows.rows} />
+        <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
     {/each}
 {/if}
 

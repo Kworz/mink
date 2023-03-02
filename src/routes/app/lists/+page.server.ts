@@ -2,7 +2,7 @@ import { error, type Actions, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { Collections, type ListResponse, type NomenclatureResponse, type ProjectsResponse } from "$lib/DBTypes";
 
-type ListResponseExpanded = ListResponse<{
+export type ListResponseExpanded = ListResponse<{
     parent_nomenclature: NomenclatureResponse,
     project: ProjectsResponse
 }>;
