@@ -17,6 +17,8 @@
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
+    import Price from "$lib/components/formatters/Price.svelte";
+    import DetailLabel from "$lib/components/DetailLabel.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -78,9 +80,9 @@
     <p>{data.nomenclature.description}</p>
     {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
         <p>Cout estimé de la nomenclature:
-            <span class="text-violet-500 font-medium">
-                {data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'].reduce((p, c) => p + (c.expand?.child_article.price ?? 0) * c.quantity_required, 0)} €
-            </span>.
+            <DetailLabel>
+                <Price value={data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'].reduce((p, c) => p + (c.expand?.child_article.price ?? 0) * c.quantity_required, 0)} />
+            </DetailLabel>
         </p>
     {/if}
 
