@@ -77,12 +77,12 @@
         return nr.quantity_required !== list_row?.quantity;
     });
 
-    const supplierFilter = (k: SuppliersResponse | undefined): k is SuppliersResponse => k !== undefined;
+    const supplierFilter = (k: SuppliersResponse[] | undefined): k is SuppliersResponse[] => k !== undefined;
     const supplierDuplicates = (k: SuppliersResponse, i: number, a: Array<SuppliersResponse>) => a.findIndex(k2 => k2.id === k.id) === i
 
     $: suppliersInvalidated = invalidatedList.map(k => {
         return k.expand?.child_article.expand?.supplier;
-    }).filter(supplierFilter).filter(supplierDuplicates);
+    }).filter(supplierFilter).flatMap(k => k).filter(supplierDuplicates);
 
     $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 5000); };
 

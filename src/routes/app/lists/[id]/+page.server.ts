@@ -162,10 +162,10 @@ export const actions: Actions = {
                 throw "Could create order for undefined supplier";
 
             const order_object: OrdersRecord = {
+                name: "XX-2023",
                 issuer: locals.user.id,
                 supplier: supplierID?.toString(),
-                state: OrdersStateOptions.draft,
-                project: projectID?.toString()
+                state: OrdersStateOptions.draft
             };
 
             const list = await locals.pb.collection(Collections.List).getOne<ListResponse>(params.id);
@@ -177,7 +177,9 @@ export const actions: Actions = {
 
             order = await locals.pb.collection(Collections.Orders).create<OrdersResponse>(order_object);
 
-            for(const nomRow of nomenclature_rows.filter(k => k.expand?.child_article.supplier === order_object.supplier))
+            const nomenclature_rows_filtered = nomenclature_rows.filter(nr => nr.expand?.child_article.supplier?.includes(order_object.supplier))
+
+            for(const nomRow of nomenclature_rows_filtered)
             {
                 const listRow = list_rows.find(k => k.parent_nomenclature_row === nomRow.id);
                 let orderAmount = nomRow.quantity_required - (listRow?.quantity ?? 0);
@@ -185,17 +187,18 @@ export const actions: Actions = {
                 if(orderAmount <= 0)
                     continue;
 
-                const minOrderQuantity = nomRow.expand?.child_article.order_quantity;
+                const minOrderQuantity = nomRow.expand?.child_article.order_quantity ?? 0;
 
-                if(minOrderQuantity !== undefined && orderAmount % minOrderQuantity != 0)
+                if(minOrderQuantity !== 0 && orderAmount % minOrderQuantity != 0)
                 {
                     const missingquantity = (orderAmount % minOrderQuantity);
-                    console.log("Ajusted order amount", orderAmount, missingquantity, orderAmount + missingquantity);
+                    console.log("Min order", minOrderQuantity, "Ajusted order amount", orderAmount, missingquantity, orderAmount + missingquantity);
                     orderAmount = orderAmount + missingquantity;
                 }
                 
                 const order_row: OrdersRowsRecord = {
                     order: order.id,
+                    project: projectID?.toString(),
                     article: nomRow.child_article,
                     quantity: orderAmount
                 };
