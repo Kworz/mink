@@ -2,29 +2,7 @@ import type { RequestHandler } from "./$types";
 import { Collections } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../+page.server";
 
-import qrcode from "qrcode";
-
-import jsPDF, { type TextOptionsLight } from "jspdf";
-import { font } from "./noto-b64";
-
-function mmToPt(mm: number)
-{
-    return mm / 0.3527777778;
-}
-
-function printResizeText(doc: jsPDF, text: string, maxHeight: number, maxWidth: number, x: number, y:number, o: TextOptionsLight | undefined)
-{
-    let h = maxHeight;
-    doc.setFontSize(mmToPt(h));
-
-    while(doc.getTextWidth(text) > maxWidth)
-    {
-        h = h - 0.25;
-        doc.setFontSize(mmToPt(h));
-    }
-
-    doc.text(text,x,y,o);
-}
+import { LabelDocument } from "$lib/label/labelDocument";
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 
@@ -40,34 +18,23 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         articles.push(await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(article, { expand: "supplier"}))
     }
 
-    const document = new jsPDF({
-        orientation: 'l',
-        unit: 'mm',
-        format: [57, 32],
-        filters: ["ASCIIHexEncode"]
-    });
+    const label = new LabelDocument(32, 57);
+
+    console.log(label.addQRCode);
 
     for(const [index, article] of articles.entries())
     {
-        const QRCode = await qrcode.toDataURL(article.id, { "type": "image/png", "margin": 4 });
+        await label.addQRCode(article.id, 2, 2, 18);
 
-        document.addImage(QRCode, 2, 2, 18, 18);
-
-        document.addFileToVFS('mplus-medium.ttf', font);
-        document.addFont('mplus-medium.ttf', 'NotoSansSymbols-SemiBold', 'normal');
-        
-        document.setFont('NotoSansSymbols-SemiBold', "normal");
-
-        printResizeText(document, article.manufacturer ?? "", 6, 31, 38.5, 8, { align: "center" });
-        printResizeText(document, article.reference ?? "", 6, 31, 38.5, 16, { align: "center" });
-
-        printResizeText(document, article.name, 8, 51, 28.5, 28, { align: "center" });
+        label.printResizeText(article.manufacturer, 6, 31, 38.5, 8, { align: "center" });
+        label.printResizeText(article.reference, 6, 31, 38.5, 16, { align: "center" });
+        label.printResizeText(article.name, 8, 51, 28.5, 28, { align: "center" });
 
         if(index + 1 < articles.length)
-            document.addPage();        
+            label.addPage();        
     }
 
-    const documentData = document.output();
+    const documentData = label.output();
 
     return new Response(documentData, { headers: { 
         "content-type": "application/pdf; charset=utf-8",
