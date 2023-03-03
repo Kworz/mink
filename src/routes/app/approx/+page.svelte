@@ -20,6 +20,7 @@
     $: if(form !== undefined && browser) { invalidateAll(); }
 
 </script>
+
 <h2>Approvisionement</h2>
 <p>Articles en attente de réception.</p>
 
@@ -29,14 +30,14 @@
 </Flex>
 
 <Flex gap={2} class="mb-6">
-    <input type="radio" bind:group={splitView} value="ack_dates" />
+    <input type="radio" bind:group={splitView} value="ack_date" />
     <span>Tri par date d'arrivée</span>
 </Flex>
 
 
 {#if splitView === "supplier"}
     {#each suppliersSplittedRows as orderRows}
-        <h3 class="mb-4 mt-6">{orderRows.supplier}</h3>
+        <h3 class="mb-4 mt-6">{data.suppliers.find(k => k.id === orderRows.supplier)?.name ?? "Fournisseur introuvable"}</h3>
         <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
     {/each}
 {:else}

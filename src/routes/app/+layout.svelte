@@ -4,7 +4,7 @@
     import Button from "$lib/components/Button.svelte";
 
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar, QueueList } from "@steeze-ui/heroicons";
+    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar, QueueList, QrCode } from "@steeze-ui/heroicons";
     import User from "$lib/components/user/User.svelte";
 
     let menuShown = false;
@@ -28,6 +28,17 @@
 
                 <div class="grow p-6">
                     <Flex direction="col" gap={3}>
+                        <h3 class="mb-2">Outils</h3>
+                        <a
+                            href="/app/scanner"
+                            class="hover:text-violet-500 hover:font-medium"
+                            class:text-blue-500={$page.route.id?.includes(
+                                "/app/scanner"
+                            )}
+                        >
+                            <Icon src={QrCode} class="h-5 w-5 mb-0.5 inline" />
+                            Scanner Codes QR
+                        </a>
                         <h3 class="mb-2">Articles</h3>
                         <a
                             href="/app/articles"
