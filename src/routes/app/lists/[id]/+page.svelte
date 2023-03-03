@@ -120,8 +120,6 @@
     <p>Montant restant pour terminer la liste: <DetailLabel> {remainingPrice} €</DetailLabel>.</p>
     <p>Articles validés: <DetailLabel>{remainingElements} / {data.nomenclature_rows.length}</DetailLabel>.</p>
 
-    <pre>{suppliersInvalidated.length}</pre>
-
     <button
         on:click={() => editList = true}
         class="mt-2 text-violet-500 hover:text-blue-500 duration-200"
@@ -141,6 +139,13 @@
         }}>
             Export Excel
         </Button>
+
+        <Button size="small" borderColor="border-pink-500" hoverColor="hover:bg-pink-500" on:click={() => 
+            window.open(`/app/lists/print/?lists=${data.list.id}`, '_blank')?.focus()
+        }>
+            Imprimer l'etiquette
+        </Button>
+
         {#if confirmDelete}
             <form action="?/removeList" method="post" use:enhanceNoReset>
                 <Button borderColor="border-red-500" hoverColor="hover:bg-red-500">Etes vous sur ?</Button>

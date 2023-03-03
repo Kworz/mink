@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import jsQR, { type QRCode } from "jsqr";
     import { goto } from "$app/navigation";
 
@@ -8,10 +8,15 @@
     let context: CanvasRenderingContext2D | null;
 
     let code: QRCode | null = null;
+    let stream: MediaStream | undefined;
+
+    const prefixes = {
+        "list": "lists"
+    }
 
     onMount(async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
+            stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
             });
             videoSource.srcObject = stream;
@@ -21,7 +26,14 @@
         }
     });
 
-    function analyzeFrame() {
+    onDestroy(() => {
+        stream?.getTracks().forEach(t => {
+            t.stop();
+        })
+    });
+
+    function analyzeFrame()
+    {
         if(context !== null)
         {
             canvas.height = videoSource.videoHeight;
@@ -32,8 +44,17 @@
                 const image = context.getImageData(0, 0, canvas.width, canvas.height);
                 code = jsQR(image.data, canvas.width, canvas.height);
                 
-                if(code !== null) {
-                    goto(`/app/articles/${code.data}`);
+                if(code !== null)
+                {
+                    const split = code.data.split(':');
+                    if(split.length > 1)
+                    {
+                        const part = prefixes[split.at(0)];
+                        const part2 = split.at(1);
+                        goto(`/app/${part}/${part2}`);
+                    }
+                    else
+                        goto(`/app/articles/${code.data}`);
                 }
             }
             catch(ex)
@@ -43,9 +64,13 @@
 
             requestAnimationFrame(analyzeFrame);
         }
+        else
+        {
+            return;
+        }
     }
 
-    $: if(canvas !== undefined) { context = canvas.getContext("2d"); }
+    $: if(canvas !== undefined) { context = canvas.getContext("2d", { willReadFrequently: true }); }
 
 </script>
 
