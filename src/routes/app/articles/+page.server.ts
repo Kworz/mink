@@ -8,7 +8,8 @@ export type ArticleResponseExpanded = ArticleResponse<{
 export const load = (async ({ locals, url }) => {
 
     const sort = url.searchParams.get("sort") ?? "name";
-    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>(undefined, { sort, expand: "supplier" });
+    const filter = url.searchParams.get("filter") ?? "";
+    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>(undefined, { sort, filter, expand: "supplier" });
 
     return {
         articles: structuredClone(articles)
