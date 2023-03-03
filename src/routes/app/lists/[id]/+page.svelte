@@ -19,6 +19,7 @@
     import TableCell from "$lib/components/table/TableCell.svelte";
     import { enhance } from "$app/forms";
     import type { SuppliersResponse } from "$lib/DBTypes";
+    import Price from "$lib/components/formatters/Price.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -204,7 +205,7 @@
                     </TableCell>
                     <TableCell>{row.quantity_required}</TableCell>
                     <TableCell>
-                        {(remainingQuantity * (row.expand?.child_article.price)) ? remainingQuantity * (row.expand?.child_article.price) : "—"} €
+                        <Price value={remainingQuantity * (row.expand?.child_article.price ?? 0)} />
                     </TableCell>
                     <TableCell><span class="font-semibold" class:text-red-500={!isValid} class:text-emerald-500={isValid}>{isValid ? "Complet" : "Incomplet"}</span></TableCell>
                 </TableRow>
