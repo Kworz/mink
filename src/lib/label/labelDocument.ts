@@ -14,8 +14,6 @@ export class LabelDocument {
             filters: ["ASCIIHexEncode"]
         }));
 
-        console.log("test");
-
         this.addFileToVFS('mplus-medium.ttf', font);
         this.addFont('mplus-medium.ttf', 'NotoSansSymbols-SemiBold', 'normal');
         this.setFont('NotoSansSymbols-SemiBold', "normal");
