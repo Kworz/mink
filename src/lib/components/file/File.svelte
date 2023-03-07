@@ -4,6 +4,7 @@
     import { ArrowDownTray, Document, Star, XMark } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import Flex from "../layout/flex.svelte";
+    import DxFfile from "./DXFfile.svelte";
 
     import StlFile from "./STLFile.svelte";
 
@@ -14,6 +15,7 @@
 
     $: isImage = fileName.match(/(.*\/)*.+\.(png|jpg|gif|bmp|jpeg|webp|PNG|JPG|GIF|BMP|JPEG|WEBP)/)?.at(0) !== undefined;
     $: isStlFile = fileName.match(/(.*\/)*.+\.(stl|STL)/)?.at(0) !== undefined;
+    $: isDXFFile = fileName.match(/(.*\/)*.+\.(dxf|DXF)/)?.at(0) !== undefined;
     $: isPDFFile = fileName.match(/(.*\/)*.+\.(pdf|PDF)/)?.at(0) !== undefined;
 
 </script>
@@ -42,6 +44,10 @@
             <img src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover h-full" />
         {:else if isStlFile}
             <StlFile url="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
+        {:else if isPDFFile}
+            <iframe src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" height="100%" width="100%"></iframe>
+        {:else if isDXFFile}
+            <DxFfile url="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
         {:else}
             <Flex class="inset-0 m-2" direction="col">
                 <Icon src={Document} class="h-32 aspect-square text-zinc-800/50" />

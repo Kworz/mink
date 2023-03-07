@@ -10,11 +10,13 @@ specifiers:
   '@threlte/core': ^5.0.9
   '@threlte/extras': ^4.9.3
   '@threlte/preprocess': ^0.0.2
+  '@types/dxf': ^4.6.0
   '@types/qrcode': ^1.5.0
   '@types/three': ^0.149.0
   '@typescript-eslint/eslint-plugin': ^5.54.1
   '@typescript-eslint/parser': ^5.54.1
   autoprefixer: ^10.4.13
+  dxf: ^5.0.0
   eslint: ^8.35.0
   eslint-plugin-svelte3: ^4.0.0
   jspdf: ^2.5.1
@@ -50,11 +52,13 @@ devDependencies:
   '@threlte/core': 5.0.9
   '@threlte/extras': 4.9.3_three@0.150.1
   '@threlte/preprocess': 0.0.2
+  '@types/dxf': 4.6.0
   '@types/qrcode': 1.5.0
   '@types/three': 0.149.0
   '@typescript-eslint/eslint-plugin': 5.54.1_mlk7dnz565t663n4razh6a6v6i
   '@typescript-eslint/parser': 5.54.1_ycpbpc6yetojsgtrx3mwntkhsu
   autoprefixer: 10.4.13_postcss@8.4.21
+  dxf: 5.0.0
   eslint: 8.35.0
   eslint-plugin-svelte3: 4.0.0_n4ieifq2d7jq3sqoe474cgqlim
   jsqr: 1.4.0
@@ -503,6 +507,10 @@ packages:
 
   /@types/cookie/0.5.1:
     resolution: {integrity: sha512-COUnqfB2+ckwXXSFInsFdOAWQzCCx+a5hq2ruyj+Vjund94RJQd4LG2u9hnvJrTgunKAaax7ancBYlDrNYxA0g==}
+    dev: true
+
+  /@types/dxf/4.6.0:
+    resolution: {integrity: sha512-uDGUUY3lsjnCYY3oG4iUxq7mK9P8LPOIPgAsFq1nfWUZlrLq+2caN9xfUQyadLAIRqj/ZujiiXFojgY+ZdRErg==}
     dev: true
 
   /@types/json-schema/7.0.11:
@@ -1048,6 +1056,10 @@ packages:
       delayed-stream: 1.0.0
     dev: true
 
+  /commander/2.20.3:
+    resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
+    dev: true
+
   /commander/9.5.0:
     resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
     engines: {node: ^12.20.0 || >=14}
@@ -1208,6 +1220,16 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /dxf/5.0.0:
+    resolution: {integrity: sha512-1hQ8+3SlsKKGsGfiwwJxSTb3X2Oe23Qkcq5LThB3Cy6/xxKELdthxgKfQHZhFQ/C8GG07P2EqcZPg11Z/jj13w==}
+    engines: {node: '>=8.9.0'}
+    hasBin: true
+    dependencies:
+      commander: 2.20.3
+      lodash: 4.17.21
+      vecks: 3.9.2
+    dev: true
 
   /electron-to-chromium/1.4.322:
     resolution: {integrity: sha512-KovjizNC9XB7dno/2GjxX8VS0SlfPpCjtyoKft+bCO+UfD8bFy16hY4Sh9s0h9BDxbRH2U0zX5VBjpM1LTcNlg==}
@@ -1879,6 +1901,10 @@ packages:
 
   /lodash.merge/4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+    dev: true
+
+  /lodash/4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: true
 
   /lru-cache/6.0.0:
@@ -3118,6 +3144,10 @@ packages:
       base64-arraybuffer: 1.0.2
     dev: false
     optional: true
+
+  /vecks/3.9.2:
+    resolution: {integrity: sha512-ubOo1KoOrPu3llYmlE4SH60JWcR+YDaObP+1Kzpbcl09dKIf0fbBweW8Xyg+6Nk2Rrnyit6Jxw9bx2LOYpMQMA==}
+    dev: true
 
   /vite/4.1.4:
     resolution: {integrity: sha512-3knk/HsbSTKEin43zHu7jTwYWv81f8kgAL99G5NWBcA1LKvtvcVAC4JjBH1arBunO9kQka+1oGbrMKOjk4ZrBg==}
