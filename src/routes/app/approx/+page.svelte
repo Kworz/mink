@@ -3,6 +3,7 @@
     import { invalidateAll } from "$app/navigation";
     import Date from "$lib/components/formatters/Date.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
+    import { Temporal } from "@js-temporal/polyfill";
     import type { ActionData, PageData } from "./$types";
     import ApproxTable from "./ApproxTable.svelte";
 
@@ -15,7 +16,11 @@
     $: dates = [... new Set(data.order_rows.map(k => k.ack_date))];
 
     $: suppliersSplittedRows = suppliers.map(k => { return { supplier: k, rows: data.order_rows.filter(j => j.expand?.order.expand?.supplier.id === k)}});
-    $: datesSplittedRows = dates.map(k => { return { date: k, rows: data.order_rows.filter(j => j.ack_date === k)}});
+    $: datesSplittedRows = dates.map(k => { return { date: k, rows: data.order_rows.filter(j => j.ack_date === k)}}).sort((a, b) => {
+        if(a.date === "") return -1;
+        if(b.date === "") return 1;
+        return Temporal.PlainDate.compare(Temporal.Instant.from(a.date).toZonedDateTimeISO('UTC').toPlainDate(), Temporal.Instant.from(b.date).toZonedDateTimeISO('UTC').toPlainDate())
+    });
 
     $: if(form !== undefined && browser) { invalidateAll(); }
 
