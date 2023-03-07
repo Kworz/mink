@@ -7,6 +7,7 @@
     import TableRow from "$lib/components/table/TableRow.svelte";
     import User from "$lib/components/user/User.svelte";
     import type { OrdersResponseExpanded } from "./+page.server";
+    import OrderState from "./OrderState.svelte";
 
     export let orders: Array<OrdersResponseExpanded>;
 </script>
@@ -33,7 +34,7 @@
                     >
                     </Price>
                 </TableCell>
-                <TableCell>{order.state}</TableCell>
+                <TableCell><OrderState state={order.state} /></TableCell>
                 <TableCell><User user={order?.expand?.issuer}/></TableCell>
             </TableRow>
         {/each}
