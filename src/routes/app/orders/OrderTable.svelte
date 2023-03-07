@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Price from "$lib/components/formatters/Price.svelte";
+    import Supplier from "$lib/components/supplier/Supplier.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
@@ -21,12 +23,15 @@
     <svelte:fragment slot="body">
         {#each orders as order}
             <TableRow>
-                <TableCell><a href="/app/orders/{order.id}" class="hover:text-violet-500 duration-100 font-medium">{order.name}</a></TableCell>
-                <TableCell>{order.expand?.supplier?.name}</TableCell>
+                <TableCell><a href="/app/orders/{order.id}" class="hover:text-violet-500 duration-100 font-semibold">{order.name}</a></TableCell>
+                <TableCell><Supplier supplier={order.expand?.supplier} /></TableCell>
                 <TableCell>
-                    {order.expand?.["orders_rows(order)"].map(k => {
-                        return (k.expand?.article.price ?? 0) * k.quantity
-                    }).reduce((p, c) => c = p + c, 0)} €
+                    <Price 
+                        value={order.expand?.["orders_rows(order)"]?.map(k => {
+                            return (k.expand?.article.price ?? 0) * k.quantity
+                        }).reduce((p, c) => c = p + c, 0) ?? 0}
+                    >
+                    </Price>
                 </TableCell>
                 <TableCell>{order.state}</TableCell>
                 <TableCell><User user={order?.expand?.issuer}/></TableCell>
