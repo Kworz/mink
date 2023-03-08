@@ -1,4 +1,5 @@
 import { Collections, type ArticleResponse, type SuppliersResponse } from "$lib/DBTypes";
+import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export type ArticleResponseExpanded = ArticleResponse<{
@@ -7,11 +8,24 @@ export type ArticleResponseExpanded = ArticleResponse<{
 
 export const load = (async ({ locals, url }) => {
 
-    const sort = url.searchParams.get("sort") ?? "name";
-    const filter = url.searchParams.get("filter") ?? "";
-    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>(undefined, { sort, filter, expand: "supplier" });
+    try {
+        const sort = url.searchParams.get("sort") ?? "name";
+        const filter = url.searchParams.get("filter") ?? "";
+        const page = Number(url.searchParams.get("page")) ?? 1;
+        
+        const articles = await locals.pb.collection(Collections.Article).getList<ArticleResponseExpanded>(page, 50, { sort, filter, expand: "supplier" });
+        
+        return {
+            articleList: structuredClone(articles)
+        };
+    }
+    catch(ex)
+    {
+        console.log
+        throw error(500, "Failed to load errors");
+    }
 
-    return {
-        articles: structuredClone(articles)
-    };
+    
+
+    
 }) satisfies PageServerLoad;

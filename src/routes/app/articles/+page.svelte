@@ -1,12 +1,8 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Button from "$lib/components/Button.svelte";
-    import DetailLabel from "$lib/components/DetailLabel.svelte";
-    import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
-    import Filter from "$lib/components/filter/Filter.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
@@ -15,46 +11,43 @@
     import TableTitle from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
 
+    import { page } from "$app/stores";
+
     import type { PageData, Snapshot } from "./$types";
+    import { browser } from "$app/environment";
+    import Filter2 from "$lib/components/filter/Filter2.svelte";
+    import type { FilterCondition } from "$lib/components/filter/filter2";
     export let data: PageData;
 
-    let filterQuery: FilterQueryResult<"name" | "manufacturer" | "supplier" | "reference"> = {};
-    let filter = "";
+    let filters: Array<FilterCondition> = [];
+    let filter: string = "";
 
     let displayThumbs = true;
     let selected: Array<string> = [];
 
     let activeSort = $page.url.searchParams.get("sort") ?? "name";
+    let itemsPage = $page.url.searchParams.get("page") ?? 1;
 
-    const filterFn = (article: typeof data.articles[number], filterQ: typeof filterQuery): boolean => {
-
-        let result = true;
-
-        if(filterQuery.name !== undefined)
-            result = result && filterCompatible(article.name, filterQuery.name)
-        if(filterQuery.manufacturer !== undefined)
-            result = result && filterCompatible(article.manufacturer, filterQuery.manufacturer)
-        if(filterQuery.reference !== undefined)
-            result = result && filterCompatible(article.reference, filterQuery.reference)
-        if(filterQuery.supplier !== undefined)
-            result = result && filterCompatible(article.expand?.supplier?.name, filterQuery.supplier)
-
-        return result;
-    }
 
     const labelPrint = () => {
         window.open(`/app/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus();
     }
 
-    export const snapshot: Snapshot<string> = {
-        capture: () => filter,
-        restore: (value) => filter = value
+    export const snapshot: Snapshot<Array<FilterCondition>> = {
+        capture: () => filters,
+        restore: (value) => filters = value
     }
 
-    export const setSort = (value: string) => {
+    const setSort = (value: string) => {
         activeSort = value;
-        goto(`/app/articles?sort=${value}`);
     }
+
+    const invalidateParams = () => {
+        if(browser)
+            goto(`/app/articles?sort=${activeSort}&page=${itemsPage}&filter=${filter}`);
+    }
+
+    $: filter, activeSort, itemsPage, invalidateParams();
 
 </script>
 
@@ -64,12 +57,11 @@
 
 <h2>Articles</h2>
 <p>Liste des articles disponible dans la base.</p>
-<p>Valeur du stock: <DetailLabel>{data.articles.reduce((p, c) => (c.price ?? 0) * (Number(c.quantity) ?? 0) + p, 0)} €</DetailLabel>.</p>
 <h4 class="mt-3">Réglages liste</h4>
 <p><input type="checkbox" bind:checked={displayThumbs} /> Afficher les miniatures.</p>
 
 <Flex class="mt-6">
-    <Filter bind:filter availableFilters={["name", "manufacturer", "supplier", "reference"]} bind:filterResult={filterQuery} />
+    <Filter2 bind:filter bind:filters />
     <a href="/app/articles/new"><Button>Créer un article</Button></a>    
     <a href="/app/articles/import"><Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Importer des articles</Button></a>
     <Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500" on:click={() => {
@@ -97,7 +89,7 @@
     </svelte:fragment>
 
     <svelte:fragment slot="body">
-        {#each data.articles.filter((k) => filterFn(k, filterQuery)) as article (article.id)}
+        {#each data.articleList.items as article (article.id)}
             <TableRow>
                 <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                 <TableCell>
@@ -129,3 +121,20 @@
         {/each}
     </svelte:fragment>
 </Table>
+
+{#if data.articleList.totalPages > 1}
+    <Flex class="mt-6">
+        <h5>Pages</h5>
+        {#each [...Array(data.articleList.totalPages).keys()] as number}
+            {@const current = number+1 === itemsPage}
+            <Button 
+                class="aspect-square"
+                size="tiny"
+                borderColor={current ? "border-violet-400" : "border-zinc-500"}
+                hoverColor={current ? "bg-violet-400 hover:bg-violet-500" : "hover:bg-zinc-500"}
+                textColor={current ? "text-white" : undefined}
+                on:click={() => itemsPage = number+1}
+            >{number + 1}</Button>
+        {/each}
+    </Flex>
+{/if}
