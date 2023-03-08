@@ -11,12 +11,15 @@
     let inputInvalid = false;
     let tempFilter: string = "";
     let suggestions: string[] = [];
+    let selectedSuggestion = 0;
 
     const availableFilters: Array<Filter> = [
         { name: "name", default: true },
-        { name: "reference", shorthands: ["r", "ref"] },
-        { name: "manufacturer", shorthands: ["m", "man"] },
-        { name: "supplier.name", shorthands: ["s", "sup"] }
+        { name: "reference" },
+        { name: "manufacturer" },
+        { name: "supplier.name" },
+        { name: "price" },
+        { name: "quantity" }
     ];
 
     const convertFilter = () => {
@@ -39,17 +42,34 @@
             convertFilter();
         else if(e.key === "Tab" && suggestions[0] !== undefined)
         {
-            tempFilter = suggestions[0] + ":"
+
+            const parts = tempFilter.split(" ");
+            const part = parts.length - 1;
+
+            parts[part] = suggestions[selectedSuggestion] + " ";
+
+            tempFilter = parts.join(" ");
+
             e.preventDefault();
         }
         else if(e.key === "Backspace" && tempFilter.length === 0)
             filters = [...filters.slice(0, -1)];
+        else if(e.key === "ArrowUp")
+        {
+            selectedSuggestion = (selectedSuggestion === 0) ? 0 : selectedSuggestion - 1;
+            e.preventDefault();
+        }
+        else if(e.key === "ArrowDown")
+        {
+            selectedSuggestion = (selectedSuggestion < suggestions.length) ? selectedSuggestion + 1 : suggestions.length;
+            e.preventDefault();
+        }
     }
 
     $: filter = convertToPocketbaseFilter(filters);
     $: if(inputInvalid) { setTimeout(() => inputInvalid = false, 2500);}
 
-    $: suggestions = predictField(tempFilter, availableFilters);
+    $: suggestions = predictField(tempFilter, availableFilters), selectedSuggestion = 0;
 
 </script>
 
@@ -59,8 +79,8 @@
             {#if filters.length > 0}
                 <Flex class="ml-2" gap={2}>
                     {#each filters as filter, index}
-                        <div class="py-0.5 px-1 text-xs rounded-full bg-white ring-1 ring-zinc-500/50 flex flex-row items-center gap-1">
-                            <span>{filter.field}:{filter.value}</span>
+                        <div class="py-0.5 pr-1 pl-2 text-xs rounded-full bg-white ring-1 ring-zinc-500/50 flex flex-row items-center gap-1">
+                            <span>{filter.field} {filter.operator} {filter.value}</span>
                             <button on:click={() => filters = filters.filter((k, i) => i !== index)}>
                                 <Icon src={XMark} class="h-4 w-4 text-red-500 hover:text-red-500/75 duration-100" />
                             </button>
@@ -77,8 +97,8 @@
 
         {#if suggestions.length > 0}
             <div class="absolute z-50 top-[115%] bg-white p-2 flex flex-col gap-1 ring-1 ring-zinc-500/50 rounded-sm ring-inset text-xs">
-                {#each suggestions as sg}
-                    <span class="">{sg}</span>
+                {#each suggestions as sg, index}
+                    <span class:text-blue-500={selectedSuggestion === index}>{sg}</span>
                 {/each}
             </div>
         {/if}

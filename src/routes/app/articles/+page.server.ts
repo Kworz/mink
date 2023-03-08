@@ -21,7 +21,7 @@ export const load = (async ({ locals, url }) => {
     }
     catch(ex)
     {
-        console.log
+        console.log(ex);
         throw error(500, "Failed to load errors");
     }
 

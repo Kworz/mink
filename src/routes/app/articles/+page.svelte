@@ -28,14 +28,13 @@
     let activeSort = $page.url.searchParams.get("sort") ?? "name";
     let itemsPage = $page.url.searchParams.get("page") ?? 1;
 
-
-    const labelPrint = () => {
-        window.open(`/app/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus();
-    }
-
     export const snapshot: Snapshot<Array<FilterCondition>> = {
         capture: () => filters,
         restore: (value) => filters = value
+    }
+
+    const labelPrint = () => {
+        window.open(`/app/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus();
     }
 
     const setSort = (value: string) => {
@@ -44,10 +43,14 @@
 
     const invalidateParams = () => {
         if(browser)
+        {
             goto(`/app/articles?sort=${activeSort}&page=${itemsPage}&filter=${filter}`);
+            selected = [];
+        }
     }
 
     $: filter, activeSort, itemsPage, invalidateParams();
+    $: selectedAll = data.articleList.items.length === selected.length;
 
 </script>
 
@@ -76,8 +79,8 @@
 
 <Table>
     <svelte:fragment slot="head">
-        <TableTitle colWidth="w-8"></TableTitle>
-        <TableTitle col="name" {activeSort} sortFn={setSort} colWidth="w-1/6">Article</TableTitle>
+        <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)}/></TableTitle>
+        <TableTitle col="name" {activeSort} sortFn={setSort} colWidth="w-1/6">Article ({data.articleList.totalItems})</TableTitle>
         <TableTitle col="quantity" {activeSort} sortFn={setSort}>Stock</TableTitle>
         <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
         <TableTitle col="supplier" {activeSort} sortFn={setSort} colWidth="w-1/6">Fournisseur</TableTitle>
@@ -128,7 +131,7 @@
         {#each [...Array(data.articleList.totalPages).keys()] as number}
             {@const current = number+1 === itemsPage}
             <Button 
-                class="aspect-square"
+                class="aspect-square w-8"
                 size="tiny"
                 borderColor={current ? "border-violet-400" : "border-zinc-500"}
                 hoverColor={current ? "bg-violet-400 hover:bg-violet-500" : "hover:bg-zinc-500"}

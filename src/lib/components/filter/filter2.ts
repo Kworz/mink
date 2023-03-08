@@ -1,44 +1,55 @@
 export type Filter = {
     name: string;
     default?: true;
-    shorthands?: string[];
 }
 
 export type FilterCondition = {
     field: string;
+    operator: '=' | '!=' | '>' | '<' | '>=' | '<=' | '~' | '!~';
     value: string;
 }
 
 export function convertFilterCondition(value: string, availableFilters: Array<Filter>): FilterCondition
 {
+    if(value.length === 0)
+        throw "Filter length too small";
+
     const defaultFilter = availableFilters.find(k => k.default === true);
+    const regexMatches = value.match(/([\w|.]*) (=|!=|>|<|>=|<=|~|!~) (.*)/);
 
-    const filterParts = value.split(":");
+    if(regexMatches === null)
+        if(value.length > 0 && defaultFilter !== undefined)
+        {
+            return { field: defaultFilter.name, value, operator: "~" };
+        }
+        else
+            throw "Invalid filter"
 
-    if(filterParts.length === 1 && defaultFilter !== undefined)
-        return { field: defaultFilter.name, value: convertFilterValue(filterParts[0]) };
-    
-    if(filterParts.length !== 2)
-        throw "Invalid filter";
+    if(regexMatches.length !== 4)
+        throw "Invalid filter parts length"
 
-    const filterName = validateFilterField(availableFilters, filterParts[0]);
+    const field = regexMatches[1];
+    const operator = regexMatches[2] as FilterCondition["operator"];
+    const value2 = regexMatches[3];
+
+    const filterName = validateFilterField(availableFilters, field);
 
     return {
         field: filterName,
-        value: convertFilterValue(filterParts[1])
+        operator: operator,
+        value: value2
     }
 }
 
 function validateFilterField(availableFilters: Array<Filter>, possibleField: string): string {
-    for(const filter of availableFilters)
-    {
-        if(filter.name === possibleField)
-            return filter.name;
-        if(filter.shorthands?.includes(possibleField))
-            return filter.name;
-    }
 
-    throw `${possibleField} is neither a filter or a shorthand.`;
+    const possibleFilter = availableFilters.find(k => k.name.includes(possibleField));
+
+    if(possibleFilter === undefined)
+        throw `${possibleField} is not a possible filter`;
+
+    return possibleFilter.name;
+
 }
 
 /**
@@ -49,11 +60,24 @@ function validateFilterField(availableFilters: Array<Filter>, possibleField: str
  */
 export function predictField(value: string, availableFilters: Array<Filter>): string[] {
 
-    if(value.indexOf(":") > -1 || value.length === 0)
+    if(value.length === 0)
         return [];
 
-    const prefixes = availableFilters.filter(k => k.default !== true).map(k => k.name);
-    return prefixes.filter(k => k.toLowerCase().includes(value)).filter(k => k !== value).sort((a, b) => a.indexOf(value) - b.indexOf(value));
+    const parts = value.split(" ");
+    const part = parts.length - 1;
+
+    if(part === 0)
+    {
+        const prefixes = availableFilters.filter(k => k.default !== true).map(k => k.name);
+        return prefixes.filter(k => k.toLowerCase().includes(parts[0].toLowerCase())).filter(k => k !== parts[0].toLowerCase()).sort((a, b) => a.indexOf(parts[0].toLowerCase()) - b.indexOf(parts[0].toLowerCase()));
+    }
+    else if (part === 1)
+    {
+        const operators = ['=' , '!=' , '>' , '<' , '>=' , '<=' , '~' , '!~'].filter(k => k.includes(parts[1]));
+        return operators.length === 1 ? [] : operators;
+    }
+    else
+        return [];
 }
 
 function convertFilterValue(value: string): string {
@@ -66,5 +90,5 @@ function convertFilterValue(value: string): string {
 
 export function convertToPocketbaseFilter(filters: Array<FilterCondition>): string
 {
-    return encodeURIComponent(filters.map(k => `${k.field} ~ ${k.value}`).join(" && "));
+    return encodeURIComponent(filters.map(k => `${k.field} ${k.operator} ${convertFilterValue(k.value)}`).join(" && "));
 }

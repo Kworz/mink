@@ -45,7 +45,7 @@
         {:else if isStlFile}
             <StlFile url="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
         {:else if isPDFFile}
-            <iframe src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" height="100%" width="100%"></iframe>
+            <iframe src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" height="100%" width="100%" title="PDF File"></iframe>
         {:else if isDXFFile}
             <DxFfile url="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
         {:else}
