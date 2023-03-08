@@ -44,7 +44,7 @@
     const invalidateParams = () => {
         if(browser)
         {
-            goto(`/app/articles?sort=${activeSort}&page=${itemsPage}&filter=${filter}`);
+            goto(`/app/articles?sort=${activeSort}&page=${itemsPage}&filter=${filter}`, { noScroll: true});
             selected = [];
         }
     }
@@ -127,7 +127,7 @@
 
 {#if data.articleList.totalPages > 1}
     <Flex class="mt-6">
-        <h5>Pages</h5>
+        <span>Pages:</span>
         {#each [...Array(data.articleList.totalPages).keys()] as number}
             {@const current = number+1 === itemsPage}
             <Button 
@@ -135,7 +135,7 @@
                 size="tiny"
                 borderColor={current ? "border-violet-400" : "border-zinc-500"}
                 hoverColor={current ? "bg-violet-400 hover:bg-violet-500" : "hover:bg-zinc-500"}
-                textColor={current ? "text-white" : undefined}
+                textColor={current ? "text-white" : "hover:text-white"}
                 on:click={() => itemsPage = number+1}
             >{number + 1}</Button>
         {/each}
