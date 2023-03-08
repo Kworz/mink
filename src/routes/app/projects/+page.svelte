@@ -27,7 +27,7 @@
     <svelte:fragment slot="body">
         {#each data.projects as project}
             <TableRow>
-                <TableCell><a href="/app/projects/{project.id}" class="font-medium hover:text-violet-500 duration-100">{project.name}</a></TableCell>
+                <TableCell><a href="/app/projects/{project.id}">{project.name}</a></TableCell>
                 <TableCell>{project.start_date}</TableCell>
                 <TableCell>{project.end_date}</TableCell>
                 <TableCell>

@@ -27,7 +27,7 @@
     {/if}
 
     <div>
-        <a href="/app/articles/{article.id}" class="block font-medium hover:text-violet-500">{article.name}</a>
+        <a href="/app/articles/{article.id}" class="block">{article.name}</a>
         {#if displayManufacturer}<span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
         {#if displayPrice}<span class="text-sm block"><DetailLabel>{article.price} €</DetailLabel></span>{/if}
         {#if (article.quantity ?? 0) > 0 && displayStock === true} <span class="text-sm text-emerald-600 block">{article.quantity} En stock.</span> {/if}

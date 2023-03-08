@@ -87,7 +87,7 @@
                 <TableCell>
                     <Icon src={supplier.internal ? Check : XMark} class="h-6 w-6 mx-auto {supplier.internal ? "text-emerald-500" : "text-red-500"}" />
                 </TableCell>
-                <TableCell>{#if supplier.website != ""}<a href={supplier.website} class="text-violet-500 font-medium hover:text-violet-500/75 duration-100">Lien ↗</a>{/if}</TableCell>
+                <TableCell>{#if supplier.website != ""}<a href={supplier.website}>Voir le site</a>{/if}</TableCell>
                 <TableCell>{supplier.address}</TableCell>
                 <TableCell>{supplier.contact_email}</TableCell>
                 <TableCell>

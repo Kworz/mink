@@ -31,7 +31,6 @@
                         <h3 class="mb-2">Outils</h3>
                         <a
                             href="/app/scanner"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/scanner"
                             )}
@@ -42,7 +41,6 @@
                         <h3 class="mb-2">Articles</h3>
                         <a
                             href="/app/articles"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/articles"
                             )}
@@ -52,7 +50,6 @@
                         </a>
                         <a
                             href="/app/suppliers"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/suppliers"
                             )}
@@ -62,7 +59,6 @@
                         </a>
                         <a
                             href="/app/approx"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/approx"
                             )}
@@ -73,7 +69,6 @@
                         <h3 class="my-2">Nomenclatures</h3>
                         <a
                             href="/app/nomenclatures"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/nomenclatures"
                             )}
@@ -83,7 +78,6 @@
                         </a>
                         <a
                             href="/app/lists"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/lists"
                             )}
@@ -94,7 +88,6 @@
                         <h3 class="my-2">Gestion</h3>
                         <a
                             href="/app/projects"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/projects"
                             )}
@@ -104,7 +97,6 @@
                         </a>
                         <a
                             href="/app/orders"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/orders"
                             )}
@@ -114,7 +106,6 @@
                         </a>
                         <a
                             href="/app/planning"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/planning"
                             )}
@@ -124,7 +115,6 @@
                         </a>
                         <a
                             href="/app/fabrication_orders"
-                            class="hover:text-violet-500 hover:font-medium"
                             class:text-blue-500={$page.route.id?.includes(
                                 "/app/fabrication_orders"
                             )}

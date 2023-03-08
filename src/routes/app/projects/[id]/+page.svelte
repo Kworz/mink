@@ -62,7 +62,7 @@ import DetailLabel from "$lib/components/DetailLabel.svelte";
         <svelte:fragment slot="body">
             {#each data.lists as list}
                 <TableRow>
-                    <TableCell><a href="/app/lists/{list.id}" class="text-medium hover:text-violet-500 duration-200">{list.name}</a></TableCell>
+                    <TableCell><a href="/app/lists/{list.id}">{list.name}</a></TableCell>
                     <TableCell>{list.created}</TableCell>
                 </TableRow>
             {/each}

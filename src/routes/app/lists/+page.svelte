@@ -47,10 +47,10 @@
     <svelte:fragment slot="body">
         {#each data.lists as list}
             <TableRow>
-                <TableCell><a href="/app/lists/{list.id}" class="font-medium hover:text-violet-500 duration-100">{list.name}</a></TableCell>
+                <TableCell><a href="/app/lists/{list.id}">{list.name}</a></TableCell>
                 <TableCell>
                     {#if list.expand?.parent_nomenclature !== undefined}
-                        <a href="/app/nomenclatures/{list.expand.parent_nomenclature.id}" class="hover:text-violet-500 duration-100">{list.expand.parent_nomenclature.name}</a>
+                        <a href="/app/nomenclatures/{list.expand.parent_nomenclature.id}">{list.expand.parent_nomenclature.name}</a>
                     {:else}
                         Aucune liste ???
                     {/if}                
@@ -58,7 +58,7 @@
                 <TableCell>{list.created}</TableCell>
                 <TableCell>
                     {#if list.expand?.project !== undefined}
-                        <a href="/app/projects/{list.expand.project.id}" class="hover:text-violet-500 duration-100">{list.expand.project.name}</a>
+                        <a href="/app/projects/{list.expand.project.id}">{list.expand.project.name}</a>
                     {:else}
                         Aucun
                     {/if}

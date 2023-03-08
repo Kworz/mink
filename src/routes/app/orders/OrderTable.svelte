@@ -24,7 +24,7 @@
     <svelte:fragment slot="body">
         {#each orders as order}
             <TableRow>
-                <TableCell><a href="/app/orders/{order.id}" class="hover:text-violet-500 duration-100 font-semibold">{order.name}</a></TableCell>
+                <TableCell><a href="/app/orders/{order.id}">{order.name}</a></TableCell>
                 <TableCell><Supplier supplier={order.expand?.supplier} /></TableCell>
                 <TableCell>
                     <Price 

@@ -45,7 +45,7 @@
     <svelte:fragment slot="body">
         {#each data.nomenclatures as nomenclature}
             <TableRow>
-                <TableCell><a href="/app/nomenclatures/{nomenclature.id}" class="font-medium hover:text-violet-500 duration-100">{nomenclature.name}</a></TableCell>
+                <TableCell><a href="/app/nomenclatures/{nomenclature.id}">{nomenclature.name}</a></TableCell>
                 <TableCell>{nomenclature.description}</TableCell>
                 <TableCell>{nomenclature.expand["nomenclature_row(parent_nomenclature)"]?.length ?? 0}</TableCell>
                 <TableCell>

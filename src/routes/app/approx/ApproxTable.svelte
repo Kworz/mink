@@ -3,14 +3,12 @@
     import Button from "$lib/components/Button.svelte";
     import Date from "$lib/components/formatters/Date.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
-    import Link from "$lib/components/Link.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import type { ListResponse } from "$lib/DBTypes";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import OrderRow from "../orders/[id]/OrderRow.svelte";
     import type { OrderRowsResponseExpanded } from "./+page.server";
 
     export let orderRows: Array<OrderRowsResponseExpanded>;
@@ -35,7 +33,7 @@
                     <ArticleRow article={orderRow.expand?.article} displayStock={true} />
                 </TableCell>
                 <TableCell><Date date={orderRow.ack_date} colorDate={true} /></TableCell>
-                <TableCell><Link href="/app/lists/{orderRow.order}">{orderRow.expand?.order?.name}</Link></TableCell>
+                <TableCell><a href="/app/lists/{orderRow.order}">{orderRow.expand?.order?.name}</a></TableCell>
                 <TableCell>{orderRow.quantity - (orderRow.quantity_received ?? 0)}</TableCell>
                 <TableCell>{orderRow.quantity_received}</TableCell>
                 <TableCell>

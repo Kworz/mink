@@ -37,7 +37,7 @@ import Button from "$lib/components/Button.svelte";
             {projects.find(p => p.id === orderRow.project)?.name ?? "—"}
         {/if}
     </TableCell>
-    <TableCell><a href="/app/articles/{orderRow.expand?.article.id}" class="hover:text-violet-500 duration-200 font-medium">{orderRow.expand?.article.name}</a></TableCell>
+    <TableCell><a href="/app/articles/{orderRow.expand?.article.id}">{orderRow.expand?.article.name}</a></TableCell>
     <TableCell>{orderRow.expand?.article.reference}</TableCell>
     <TableCell>
         {#if order.state === OrdersStateOptions.draft}
