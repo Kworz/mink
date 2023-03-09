@@ -1,7 +1,9 @@
 <script lang="ts">
 
     export let size: "base" | "small" | "tiny" = "base";
-    export let role: "primary" | "secondary" | "tertiary" | "danger" | "warning" | "success" = "primary"
+    export let role: "primary" | "secondary" | "tertiary" | "danger" | "warning" | "success" = "primary";
+
+    export let form: string | undefined = undefined;
 
     export let textColor = "hover:text-white text-zinc-800";
     export let hoverColor = "hover:bg-violet-500";
@@ -25,6 +27,6 @@
 
 </script>
 
-<button class="{sizes[size]} {roles[role]} duration-100 rounded-md {$$props.class}" on:click>
+<button {form} class="{sizes[size]} {roles[role]} duration-100 rounded-md {$$props.class}" on:click>
     <slot />
 </button>

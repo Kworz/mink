@@ -3,6 +3,7 @@
     import { invalidateAll } from "$app/navigation";
     import Date from "$lib/components/formatters/Date.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
+    import Wrapper from "$lib/components/Wrapper.svelte";
     import { Temporal } from "@js-temporal/polyfill";
     import type { ActionData, PageData } from "./$types";
     import ApproxTable from "./ApproxTable.svelte";
@@ -26,29 +27,34 @@
 
 </script>
 
-<h2>Approvisionement</h2>
-<p>Articles en attente de réception.</p>
+<Wrapper>
+    <h2>Approvisionement</h2>
+    <p>Articles en attente de réception.</p>
 
-<Flex gap={2}>
-    <input type="radio" bind:group={splitView} value="supplier" />
-    <span>Tri par fournisseur</span>
-</Flex>
-
-<Flex gap={2} class="mb-6">
-    <input type="radio" bind:group={splitView} value="ack_date" />
-    <span>Tri par date d'arrivée</span>
-</Flex>
-
+    <Flex gap={2}>
+        <input type="radio" bind:group={splitView} value="supplier" />
+        <span>Tri par fournisseur</span>
+    </Flex>
+    
+    <Flex gap={2}>
+        <input type="radio" bind:group={splitView} value="ack_date" />
+        <span>Tri par date d'arrivée</span>
+    </Flex>
+</Wrapper>
 
 {#if splitView === "supplier"}
     {#each suppliersSplittedRows as orderRows}
-        <h3 class="mb-4 mt-6">{data.suppliers.find(k => k.id === orderRows.supplier)?.name ?? "Fournisseur introuvable"}</h3>
-        <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
+        <Wrapper class="mt-6">
+            <h3>{data.suppliers.find(k => k.id === orderRows.supplier)?.name ?? "Fournisseur introuvable"}</h3>
+            <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
+        </Wrapper>
     {/each}
 {:else}
     {#each datesSplittedRows as orderRows}
-        <h3 class="mb-4 mt-6"><Date date={orderRows.date} format="long"/></h3>
-        <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
+        <Wrapper class="mt-6">
+            <h3><Date date={orderRows.date} format="long" colorDate={true}/></h3>
+            <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
+        </Wrapper>
     {/each}
 {/if}
 

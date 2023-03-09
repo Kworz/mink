@@ -16,10 +16,12 @@ export const load = (async ({ locals }) => {
         });
 
         const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();
+        const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
 
         return {
             lists: structuredClone(lists),
-            nomenclatures: structuredClone(nomenclatures)
+            nomenclatures: structuredClone(nomenclatures),
+            projects: structuredClone(projects)
         }
     }
     catch(ex)
@@ -32,16 +34,18 @@ export const load = (async ({ locals }) => {
 
 export const actions: Actions = {
     newList: async ({ request, locals }) => {
+
+        let list: ListResponse | undefined = undefined;
         try
         {
             const form = await request.formData();
-            const list = await locals.pb.collection(Collections.List).create<ListResponse>(form);
-
-            throw redirect(303, `/app/list/${list.id}`);
+            list = await locals.pb.collection(Collections.List).create<ListResponse>(form);
         }
         catch(ex)
         {
             return { error: "Failed to create list" };
         }
+
+        throw redirect(303, `/app/list/${list.id}`);
     }
 }

@@ -12,6 +12,8 @@
     export let value: string[] | string | number = "";
     export let checked: boolean | undefined = undefined;
 
+    export let form: string | undefined = undefined;
+
     export let min: number | null | undefined = undefined;
     export let max: number | null | undefined = undefined;
     export let step: number | null | undefined = undefined;
@@ -54,18 +56,18 @@
 
     {#if type == "select"}
         {#if Array.isArray(value)} 
-            <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} multiple on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} multiple on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>
         {:else}
-            <select {name} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>
         {/if}
     {:else if type == "checkbox"}
-        <input type="checkbox" {name} bind:checked {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
+        <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
     {:else}
-        <input use:typeAction {name} bind:value {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
+        <input use:typeAction {name} {form} bind:value {min} {max} {step} class="border border-zinc-500/50 p-2 rounded-sm duration-200 {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
     {/if}
 
     {#if validateButton}

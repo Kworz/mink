@@ -16,7 +16,7 @@
 
 </script>
 
-<Table marginTop="mt-0">
+<Table marginTop="mt-0" embeded={true}>
     <svelte:fragment slot="head">
         <TableHead colWidth="w-1/3">Article</TableHead>
         <TableHead>Date d'arrivée</TableHead>
