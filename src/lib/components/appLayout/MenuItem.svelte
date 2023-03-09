@@ -15,7 +15,7 @@
 
 <a {href}>
     <div 
-        class="flex gap-2 rounded-md py-2 px-4 items-center duration-200 font-medium {active ? "bg-violet-500 hover:bg-violet-500/90 text-white" : "hover:bg-violet-400 hover:text-white text-zinc-800"}"
+        class="flex gap-2 rounded-md py-2 px-4 items-center duration-200 font-medium {active ? "bg-violet-500 hover:bg-violet-500/90 text-white" : "hover:bg-violet-200 hover:text-violet-700 text-zinc-800"}"
     >
         <Icon src={icon} class="h-4 w-4" />
         <span>{label}</span>

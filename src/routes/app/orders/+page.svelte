@@ -1,6 +1,7 @@
 <script lang="ts">
 
     import Flex from "$lib/components/layout/flex.svelte";
+    import Wrapper from "$lib/components/Wrapper.svelte";
     import { OrdersStateOptions } from "$lib/DBTypes";
     import type { PageData } from "./$types";
     import OrderTable from "./OrderTable.svelte";
@@ -12,12 +13,13 @@
 
 </script>
 
-<h2>Commandes</h2>
-<p>Liste des commandes</p>
-
-<Flex items="center" gap={2}>
-    <input type="checkbox" bind:checked={showCompletedOrders}/>
-    <span>Afficher les commandes terminées</span>
-</Flex>
-
-<OrderTable bind:orders />
+<Wrapper>
+    <h2>Commandes</h2>
+    
+    <Flex items="center" gap={2}>
+        <input type="checkbox" bind:checked={showCompletedOrders}/>
+        <span>Afficher les commandes terminées</span>
+    </Flex>
+    <OrderTable bind:orders />
+</Wrapper>
+    

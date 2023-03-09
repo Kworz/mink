@@ -12,7 +12,7 @@
     export let orders: Array<OrdersResponseExpanded>;
 </script>
 
-<Table>
+<Table embeded={true}>
     <svelte:fragment slot="head">
         <TableHead>Numéro de commande</TableHead>
         <TableHead>Fournisseur</TableHead>
