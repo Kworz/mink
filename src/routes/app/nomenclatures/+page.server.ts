@@ -18,12 +18,13 @@ export const actions: Actions = {
     newNomenclature: async ({ request, locals}) => {
 
         let nomenclature: NomenclatureResponse | undefined = undefined;
+        
         try
         {
             const form = await request.formData();
             if(locals.user?.id !== undefined)
                 form.set("created_by", locals.user.id);
-            nomenclature = await locals.pb.collection("nomenclature").create(form);
+            nomenclature = await locals.pb.collection("nomenclature").create<NomenclatureResponse>(form);
         }
         catch(ex)
         {
@@ -31,6 +32,6 @@ export const actions: Actions = {
             return { error: "Failed to create nomenclature" };
         } 
 
-        throw redirect(303, `/app/nomenclature/${nomenclature!.id}`)
+        throw redirect(303, `/app/nomenclature/${nomenclature.id}`)
     }
 }

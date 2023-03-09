@@ -1,5 +1,6 @@
 <script lang="ts">
-    import Button from "$lib/components/Button.svelte";
+    import { enhance } from "$app/forms";
+import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
 
@@ -8,6 +9,7 @@
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import User from "$lib/components/user/User.svelte";
+    import Wrapper from "$lib/components/Wrapper.svelte";
     import type { PageData } from "./$types";
 
     export let data: PageData;
@@ -18,43 +20,50 @@
 
 <svelte:head><title>Nomenclaturize — Nomenclatures</title></svelte:head>
 
-<h2>Nomenclatures</h2>
-<p>Liste des nomenclatures dans la base</p>
-
-<form action="?/newNomenclature" method="post">
-    <Flex class="mt-8">
-        {#if createNomenclature}
-            <FormInput label="Nom de la nomenclature" labelMandatory={true} name="name" />
-            <FormInput label="Description" name="description" />
-            <Button class="self-end">Créer</Button>
-        {:else}
-            <Button on:click={() => createNomenclature = true}>Créer une nomenclature</Button>
-        {/if}
+<Wrapper>    
+    <Flex items="center" justify="between">
+        <h2>Nomenclatures</h2>        
+        <Button on:click={() => createNomenclature = !createNomenclature}>Créer une nomenclature</Button>
     </Flex>
-</form>
 
-<Table>
-    <svelte:fragment slot="head">
-        <TableHead>Nomenclature</TableHead>
-        <TableHead>Description</TableHead>
-        <TableHead>Éléments</TableHead>
-        <TableHead>Créé par</TableHead>
-        <TableHead>Créé le</TableHead>
-    </svelte:fragment>
-
-    <svelte:fragment slot="body">
-        {#each data.nomenclatures as nomenclature}
-            <TableRow>
-                <TableCell><a href="/app/nomenclatures/{nomenclature.id}">{nomenclature.name}</a></TableCell>
-                <TableCell>{nomenclature.description}</TableCell>
-                <TableCell>{nomenclature.expand["nomenclature_row(parent_nomenclature)"]?.length ?? 0}</TableCell>
-                <TableCell>
-                    {#if nomenclature.expand.created_by !== undefined}
-                        <User user={nomenclature.expand.created_by} />
-                    {/if}
-                </TableCell>
-                <TableCell>{nomenclature.created}</TableCell>
-            </TableRow>
-        {/each}
-    </svelte:fragment>
-</Table>
+    <Table embeded={true}>
+        <svelte:fragment slot="head">
+            <TableHead>Nomenclature</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Éléments</TableHead>
+            <TableHead>Créé par</TableHead>
+            <TableHead>Créé le</TableHead>
+        </svelte:fragment>
+    
+        <svelte:fragment slot="body">
+            {#if createNomenclature}
+                <TableRow>
+                    <TableCell>
+                        <form id="create_nomenclature" action="?/newNomenclature" method="post" use:enhance>
+                            <FormInput label="Nom de la nomenclature" labelMandatory={true} name="name" />
+                        </form>
+                    </TableCell>
+                    <TableCell colspan={3}>
+                        <FormInput form="create_nomenclature" label="Description" name="description" />
+                    </TableCell>
+                    <TableCell>
+                        <Button form="create_nomenclature">Créer</Button>
+                    </TableCell>
+                </TableRow>
+            {/if}
+            {#each data.nomenclatures as nomenclature}
+                <TableRow>
+                    <TableCell><a href="/app/nomenclatures/{nomenclature.id}">{nomenclature.name}</a></TableCell>
+                    <TableCell>{nomenclature.description}</TableCell>
+                    <TableCell>{nomenclature.expand["nomenclature_row(parent_nomenclature)"]?.length ?? 0}</TableCell>
+                    <TableCell>
+                        {#if nomenclature.expand.created_by !== undefined}
+                            <User user={nomenclature.expand.created_by} />
+                        {/if}
+                    </TableCell>
+                    <TableCell>{nomenclature.created}</TableCell>
+                </TableRow>
+            {/each}
+        </svelte:fragment>
+    </Table>
+</Wrapper>
