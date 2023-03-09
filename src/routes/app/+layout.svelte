@@ -28,7 +28,7 @@
         <MenuItem icon={ClipboardDocumentCheck} href="/app/lists" label="Listes d'achats" />
 
         <MenuSeparator>Gestion</MenuSeparator>
-        <MenuItem icon={DocumentText} href="/app/projects" label="Projets" />
+        <MenuItem icon={DocumentText} href="/app/projects" label="Affaires" />
         <MenuItem icon={DocumentChartBar} href="/app/orders" label="Commandes" />
         <MenuItem icon={Calendar} href="/app/planning" label="Planning" />
         <MenuItem icon={Wrench} href="/app/fabrication_orders" label="Ordres de fabrication" />
