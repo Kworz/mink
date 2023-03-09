@@ -5,10 +5,11 @@
     import Button from "$lib/components/Button.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import File from "$lib/components/file/File.svelte";
-    import PreviewFile from "$lib/components/file/PreviewFile.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Grid from "$lib/components/layout/grid.svelte";
+    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
+    import RoundButton from "$lib/components/RoundButton.svelte";
+    import Supplier from "$lib/components/supplier/Supplier.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
@@ -16,7 +17,7 @@
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { Check, PlusCircle, Wrench } from "@steeze-ui/heroicons";
+    import { ArrowLeft, ArrowRight, Check, PlusCircle, Wrench } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
 
@@ -26,7 +27,7 @@
     let editArticle = false;
     let showConfirmDelete = false;
 
-    let selectedFile: string = "";
+    let selectedFile: number = -1;
 
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(showConfirmDelete === true) { setTimeout(() => showConfirmDelete = false, 3000); }
@@ -38,49 +39,55 @@
 </svelte:head>
 
 <Flex gap={6} justify="between">
-    {#if !editArticle}
-        <section>
+    <Wrapper class="relative grow">
+        {#if !editArticle}
             <h2>{data.article.name}</h2>
-            {#if form?.edit !== undefined}
-                {#if form.edit.success}<p class="text-emerald-500">{form.edit.success}</p>{/if}
-                {#if form.edit.error}<p class="text-red-500">{form.edit.error}</p>{/if}
-            {/if}
-            <h4>Informations générales</h4>
             <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
-            <p>Fournisseurs: <DetailLabel>{data.article.expand?.supplier?.map(k => k.name).join(", ") ?? "Aucun"}</DetailLabel>.</p>
+
+            {#if data.article.expand?.supplier !== undefined}
+                <Flex items="center">
+                    <span>Fournisseurs:</span>
+                    <Flex items="center">
+                        {#each data.article.expand?.supplier as supplier}
+                            <Supplier {supplier} />
+                        {/each}
+                    </Flex>
+                </Flex>
+            {/if}
+
+
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity}</DetailLabel>.</p>
 
-            <Flex class="my-6" items="center">
-                <Button size="small" on:click={() => editArticle = !editArticle}>
-                    <Icon src={Wrench} class="h-4 w-4 inline-block mr-2" />
-                    Modifier l'article
-                </Button>
-
-                <form action="?/copyArticle" method="post" use:enhance>
-                    <Button size="small" borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Copier l'article</Button>
-                </form>
-
-                {#if showConfirmDelete}
-                    <form action="?/deleteArticle" method="post" use:enhance>
-                        <Button size="small"borderColor="border-red-500" hoverColor="hover:bg-red-500">Confirmer la suppréssion</Button>
+            <div class="absolute top-4 right-4">
+                <PillMenu>
+                    <Button size="small" on:click={() => editArticle = !editArticle}>
+                        <Icon src={Wrench} class="h-4 w-4 inline-block mr-2" />
+                        Modifier l'article
+                    </Button>
+    
+                    <form action="?/copyArticle" method="post" use:enhance>
+                        <Button size="small" borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Copier l'article</Button>
                     </form>
-                {:else}
-                    <Button on:click={() => showConfirmDelete = true} size="small" borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>                
-                {/if}
-
-                <Button size="small" borderColor="border-pink-500" hoverColor="hover:bg-pink-500" on:click={() => 
-                        window.open(`/app/articles/print/?articles=${data.article.id}`, '_blank')?.focus()
-                }>
-                    Imprimer l'etiquette
-                </Button>
-
-            </Flex>
-        </section>
-    {:else}
-        <Wrapper>
+    
+                    {#if showConfirmDelete}
+                        <form action="?/deleteArticle" method="post" use:enhance>
+                            <Button size="small"borderColor="border-red-500" hoverColor="hover:bg-red-500">Confirmer la suppréssion</Button>
+                        </form>
+                    {:else}
+                        <Button on:click={() => showConfirmDelete = true} size="small" borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>                
+                    {/if}
+    
+                    <Button size="small" borderColor="border-pink-500" hoverColor="hover:bg-pink-500" on:click={() => 
+                            window.open(`/app/articles/print/?articles=${data.article.id}`, '_blank')?.focus()
+                    }>
+                        Imprimer l'etiquette
+                    </Button>
+                </PillMenu>
+            </div>
+        {:else}
             <form action="?/editArticle" method="post" use:enhanceNoReset>
                 <Flex direction="col" gap={2}>
                     <FormInput name="name" label="Nom de l'article" labelMandatory={true} bind:value={data.article.name} backgroundColor="bg-white"/>
@@ -100,74 +107,42 @@
                 </Flex>
                 
                 <Flex items="center" class="mt-4">
-                    <Button size="small" borderColor="border-amber-500" hoverColor="hover:bg-amber-500">
+                    <Button size="small" role="warning">
                         <Icon src={Check} class="h-4 w-4 inline-block mr-2" />
                         Modifier
                     </Button>     
-                    <Button size="small" borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => editArticle = !editArticle}>
+                    <Button size="small" role="danger" on:click={() => editArticle = !editArticle}>
                         <Icon src={Wrench} class="h-4 w-4 inline-block mr-2" />
                         Annuler la modification
                     </Button>
                 </Flex>
             </form> 
-        </Wrapper>
-    {/if}
+        {/if}
+    </Wrapper>
 
-    <Flex items="start">
-        <div class="h-96">
-            {#if selectedFile !== ""}
-                <File fileName={selectedFile} collectionName={data.article.collectionName} collectionID={data.article.id} isPinned={data.article.pinned_file === selectedFile} />
-            {:else}
-                <Wrapper class="h-full">
-                    <Flex justify="between" direction="col">
-                        <h4>Ajouter un fichier</h4>
-                        <form action="?/addAttachedFile" method="post" use:enhance>
-                            <Flex direction="col" items="start">
-                                <FormInput type="file" name="attached_files" label="Fichier a ajouter" labelMandatory={true} backgroundColor="bg-white" />
-                                <Button>Ajouter le fichier</Button>
-                            </Flex>
-                        </form>
+    <Wrapper class="h-96 shrink-0 aspect-square relative p-0 overflow-hidden">
+        {#if data.article.attached_files?.[selectedFile] === undefined || selectedFile === -1}
+            <Flex justify="between" direction="col">
+                <h4>Ajouter un fichier</h4>
+                <form action="?/addAttachedFile" method="post" use:enhance>
+                    <Flex direction="col" items="start">
+                        <FormInput type="file" name="attached_files" label="Fichier a ajouter" labelMandatory={true} backgroundColor="bg-white" />
+                        <Button>Ajouter le fichier</Button>
                     </Flex>
-                </Wrapper>
-            {/if}
-        </div>
-        <Grid cols={1} class="w-24">
-            <button class="aspect-square border {selectedFile !== "" ? "border-zinc-500/50" : "border-blue-500/50"} rounded-[3px] bg-white relative" on:click={() => selectedFile = ""}>
-                <Icon src={PlusCircle} class="h-12 w-12 m-auto text-zinc-500" />
-            </button>
-            {#if data.article.attached_files !== undefined}
-                {#each data.article.attached_files as file}
-                    <PreviewFile selected={selectedFile === file} fileName={file} collectionName={data.article.collectionName} collectionID={data.article.id} on:click={() => selectedFile = file} />
-                {/each}
-            {/if}
-        </Grid>
-    </Flex>
+                </form>
+            </Flex>
+        {:else if data.article.attached_files[selectedFile] !== undefined}
+            <File fileName={data.article.attached_files[selectedFile]} collectionName={data.article.collectionName} collectionID={data.article.id} isPinned={data.article.pinned_file === data.article.attached_files[selectedFile]} />
+        {/if}
+
+        <Flex items="center" justify="between" class="absolute bottom-4 left-4 right-4">
+            <RoundButton icon={ArrowLeft} on:click={() => selectedFile = selectedFile <= -1 ? -1 : selectedFile - 1} />
+            <RoundButton icon={ArrowRight} on:click={() => selectedFile = selectedFile >= (data.article.attached_files?.length ?? -1) ? (data.article.attached_files?.length ?? -1) : selectedFile + 1} />
+        </Flex>
+    </Wrapper>
 </Flex>
 
 <Flex direction="col" gap={6} class="mt-6">
-    <Wrapper>
-        <h3>Ajouter a une nomenclature</h3>
-
-        {#if form?.addToNomenclature !== undefined}
-            {#if form.addToNomenclature.success} <p class="text-emerald-500">{form.addToNomenclature.success}</p> {/if}
-            {#if form.addToNomenclature.error} <p class="text-red-500">{form.addToNomenclature.error}</p> {/if}
-        {/if}
-
-        <form action="?/addToNomenclature" method="post" use:enhanceNoReset>
-            <Flex items="end">
-        
-                <FormInput name="parent_nomenclature" type="select" label="nomenclature" labelMandatory={true} backgroundColor="white">
-                    {#each data.nomenclatures as nomenclature}
-                        <option value={nomenclature.id}>{nomenclature.name}</option>
-                    {/each}
-                </FormInput>
-        
-                <FormInput name="item_quantity" type="number" min={0} label="Quantité requise" labelMandatory={true} value={0} backgroundColor="white"/>
-                <Button>Ajouter</Button>
-            </Flex>
-        </form>
-    </Wrapper>
-
     {#if data.articleMovements.length > 0}
         <Table marginTop="">
             <svelte:fragment slot="head">

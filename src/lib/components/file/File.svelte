@@ -21,9 +21,9 @@
 </script>
 
 {#if browser}
-    <div class="aspect-square h-full border border-zinc-500/50 rounded-[3px] bg-white relative">
+    <div class="aspect-square h-full bg-white relative">
     
-        <Flex class="absolute top-2 right-2 opacity-50 hover:opacity-100 duration-200" gap={1}>
+        <Flex class="absolute top-4 right-4 opacity-50 hover:opacity-100 duration-200" gap={1}>
             {#if isImage}
                 <form action="/app/articles/{collectionID}?/pinAttachedFile" method="post" use:enhanceNoReset>
                     <input type="hidden" name="pinned_file" value={isPinned ? "" : fileName} />

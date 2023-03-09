@@ -1,0 +1,11 @@
+<script lang="ts">
+
+    import type { IconSource } from "@steeze-ui/heroicons/types";
+    import { Icon } from "@steeze-ui/svelte-icon";
+    export let icon: IconSource;
+
+</script>
+
+<button class="p-1 aspect-square bottom-4 left-4 bg-gray-200 hover:bg-gray-300 duration-100 rounded-full" on:click>
+    <Icon src={icon} class="h-4 w-4 text-gray-500"/>
+</button>
