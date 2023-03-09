@@ -11,7 +11,7 @@
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import type { SuppliersResponse } from "$lib/DBTypes";
-    import { Check, XMark } from "@steeze-ui/heroicons";
+    import { Home } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
 
@@ -27,14 +27,10 @@
     
 
 </script>
-<h2>Liste des fournisseurs</h2>
 
-<Flex class="mt-6">
-    <Button on:click={() => createSupplier = true}>Créer un fournisseur</Button>
-</Flex>
 
 {#if editSupplier !== undefined || createSupplier}
-    <Wrapper class="mt-6">
+    <Wrapper class="mb-6">
         <form action={createSupplier ? "?/createSupplier" : "?/editSupplier"} method="post" use:enhance>
 
             {#if !createSupplier}
@@ -53,7 +49,7 @@
             </Flex>
 
             <Flex class="mt-6">
-                <Button size="small" borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Valider les modifications</Button>
+                <Button size="small" role="success">Valider les modifications</Button>
                 <Button on:click={() => { 
                     console.log("prevent");
                     if(createSupplier)
@@ -62,48 +58,57 @@
                     }else{
                         editSupplier = undefined;
                     }
-                    }}  size="small" borderColor="border-amber-500" hoverColor="hover:bg-amber-500">Annuler les modifications</Button>
+                    }}  size="small" role="warning">Annuler les modifications</Button>
             </Flex>
         
         </form>
     </Wrapper>
 {/if}
 
-<Table>
+<Wrapper>
 
-    <svelte:fragment slot="head">
-        <TableHead>Nom du fournisseur</TableHead>
-        <TableHead>Fournisseur interne</TableHead>
-        <TableHead>Site web</TableHead>
-        <TableHead>Addresse</TableHead>
-        <TableHead>Addresse de contact</TableHead>
-        <TableHead>Actions</TableHead>
-    </svelte:fragment>
+    <Flex items="center" justify="between">
+        <h2>Liste des fournisseurs</h2>
+        <Button size="small" on:click={() => createSupplier = true}>Créer un fournisseur</Button>
+    </Flex>
 
-    <svelte:fragment slot="body">
-        {#each data.suppliers as supplier}
-            <TableRow>
-                <TableCell>{supplier.name}</TableCell>
-                <TableCell>
-                    <Icon src={supplier.internal ? Check : XMark} class="h-6 w-6 mx-auto {supplier.internal ? "text-emerald-500" : "text-red-500"}" />
-                </TableCell>
-                <TableCell>{#if supplier.website != ""}<a href={supplier.website}>Voir le site</a>{/if}</TableCell>
-                <TableCell>{supplier.address}</TableCell>
-                <TableCell>{supplier.contact_email}</TableCell>
-                <TableCell>
-                    <Flex>
-                        {#if deleteConfirm === supplier.id}
-                            <form action="?/deleteSupplier" method="post" use:enhance>
-                                <input type="hidden" name="id" value={supplier.id} />
-                                <Button size="small" borderColor="border-red-500" hoverColor="hover:bg-red-500">Confirmer</Button>
-                            </form>
-                        {:else}
-                            <Button size="small" borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => deleteConfirm = supplier.id}>Supprimer le fournisseur</Button>
-                        {/if}
-                        <Button size="small" borderColor="border-amber-500" hoverColor="hover:bg-amber-500" on:click={() => editSupplier = supplier}>Modifier le fournisseur</Button>
-                    </Flex>
-                </TableCell>
-            </TableRow>
-        {/each}
-    </svelte:fragment>
-</Table>
+    <Table embeded={true}>
+    
+        <svelte:fragment slot="head">
+            <TableHead>Nom du fournisseur</TableHead>
+            <TableHead colWidth="w-1/3">Addresse</TableHead>
+            <TableHead>Addresse de contact</TableHead>
+            <TableHead>Actions</TableHead>
+        </svelte:fragment>
+    
+        <svelte:fragment slot="body">
+            {#each data.suppliers as supplier}
+                <TableRow>
+                    <TableCell>
+                        <Flex items="center">
+                            {#if supplier.internal}
+                                <Icon src={Home} class="h-4 w-4" />
+                            {/if}
+                            <a href={supplier.website ?? "#"}>{supplier.name}</a>
+                        </Flex>
+                    </TableCell>
+                    <TableCell>{supplier.address}</TableCell>
+                    <TableCell><a href="mailto:{supplier.contact_email}">{supplier.contact_email}</a></TableCell>
+                    <TableCell>
+                        <Flex>
+                            {#if deleteConfirm === supplier.id}
+                                <form action="?/deleteSupplier" method="post" use:enhance>
+                                    <input type="hidden" name="id" value={supplier.id} />
+                                    <Button size="small" role="danger">Confirmer</Button>
+                                </form>
+                            {:else}
+                                <Button size="small" role="danger" on:click={() => deleteConfirm = supplier.id}>Supprimer</Button>
+                            {/if}
+                            <Button size="small" role="warning" on:click={() => editSupplier = supplier}>Modifier</Button>
+                        </Flex>
+                    </TableCell>
+                </TableRow>
+            {/each}
+        </svelte:fragment>
+    </Table>
+</Wrapper>
