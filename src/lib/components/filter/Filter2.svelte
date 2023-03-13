@@ -81,7 +81,7 @@
             {#if filters.length > 0}
                 <Flex class="ml-2" gap={2}>
                     {#each filters as filter, index}
-                        <div class="py-0.5 pr-1 pl-2 text-xs rounded-full bg-white ring-1 ring-zinc-500/50 flex flex-row items-center gap-1">
+                        <div class="py-0.5 pr-1 pl-2 text-xs rounded-full bg-white border flex flex-row items-center gap-1">
                             <span>{filter.field} {filter.operator} {filter.value}</span>
                             <button on:click={() => filters = filters.filter((k, i) => i !== index)}>
                                 <Icon src={XMark} class="h-4 w-4 text-red-500 hover:text-red-500/75 duration-100" />

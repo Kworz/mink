@@ -73,7 +73,7 @@ export function predictField(value: string, availableFilters: Array<Filter>): st
     }
     else if (part === 1)
     {
-        const operators = ['=' , '!=' , '>' , '<' , '>=' , '<=' , '~' , '!~'].filter(k => k.includes(parts[1]));
+        const operators = ['=' , '~', '!=' , '>' , '<' , '>=', '<=', '!~'].filter(k => k.includes(parts[1]));
         return operators.length === 1 ? [] : operators;
     }
     else

@@ -20,8 +20,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
     const label = new LabelDocument(32, 57);
 
-    console.log(label.addQRCode);
-
     for(const [index, article] of articles.entries())
     {
         await label.addQRCode(article.id, 2, 2, 18);
