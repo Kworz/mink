@@ -1,9 +1,10 @@
 <script lang="ts">
-    import { Check, XMark } from "@steeze-ui/heroicons";
+    import { Check } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import Input from "../Input.svelte";
     import Flex from "../layout/flex.svelte";
     import { convertFilterCondition, convertToPocketbaseFilter, predictField, type Filter, type FilterCondition } from "./filter2";
+    import FilterLabel from "./FilterLabel.svelte";
     
     export let filter: string = "";
     export let filters: FilterCondition[] = [];
@@ -81,12 +82,7 @@
             {#if filters.length > 0}
                 <Flex class="ml-2" gap={2}>
                     {#each filters as filter, index}
-                        <div class="py-0.5 pr-1 pl-2 text-xs rounded-full bg-white border flex flex-row items-center gap-1">
-                            <span>{filter.field} {filter.operator} {filter.value}</span>
-                            <button on:click={() => filters = filters.filter((k, i) => i !== index)}>
-                                <Icon src={XMark} class="h-4 w-4 text-red-500 hover:text-red-500/75 duration-100" />
-                            </button>
-                        </div>
+                        <FilterLabel bind:filter on:click={() => filters = filters.filter((k, i) => i !== index)} />
                     {/each}
                 </Flex>
             {/if}
@@ -98,7 +94,7 @@
         </Flex>
 
         {#if suggestions.length > 0}
-            <div class="absolute z-50 top-[calc(100%+1rem)] bg-gray-200 p-3 drop-shadow-xl flex flex-col gap-2 border rounded-md text-sm">
+            <div class="absolute z-50 top-[calc(100%+1rem)] bg-gray-200 dark:bg-zinc-700 p-3 drop-shadow-xl flex flex-col gap-2 border dark:border-zinc-800/50 rounded-md text-sm">
                 {#each suggestions as sg, index}
                     <button 
                         class:text-blue-500={selectedSuggestion === index}

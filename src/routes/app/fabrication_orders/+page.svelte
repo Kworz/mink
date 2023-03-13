@@ -1,10 +1,5 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
-
-    
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import Button from "$lib/components/Button.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Table from "$lib/components/table/Table.svelte";
@@ -15,6 +10,7 @@
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { PlusCircle } from "@steeze-ui/heroicons";
     
+    import { goto } from "$app/navigation";
     import type { PageData } from "./$types";
 
     export let data: PageData;
