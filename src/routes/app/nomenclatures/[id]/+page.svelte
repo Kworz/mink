@@ -107,7 +107,7 @@
 
     <Table embeded={true}>
         <svelte:fragment slot="head">
-            <TableHead>
+            <TableHead colWidth="w-2/3 md:w-1/2 ">
                 Éléments
                 {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
                     ({data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].filter(k => listRowFilter(k, queryFilters)).length})
@@ -151,7 +151,7 @@
                         <TableCell>
                             <form action="?/deleteItem" method="post" use:enhanceNoReset>
                                 <input type="hidden" id="row_id" value={row.id} name="row_id"/>
-                                <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" size="small">Supprimer</Button>
+                                <Button role="danger" size="small">Supprimer</Button>
                             </form>
                         </TableCell>
                     </TableRow>  
