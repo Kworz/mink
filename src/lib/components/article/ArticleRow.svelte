@@ -2,12 +2,17 @@
     import { browser } from "$app/environment";
 
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
+    
     import DetailLabel from "../DetailLabel.svelte";
     import Flex from "../layout/flex.svelte";
+
     export let article: ArticleResponseExpanded;
 
     /** Wether the stock should be displayed or not */
     export let displayStock = false;
+
+    /** Wether the approx amount should be displayed or not */
+    export let displayApprox = false;
     
     /** Wether the thumb image is displayed or not */
     export let displayThumb = true;
@@ -31,5 +36,11 @@
         {#if displayManufacturer}<span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
         {#if displayPrice}<span class="text-sm block"><DetailLabel>{article.price} €</DetailLabel></span>{/if}
         {#if (article.quantity ?? 0) > 0 && displayStock === true} <span class="text-sm text-emerald-600 block">{article.quantity} En stock.</span> {/if}
+        {#if article.expand?.["orders_rows(article)"] !== undefined && displayApprox && (article.quantity ?? 0 <= 0)}
+            {@const amount = article.expand?.["orders_rows(article)"].map(k => k.quantity - (k.quantity_received ?? 0)).reduce((c, p) => p = c+p, 0)}
+            {#if amount > 0}
+                <span class="text-sm text-amber-500 block">{amount} En approvisionement.</span>
+            {/if}
+        {/if}
     </div>
 </Flex>

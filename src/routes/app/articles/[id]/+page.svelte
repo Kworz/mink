@@ -8,6 +8,7 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
+    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import RoundButton from "$lib/components/RoundButton.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
     import Table from "$lib/components/table/Table.svelte";
@@ -17,17 +18,19 @@
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { ArrowLeft, ArrowRight, Check, PlusCircle, Wrench } from "@steeze-ui/heroicons";
+    import { ArrowLeft, ArrowRight, Check, DocumentDuplicate, QrCode, Trash, Wrench } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
 
     export let data: PageData;
     export let form: ActionData;
 
+    let pillMenuShown = false;
+
     let editArticle = false;
     let showConfirmDelete = false;
 
-    let selectedFile: number = -1;
+    let selectedFile: number = (data.article.attached_files === undefined) ? -1 : 0;
 
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(showConfirmDelete === true) { setTimeout(() => showConfirmDelete = false, 3000); }
@@ -41,52 +44,41 @@
 <Flex gap={6} justify="between">
     <Wrapper class="relative grow">
         {#if !editArticle}
-            <h2>{data.article.name}</h2>
-            <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
-            <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
-
+            <h2 class="mb-2">{data.article.name}</h2>
+            
             {#if data.article.expand?.supplier !== undefined}
-                <Flex items="center">
-                    <span>Fournisseurs:</span>
-                    <Flex items="center">
-                        {#each data.article.expand?.supplier as supplier}
-                            <Supplier {supplier} />
-                        {/each}
-                    </Flex>
+                <h4>Fournisseurs:</h4>
+                <Flex items="center" class="mt-2 mb-4">
+                    {#each data.article.expand?.supplier as supplier}
+                        <Supplier {supplier} />
+                    {/each}
                 </Flex>
             {/if}
 
-
+            <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
+            <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity}</DetailLabel>.</p>
 
-            <div class="absolute top-4 right-4">
-                <PillMenu>
-                    <Button size="small" on:click={() => editArticle = !editArticle}>
-                        <Icon src={Wrench} class="h-4 w-4 inline-block mr-2" />
-                        Modifier l'article
-                    </Button>
-    
-                    <form action="?/copyArticle" method="post" use:enhance>
-                        <Button size="small" borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Copier l'article</Button>
+            <PillMenu bind:open={pillMenuShown}>
+                <PillMenuButton icon={Wrench} on:click={() => { editArticle = !editArticle; pillMenuShown = false; }}>Modifier l'article</PillMenuButton>
+                <form action="?/copyArticle" method="post" use:enhance>
+                    <PillMenuButton icon={DocumentDuplicate} role="secondary">
+                        Copier l'article
+                    </PillMenuButton>
+                </form>
+
+                <PillMenuButton icon={QrCode} role="secondary" on:click={() => window.open(`/app/articles/print/?articles=${data.article.id}`, '_blank')?.focus()}>Imprimer l'etiquette</PillMenuButton>
+
+                {#if showConfirmDelete}
+                    <form action="?/deleteArticle" method="post" use:enhance>
+                        <PillMenuButton icon={Trash} role="danger">Confirmer la suppression</PillMenuButton>
                     </form>
-    
-                    {#if showConfirmDelete}
-                        <form action="?/deleteArticle" method="post" use:enhance>
-                            <Button size="small"borderColor="border-red-500" hoverColor="hover:bg-red-500">Confirmer la suppréssion</Button>
-                        </form>
-                    {:else}
-                        <Button on:click={() => showConfirmDelete = true} size="small" borderColor="border-red-500" hoverColor="hover:bg-red-500">Supprimer l'article</Button>                
-                    {/if}
-    
-                    <Button size="small" borderColor="border-pink-500" hoverColor="hover:bg-pink-500" on:click={() => 
-                            window.open(`/app/articles/print/?articles=${data.article.id}`, '_blank')?.focus()
-                    }>
-                        Imprimer l'etiquette
-                    </Button>
-                </PillMenu>
-            </div>
+                {:else}
+                    <PillMenuButton icon={Trash} on:click={() => showConfirmDelete = true} role="danger">Supprimer l'article</PillMenuButton>                
+                {/if}
+            </PillMenu>
         {:else}
             <form action="?/editArticle" method="post" use:enhanceNoReset>
                 <Flex direction="col" gap={2}>

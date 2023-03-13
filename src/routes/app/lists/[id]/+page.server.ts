@@ -18,8 +18,10 @@ export const load = (async ({ params, locals }) => {
 
         const nomenclature_rows = await locals.pb.collection(Collections.NomenclatureRow).getFullList<NomenclatureRowResponseExpandedWithArticle>(undefined, {
             filter: `parent_nomenclature="${list.parent_nomenclature}"`,
-            expand: `child_article.supplier`
+            expand: `child_article.supplier,child_article.orders_rows(article)`
         });
+
+        console.log(nomenclature_rows);
 
         const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
 

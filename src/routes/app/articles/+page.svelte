@@ -19,6 +19,10 @@
     import type { FilterCondition } from "$lib/components/filter/filter2";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import TablePages from "$lib/components/table/TablePages.svelte";
+    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
+    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
+    import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
+    import Page from "../+page.svelte";
     export let data: PageData;
 
     let filters: Array<FilterCondition> = [];
@@ -69,33 +73,31 @@
 
 </Wrapper>
 
-<Wrapper>
-    <Flex>
-        <Filter2 bind:filter bind:filters />
-        <a href="/app/articles/new"><Button>Créer un article</Button></a>    
-        <a href="/app/articles/import"><Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500">Importer des articles</Button></a>
-        <Button borderColor="border-blue-500" hoverColor="hover:bg-blue-500" on:click={() => {
-            window.open(`/app/articles/export/`, '_blank')?.focus();
-        }}>
-            Export
-        </Button>
+<Wrapper class="relative">
+
+    <PillMenu>
+        <PillMenuButton icon={PlusCircle} href="/app/articles/new">Créer un article</PillMenuButton>
+        <PillMenuButton icon={ArrowDownTray} href="/app/articles/import" role="secondary">Importer des articles</PillMenuButton>
+        <PillMenuButton icon={ArrowUpTray} on:click={() => window.open(`/app/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
         {#if selected.length > 0}
-            <Button borderColor="border-pink-500" hoverColor="hover:bg-pink-500" on:click={labelPrint}>Imprimer etiquettes</Button>
+            <PillMenuButton icon={QrCode} on:click={labelPrint}>Imprimer les étiquettes</PillMenuButton>
         {/if}
-    </Flex>
+    </PillMenu>
+
+    <div class="w-1/3">
+        <Filter2 bind:filter bind:filters />
+    </div>
 
     <Table embeded={true}>
         <svelte:fragment slot="head">
             <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)}/></TableTitle>
-            <TableTitle col="name" {activeSort} sortFn={setSort} colWidth="w-1/6">Article ({data.articleList.totalItems})</TableTitle>
+            <TableTitle colWidth="w-1/3" col="name" {activeSort} sortFn={setSort}>Article ({data.articleList.totalItems})</TableTitle>
             <TableTitle col="quantity" {activeSort} sortFn={setSort}>Stock</TableTitle>
             <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
             <TableTitle col="supplier" {activeSort} sortFn={setSort} colWidth="w-1/6">Fournisseur</TableTitle>
             <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
             <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
-            <TableTitle>Prix global</TableTitle>
-            <TableTitle col="label" {activeSort} sortFn={setSort}>Etiquette</TableTitle>
-            <TableTitle col="updated" {activeSort} sortFn={setSort}>Updated</TableTitle>
+            <TableTitle>Prix stock</TableTitle>
         </svelte:fragment>
     
         <svelte:fragment slot="body">
@@ -103,7 +105,7 @@
                 <TableRow>
                     <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                     <TableCell>
-                        <ArticleRow {article} displayPrice={false} displayManufacturer={false} bind:displayThumb={displayThumbs} />
+                        <ArticleRow {article} displayPrice={false} displayManufacturer={false} bind:displayThumb={displayThumbs} displayApprox={true} />
                     </TableCell>
                     <TableCell>{article.quantity}</TableCell>
                     <TableCell>{article.reference}</TableCell>
@@ -121,12 +123,6 @@
                     <TableCell>{article.manufacturer}</TableCell>
                     <TableCell>{article.price ?? "—"} €</TableCell>
                     <TableCell>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</TableCell>
-                    <TableCell>
-                        <form action="/app/articles/{article.id}?/editArticle" method="post" use:enhance>
-                            <FormInput type="checkbox" name="label" validateOnChange={true} bind:checked={article.label}/>
-                        </form>
-                    </TableCell>
-                    <TableCell>{article.updated}</TableCell>
                 </TableRow>
             {/each}
         </svelte:fragment>

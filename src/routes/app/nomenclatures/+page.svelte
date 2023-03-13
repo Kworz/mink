@@ -28,11 +28,10 @@ import Button from "$lib/components/Button.svelte";
 
     <Table embeded={true}>
         <svelte:fragment slot="head">
-            <TableHead>Nomenclature</TableHead>
-            <TableHead>Description</TableHead>
+            <TableHead colWidth="w-1/6">Nomenclature</TableHead>
+            <TableHead colWidth="w-1/3">Description</TableHead>
             <TableHead>Éléments</TableHead>
             <TableHead>Créé par</TableHead>
-            <TableHead>Créé le</TableHead>
         </svelte:fragment>
     
         <svelte:fragment slot="body">
@@ -61,7 +60,6 @@ import Button from "$lib/components/Button.svelte";
                             <User user={nomenclature.expand.created_by} />
                         {/if}
                     </TableCell>
-                    <TableCell>{nomenclature.created}</TableCell>
                 </TableRow>
             {/each}
         </svelte:fragment>
