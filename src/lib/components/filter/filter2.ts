@@ -90,5 +90,11 @@ function convertFilterValue(value: string): string {
 
 export function convertToPocketbaseFilter(filters: Array<FilterCondition>): string
 {
-    return encodeURIComponent(filters.map(k => `${k.field} ${k.operator} ${convertFilterValue(k.value)}`).join(" && "));
+    // Gather unique fields
+    const fields = [...new Set(filters.map(k => k.field))];
+
+    // Recudes fields to be grouped in filter group to prenvent data leaking
+    const mappedFilters = fields.map(fieldName => `(${filters.filter(filter => filter.field === fieldName).map(filter => `${filter.field} ${filter.operator} ${convertFilterValue(filter.value)}`).join(" || ")})`);
+
+    return encodeURIComponent(mappedFilters.join(" && "));
 }
