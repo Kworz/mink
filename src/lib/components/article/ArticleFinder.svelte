@@ -44,6 +44,6 @@
     </Flex>
 {:else}
     <ArticleRow article={selectedArticle} />
-    <Button size="small" borderColor="border-red-500" hoverColor="hover:bg-red-500" class="mt-2" on:click={() => selectedArticle = undefined}>Déselectionner</Button>
+    <Button size="small" role="danger" class="mt-2" on:click={() => selectedArticle = undefined}>Déselectionner</Button>
 {/if}
 

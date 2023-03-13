@@ -29,7 +29,7 @@
 
                 <Grid cols={2}>
                     <a href="/auth/register">
-                        <Button class="w-full" borderColor="border-zinc-500" hoverColor="hover:bg-zinc-500">S'inscrire</Button>
+                        <Button class="w-full" role="tertiary">S'inscrire</Button>
                     </a>
                     <Button>Connexion</Button>
                 </Grid>

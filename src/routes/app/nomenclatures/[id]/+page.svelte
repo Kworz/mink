@@ -84,8 +84,8 @@
                 <FormInput label="Description" name="description" value={data.nomenclature.description}/>
     
                 <Flex>
-                    <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
-                    <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => editNomenclature = false}>Annuler</Button>
+                    <Button role="success">Valider</Button>
+                    <Button role="danger" on:click={() => editNomenclature = false}>Annuler</Button>
                 </Flex>
             </Flex>
         </form>

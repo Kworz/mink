@@ -83,10 +83,10 @@ import Button from "$lib/components/Button.svelte";
             {#if confirmDelete}
                 <form action="?/deleteOrderRow" method="post" use:enhance>
                     <input type="hidden" name="id" value={orderRow.id} />
-                    <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" size="small">Confirmer</Button>
+                    <Button role="danger" size="small">Confirmer</Button>
                 </form>
             {:else}
-                <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" size="small" on:click={() => confirmDelete = true}>Supprimer</Button>
+                <Button role="danger" size="small" on:click={() => confirmDelete = true}>Supprimer</Button>
             {/if}
         </TableCell>
     {/if}

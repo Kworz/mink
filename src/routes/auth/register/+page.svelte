@@ -31,7 +31,7 @@
 
                 <Grid cols={2}>
                     <a href="/auth/login">
-                        <Button class="w-full" borderColor="border-zinc-500" hoverColor="hover:bg-zinc-500">Connexion</Button>
+                        <Button class="w-full" role="tertiary">Connexion</Button>
                     </a>
                     <Button>S'inscrire</Button>
                 </Grid>

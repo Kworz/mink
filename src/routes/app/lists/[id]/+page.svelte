@@ -116,8 +116,8 @@
                     {/each}
                 </FormInput>   
                 <Flex>
-                    <Button borderColor="border-emerald-500" hoverColor="hover:bg-emerald-500">Valider</Button>
-                    <Button borderColor="border-red-500" hoverColor="hover:bg-red-500" on:click={() => editList = false}>Annuler</Button>
+                    <Button role="success">Valider</Button>
+                    <Button role="danger" on:click={() => editList = false}>Annuler</Button>
                 </Flex>
             </Flex>
         </form>
