@@ -8,7 +8,6 @@
     import Price from "$lib/components/formatters/Price.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Grid from "$lib/components/layout/grid.svelte";
-    import SidebarWrapper from "$lib/components/SidebarWrapper.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
