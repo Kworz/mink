@@ -36,20 +36,22 @@
         }
     }
 
+    const selectSuggestion = (index = selectedSuggestion) =>
+    {
+        const parts = tempFilter.split(" ");
+        const part = parts.length - 1;
+
+        parts[part] = suggestions[index] + " ";
+        tempFilter = parts.join(" ");
+    }
+
     const inputKeyUp = (e: KeyboardEvent) => {
 
         if(e.key === "Enter")
             convertFilter();
-        else if(e.key === "Tab" && suggestions[0] !== undefined)
+        else if(e.key === "Tab" && suggestions[selectedSuggestion] !== undefined)
         {
-
-            const parts = tempFilter.split(" ");
-            const part = parts.length - 1;
-
-            parts[part] = suggestions[selectedSuggestion] + " ";
-
-            tempFilter = parts.join(" ");
-
+            selectSuggestion();
             e.preventDefault();
         }
         else if(e.key === "Backspace" && tempFilter.length === 0)
@@ -61,7 +63,7 @@
         }
         else if(e.key === "ArrowDown")
         {
-            selectedSuggestion = (selectedSuggestion < suggestions.length) ? selectedSuggestion + 1 : suggestions.length;
+            selectedSuggestion = (suggestions.length - 1 > selectedSuggestion) ? selectedSuggestion + 1 : (suggestions.length - 1);
             e.preventDefault();
         }
     }
@@ -74,7 +76,7 @@
 </script>
 
 <Flex direction="col" gap={2}>
-    <Input bind:value={tempFilter} placeholder={"Filtre"} borderColor={!inputInvalid ? "border-zinc-500/50" : "border-red-500"} on:keydown={inputKeyUp}>
+    <Input bind:value={tempFilter} placeholder={"Filtre"} on:keydown={inputKeyUp}>
         <svelte:fragment slot="before">
             {#if filters.length > 0}
                 <Flex class="ml-2" gap={2}>
@@ -96,9 +98,15 @@
         </Flex>
 
         {#if suggestions.length > 0}
-            <div class="absolute z-50 top-[115%] bg-white p-2 flex flex-col gap-1 ring-1 ring-zinc-500/50 rounded-sm ring-inset text-xs">
+            <div class="absolute z-50 top-[calc(100%+1rem)] bg-gray-200 p-3 drop-shadow-xl flex flex-col gap-2 border rounded-md text-sm">
                 {#each suggestions as sg, index}
-                    <span class:text-blue-500={selectedSuggestion === index}>{sg}</span>
+                    <button 
+                        class:text-blue-500={selectedSuggestion === index}
+                        class="text-left duration-100 hover:text-blue-400"
+                        on:click={() => selectSuggestion(index)}
+                    >
+                        {sg}
+                    </button>
                 {/each}
             </div>
         {/if}

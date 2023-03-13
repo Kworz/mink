@@ -6,6 +6,6 @@
 
 </script>
 
-<button class="p-1 aspect-square bottom-4 left-4 bg-gray-200 hover:bg-gray-300 duration-100 rounded-full" on:click>
+<button class="relative p-1 aspect-square bg-gray-200 hover:bg-gray-300 duration-100 rounded-full {$$props.class}" on:click>
     <Icon src={icon} class="h-4 w-4 text-gray-500"/>
 </button>
