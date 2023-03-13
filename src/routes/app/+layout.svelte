@@ -1,11 +1,6 @@
 <script lang="ts">
     import Flex from "$lib/components/layout/flex.svelte";
-    import { page } from "$app/stores";
-    import Button from "$lib/components/Button.svelte";
-
-    import { Icon } from "@steeze-ui/svelte-icon";
     import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar, QueueList, QrCode } from "@steeze-ui/heroicons";
-    import User from "$lib/components/user/User.svelte";
     import Menu from "$lib/components/appLayout/Menu.svelte";
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
     import TopBar from "$lib/components/appLayout/TopBar.svelte";
