@@ -32,6 +32,6 @@ export const actions: Actions = {
             return { error: "Failed to create nomenclature" };
         } 
 
-        throw redirect(303, `/app/nomenclature/${nomenclature.id}`)
+        throw redirect(303, `/app/nomenclatures/${nomenclature.id}`)
     }
 }
