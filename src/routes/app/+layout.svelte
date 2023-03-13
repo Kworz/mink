@@ -31,7 +31,7 @@
     </Menu>
     <div class="grow p-6 overflow-y-scroll">
         <TopBar/>
-        <div><slot /></div>
+        <slot />
     </div>
 
     <div class="h-screen" id="side_menu" />

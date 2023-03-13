@@ -1,9 +1,6 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import Button from "$lib/components/Button.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
     import Table from "$lib/components/table/Table.svelte";
@@ -38,23 +35,14 @@
         restore: (value) => filters = value
     }
 
-    const labelPrint = () => {
-        window.open(`/app/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus();
-    }
-
-    const setSort = (value: string) => {
-        activeSort = value;
-    }
-
-    const invalidateParams = () => {
-        if(browser)
-        {
-            goto(`/app/articles?sort=${activeSort}&page=${itemsPage}&filter=${filter}`, { noScroll: true});
+    const triggerRefresh = () => {
+        if(browser) {
+            goto(`/app/articles?sort=${activeSort}&page=${itemsPage}&filter=${filter}`, { noScroll: true });
             selected = [];
         }
     }
 
-    $: filter, activeSort, itemsPage, invalidateParams();
+    $: filter, activeSort, itemsPage, triggerRefresh();  
     $: selectedAll = data.articleList.items.length === selected.length;
 
 </script>
@@ -70,7 +58,6 @@
     <h4 class="mt-3">Réglages liste</h4>
     <p><input type="checkbox" bind:checked={displayThumbs} /> Afficher les miniatures.</p>
 
-    
 </Wrapper>
 
 <Wrapper class="relative">
@@ -80,7 +67,7 @@
         <PillMenuButton icon={ArrowDownTray} href="/app/articles/import" role="secondary">Importer des articles</PillMenuButton>
         <PillMenuButton icon={ArrowUpTray} on:click={() => window.open(`/app/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
         {#if selected.length > 0}
-            <PillMenuButton icon={QrCode} on:click={labelPrint}>Imprimer les étiquettes</PillMenuButton>
+            <PillMenuButton icon={QrCode} on:click={() => window.open(`/app/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>Imprimer les étiquettes</PillMenuButton>
         {/if}
     </PillMenu>
 
@@ -99,12 +86,12 @@
     <Table embeded={true}>
         <svelte:fragment slot="head">
             <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)}/></TableTitle>
-            <TableTitle colWidth="w-1/3" col="name" {activeSort} sortFn={setSort}>Article ({data.articleList.totalItems})</TableTitle>
-            <TableTitle col="quantity" {activeSort} sortFn={setSort}>Stock</TableTitle>
-            <TableTitle col="reference" {activeSort} sortFn={setSort}>Référence</TableTitle>
-            <TableTitle col="supplier" {activeSort} sortFn={setSort} colWidth="w-1/6">Fournisseur</TableTitle>
-            <TableTitle col="manufacturer" {activeSort} sortFn={setSort}>Fabricant</TableTitle>
-            <TableTitle col="price" {activeSort} sortFn={setSort}>Prix</TableTitle>
+            <TableTitle colWidth="w-1/3" col="name" bind:activeSort>Article ({data.articleList.totalItems})</TableTitle>
+            <TableTitle col="quantity" bind:activeSort>Stock</TableTitle>
+            <TableTitle col="reference" bind:activeSort>Référence</TableTitle>
+            <TableTitle col="supplier" bind:activeSort colWidth="w-1/6">Fournisseur</TableTitle>
+            <TableTitle col="manufacturer" bind:activeSort>Fabricant</TableTitle>
+            <TableTitle col="price" bind:activeSort>Prix</TableTitle>
             <TableTitle>Prix stock</TableTitle>
         </svelte:fragment>
     

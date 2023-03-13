@@ -10,7 +10,7 @@
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import Button from "../Button.svelte";
     import Flex from "../layout/flex.svelte";
-    import { getPocketbase } from "../pocketbase";
+    import { getPocketbase } from "../../pocketbase";
     import Wrapper from "../Wrapper.svelte";
     import ArticleRow from "./ArticleRow.svelte";
 
@@ -19,13 +19,15 @@
     let filter = "";
     export let filters: Array<FilterCondition> = [];
     export let selectedArticle: ArticleResponseExpanded | undefined = undefined;
+    export let formFieldName: string | undefined = undefined;
 
     let pb: PocketBase | undefined = undefined;
 
     const refreshArticles = async () => {
+
         try
         {
-            const articles = await pb?.collection(Collections.Article).getList<ArticleResponseExpanded>(1, 50, { filter: decodeURIComponent(filter), expand: "supplier" });
+            const articles = await pb?.collection(Collections.Article).getList<ArticleResponseExpanded>(1, 15, { filter: decodeURIComponent(filter), expand: "supplier" });
             articleList = articles?.items ?? []; 
         }
         catch(ex)
@@ -51,10 +53,10 @@
 {#if selectedArticle === undefined}
     <Flex direction="col">
         <Flex gap={4} wrap={"nowrap"} class="overflow-y-scroll w-full p-1">
-            {#each articleList.slice(-10) as article (article.id)}
+            {#each articleList as article (article.id)}
                 <Wrapper class="min-w-[50%]">
-                    <button on:click|preventDefault={() => selectedArticle = article} class="text-left">
-                        <ArticleRow {article} />
+                    <button on:click|preventDefault={() => { selectedArticle = article }} class="text-left">
+                        <ArticleRow bind:article />
                     </button>
                 </Wrapper>
             {/each}
@@ -66,7 +68,8 @@
         ]} />
     </Flex>
 {:else}
-    <ArticleRow article={selectedArticle} />
-    <Button size="small" role="danger" class="mt-2" on:click={() => selectedArticle = undefined}>Déselectionner</Button>
+    <ArticleRow bind:article={selectedArticle} />
+    {#if formFieldName !== undefined} <input type="hidden" name={formFieldName} bind:value={selectedArticle.id} /> {/if}
+    <Button size="small" role="danger" class="mt-4" on:click={() => selectedArticle = undefined}>Déselectionner</Button>
 {/if}
 

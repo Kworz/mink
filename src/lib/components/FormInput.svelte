@@ -37,7 +37,6 @@
     }
 
     function onChange() {
-        console.log("change event fired");
         if(validateOnChange && exitButton)
             exitButton.click();
     }

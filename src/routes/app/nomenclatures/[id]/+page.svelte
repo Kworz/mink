@@ -1,18 +1,15 @@
 <script lang="ts">
     import { browser } from "$app/environment";
-    import { invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import type { ActionData, PageData, Snapshot } from "./$types";
 
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { Check, DocumentDuplicate, ExclamationTriangle, Wrench } from "@steeze-ui/heroicons";
+    import { Check, DocumentDuplicate, ExclamationTriangle, PlusCircle, Wrench } from "@steeze-ui/heroicons";
     import FormInput from "$lib/components/FormInput.svelte";
-    import type { NomenclatureRowResponseExpanded } from "./+page.server";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import Filter from "$lib/components/filter/Filter.svelte";
-    import { filterCompatible, type FilterQueryResult } from "$lib/components/filter/filter";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
@@ -22,55 +19,44 @@
     import Wrapper from "$lib/components/Wrapper.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
+    import ArticleFinder from "$lib/components/article/ArticleFinder.svelte";
+    import { enhance } from "$app/forms";
+    import { page } from "$app/stores";
+    import type { FilterCondition } from "$lib/components/filter/filter2";
+    import Filter2 from "$lib/components/filter/Filter2.svelte";
 
     export let data: PageData;
     export let form: ActionData;
     
+    let menuPillShown = false;
     let editNomenclature = false;
+    let addToNomenclature = false;
 
-    let currentFilter = "";
-    let queryFilters: Partial<FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "group" | "price">> = {};
+    let activeSort = $page.url.searchParams.get("sort") || undefined;
 
-    const listRowFilter = (nomRow: NomenclatureRowResponseExpanded, qf: typeof queryFilters): boolean => {
+    let filters: Array<FilterCondition> = [];
+    let filter: string = "";
 
-        let result = true;
-
-        if(nomRow.expand === undefined)
-            return false;
-
-        if(queryFilters.name !== undefined)
-            result = result && filterCompatible(nomRow.expand?.child_article.name, queryFilters.name);
-        if(queryFilters.reference !== undefined)
-            result = result && filterCompatible(nomRow.expand?.child_article.reference, queryFilters.reference);
-        if(queryFilters.supplier !== undefined)
-            result = result && filterCompatible(nomRow.expand?.child_article.supplier, queryFilters.supplier);
-        if(queryFilters.manufacturer !== undefined)
-            result = result && filterCompatible(nomRow.expand?.child_article.manufacturer, queryFilters.manufacturer);
-        if(queryFilters.group !== undefined)
-            result = result && filterCompatible(nomRow.group, queryFilters.group)
-        if(queryFilters.price !== undefined)
-            result = result && filterCompatible(String(nomRow.expand?.child_article.price), queryFilters.price)
-
-        return result;
-    }
-
-    export const snapshot: Snapshot<string> = {
-        capture: () => currentFilter,
-        restore: (value) => (currentFilter = value)
+    export const snapshot: Snapshot<Array<FilterCondition>> = {
+        capture: () => filters,
+        restore: (value) => (filters = value)
     }
 
     $: if(form?.success === true && browser) { invalidateAll(); }
-
-    let menuPillShown = false;
-
+    $: filter, activeSort, () => {
+        if(browser)
+        {
+            goto(`/app/nomenclatures/${data.nomenclature.id}/?sort=${activeSort}&filter=${filter}`);
+        }
+    }
 </script>
 
 <svelte:head><title>Nomenclature — {data.nomenclature.name}</title></svelte:head>
 
-<Wrapper>
-
+<Wrapper class="relative z-50">
     <PillMenu bind:open={menuPillShown}>
         <PillMenuButton icon={Wrench} on:click={() => { editNomenclature = true; menuPillShown = false;}}>Modifier les informations</PillMenuButton>
+        <PillMenuButton icon={PlusCircle} on:click={() => { addToNomenclature = !addToNomenclature; menuPillShown = false}}>Ajouter des articles</PillMenuButton>
         <form action="?/copyNomenclature" method="post" use:enhanceNoReset>
             <PillMenuButton role="warning" icon={DocumentDuplicate}>Copier la nomenclature</PillMenuButton>
         </form>
@@ -102,25 +88,38 @@
     {/if}
 </Wrapper>
 
+{#if addToNomenclature === true}
+    <Wrapper class="mt-6">
+        <form action="?/addItem" method="post" use:enhance>
+
+            <ArticleFinder formFieldName="child_article" />
+            <Flex gap={6} class="mt-6" items="end">
+                <FormInput type="number" name="quantity_required" label="Quantité requise" labelMandatory={true} min={0} />
+                <Button role="primary">Ajouter</Button>
+            </Flex>
+        </form>
+    </Wrapper>
+{/if}
+
 <Wrapper class="mt-6">
-    <Filter bind:filter={currentFilter} availableFilters={["name", "manufacturer", "supplier", "reference", "group", "price"]} bind:filterResult={queryFilters} />
+    <Filter2 bind:filters bind:filter availableFilters={[]} />
 
     <Table embeded={true}>
         <svelte:fragment slot="head">
-            <TableHead colWidth="w-2/3 md:w-1/2 ">
+            <TableHead colWidth="w-2/3 md:w-1/2">
                 Éléments
                 {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
-                    ({data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].filter(k => listRowFilter(k, queryFilters)).length})
+                    ({data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].length})
                 {/if} 
             </TableHead>
             <TableHead>Groupe</TableHead>
-            <TableHead>Quantité nécéssaire</TableHead>
+            <TableHead col="nomenclature_row(parent_nomenclature).quantity_required" bind:activeSort>Quantité nécéssaire</TableHead>
             <TableHead>Supprimer</TableHead>
         </svelte:fragment>
     
         <svelte:fragment slot="body">
             {#if data.nomenclature.expand?.['nomenclature_row(parent_nomenclature)'] !== undefined}
-                {#each data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].filter(k => listRowFilter(k, queryFilters)) as row}
+                {#each data.nomenclature.expand['nomenclature_row(parent_nomenclature)'] as row}
                     <TableRow>
                         <TableCell>
                             {#if row.expand?.child_article !== undefined}

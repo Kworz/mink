@@ -15,12 +15,17 @@ export type NomenclatureRowResponseExpandedWithArticle = NomenclatureRowResponse
     child_article: ArticleResponseExpanded
 }>
 
-export const load = (async ({ params, locals }) => {
+export const load = (async ({ url, params, locals }) => {
 
     try {
 
+        const filter = url.searchParams.get("filter") ?? "";
+        const sort = url.searchParams.get("sort") ?? "";
+
         const nomenclature = await locals.pb.collection(Collections.Nomenclature).getOne<NomenclatureResponseExpanded>(params.id, {
-            expand: `nomenclature_row(parent_nomenclature).child_article`
+            expand: `nomenclature_row(parent_nomenclature).child_article`,
+            filter,
+            sort
         });
 
         return {
@@ -43,13 +48,13 @@ export const actions: Actions = {
             const formData = await request.formData();
 
             formData.set("parent_nomenclature", params.id);
-
             await locals.pb.collection("nomenclature_row").create(formData);
 
             return { success: true };
         }
         catch(ex)
         {
+            console.log(ex);
             return { error: ex };
         }
     },

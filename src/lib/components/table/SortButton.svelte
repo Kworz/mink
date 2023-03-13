@@ -8,5 +8,5 @@
 </script>
 
 <button on:click>
-    <Icon src={direction === "asc" ? ChevronUp : ChevronDown} class="h-4 w-4 font-bold {active ? "text-violet-500" : "text-zinc-800"}" theme="solid" />
+    <Icon src={direction === "asc" ? ChevronUp : ChevronDown} class="h-4 w-4 font-bold {active ? "text-violet-500 dark:text-violet-400" : "text-zinc-800 dark:text-white"}" theme="solid" />
 </button>

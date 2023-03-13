@@ -1,5 +1,7 @@
 <script lang="ts">
     import { browser } from "$app/environment";
+    import { VideoCameraSlash } from "@steeze-ui/heroicons";
+    import { Icon } from "@steeze-ui/svelte-icon";
 
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     
@@ -29,6 +31,10 @@
 
     {#if displayThumb === true && article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file) && browser}
         <img src="http://{window.location.hostname}:8090/api/files/{article.collectionName}/{article.id}/{article.pinned_file}?thumb=200x200" alt={article.pinned_file} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
+    {:else}
+        <div class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50">
+            <Icon src={VideoCameraSlash} class="h-10 w-10 m-5 text-red-500" />
+        </div>
     {/if}
 
     <div>
