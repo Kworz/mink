@@ -125,7 +125,7 @@
                         <h3 class="mb-3">Ajouter un article a la commande</h3>
                         <form action="?/createOrderRow" method="post" use:enhance class="flex flex-row gap-4 items-end">
                             <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
-                                <ArticleFinder articleList={data.articles} bind:selectedArticle />
+                                <ArticleFinder bind:selectedArticle filters={[{ field: "supplier", operator: "~", value: data.order.supplier, hidden: true }]} />
                             </div>
                             {#if selectedArticle !== undefined}
                                 <input type="hidden" name="order" value={data.order.id} />

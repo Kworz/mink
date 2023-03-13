@@ -8,20 +8,12 @@
     
     export let filter: string = "";
     export let filters: FilterCondition[] = [];
+    export let availableFilters: Array<Filter> = [];
 
     let inputInvalid = false;
     let tempFilter: string = "";
     let suggestions: string[] = [];
     let selectedSuggestion = 0;
-
-    const availableFilters: Array<Filter> = [
-        { name: "name", default: true },
-        { name: "reference" },
-        { name: "manufacturer" },
-        { name: "supplier.name" },
-        { name: "price" },
-        { name: "quantity" }
-    ];
 
     const convertFilter = () => {
         try
@@ -49,7 +41,10 @@
     const inputKeyUp = (e: KeyboardEvent) => {
 
         if(e.key === "Enter")
+        {
             convertFilter();
+            e.preventDefault();
+        }
         else if(e.key === "Tab" && suggestions[selectedSuggestion] !== undefined)
         {
             selectSuggestion();
@@ -81,7 +76,7 @@
         <svelte:fragment slot="before">
             {#if filters.length > 0}
                 <Flex class="ml-2" gap={2}>
-                    {#each filters as filter, index}
+                    {#each filters.filter(k => k.hidden !== true) as filter, index}
                         <FilterLabel bind:filter on:click={() => filters = filters.filter((k, i) => i !== index)} />
                     {/each}
                 </Flex>

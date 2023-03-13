@@ -6,6 +6,7 @@ export enum Collections {
 	Article = "article",
 	ArticleMovements = "article_movements",
 	ArticlePricepoint = "article_pricepoint",
+	ArticleView = "article_view",
 	FabricationOrders = "fabrication_orders",
 	List = "list",
 	ListRow = "list_row",
@@ -66,6 +67,12 @@ export type ArticlePricepointRecord = {
 	article: RecordIdString
 	supplier: RecordIdString
 	price?: number
+}
+
+export type ArticleViewRecord<Tstock_price = unknown> = {
+	price?: number
+	quantity?: number
+	stock_price?: null | Tstock_price
 }
 
 export type FabricationOrdersRecord = {
@@ -154,6 +161,7 @@ export type UsersRecord = {
 export type ArticleResponse<Texpand = unknown> = ArticleRecord & BaseSystemFields<Texpand>
 export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
 export type ArticlePricepointResponse<Texpand = unknown> = ArticlePricepointRecord & BaseSystemFields<Texpand>
+export type ArticleViewResponse<Tstock_price = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields
 export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersRecord & BaseSystemFields<Texpand>
 export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texpand>
 export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
@@ -165,10 +173,13 @@ export type ProjectsResponse<Texpand = unknown> = ProjectsRecord & BaseSystemFie
 export type SuppliersResponse = SuppliersRecord & BaseSystemFields
 export type UsersResponse = UsersRecord & AuthSystemFields
 
+// Types containing all Records and Responses, useful for creating typing helper functions
+
 export type CollectionRecords = {
 	article: ArticleRecord
 	article_movements: ArticleMovementsRecord
 	article_pricepoint: ArticlePricepointRecord
+	article_view: ArticleViewRecord
 	fabrication_orders: FabricationOrdersRecord
 	list: ListRecord
 	list_row: ListRowRecord
@@ -179,4 +190,21 @@ export type CollectionRecords = {
 	projects: ProjectsRecord
 	suppliers: SuppliersRecord
 	users: UsersRecord
+}
+
+export type CollectionResponses = {
+	article: ArticleResponse
+	article_movements: ArticleMovementsResponse
+	article_pricepoint: ArticlePricepointResponse
+	article_view: ArticleViewResponse
+	fabrication_orders: FabricationOrdersResponse
+	list: ListResponse
+	list_row: ListRowResponse
+	nomenclature: NomenclatureResponse
+	nomenclature_row: NomenclatureRowResponse
+	orders: OrdersResponse
+	orders_rows: OrdersRowsResponse
+	projects: ProjectsResponse
+	suppliers: SuppliersResponse
+	users: UsersResponse
 }

@@ -7,6 +7,7 @@ export type FilterCondition = {
     field: string;
     operator: '=' | '!=' | '>' | '<' | '>=' | '<=' | '~' | '!~';
     value: string;
+    hidden?: boolean
 }
 
 export function convertFilterCondition(value: string, availableFilters: Array<Filter>): FilterCondition

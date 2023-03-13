@@ -22,7 +22,6 @@
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
-    import Page from "../+page.svelte";
     export let data: PageData;
 
     let filters: Array<FilterCondition> = [];
@@ -71,10 +70,11 @@
     <h4 class="mt-3">Réglages liste</h4>
     <p><input type="checkbox" bind:checked={displayThumbs} /> Afficher les miniatures.</p>
 
+    
 </Wrapper>
 
 <Wrapper class="relative">
-
+    
     <PillMenu>
         <PillMenuButton icon={PlusCircle} href="/app/articles/new">Créer un article</PillMenuButton>
         <PillMenuButton icon={ArrowDownTray} href="/app/articles/import" role="secondary">Importer des articles</PillMenuButton>
@@ -84,9 +84,17 @@
         {/if}
     </PillMenu>
 
-    <div class="w-1/3">
-        <Filter2 bind:filter bind:filters />
+    <div class="w-2/3">
+        <Filter2 bind:filter bind:filters availableFilters={[
+            { name: "name", default: true },
+            { name: "reference" },
+            { name: "manufacturer" },
+            { name: "supplier.name" },
+            { name: "price" },
+            { name: "quantity" }
+        ]} />
     </div>
+
 
     <Table embeded={true}>
         <svelte:fragment slot="head">
