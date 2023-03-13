@@ -61,7 +61,7 @@
     <h2>Commande <span class="px-3 py-1 rounded-full bg-violet-500 text-white font-medium">{data.order.name}</span></h2>
 
     <Grid cols={2} gap={24} items="start">
-        <Table backgroundColor="bg-white">
+        <Table backgroundColor="dark:bg-zinc-700">
             <svelte:fragment slot="body">
                 <TableRow>
                     <TableCell><h3>Metalizz</h3></TableCell>
@@ -81,7 +81,7 @@
                 </TableRow>
             </svelte:fragment>
         </Table>
-        <Table backgroundColor="bg-white">
+        <Table backgroundColor="dark:bg-zinc-700">
             <svelte:fragment slot="body">
                 <TableRow>
                     <TableCell><h3>{data.order.expand?.supplier.name}</h3></TableCell>
@@ -93,7 +93,7 @@
         </Table>
     </Grid>
 
-    <Table backgroundColor="bg-white">
+    <Table backgroundColor="dark:bg-zinc-700">
         <svelte:fragment slot="head">
             <TableHead>Projet</TableHead>
             <TableHead>Désignation</TableHead>
@@ -141,7 +141,7 @@
 
     </Table>
 
-    <Table class="w-auto ml-auto" backgroundColor="bg-white">
+    <Table class="w-auto ml-auto"  backgroundColor="dark:bg-zinc-700">
         <svelte:fragment slot="body">
             <TableRow>
                 <TableCell>Total (HT)</TableCell>
