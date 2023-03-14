@@ -11,8 +11,8 @@
     import Button from "../Button.svelte";
     import Flex from "../layout/flex.svelte";
     import { getPocketbase } from "../../pocketbase";
-    import Wrapper from "../Wrapper.svelte";
     import ArticleRow from "./ArticleRow.svelte";
+    import Wrapper2 from "../Wrapper2.svelte";
 
     let articleList: Array<ArticleResponseExpanded> = [];
 
@@ -27,7 +27,7 @@
 
         try
         {
-            const articles = await pb?.collection(Collections.Article).getList<ArticleResponseExpanded>(1, 15, { filter: decodeURIComponent(filter), expand: "supplier" });
+            const articles = await pb?.collection(Collections.Article).getList<ArticleResponseExpanded>(1, 15, { filter: decodeURIComponent(filter), expand: "supplier", sort: "-updated" });
             articleList = articles?.items ?? []; 
         }
         catch(ex)
@@ -52,13 +52,13 @@
 
 {#if selectedArticle === undefined}
     <Flex direction="col">
-        <Flex gap={4} wrap={"nowrap"} class="overflow-y-scroll w-full p-1">
+        <Flex gap={6} wrap={"nowrap"} class="overflow-y-scroll w-full p-1 snap-x">
             {#each articleList as article (article.id)}
-                <Wrapper class="min-w-[50%]">
+                <Wrapper2 class="min-w-[33%] snap-start snap-mandatory bg-red">
                     <button on:click|preventDefault={() => { selectedArticle = article }} class="text-left">
                         <ArticleRow bind:article />
                     </button>
-                </Wrapper>
+                </Wrapper2>
             {/each}
         </Flex>
         <Filter2 bind:filter={filter} bind:filters={filters} availableFilters={[

@@ -1,0 +1,1 @@
+<div class="p-6 rounded-xl drop-shadow-sm bg-gray-200 dark:bg-zinc-700 {$$props.class || ''}"><slot /></div>

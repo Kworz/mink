@@ -42,7 +42,7 @@
         restore: (value) => (filters = value)
     }
 
-    $: if(form?.success === true && browser) { invalidateAll(); }
+    $: if(form?.success === true && browser) { invalidateAll(); editNomenclature = false; }
     $: filter, activeSort, () => {
         if(browser)
         {
@@ -92,7 +92,7 @@
     <Wrapper class="mt-6">
         <form action="?/addItem" method="post" use:enhance>
 
-            <ArticleFinder formFieldName="child_article" />
+            <ArticleFinder formFieldName="child_article" filters={data.nomenclature.expand['nomenclature_row(parent_nomenclature)'].map(k => { return { field: 'id', operator: '!=', value: k.expand.child_article.id, hidden: true }})} />
             <Flex gap={6} class="mt-6" items="end">
                 <FormInput type="number" name="quantity_required" label="Quantité requise" labelMandatory={true} min={0} />
                 <Button role="primary">Ajouter</Button>

@@ -95,7 +95,7 @@ export function convertToPocketbaseFilter(filters: Array<FilterCondition>): stri
     const fields = [...new Set(filters.map(k => k.field))];
 
     // Recudes fields to be grouped in filter group to prenvent data leaking
-    const mappedFilters = fields.map(fieldName => `(${filters.filter(filter => filter.field === fieldName).map(filter => `${filter.field} ${filter.operator} ${convertFilterValue(filter.value)}`).join(" || ")})`);
+    const mappedFilters = fields.map(fieldName => `(${filters.filter(filter => filter.field === fieldName).map(filter => `${filter.field} ${filter.operator} ${convertFilterValue(filter.value)}`).join(" && ")})`);
 
     return encodeURIComponent(mappedFilters.join(" && "));
 }
