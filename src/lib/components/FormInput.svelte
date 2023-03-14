@@ -18,10 +18,12 @@
     export let max: number | null | undefined = undefined;
     export let step: number | null | undefined = undefined;
 
-    export let backgroundColor = "bg-zinc-100";
-
     export let validateOnBlur = false;
     export let validateOnChange = false;
+
+    export let backColors = "bg-gray-200 dark:bg-zinc-700";
+    
+    const baseStyle = "border dark:border-zinc-800/50  rounded-md p-2 duration-100"
 
     $: validateButton = validateOnBlur || validateOnChange;
 
@@ -41,7 +43,7 @@
             exitButton.click();
     }
 
-    const style = "border dark:border-zinc-800/50 bg-gray-200 dark:bg-zinc-700 rounded-md p-2 duration-100"
+    $: style = baseStyle + " " + backColors;
 
 </script>
 
@@ -57,18 +59,18 @@
 
     {#if type == "select"}
         {#if Array.isArray(value)} 
-            <select {name} {form} bind:value class="{style} {backgroundColor}" class:ring-red-500={invalid} multiple on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} multiple on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>
         {:else}
-            <select {name} {form} bind:value class="{style} {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>
         {/if}
     {:else if type == "checkbox"}
-        <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style} {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
+        <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
     {:else}
-        <input use:typeAction {name} {form} bind:value {min} {max} {step} class="{style} {backgroundColor}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
+        <input use:typeAction {name} {form} bind:value {min} {max} {step} class="{style}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
     {/if}
 
     {#if validateButton}

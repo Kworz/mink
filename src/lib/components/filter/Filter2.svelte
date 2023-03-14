@@ -1,10 +1,10 @@
 <script lang="ts">
     import { Check } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import Input from "../Input.svelte";
-    import Flex from "../layout/flex.svelte";
     import { convertFilterCondition, convertToPocketbaseFilter, predictField, type Filter, type FilterCondition } from "./filter2";
     import FilterLabel from "./FilterLabel.svelte";
+    import Input from "../Input.svelte";
+    import Flex from "../layout/flex.svelte";
     
     export let filter: string = "";
     export let filters: FilterCondition[] = [];

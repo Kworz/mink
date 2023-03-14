@@ -83,21 +83,19 @@ export const actions: Actions = {
             const form = await request.formData();
             const row_id = form.get("row_id")?.toString();
 
+            console.log(form);
+
             if(row_id === undefined)
                 throw "Could not find item id to update";
 
-            const item = {
-                quantity_required: Number(form.get("quantity_required")?.toString()),
-                group: form.get("group")?.toString()
-            } satisfies Partial<NomenclatureRowRecord>;
-
-            await locals.pb.collection(Collections.NomenclatureRow).update<NomenclatureRowResponse>(row_id, item);
+            await locals.pb.collection(Collections.NomenclatureRow).update<NomenclatureRowResponse>(row_id, form);
 
             return { success: true };
         }
         catch(ex)
         {
-            return { error: ex };
+            console.log(ex);
+            return { error: ex.toJSON() };
         }
     },
 
