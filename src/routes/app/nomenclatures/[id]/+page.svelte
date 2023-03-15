@@ -48,40 +48,56 @@
 
     const computeNested = (nom: typeof data.nomenclature): Array<NomenclatureNestGroup> => {
 
-        let groups = nom.expand?.["nomenclature_row(parent_nomenclature)"].flatMap(nr => (nr.group?.split(",") ?? []).map(g => g.split(":")[0].split(".")));
+        if(nom.expand?.["nomenclature_row(parent_nomenclature)"] === undefined)
+            throw "Nomenclature row is not expanded";
+
+        let groups = nom.expand["nomenclature_row(parent_nomenclature)"].flatMap(nr => ((nr.group ?? "").split(",") ?? []).map(g => g.split(":")[0].split(".")));
         let flattedGroups = groups?.map(g => g.join("."))
         groups = groups?.filter((g, i) => flattedGroups?.indexOf(g.join(".")) === i);
 
-        // Should be enahced to be resued for more indexes
-        groups?.forEach(g => { if(groups?.find(g2 => g2[0] === g[0] && g2.length === 1) === undefined) { groups = [...groups, [g[0]]] }});
+        function makeNestedParent(group: string[]) {
+            
+            const parentGroup = group.filter((k, i) => i < group.length - 1);
+
+            if(parentGroup.length === 0)
+                return;
+
+            const parentGroupItem = groups?.find(g => g.join("") === parentGroup.join(""));
+            const hasParent = parentGroupItem?.length !== 0 && parentGroupItem !== undefined;
+            
+            if(hasParent === false)
+                groups?.push(parentGroup);
+        }
+        
+        groups?.forEach(makeNestedParent);
         groups = groups?.sort((a, b) => a.join("").localeCompare(b.join("")));
 
-        const longestGroupPath = groups?.reduce((p, c) => p = (p > c.length) ? p : c.length, 0) ?? 0;
-
-        console.log(groups);
-        console.log(longestGroupPath);
-
-        function nestGroup(parentgroup: string | undefined, level = 0): Array<NomenclatureNestGroup>
+        function nestGroup(parentGroup: string | undefined, level = 1): Array<NomenclatureNestGroup>
         {
-            const loopGroups = groups!.filter(g => g.length - 1 === level && (parentgroup !== undefined ? g.includes(parentgroup) : true));
+            const childGroups = groups.filter(g => g.length === level && (parentGroup !== undefined ? g.join(".").includes(parentGroup) : true));
+                            
+            return childGroups.map(childGroup => {
 
-            return loopGroups.map(g => {
+                const joinedGroupName = childGroup.join(".");
 
                 return {
-                    name: g.join("."),
-                    items: nom.expand?.["nomenclature_row(parent_nomenclature)"].filter(nr => nr.group?.split(",").map(g => g.split(":")[0]).includes(g.join("."))).map(nr => {
+                    name: joinedGroupName,
+                    items: nom.expand["nomenclature_row(parent_nomenclature)"].filter(nr => nr.group?.split(",").map(g => g.split(":")[0]).includes(joinedGroupName)).map(nr => {
+                        
+                        const quantity = Number(nr.group?.split(",").find(g2 => g2.includes(joinedGroupName))?.split(":")[1] ?? nr.quantity_required);
+
                         return {
                             nomenclature_row: nr,
-                            quantity: nr.group?.split(",").find(g2 => g2.includes(g.join(".")))?.split(":")[1] ?? nr.quantity_required
+                            quantity
                         }
                     }),
-                    subGroups: nestGroup(g.join("."), level+1)
 
+                    subGroups: nestGroup(joinedGroupName, level + 1)
                 }
             });
         }
 
-        return nestGroup(undefined, 0);
+        return nestGroup(undefined);
     }
 
     $: if(form?.success === true && browser) { invalidateAll(); editNomenclature = false; }
@@ -93,6 +109,7 @@
     }
 
     $: nestedNomenclature = computeNested(data.nomenclature);
+    $: console.log(nestedNomenclature);
 
 </script>
 
