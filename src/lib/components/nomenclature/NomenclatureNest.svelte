@@ -26,13 +26,12 @@
     let showArticles = true;
     let showSubGroups = true;
 
+    $: titleClass = nested ? "before:contents-[''] before:absolute before:-left-[41px] before:top-1 dark:before:bg-white before:bg-zinc-800 before:border-[6px] dark:before:border-zinc-800 before:border-white before:h-5 before:w-5 before:rounded-full after:contents-[''] after:absolute after:h-[1px] after:w-4 after:-left-6 after:bg-zinc-800 after:dark:bg-white/50 after:top-[13px]" : "";
+
 </script>
 
 <div class="mt-4">
-    <h4 
-        class="mb-4 capitalize relative
-        {nested ? "before:contents-[''] before:absolute before:-left-[41px] before:top-1 dark:before:bg-white before:bg-zinc-800 before:border-[6px] dark:before:border-zinc-800 before:border-white before:h-5 before:w-5 before:rounded-full" : ""}"
-    >{nestGroup.name.split(".").join(" → ")}</h4>
+    <h4 class="mb-4 capitalize relative {titleClass}">{nestGroup.name.split(".").join(" → ")}</h4>
 
     <div class="ml-12 flex flex-col gap-4 items-start relative before:contents-[''] before:absolute before:block dark:before:bg-white/50 before:bg-zinc-700 before:w-[1px] before:h-full before:-left-8">
 

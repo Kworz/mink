@@ -38,7 +38,7 @@
 <script lang="ts">
     import { Check } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { onMount, tick } from "svelte";
+    import { onMount } from "svelte";
     import Input from "../Input.svelte";
     import Flex from "../layout/flex.svelte";
     import NomenclatureGroupLabel from "./NomenclatureGroupLabel.svelte";
@@ -111,6 +111,8 @@
             validateButton?.click();
     }
 
+    $: allAttributed = quantityToAttribute >= groups.reduce((p,c) => p + c.attributed_quantity, 0);
+
 </script>
 
 <Flex direction="col" gap={2}>
@@ -118,7 +120,7 @@
     <Input bind:value={tempGroup} placeholder={"Groupe"} on:keydown={inputKeyUp}>
         <svelte:fragment slot="before">
             {#if groups.length > 0}
-                <Flex class="ml-2" gap={2}>
+                <Flex gap={2} class="ml-2">
                     {#each groups as group, index}
                         <NomenclatureGroupLabel {group} on:click={() => groups = groups.filter((g, i) => i !== index)}></NomenclatureGroupLabel>
                     {/each}
