@@ -6,7 +6,10 @@ export enum Collections {
 	Article = "article",
 	ArticleMovements = "article_movements",
 	ArticlePricepoint = "article_pricepoint",
+	ArticleStores = "article_stores",
 	ArticleView = "article_view",
+	Build = "build",
+	BuildRow = "build_row",
 	FabricationOrders = "fabrication_orders",
 	List = "list",
 	ListRow = "list_row",
@@ -54,6 +57,7 @@ export type ArticleRecord = {
 	attached_files?: string[]
 	pinned_file?: string
 	label?: boolean
+	store?: RecordIdString
 }
 
 export type ArticleMovementsRecord = {
@@ -69,10 +73,25 @@ export type ArticlePricepointRecord = {
 	price?: number
 }
 
+export type ArticleStoresRecord = {
+	name: string
+	location?: string
+}
+
 export type ArticleViewRecord<Tstock_price = unknown> = {
-	price?: number
-	quantity?: number
+	article?: RecordIdString
 	stock_price?: null | Tstock_price
+}
+
+export type BuildRecord = {
+	name: string
+	parent_nomenclature: RecordIdString
+	parent_list: RecordIdString
+}
+
+export type BuildRowRecord = {
+	parent_nomenclature_row: RecordIdString
+	assembled?: boolean
 }
 
 export type FabricationOrdersRecord = {
@@ -161,7 +180,10 @@ export type UsersRecord = {
 export type ArticleResponse<Texpand = unknown> = ArticleRecord & BaseSystemFields<Texpand>
 export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
 export type ArticlePricepointResponse<Texpand = unknown> = ArticlePricepointRecord & BaseSystemFields<Texpand>
-export type ArticleViewResponse<Tstock_price = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields
+export type ArticleStoresResponse = ArticleStoresRecord & BaseSystemFields
+export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields<Texpand>
+export type BuildResponse<Texpand = unknown> = BuildRecord & BaseSystemFields<Texpand>
+export type BuildRowResponse<Texpand = unknown> = BuildRowRecord & BaseSystemFields<Texpand>
 export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersRecord & BaseSystemFields<Texpand>
 export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texpand>
 export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
@@ -179,7 +201,10 @@ export type CollectionRecords = {
 	article: ArticleRecord
 	article_movements: ArticleMovementsRecord
 	article_pricepoint: ArticlePricepointRecord
+	article_stores: ArticleStoresRecord
 	article_view: ArticleViewRecord
+	build: BuildRecord
+	build_row: BuildRowRecord
 	fabrication_orders: FabricationOrdersRecord
 	list: ListRecord
 	list_row: ListRowRecord
@@ -196,7 +221,10 @@ export type CollectionResponses = {
 	article: ArticleResponse
 	article_movements: ArticleMovementsResponse
 	article_pricepoint: ArticlePricepointResponse
+	article_stores: ArticleStoresResponse
 	article_view: ArticleViewResponse
+	build: BuildResponse
+	build_row: BuildRowResponse
 	fabrication_orders: FabricationOrdersResponse
 	list: ListResponse
 	list_row: ListRowResponse

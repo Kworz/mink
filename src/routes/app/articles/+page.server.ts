@@ -1,10 +1,11 @@
-import { Collections, type ArticleResponse, type SuppliersResponse, type OrdersRowsResponse } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type SuppliersResponse, type OrdersRowsResponse, type ArticleStoresResponse } from "$lib/DBTypes";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export type ArticleResponseExpanded = ArticleResponse<{
     supplier: Array<SuppliersResponse>,
-    'orders_rows(article)': Array<OrdersRowsResponse>
+    'orders_rows(article)': Array<OrdersRowsResponse>,
+    store: ArticleStoresResponse
 }>;
 
 export const load = (async ({ locals, url }) => {
@@ -14,7 +15,7 @@ export const load = (async ({ locals, url }) => {
         const filter = url.searchParams.get("filter") ?? "";
         const page = Number(url.searchParams.get("page")) ?? 1;
         
-        const articles = await locals.pb.collection(Collections.Article).getList<ArticleResponseExpanded>(page, 50, { sort, filter, expand: "supplier,orders_rows(article),article_view(article)" });
+        const articles = await locals.pb.collection(Collections.Article).getList<ArticleResponseExpanded>(page, 50, { sort, filter, expand: "supplier,store,orders_rows(article),article_view(article)" });
         
         return {
             articleList: structuredClone(articles)

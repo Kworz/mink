@@ -19,6 +19,7 @@
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
+    import Store from "$lib/components/store/Store.svelte";
     export let data: PageData;
 
     let filters: Array<FilterCondition> = [];
@@ -77,6 +78,7 @@
             { name: "reference" },
             { name: "manufacturer" },
             { name: "supplier.name" },
+            { name: "store.name"},
             { name: "price" },
             { name: "quantity" }
         ]} />
@@ -88,6 +90,7 @@
             <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)}/></TableTitle>
             <TableTitle colWidth="w-1/3" col="name" bind:activeSort>Article ({data.articleList.totalItems})</TableTitle>
             <TableTitle col="quantity" bind:activeSort>Stock</TableTitle>
+            <TableTitle col="store.name" bind:activeSort>Emplacement</TableTitle>
             <TableTitle col="reference" bind:activeSort>Référence</TableTitle>
             <TableTitle col="supplier" bind:activeSort colWidth="w-1/6">Fournisseur</TableTitle>
             <TableTitle col="manufacturer" bind:activeSort>Fabricant</TableTitle>
@@ -103,6 +106,11 @@
                         <ArticleRow {article} displayPrice={false} displayManufacturer={false} bind:displayThumb={displayThumbs} displayApprox={true} />
                     </TableCell>
                     <TableCell>{article.quantity}</TableCell>
+                    <TableCell>
+                        {#if article.expand?.store !== undefined}
+                            <Store store={article.expand.store} />
+                        {/if}
+                    </TableCell>
                     <TableCell>{article.reference}</TableCell>
                     <TableCell>
                         <Flex gap={2} direction="col" items="start">

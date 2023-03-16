@@ -2,6 +2,7 @@
     import { browser } from "$app/environment";
     import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
+    import ArticleForm from "$lib/components/article/ArticleForm.svelte";
     import Button from "$lib/components/Button.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import File from "$lib/components/file/File.svelte";
@@ -61,6 +62,10 @@
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity}</DetailLabel>.</p>
 
+            {#if data.article.expand?.store}
+                <p>Emplacement: <DetailLabel>{data.article.expand.store.location} / {data.article.expand.store.name}</DetailLabel></p>
+            {/if}
+
             <PillMenu bind:open={pillMenuShown}>
                 <PillMenuButton icon={Wrench} on:click={() => { editArticle = !editArticle; pillMenuShown = false; }}>Modifier l'article</PillMenuButton>
                 <form action="?/copyArticle" method="post" use:enhance>
@@ -81,29 +86,15 @@
             </PillMenu>
         {:else}
             <form action="?/editArticle" method="post" use:enhanceNoReset>
-                <Flex direction="col" gap={2}>
-                    <FormInput name="name" label="Nom de l'article" labelMandatory={true} bind:value={data.article.name} backgroundColor="bg-white"/>
 
-                    <FormInput name="quantity" type="number" label="Quantité en stock" labelMandatory={true} bind:value={data.article.quantity} backgroundColor="bg-white"/>
-                    <FormInput name="order_quantity" type="number" label="Quantité minimale de commande" bind:value={data.article.order_quantity} backgroundColor="bg-white"/>
-
-                    <FormInput name="price" type="number" label="Prix" step={0.01} bind:value={data.article.price} backgroundColor="bg-white" />
-                    <FormInput name="reference" label="Référence" bind:value={data.article.reference} backgroundColor="bg-white" />
-                    <FormInput type="select" name="supplier" label="Fournisseur" bind:value={data.article.supplier} backgroundColor="bg-white">
-                        <option value={undefined}>—</option>
-                        {#each data.suppliers as supplier}
-                            <option value={supplier.id}>{supplier.name}</option>
-                        {/each}
-                    </FormInput>
-                    <FormInput name="manufacturer" label="Fabricant" bind:value={data.article.manufacturer} backgroundColor="bg-white"/>       
-                </Flex>
+                <ArticleForm article={data.article} />
                 
                 <Flex items="center" class="mt-4">
-                    <Button size="small" role="warning">
+                    <Button role="warning">
                         <Icon src={Check} class="h-4 w-4 inline-block mr-2" />
                         Modifier
                     </Button>     
-                    <Button size="small" role="danger" on:click={() => editArticle = !editArticle}>
+                    <Button role="danger" on:click={() => editArticle = !editArticle}>
                         <Icon src={Wrench} class="h-4 w-4 inline-block mr-2" />
                         Annuler la modification
                     </Button>
@@ -118,7 +109,7 @@
                 <h4>Ajouter un fichier</h4>
                 <form action="?/addAttachedFile" method="post" use:enhance>
                     <Flex direction="col" items="start">
-                        <FormInput type="file" name="attached_files" label="Fichier a ajouter" labelMandatory={true} backgroundColor="bg-white" />
+                        <FormInput type="file" name="attached_files" label="Fichier a ajouter" labelMandatory={true}  />
                         <Button>Ajouter le fichier</Button>
                     </Flex>
                 </form>

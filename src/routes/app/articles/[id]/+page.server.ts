@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type SuppliersResponse } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../+page.server";
 
 export const load = (async ({ params, locals }) => {
@@ -8,16 +8,14 @@ export const load = (async ({ params, locals }) => {
     try
     {
         const itemId = params.id;
-        const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(itemId, { expand: "supplier"});
+        const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(itemId, { expand: "supplier,store" });
         const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{"user": UsersResponse}>>(undefined, { filter: `article="${itemId}"`, sort: "-created", expand: "user" });
         const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();
-        const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
-    
+
         return {
             article: structuredClone(article),
             articleMovements: structuredClone(articleMovements),
-            nomenclatures: structuredClone(nomenclatures),
-            suppliers: structuredClone(suppliers)
+            nomenclatures: structuredClone(nomenclatures)
         }
     }
     catch(ex) 
