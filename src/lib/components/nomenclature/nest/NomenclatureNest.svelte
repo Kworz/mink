@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-    import type { NomenclatureRowResponseExpanded } from "../../../routes/app/nomenclatures/[id]/+page.server";
+    import type { NomenclatureRowResponseExpanded } from "../../../../routes/app/nomenclatures/[id]/+page.server";
 
     export type NomenclatureNestGroup = {
         name: string;
@@ -16,9 +16,9 @@
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { ChevronDown, ChevronRight } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import ArticleRow from "../article/ArticleRow.svelte";
-    import Flex from "../layout/flex.svelte";
-    import Wrapper2 from "../Wrapper2.svelte";
+    import ArticleRow from "../../article/ArticleRow.svelte";
+    import Flex from "../../layout/flex.svelte";
+    import Wrapper2 from "../../Wrapper2.svelte";
 
     export let nestGroup: NomenclatureNestGroup;
     export let nested = false;
@@ -73,6 +73,5 @@
                 </Flex>
             {/if}
         {/if}
-    
     </div>
 </div>
