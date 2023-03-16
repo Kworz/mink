@@ -24,8 +24,9 @@
     import { page } from "$app/stores";
     import type { FilterCondition } from "$lib/components/filter/filter2";
     import Filter2 from "$lib/components/filter/Filter2.svelte";
-    import NomenclatureNest, { type NomenclatureNestGroup } from "$lib/components/nomenclature/NomenclatureNest.svelte";
+    import NomenclatureNest from "$lib/components/nomenclature/nest/NomenclatureNest.svelte";
     import NomenclatureGroup from "$lib/components/nomenclature/NomenclatureGroup.svelte";
+    import { computeNested } from "$lib/components/nomenclature/nest/nomenclatureNester";
 
     export let data: PageData;
     export let form: ActionData;
@@ -44,60 +45,6 @@
     export const snapshot: Snapshot<Array<FilterCondition>> = {
         capture: () => filters,
         restore: (value) => (filters = value)
-    }
-
-    const computeNested = (nom: typeof data.nomenclature): Array<NomenclatureNestGroup> => {
-
-        if(nom.expand?.["nomenclature_row(parent_nomenclature)"] === undefined)
-            throw "Nomenclature row is not expanded";
-
-        let groups = nom.expand["nomenclature_row(parent_nomenclature)"].flatMap(nr => ((nr.group ?? "").split(",") ?? []).map(g => g.split(":")[0].split(".")));
-        let flattedGroups = groups?.map(g => g.join("."))
-        groups = groups?.filter((g, i) => flattedGroups?.indexOf(g.join(".")) === i);
-
-        function makeNestedParent(group: string[]) {
-            
-            const parentGroup = group.filter((k, i) => i < group.length - 1);
-
-            if(parentGroup.length === 0)
-                return;
-
-            const parentGroupItem = groups?.find(g => g.join("") === parentGroup.join(""));
-            const hasParent = parentGroupItem?.length !== 0 && parentGroupItem !== undefined;
-            
-            if(hasParent === false)
-                groups?.push(parentGroup);
-        }
-        
-        groups?.forEach(makeNestedParent);
-        groups = groups?.sort((a, b) => a.join("").localeCompare(b.join("")));
-
-        function nestGroup(parentGroup: string | undefined, level = 1): Array<NomenclatureNestGroup>
-        {
-            const childGroups = groups.filter(g => g.length === level && (parentGroup !== undefined ? g.join(".").includes(parentGroup) : true));
-                            
-            return childGroups.map(childGroup => {
-
-                const joinedGroupName = childGroup.join(".");
-
-                return {
-                    name: joinedGroupName,
-                    items: nom.expand["nomenclature_row(parent_nomenclature)"].filter(nr => nr.group?.split(",").map(g => g.split(":")[0]).includes(joinedGroupName)).map(nr => {
-                        
-                        const quantity = Number(nr.group?.split(",").find(g2 => g2.includes(joinedGroupName))?.split(":")[1] ?? nr.quantity_required);
-
-                        return {
-                            nomenclature_row: nr,
-                            quantity
-                        }
-                    }),
-
-                    subGroups: nestGroup(joinedGroupName, level + 1)
-                }
-            });
-        }
-
-        return nestGroup(undefined);
     }
 
     $: if(form?.success === true && browser) { invalidateAll(); editNomenclature = false; }

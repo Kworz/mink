@@ -1,6 +1,6 @@
 <script lang="ts">
     import Flex from "$lib/components/layout/flex.svelte";
-    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar, QueueList, QrCode } from "@steeze-ui/heroicons";
+    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar, QueueList, QrCode, Bars4, PuzzlePiece } from "@steeze-ui/heroicons";
     import Menu from "$lib/components/appLayout/Menu.svelte";
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
     import TopBar from "$lib/components/appLayout/TopBar.svelte";
@@ -21,6 +21,7 @@
         <MenuSeparator>Nomenclatures</MenuSeparator>
         <MenuItem icon={ListBullet} href="/app/nomenclatures" label="Nomenclatures" />
         <MenuItem icon={ClipboardDocumentCheck} href="/app/lists" label="Listes d'achats" />
+        <MenuItem icon={PuzzlePiece} href="/app/builds" label="Suivi assemblage" />
 
         <MenuSeparator>Gestion</MenuSeparator>
         <MenuItem icon={DocumentText} href="/app/projects" label="Affaires" />

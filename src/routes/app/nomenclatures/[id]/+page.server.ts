@@ -1,9 +1,9 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type NomenclatureResponse, type NomenclatureRowResponse, type NomenclatureRowRecord, type ArticleResponse } from "$lib/DBTypes";
+import { Collections, type NomenclatureResponse, type NomenclatureRowResponse, type ArticleResponse } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../../articles/+page.server";
 
-type NomenclatureResponseExpanded = NomenclatureResponse<{
+export type NomenclatureResponseExpanded = NomenclatureResponse<{
     "nomenclature_row(parent_nomenclature)": Array<NomenclatureRowResponseExpanded>
 }>;
 
