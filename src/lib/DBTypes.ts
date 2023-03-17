@@ -8,6 +8,8 @@ export enum Collections {
 	ArticlePricepoint = "article_pricepoint",
 	ArticleStores = "article_stores",
 	ArticleView = "article_view",
+	Assemblies = "assemblies",
+	AssembliesRelations = "assemblies_relations",
 	Build = "build",
 	BuildRow = "build_row",
 	FabricationOrders = "fabrication_orders",
@@ -83,14 +85,31 @@ export type ArticleViewRecord<Tstock_price = unknown> = {
 	stock_price?: null | Tstock_price
 }
 
+export type AssembliesRecord = {
+	name: string
+	description?: string
+	favorite?: boolean
+	attached_files?: string[]
+}
+
+export type AssembliesRelationsRecord = {
+	parent: RecordIdString
+	assembly_child?: RecordIdString
+	article_child?: RecordIdString
+	quantity: number
+}
+
 export type BuildRecord = {
 	name: string
+	project?: RecordIdString
 	parent_nomenclature: RecordIdString
 	parent_list: RecordIdString
 }
 
 export type BuildRowRecord = {
+	build: RecordIdString
 	parent_nomenclature_row: RecordIdString
+	group?: string
 	assembled?: boolean
 }
 
@@ -182,6 +201,8 @@ export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord
 export type ArticlePricepointResponse<Texpand = unknown> = ArticlePricepointRecord & BaseSystemFields<Texpand>
 export type ArticleStoresResponse = ArticleStoresRecord & BaseSystemFields
 export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields<Texpand>
+export type AssembliesResponse = AssembliesRecord & BaseSystemFields
+export type AssembliesRelationsResponse<Texpand = unknown> = AssembliesRelationsRecord & BaseSystemFields<Texpand>
 export type BuildResponse<Texpand = unknown> = BuildRecord & BaseSystemFields<Texpand>
 export type BuildRowResponse<Texpand = unknown> = BuildRowRecord & BaseSystemFields<Texpand>
 export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersRecord & BaseSystemFields<Texpand>
@@ -203,6 +224,8 @@ export type CollectionRecords = {
 	article_pricepoint: ArticlePricepointRecord
 	article_stores: ArticleStoresRecord
 	article_view: ArticleViewRecord
+	assemblies: AssembliesRecord
+	assemblies_relations: AssembliesRelationsRecord
 	build: BuildRecord
 	build_row: BuildRowRecord
 	fabrication_orders: FabricationOrdersRecord
@@ -223,6 +246,8 @@ export type CollectionResponses = {
 	article_pricepoint: ArticlePricepointResponse
 	article_stores: ArticleStoresResponse
 	article_view: ArticleViewResponse
+	assemblies: AssembliesResponse
+	assemblies_relations: AssembliesRelationsResponse
 	build: BuildResponse
 	build_row: BuildRowResponse
 	fabrication_orders: FabricationOrdersResponse
