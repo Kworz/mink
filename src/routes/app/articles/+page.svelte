@@ -88,7 +88,7 @@
     <Table embeded={true}>
         <svelte:fragment slot="head">
             <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)}/></TableTitle>
-            <TableTitle colWidth="w-1/3" col="name" bind:activeSort>Article ({data.articleList.totalItems})</TableTitle>
+            <TableTitle col="name" bind:activeSort>Article ({data.articleList.totalItems})</TableTitle>
             <TableTitle col="quantity" bind:activeSort>Stock</TableTitle>
             <TableTitle col="store.name" bind:activeSort>Emplacement</TableTitle>
             <TableTitle col="reference" bind:activeSort>Référence</TableTitle>

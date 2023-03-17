@@ -18,6 +18,8 @@
     export let max: number | null | undefined = undefined;
     export let step: number | null | undefined = undefined;
 
+    export let multiple: boolean = false;
+
     export let validateOnBlur = false;
     export let validateOnChange = false;
 
@@ -57,8 +59,8 @@
         </span>
     {/if}
 
-    {#if type == "select"}
-        {#if Array.isArray(value)} 
+    {#if type === "select"}
+        {#if multiple} 
             <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} multiple on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>

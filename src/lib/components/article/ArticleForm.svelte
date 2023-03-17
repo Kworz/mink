@@ -42,18 +42,18 @@
     <h3 class="my-2">Informations complémentaires</h3>
     
     <FormInput type="number" label="Prix" name="price" step={0.01} value={article?.price} />
-    <FormInput type="number" name="order_quantity" label="Quantité minimale de commande" value={article?.order_quantity} min={1}/>
+    <FormInput type="number" name="order_quantity" label="Quantité minimale de commande" value={article?.order_quantity} min={1} />
 
-    <FormInput type="select" name="supplier" label="Fournisseur" value={article?.supplier ?? []}>
+    <FormInput type="select" name="supplier" label="Fournisseur" value={article?.supplier} multiple={true}>
         {#each suppliers as supplier}
-            <option value={supplier.id}>{supplier.name}</option>
+            <option value={supplier.id} selected={article?.supplier?.includes(supplier.id)}>{supplier.name}</option>
         {/each}
     </FormInput>
 
     <FormInput type="select" name="store" label="Emplacement" value={article?.store}>
         <option value="">—</option>
         {#each stores as store}
-            <option value={store.id}>{store.location} / {store.name}</option>
+            <option value={store.id} selected={store.id === article?.store}>{store.location} / {store.name}</option>
         {/each}
     </FormInput>
 
