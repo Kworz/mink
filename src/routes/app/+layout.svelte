@@ -21,6 +21,7 @@
         <MenuSeparator>Nomenclatures</MenuSeparator>
         <MenuItem icon={ListBullet} href="/app/nomenclatures" label="Nomenclatures" />
         <MenuItem icon={ClipboardDocumentCheck} href="/app/lists" label="Listes d'achats" />
+        <MenuItem icon={PuzzlePiece} href="/app/assemblies" label="Assemblages" />
         <MenuItem icon={PuzzlePiece} href="/app/builds" label="Suivi assemblage" />
 
         <MenuSeparator>Gestion</MenuSeparator>

@@ -7,18 +7,20 @@
 
 </script>
 
-<table class="table-fixed w-full p-4 {embeded ? "" : "rounded-lg drop-shadow-lg"} {marginTop} {backgroundColor} {$$props.class}">
-    <thead>
-        <tr>
-            <slot name="head" />
-        </tr>
-    </thead>
+<div class="w-full">
+    <table class="table-auto min-w-full {embeded ? "" : "p-4 rounded-lg drop-shadow-lg"} {marginTop} {backgroundColor} {$$props.class}">
+        <thead>
+            <tr>
+                <slot name="head" />
+            </tr>
+        </thead>
 
-    <tbody>
-        <slot name="body" />
-    </tbody>
+        <tbody>
+            <slot name="body" />
+        </tbody>
 
-    <tfoot class="border-t border-t-violet-500 font-semibold">
-        <slot name="foot" />
-    </tfoot>
-</table>
+        <tfoot class="border-t border-t-violet-500 font-semibold">
+            <slot name="foot" />
+        </tfoot>
+    </table>
+</div>

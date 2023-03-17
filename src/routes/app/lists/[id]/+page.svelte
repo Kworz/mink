@@ -154,7 +154,7 @@
 
         <form action="?/generateOrder" method="post" use:enhance class="flex flex-col gap-4">
             <input type="hidden" name="project" value={data.list.project} />
-            <FormInput type="select" name="supplier" label="Fournisseur" labelMandatory={true} value={[]}>
+            <FormInput type="select" name="supplier" label="Fournisseur" labelMandatory={true} multiple={true}>
                 <option value={undefined}>—</option>
                 {#each suppliersInvalidated as supplier}
                     <option value={supplier.id}>{supplier.name}</option>

@@ -13,6 +13,7 @@
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
+    import Wrapper2 from "$lib/components/Wrapper2.svelte";
     import { OrdersStateOptions } from "$lib/DBTypes";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import type { ArticleResponseExpanded } from "../../articles/+page.server";
@@ -61,36 +62,41 @@
     <h2>Commande <span class="px-3 py-1 rounded-full bg-violet-500 text-white font-medium">{data.order.name}</span></h2>
 
     <Grid cols={2} gap={24} items="start">
-        <Table backgroundColor="dark:bg-zinc-700">
-            <svelte:fragment slot="body">
-                <TableRow>
-                    <TableCell><h3>Metalizz</h3></TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>
-                        <p>
-                            840 Chemin de chabanne,
-                            26270 Loriol sur drome
-                        </p>
-                    </TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>
-                        <DetailLabel>{data.order.expand?.issuer.email}</DetailLabel>
-                    </TableCell>
-                </TableRow>
-            </svelte:fragment>
-        </Table>
-        <Table backgroundColor="dark:bg-zinc-700">
-            <svelte:fragment slot="body">
-                <TableRow>
-                    <TableCell><h3>{data.order.expand?.supplier.name}</h3></TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell><p>{data.order.expand?.supplier.address}</p></TableCell>
-                </TableRow>
-            </svelte:fragment>
-        </Table>
+        <Wrapper2>
+            <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
+                <svelte:fragment slot="body">
+                    <TableRow>
+                        <TableCell><h3>Metalizz</h3></TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>
+                            <p>
+                                840 Chemin de chabanne,
+                                26270 Loriol sur drome
+                            </p>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>
+                            <DetailLabel>{data.order.expand?.issuer.email}</DetailLabel>
+                        </TableCell>
+                    </TableRow>
+                </svelte:fragment>
+            </Table>
+        </Wrapper2>
+
+        <Wrapper2>
+            <Table embeded={true}>
+                <svelte:fragment slot="body">
+                    <TableRow>
+                        <TableCell><h3>{data.order.expand?.supplier.name}</h3></TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell><p>{data.order.expand?.supplier.address}</p></TableCell>
+                    </TableRow>
+                </svelte:fragment>
+            </Table>
+        </Wrapper2>
     </Grid>
 
     <Table backgroundColor="dark:bg-zinc-700">
