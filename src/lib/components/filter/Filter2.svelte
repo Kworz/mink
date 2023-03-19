@@ -74,7 +74,7 @@
 <Flex direction="col" gap={2}>
     <Input bind:value={tempFilter} placeholder={"Filtre"} on:keydown={inputKeyUp}>
         <svelte:fragment slot="before">
-            {#if filters.length > 0}
+            {#if filters.filter(k => k.hidden === undefined).length > 0}
                 <Flex class="ml-2" gap={2}>
                     {#each filters.filter(k => k.hidden !== true) as filter, index}
                         <FilterLabel bind:filter on:click={() => filters = filters.filter((k, i) => i !== index)} />

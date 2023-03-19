@@ -15,17 +15,15 @@
 
 <Wrapper>
     <h3>Visualisation de l'assemblage {data.assembly.name}.</h3>
-
-    <Flex gap={6} class="mt-6" items="start">
-        <Wrapper2 class="w-fit shrink-0">
-            {#key data.assembly.id}
-                <AssemblyTree bind:assembly={data.assembly} />
-                <!--<AssemblyViewer bind:assembly={data.assembly} />-->
-            {/key}
-        </Wrapper2>
-
-        <Wrapper2 class="grow">
-            <AssemblyEditor />
-        </Wrapper2>
-    </Flex>
 </Wrapper>
+
+<Flex gap={6} class="mt-6" items="start">
+    <Wrapper2 class="w-fit shrink-0">
+        {#key data.assembly.id}
+            <AssemblyTree bind:assembly={data.assembly} />
+            <!--<AssemblyViewer bind:assembly={data.assembly} />-->
+        {/key}
+    </Wrapper2>
+
+    <AssemblyEditor />
+</Flex>

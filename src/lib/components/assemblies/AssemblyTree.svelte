@@ -19,13 +19,11 @@
     import { getAssemblyContext } from "./assemblyContext";
 
     export let assembly: AssembliesResponse;
-
     export let nestLevel = 20;
 
-    let childRelations: AssembliesRelationsReponseExpanded[] = [];
-
     const { selectedAssembly } = getAssemblyContext();
-    
+
+    let childRelations: AssembliesRelationsReponseExpanded[] = [];
     const refreshRelations = async () => childRelations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${assembly.id}"`, expand: 'assembly_child,article_child.supplier' });
 
     onMount(async () => {
@@ -36,16 +34,16 @@
 
 </script>
 
-<div>
-    <AssemblyButton zIndex={nestLevel} on:click={() => $selectedAssembly = assembly}>
-        <Icon src={FolderOpen} class="inline w-5 h-5 mr-2" />
-        {assembly.name}
-    </AssemblyButton>
+<AssemblyButton zIndex={nestLevel} selected={assembly.id === $selectedAssembly?.id} on:click={() => $selectedAssembly = assembly}>
+    <Icon src={FolderOpen} class="inline w-5 h-5 mr-2" />
+    {assembly.name}
+</AssemblyButton>
 
+{#if assembliesChildren.length > 0}
     <div class="ml-12 flex flex-col gap-6 mt-6">
         {#each assembliesChildren as assembly_child}
             <svelte:self assembly={assembly_child.expand?.assembly_child} nestLevel={nestLevel - 1} />
         {/each}
     </div>
-</div>
+{/if}
 

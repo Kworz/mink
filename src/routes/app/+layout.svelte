@@ -8,7 +8,7 @@
 
 </script>
 
-<Flex gap={0} class="h-screen overflow-hidden">
+<Flex gap={0} class="h-screen w-screen overflow-hidden">
     <Menu>
         <MenuSeparator>Outils</MenuSeparator>
         <MenuItem icon={QrCode} href="/app/scanner" label="Scanner QRCode" />
@@ -31,7 +31,7 @@
         <MenuItem icon={Wrench} href="/app/fabrication_orders" label="Ordres de fabrication" />
 
     </Menu>
-    <div class="grow p-6 overflow-y-scroll">
+    <div class="grow p-6 overflow-y-scroll overflow-x-hidden">
         <TopBar/>
         <slot />
     </div>
