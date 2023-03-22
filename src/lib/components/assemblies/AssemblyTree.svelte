@@ -11,7 +11,7 @@
 
     import { page } from "$app/stores";
     import { Collections, type AssembliesRelationsResponse, type AssembliesResponse } from "$lib/DBTypes";
-    import { FolderOpen } from "@steeze-ui/heroicons";
+    import { Folder, FolderOpen } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { onMount } from "svelte";
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
@@ -35,12 +35,12 @@
 </script>
 
 <AssemblyButton zIndex={nestLevel} selected={assembly.id === $selectedAssembly?.id} on:click={() => $selectedAssembly = assembly}>
-    <Icon src={FolderOpen} class="inline w-5 h-5 mr-2" />
+    <Icon src={assembly.id !== $selectedAssembly?.id ? Folder : FolderOpen} class="inline w-5 h-5 mr-2" />
     {assembly.name}
 </AssemblyButton>
 
 {#if assembliesChildren.length > 0}
-    <div class="ml-12 flex flex-col gap-6 mt-6">
+    <div class="ml-12 flex flex-col gap-6 items-start {nestLevel === 20 ? "mt-6" : ""}">
         {#each assembliesChildren as assembly_child}
             <svelte:self assembly={assembly_child.expand?.assembly_child} nestLevel={nestLevel - 1} />
         {/each}

@@ -46,9 +46,9 @@
 
 </script>
 
-<Flex direction="col" items="start" gap={4}>
+<Flex direction="col" items="start" gap={4} class="w-full">
     {#if selectedArticle === undefined}
-        <Flex gap={6} wrap={"nowrap"} class="overflow-x-scroll snap-x">
+        <Flex gap={6} wrap={"nowrap"} class="w-full overflow-x-scroll snap-x">
             {#each articleList as article (article.id)}
                 <button on:click|preventDefault={() => { selectedArticle = article }} class="aspect-[8] snap-start snap-mandatory text-left hover:bg-violet-500/10 duration-300 rounded-md p-6 drop-shadow-sm bg-gray-200 dark:bg-zinc-700">
                     <ArticleRow bind:article />

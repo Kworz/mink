@@ -45,7 +45,7 @@
             exitButton.click();
     }
 
-    $: style = baseStyle + " " + backColors;
+    $: style = baseStyle + " " + backColors + " " + $$props.class;
 
 </script>
 

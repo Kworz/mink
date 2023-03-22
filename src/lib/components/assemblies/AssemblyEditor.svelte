@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from "$app/stores";
-    import { Collections, type ArticleResponse, type AssembliesRelationsRecord } from "$lib/DBTypes";
-    import { afterUpdate, onMount } from "svelte";
+    import { Collections, type AssembliesRelationsRecord } from "$lib/DBTypes";
+    import { onMount } from "svelte";
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import ArticleFinder from "../article/ArticleFinder.svelte";
     import ArticleRow from "../article/ArticleRow.svelte";
@@ -17,6 +17,7 @@
     import Wrapper from "../Wrapper.svelte";
 
     import { getAssemblyContext } from "./assemblyContext";
+    import AssemblyPreview from "./AssemblyPreview.svelte";
     import type { AssembliesRelationsReponseExpanded } from "./AssemblyTree.svelte";
     const { selectedAssembly } = getAssemblyContext();
 
@@ -24,6 +25,9 @@
 
     let addArticleSelected: ArticleResponseExpanded | undefined = undefined;
     let addArticleQuantity: number = 1;
+
+    let addSubAssemblySelected: string | undefined = undefined;
+    let addSubAssemblyQuantity: number = 1;
 
     const addArticle = async () => {
 
@@ -51,6 +55,32 @@
 
         await refreshData();
 
+    }
+
+    const addSubAssembly = async () => {
+
+        if($selectedAssembly === undefined)
+            return;
+        
+        if(addSubAssemblySelected === undefined)
+            return;
+        
+        if(addSubAssemblyQuantity < 1)
+            return;
+        
+        const relation = {
+            parent: $selectedAssembly.id,
+            assembly_child: addSubAssemblySelected,
+            quantity: addSubAssemblyQuantity
+        } satisfies AssembliesRelationsRecord;
+
+        await $page.data.pb?.collection(Collections.AssembliesRelations).create(relation);
+
+        addSubAssemblyQuantity = 1;
+        addSubAssemblySelected = undefined;
+
+        await refreshData();
+        
     }
 
     let confirmDelete: string | undefined = undefined;
@@ -83,7 +113,7 @@
         await refreshData();
     });
 
-    const refreshData = async () => relations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${$selectedAssembly.id}"`, expand: 'assembly_child,article_child.supplier' });
+    const refreshData = async () => relations = await $page.data.pb?.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${$selectedAssembly.id}"`, expand: 'assembly_child,article_child.supplier' }) ?? [];
 
     $: subAssemblies = relations.filter(r => r.assembly_child !== undefined && r.expand?.assembly_child !== undefined);
     $: subArticles = relations.filter(r => r.article_child !== undefined && r.expand?.article_child !== undefined);
@@ -98,14 +128,16 @@
         {#if subAssemblies.length > 0}
             <Table marginTop="">
                 <svelte:fragment slot="head">
-                    <TableHead>Sous assemblage</TableHead>
+                    <TableHead>Sous assemblage ({subAssemblies.length})</TableHead>
                     <TableHead>Quantité</TableHead>
                     <TableHead>Supprimer</TableHead>
                 </svelte:fragment>
                 <svelte:fragment slot="body">
                     {#each subAssemblies as subAssembly}
                         <TableRow>
-                            <TableCell><a href="/app/assemblies/{subAssembly.expand?.assembly_child.id}">{subAssembly.expand?.assembly_child.name}</a></TableCell>
+                            <TableCell>
+                                <AssemblyPreview assembly={subAssembly.expand.assembly_child} />
+                            </TableCell>
                             <TableCell>
                                 <Flex items="center">
                                     <FormInput name="" type="number" bind:value={subAssembly.quantity} />
@@ -120,18 +152,11 @@
                 </svelte:fragment>
             </Table>
         {/if}
-    
-        <Wrapper>
-            <h4 class="mb-4">Ajouter un sous assemblage</h4>
-
-            <FormInput name="ss_asm" label="Sous assemblage" labelMandatory={true} type="select" />
-
-        </Wrapper>
 
         {#if subArticles.length > 0}
             <Table marginTop="">
                 <svelte:fragment slot="head">
-                    <TableHead>Article</TableHead>
+                    <TableHead>Article ({subArticles.length})</TableHead>
                     <TableHead>Quantité</TableHead>
                     <TableHead>Supprimer</TableHead>
                 </svelte:fragment>
@@ -156,18 +181,38 @@
             </Table>
         {/if}
 
+        <Grid cols={2} gap={6} items="start">
+        
+            <Wrapper>
+                <Flex direction="col" items="start">
+                    <h4>Ajouter un sous assemblage</h4>
+                    <FormInput name="ss_asm" label="Sous assemblage" labelMandatory={true} type="select" bind:value={addSubAssemblySelected}>
+                        {#await $page.data.pb.collection(Collections.Assemblies).getFullList()}
+                            <option disabled>Chargement</option>
+                        {:then assemblies} 
+                            {#each assemblies as assembly}
+                                <option value={assembly.id}>{assembly.name}</option>
+                            {/each}
+                        {/await}
+                    </FormInput>
+                    <FormInput name="qty" label="Quantité" labelMandatory={true} type="number" min={1} bind:value={addSubAssemblyQuantity} />
+                    <Button on:click={addSubAssembly}>Ajouter</Button>
+                </Flex>
+            </Wrapper>
 
-        <Wrapper>
-            <h4 class="mb-4">Ajouter un article</h4>
+            <Wrapper>
+                <h4 class="mb-4">Ajouter un article</h4>
 
-            <Flex direction="col" items="start">
-                <ArticleFinder bind:selectedArticle={addArticleSelected} filters={subArticles.map(a => { return { field: "id", operator: "!=", value: a.article_child, hidden: true}})} />
-                {#if addArticleSelected}
-                    <FormInput name="quantity" label="Quantité" labelMandatory={true} type="number" bind:value={addArticleQuantity} />
-                    <Button on:click={addArticle}>Ajouter</Button>
-                {/if}
-            </Flex>
-        </Wrapper>
+                <Flex direction="col" items="start">
+                    <ArticleFinder bind:selectedArticle={addArticleSelected} filters={subArticles.map(a => { return { field: "id", operator: "!=", value: a.article_child, hidden: true}})} />
+                    {#if addArticleSelected}
+                        <FormInput name="quantity" label="Quantité" labelMandatory={true} type="number" bind:value={addArticleQuantity} />
+                        <Button on:click={addArticle}>Ajouter</Button>
+                    {/if}
+                </Flex>
+            </Wrapper>
+        
+        </Grid>
     
     </Grid> 
 {/if}

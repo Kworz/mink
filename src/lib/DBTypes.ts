@@ -89,6 +89,7 @@ export type AssembliesRecord = {
 	name: string
 	description?: string
 	favorite?: boolean
+	pinned_file?: string
 	attached_files?: string[]
 }
 

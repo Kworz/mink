@@ -8,6 +8,6 @@
 
 </script>
 
-<button class="{selected ? "hover:bg-violet-400 hover:text-violet-800 bg-violet-500" : "hover:bg-violet-300 hover:text-violet-900 bg-white dark:bg-zinc-800"}  rounded-md py-2 px-3 font-medium duration-200 drop-shadow-lg relative text-left {lines}" on:click style:z-index={zIndex}>
+<button class="{selected ? "hover:bg-violet-400 hover:text-violet-800 bg-violet-500 text-white" : "hover:bg-violet-300 hover:text-violet-900 bg-white dark:bg-zinc-800"} rounded-md py-2 px-3 font-medium duration-200 drop-shadow-lg relative text-left {lines}" on:click style:z-index={zIndex}>
     <slot />
 </button>
