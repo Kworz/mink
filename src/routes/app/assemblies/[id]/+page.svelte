@@ -22,6 +22,8 @@ import { setAssemblyContext } from "$lib/components/assemblies/assemblyContext";
     export let form: ActionData;
 
     let mode: "nested" | "flat" = "nested";
+    let flatMode: "assembly" | "article" = "article";
+
     let editAssembly = false;
     let editAssemblyDeleteThumbnail = false; 
 
@@ -98,6 +100,7 @@ import { setAssemblyContext } from "$lib/components/assemblies/assemblyContext";
         <AssemblyEditor />
     </Flex>
 {:else}
-    <AssemblyFlat bind:assembly={data.assembly} />
+    <Button on:click={() => flatMode = (flatMode === "assembly") ? "article" : "assembly"} class="mt-6">{flatMode === "assembly" ? "Vue des articles" : "Vue des assemblages"}</Button>
+    <AssemblyFlat bind:assembly={data.assembly} bind:flatMode />
 {/if}
 

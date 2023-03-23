@@ -15,9 +15,16 @@
 
     export let assembly: AssembliesResponse;
 
+    export let flatMode: "assembly" | "article" = "article"; 
+
     type FlattenAssemblyRelations = {
         article: ArticleResponseExpanded;
         subAssemblies: Array<AssembliesResponse>;
+        quantity: number;
+    }
+
+    type FlattenAssemblySubAssembliesRelations = {
+        subAssembly: AssembliesResponse;
         quantity: number;
     }
 
@@ -63,48 +70,126 @@
         return flattenRelations;
     }
 
+    const flattenAssemblySubAssemblies = async (assembly: AssembliesResponse): Promise<Array<FlattenAssemblySubAssembliesRelations>> => {
+            
+            const flattenRelationsSub: Array<FlattenAssemblySubAssembliesRelations> = [];
+    
+            async function subFlattenSubAssemblies (assembly: AssembliesResponse, quantity: number = 1)
+            {
+                const relations = await $pocketbase.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsResponse>({ filter: `parent="${assembly.id}"`, expand: 'article_child.supplier,assembly_child' }) ?? [];
+    
+                for(const relation of relations)
+                {
+                    console.log(assembly, relation)
+                    if(relation.assembly_child !== '' && relation.expand?.assembly_child !== undefined)
+                    {
+                        const flatRelation = flattenRelationsSub.find(fr => fr.subAssembly.id === relation.assembly_child)
+                        if(flatRelation)
+                        {
+                            flatRelation.quantity += (relation.quantity * quantity);
+                        }
+                        else
+                        {
+                            flattenRelationsSub.push({
+                                subAssembly: relation.expand.assembly_child,
+                                quantity: (relation.quantity * quantity)
+                            });
+                        }
+
+                        await subFlattenSubAssemblies(relation.expand?.assembly_child, relation.quantity * quantity);
+                    }
+                }
+                
+            }
+    
+            await subFlattenSubAssemblies(assembly);
+            return flattenRelationsSub;
+    }
+
 </script>
 
-{#await flattenAssembly(assembly)}
-    <Wrapper class="mt-6">
-        <h4>Chargement</h4>
-    </Wrapper>
-{:then flattenAssemblyResult} 
-    <Table>
-        <svelte:fragment slot="head">
-            <TableHead>Article ({flattenAssemblyResult.length})</TableHead>
-            <TableHead>Assemblages</TableHead>
-            <TableHead>Quantité totale</TableHead>
-            <TableHead>Prix</TableHead>
-        </svelte:fragment>
-    
-        <svelte:fragment slot="body">
-            {#each flattenAssemblyResult as far}
-                <TableRow>
-                    <TableCell><ArticleRow article={far.article} displayStock={true} displayApprox={true} /></TableCell>
-                    <TableCell>
-                        <Flex direction="col" items="start">
-                            {#each far.subAssemblies as assembly}
-                                <AssemblyPreview {assembly} />
-                            {/each}
-                        </Flex>
-                    </TableCell>
-                    <TableCell>{far.quantity}</TableCell>
-                    <TableCell><Price value={far.quantity * (far.article.price ?? 0)} /></TableCell>
-                </TableRow>
-            {/each}
-            
-        </svelte:fragment>
+{#if flatMode === "article"}
 
-        <svelte:fragment slot="foot">
-            <TableRow>
-                <TableCell colspan={3}>
-                    Total prix
-                </TableCell>
-                <TableCell>
-                    <Price value={flattenAssemblyResult.map(far => (far.article.price ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} />
-                </TableCell>
-            </TableRow>
-        </svelte:fragment>
-    </Table>
-{/await}
+    {#await flattenAssembly(assembly)}
+        <Wrapper class="mt-6">
+            <h4>Chargement</h4>
+        </Wrapper>
+    {:then flattenAssemblyResult} 
+        <Table>
+            <svelte:fragment slot="head">
+                <TableHead>Article ({flattenAssemblyResult.length})</TableHead>
+                <TableHead>Assemblages</TableHead>
+                <TableHead>Quantité totale</TableHead>
+                <TableHead>Prix</TableHead>
+            </svelte:fragment>
+        
+            <svelte:fragment slot="body">
+                {#each flattenAssemblyResult as far}
+                    <TableRow>
+                        <TableCell><ArticleRow article={far.article} displayStock={true} displayApprox={true} /></TableCell>
+                        <TableCell>
+                            <Flex direction="col" items="start">
+                                {#each far.subAssemblies as assembly}
+                                    <AssemblyPreview {assembly} />
+                                {/each}
+                            </Flex>
+                        </TableCell>
+                        <TableCell>{far.quantity}</TableCell>
+                        <TableCell><Price value={far.quantity * (far.article.price ?? 0)} /></TableCell>
+                    </TableRow>
+                {/each}
+                
+            </svelte:fragment>
+
+            <svelte:fragment slot="foot">
+                <TableRow>
+                    <TableCell colspan={3}>
+                        Total prix
+                    </TableCell>
+                    <TableCell>
+                        <Price value={flattenAssemblyResult.map(far => (far.article.price ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} />
+                    </TableCell>
+                </TableRow>
+            </svelte:fragment>
+        </Table>
+    {/await}
+
+{:else}
+
+    {#await flattenAssemblySubAssemblies(assembly)}
+        <Wrapper class="mt-6">
+            <h4>Chargement</h4>
+        </Wrapper>
+    {:then flattenAssemblySubAssembliesResult} 
+        <Table>
+            <svelte:fragment slot="head">
+                <TableHead>Assemblages ({flattenAssemblySubAssembliesResult.length})</TableHead>
+                <TableHead>Quantité totale</TableHead>
+                <TableHead>Durée d'assemblage</TableHead>
+            </svelte:fragment>
+        
+            <svelte:fragment slot="body">
+                {#each flattenAssemblySubAssembliesResult as far}
+                    <TableRow>
+                        <TableCell><AssemblyPreview assembly={far.subAssembly} /></TableCell>
+                        <TableCell>{far.quantity}</TableCell>
+                        <TableCell>{(far.quantity * (far.subAssembly.assembly_time ?? 0) )|| "—"} Heures</TableCell>
+                    </TableRow>
+                {/each}
+                
+            </svelte:fragment>
+
+            <svelte:fragment slot="foot">
+                <TableRow>
+                    <TableCell colspan={2}>
+                        Total
+                    </TableCell>
+                    <TableCell>
+                        {flattenAssemblySubAssembliesResult.map(far => (far.subAssembly.assembly_time ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} Heures
+                    </TableCell>
+                </TableRow>
+            </svelte:fragment>
+        </Table>
+    {/await}
+
+{/if}
