@@ -11,6 +11,7 @@
 
     import { page } from "$app/stores";
     import { Collections, type AssembliesRelationsResponse, type AssembliesResponse } from "$lib/DBTypes";
+    import { pocketbase } from "$lib/pocketbase";
     import { Folder, FolderOpen } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { onMount } from "svelte";
@@ -24,7 +25,7 @@
     const { selectedAssembly } = getAssemblyContext();
 
     let childRelations: AssembliesRelationsReponseExpanded[] = [];
-    const refreshRelations = async () => childRelations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${assembly.id}"`, expand: 'assembly_child,article_child.supplier' });
+    const refreshRelations = async () => childRelations = await $pocketbase.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${assembly.id}"`, expand: 'assembly_child,article_child.supplier' });
 
     onMount(async () => {
         await refreshRelations();

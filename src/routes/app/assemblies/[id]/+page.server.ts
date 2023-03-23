@@ -11,3 +11,23 @@ export const load = (async ({ locals, params }) => {
     };
 
 }) satisfies PageServerLoad;
+
+export const actions: Actions = {
+    editAssembly: async ({ locals, request, params }) => {
+        try
+        {
+            const form = await request.formData();
+
+            if((form.get("thumbnail") as (Blob | null))?.size === 0)
+                form.delete("thumbnail");
+
+            await locals.pb.collection(Collections.Assemblies).update(params.id, form);
+
+            return { editAssembly: { success: "Successfully updated assembly" }};
+        }
+        catch(ex)
+        {
+            return { editAssembly: { error: ex.toJSON() }};
+        }
+    } 
+}

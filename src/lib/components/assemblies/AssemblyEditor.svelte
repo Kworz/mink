@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { page } from "$app/stores";
+    import { browser } from "$app/environment";
     import { Collections, type AssembliesRelationsRecord } from "$lib/DBTypes";
+    import { pocketbase } from "$lib/pocketbase";
     import { onMount } from "svelte";
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import ArticleFinder from "../article/ArticleFinder.svelte";
@@ -48,7 +49,7 @@
 
         } satisfies AssembliesRelationsRecord;
 
-        await $page.data.pb?.collection(Collections.AssembliesRelations).create(relation);
+        await $pocketbase.collection(Collections.AssembliesRelations).create(relation);
 
         addArticleSelected = undefined;
         addArticleQuantity = 1;
@@ -74,7 +75,7 @@
             quantity: addSubAssemblyQuantity
         } satisfies AssembliesRelationsRecord;
 
-        await $page.data.pb?.collection(Collections.AssembliesRelations).create(relation);
+        await $pocketbase?.collection(Collections.AssembliesRelations).create(relation);
 
         addSubAssemblyQuantity = 1;
         addSubAssemblySelected = undefined;
@@ -89,7 +90,7 @@
 
         if(confirmDelete === relation)
         {
-            await $page.data.pb?.collection(Collections.AssembliesRelations).delete(relation);
+            await $pocketbase?.collection(Collections.AssembliesRelations).delete(relation);
             await refreshData();
         }
         else
@@ -104,16 +105,17 @@
         if(relationObj === undefined)
             return;
 
-        await $page.data.pb?.collection(Collections.AssembliesRelations).update(relation, { quantity: relationObj.quantity });
+        await $pocketbase?.collection(Collections.AssembliesRelations).update(relation, { quantity: relationObj.quantity });
 
         await refreshData();
     }
 
     onMount(async () => {
-        await refreshData();
+        if(browser)
+            await refreshData();
     });
 
-    const refreshData = async () => relations = await $page.data.pb?.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${$selectedAssembly.id}"`, expand: 'assembly_child,article_child.supplier' }) ?? [];
+    const refreshData = async () => relations = await $pocketbase.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${$selectedAssembly.id}"`, expand: 'assembly_child,article_child.supplier' }) ?? [];
 
     $: subAssemblies = relations.filter(r => r.assembly_child !== undefined && r.expand?.assembly_child !== undefined);
     $: subArticles = relations.filter(r => r.article_child !== undefined && r.expand?.article_child !== undefined);
@@ -136,7 +138,7 @@
                     {#each subAssemblies as subAssembly}
                         <TableRow>
                             <TableCell>
-                                <AssemblyPreview assembly={subAssembly.expand.assembly_child} />
+                                <AssemblyPreview assembly={subAssembly.expand.assembly_child} displayThumb={true} />
                             </TableCell>
                             <TableCell>
                                 <Flex items="center">
@@ -187,7 +189,7 @@
                 <Flex direction="col" items="start">
                     <h4>Ajouter un sous assemblage</h4>
                     <FormInput name="ss_asm" label="Sous assemblage" labelMandatory={true} type="select" bind:value={addSubAssemblySelected}>
-                        {#await $page.data.pb.collection(Collections.Assemblies).getFullList()}
+                        {#await $pocketbase.collection(Collections.Assemblies).getFullList()}
                             <option disabled>Chargement</option>
                         {:then assemblies} 
                             {#each assemblies as assembly}

@@ -1,10 +1,9 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
+    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
@@ -12,10 +11,9 @@ import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { Collections, type AssembliesRecord, type AssembliesResponse } from "$lib/DBTypes";
+    import { pocketbase } from "$lib/pocketbase";
     import { PlusCircle, Star } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { Collection } from "pocketbase";
-    import { create } from "qrcode";
     import type { PageData } from "./$types";
 
     export let data: PageData;
@@ -25,7 +23,7 @@ import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     let createAssemblyName = "";
     let createAssemblyDesc = "";
 
-    const createAssemblyFn = async () => {
+    const createAssemblyFn = async () => {
         if(createAssemblyName === "")
             return;
         
@@ -39,7 +37,7 @@ import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
 
         } satisfies AssembliesRecord;
         
-        const createdAssembly = await $page.data.pb?.collection(Collections.Assemblies).create<AssembliesResponse>(assembly);
+        const createdAssembly = await $pocketbase.collection(Collections.Assemblies).create<AssembliesResponse>(assembly);
 
         goto(`/app/assemblies/${createdAssembly.id}`);
     }

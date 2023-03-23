@@ -90,7 +90,9 @@ export type AssembliesRecord = {
 	description?: string
 	favorite?: boolean
 	pinned_file?: string
+	thumbnail?: string
 	attached_files?: string[]
+	assembly_time?: number
 }
 
 export type AssembliesRelationsRecord = {

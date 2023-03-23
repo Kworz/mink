@@ -1,14 +1,16 @@
 <script lang="ts">
 
-    import { page } from "$app/stores";
     import { Collections, type AssembliesRelationsResponse, type AssembliesResponse } from "$lib/DBTypes";
+    import { pocketbase } from "$lib/pocketbase";
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import ArticleRow from "../article/ArticleRow.svelte";
+    import Price from "../formatters/Price.svelte";
     import Flex from "../layout/flex.svelte";
     import Table from "../table/Table.svelte";
     import TableCell from "../table/TableCell.svelte";
     import TableHead from "../table/TableHead.svelte";
     import TableRow from "../table/TableRow.svelte";
+    import Wrapper from "../Wrapper.svelte";
     import AssemblyPreview from "./AssemblyPreview.svelte";
 
     export let assembly: AssembliesResponse;
@@ -25,7 +27,7 @@
 
         async function subFlatten (assembly: AssembliesResponse, quantity: number = 1)
         {
-            const relations = await $page.data.pb?.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsResponse>({ filter: `parent="${assembly.id}"`, expand: 'article_child.supplier' }) ?? [];
+            const relations = await $pocketbase.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsResponse>({ filter: `parent="${assembly.id}"`, expand: 'article_child.supplier' }) ?? [];
 
             for(const relation of relations)
             {
@@ -48,7 +50,7 @@
                 }
                 else if(relation.assembly_child !== '')
                 {
-                    const subAssembly = await $page.data.pb?.collection(Collections.Assemblies).getOne<AssembliesResponse>(relation.assembly_child);
+                    const subAssembly = await $pocketbase?.collection(Collections.Assemblies).getOne<AssembliesResponse>(relation.assembly_child);
 
                     if(subAssembly !== undefined)
                         await subFlatten(subAssembly, relation.quantity);
@@ -64,19 +66,22 @@
 </script>
 
 {#await flattenAssembly(assembly)}
-    Chargement
+    <Wrapper class="mt-6">
+        <h4>Chargement</h4>
+    </Wrapper>
 {:then flattenAssemblyResult} 
     <Table>
         <svelte:fragment slot="head">
             <TableHead>Article ({flattenAssemblyResult.length})</TableHead>
             <TableHead>Assemblages</TableHead>
             <TableHead>Quantité totale</TableHead>
+            <TableHead>Prix</TableHead>
         </svelte:fragment>
     
         <svelte:fragment slot="body">
             {#each flattenAssemblyResult as far}
                 <TableRow>
-                    <TableCell><ArticleRow article={far.article} /></TableCell>
+                    <TableCell><ArticleRow article={far.article} displayStock={true} displayApprox={true} /></TableCell>
                     <TableCell>
                         <Flex direction="col" items="start">
                             {#each far.subAssemblies as assembly}
@@ -85,9 +90,21 @@
                         </Flex>
                     </TableCell>
                     <TableCell>{far.quantity}</TableCell>
+                    <TableCell><Price value={far.quantity * (far.article.price ?? 0)} /></TableCell>
                 </TableRow>
             {/each}
             
+        </svelte:fragment>
+
+        <svelte:fragment slot="foot">
+            <TableRow>
+                <TableCell colspan={3}>
+                    Total prix
+                </TableCell>
+                <TableCell>
+                    <Price value={flattenAssemblyResult.map(far => (far.article.price ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} />
+                </TableCell>
+            </TableRow>
         </svelte:fragment>
     </Table>
 {/await}

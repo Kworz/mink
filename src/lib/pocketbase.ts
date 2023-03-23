@@ -1,4 +1,5 @@
 import PocketBase from "pocketbase";
+import { writable } from "svelte/store";
 
 export const getPocketbase = async (cookie: string, baseURL = `http://${window.location.hostname}:8090/`): Promise<PocketBase> => {
 
@@ -18,3 +19,5 @@ export const getPocketbase = async (cookie: string, baseURL = `http://${window.l
 
     return pb;
 }
+
+export const pocketbase = writable<PocketBase>(await getPocketbase(document.cookie));

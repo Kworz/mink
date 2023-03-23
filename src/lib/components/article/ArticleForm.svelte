@@ -1,7 +1,7 @@
 <script lang="ts">
     import { browser } from "$app/environment";
     import { Collections, type ArticleStoresResponse, type SuppliersResponse } from "$lib/DBTypes";
-    import { getPocketbase } from "$lib/pocketbase";
+    import { pocketbase } from "$lib/pocketbase";
     import { onMount } from "svelte";
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import FormInput from "../FormInput.svelte";
@@ -17,9 +17,8 @@
         if(!browser)
             return;
         try {
-            const pb = await getPocketbase(document.cookie);  
-            suppliers = await pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
-            stores = await pb.collection(Collections.ArticleStores).getFullList<ArticleStoresResponse>();          
+            suppliers = await $pocketbase.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
+            stores = await $pocketbase.collection(Collections.ArticleStores).getFullList<ArticleStoresResponse>();          
         }
         catch(ex)
         {
@@ -41,7 +40,7 @@
     
     <h3 class="my-2">Informations complémentaires</h3>
     
-    <FormInput type="number" label="Prix" name="price" step={0.01} value={article?.price} />
+    <FormInput type="number" label="Prix" name="price" step={0.0001} value={article?.price} />
     <FormInput type="number" name="order_quantity" label="Quantité minimale de commande" value={article?.order_quantity} min={1} />
 
     <FormInput type="select" name="supplier" label="Fournisseur" value={article?.supplier} multiple={true}>
