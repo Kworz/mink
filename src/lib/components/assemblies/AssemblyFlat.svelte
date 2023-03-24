@@ -1,8 +1,8 @@
 <script lang="ts">
-
-    import { Collections, type AssembliesRelationsResponse, type AssembliesResponse } from "$lib/DBTypes";
+    import type { AssembliesResponse } from "$lib/DBTypes";
     import { pocketbase } from "$lib/pocketbase";
-    import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
+    import { flattenAssembly, flattenAssemblySubAssemblies } from "./assemblyFlatener";
+
     import ArticleRow from "../article/ArticleRow.svelte";
     import Price from "../formatters/Price.svelte";
     import FormInput from "../FormInput.svelte";
@@ -18,99 +18,6 @@
 
     let flatMode: "assembly" | "article" = "article"; 
 
-    type FlattenAssemblyRelations = {
-        article: ArticleResponseExpanded;
-        subAssemblies: Array<AssembliesResponse>;
-        quantity: number;
-    }
-
-    type FlattenAssemblySubAssembliesRelations = {
-        subAssembly: AssembliesResponse;
-        quantity: number;
-    }
-
-    const flattenAssembly = async (assembly: AssembliesResponse): Promise<Array<FlattenAssemblyRelations>> => {
-
-        const flattenRelations: Array<FlattenAssemblyRelations> = [];
-
-        async function subFlatten (assembly: AssembliesResponse, quantity: number = 1)
-        {
-            const relations = await $pocketbase.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsResponse>({ filter: `parent="${assembly.id}"`, expand: 'article_child.supplier' }) ?? [];
-
-            for(const relation of relations)
-            {
-                if(relation.article_child !== '')
-                {
-                    const flatRelation = flattenRelations.find(fr => fr.article.id === relation.article_child)
-                    if(flatRelation)
-                    {
-                        flatRelation.quantity += (relation.quantity * quantity);
-                        flatRelation.subAssemblies.push(assembly)
-                    }
-                    else
-                    {
-                        flattenRelations.push({
-                            article: relation.expand.article_child,
-                            subAssemblies: [assembly],
-                            quantity: (relation.quantity * quantity)
-                        });
-                    }
-                }
-                else if(relation.assembly_child !== '')
-                {
-                    const subAssembly = await $pocketbase?.collection(Collections.Assemblies).getOne<AssembliesResponse>(relation.assembly_child);
-
-                    if(subAssembly !== undefined)
-                        await subFlatten(subAssembly, relation.quantity);
-                }
-            }
-            
-        }
-
-        await subFlatten(assembly);
-        return flattenRelations.sort((a, b) => b.subAssemblies.length - a.subAssemblies.length);
-    }
-
-    const flattenAssemblySubAssemblies = async (assembly: AssembliesResponse): Promise<Array<FlattenAssemblySubAssembliesRelations>> => {
-            
-            const flattenRelationsSub: Array<FlattenAssemblySubAssembliesRelations> = [];
-    
-            async function subFlattenSubAssemblies (assembly: AssembliesResponse, quantity: number = 1)
-            {
-                const relations = await $pocketbase.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsResponse>({ filter: `parent="${assembly.id}"`, expand: 'article_child.supplier,assembly_child' }) ?? [];
-    
-                for(const relation of relations)
-                {
-                    console.log(assembly, relation)
-                    if(relation.assembly_child !== '' && relation.expand?.assembly_child !== undefined)
-                    {
-                        const flatRelation = flattenRelationsSub.find(fr => fr.subAssembly.id === relation.assembly_child)
-                        if(flatRelation)
-                        {
-                            flatRelation.quantity += (relation.quantity * quantity);
-                        }
-                        else
-                        {
-                            flattenRelationsSub.push({
-                                subAssembly: relation.expand.assembly_child,
-                                quantity: (relation.quantity * quantity)
-                            });
-                        }
-
-                        await subFlattenSubAssemblies(relation.expand?.assembly_child, relation.quantity * quantity);
-                    }
-                }
-                
-            }
-            flattenRelationsSub.push({
-                subAssembly: assembly,
-                quantity: 1
-            });
-    
-            await subFlattenSubAssemblies(assembly);
-            return flattenRelationsSub;
-    }
-
 </script>
 
 <Wrapper class="mt-6">
@@ -124,7 +31,7 @@
 
     {#if flatMode === "article"}
     
-        {#await flattenAssembly(assembly)}
+        {#await flattenAssembly(assembly, $pocketbase)}
             <h4>Chargement</h4>
         {:then flattenAssemblyResult} 
             <Table embeded={true}>
@@ -168,7 +75,7 @@
     
     {:else}
     
-        {#await flattenAssemblySubAssemblies(assembly)}
+        {#await flattenAssemblySubAssemblies(assembly, $pocketbase)}
             <h4>Chargement</h4>
         {:then flattenAssemblySubAssembliesResult} 
             <Table embeded={true}>
