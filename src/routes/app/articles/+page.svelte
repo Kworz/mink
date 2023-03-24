@@ -20,6 +20,7 @@
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
     import Store from "$lib/components/store/Store.svelte";
+    import Price from "$lib/components/formatters/Price.svelte";
     export let data: PageData;
 
     let filters: Array<FilterCondition> = [];
@@ -124,8 +125,8 @@
                         </Flex>
                     </TableCell>
                     <TableCell>{article.manufacturer}</TableCell>
-                    <TableCell>{article.price ?? "—"} €</TableCell>
-                    <TableCell>{(article.price) ?? 0 * (Number(article.quantity) ?? 0)} €</TableCell>
+                    <TableCell><Price value={article.price ?? 0} /></TableCell>
+                    <TableCell><Price value={(article.price ?? 0) * (article.quantity ?? 0)} /></TableCell>
                 </TableRow>
             {/each}
         </svelte:fragment>
