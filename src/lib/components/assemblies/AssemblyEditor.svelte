@@ -38,7 +38,7 @@
         if(addArticleSelected === undefined)
             return;
         
-        if(addArticleQuantity < 1)
+        if(addArticleQuantity <= 0)
             return;
 
         const relation = {
