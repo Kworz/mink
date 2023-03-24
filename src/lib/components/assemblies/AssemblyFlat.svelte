@@ -5,6 +5,7 @@
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import ArticleRow from "../article/ArticleRow.svelte";
     import Price from "../formatters/Price.svelte";
+    import FormInput from "../FormInput.svelte";
     import Flex from "../layout/flex.svelte";
     import Table from "../table/Table.svelte";
     import TableCell from "../table/TableCell.svelte";
@@ -15,7 +16,7 @@
 
     export let assembly: AssembliesResponse;
 
-    export let flatMode: "assembly" | "article" = "article"; 
+    let flatMode: "assembly" | "article" = "article"; 
 
     type FlattenAssemblyRelations = {
         article: ArticleResponseExpanded;
@@ -101,6 +102,10 @@
                 }
                 
             }
+            flattenRelationsSub.push({
+                subAssembly: assembly,
+                quantity: 1
+            });
     
             await subFlattenSubAssemblies(assembly);
             return flattenRelationsSub;
@@ -108,88 +113,95 @@
 
 </script>
 
-{#if flatMode === "article"}
+<Wrapper class="mt-6">
 
-    {#await flattenAssembly(assembly)}
-        <Wrapper class="mt-6">
+    <Flex>
+        <FormInput type="select" name="" label="Mode" bind:value={flatMode}>
+            <option value="article">Articles</option>
+            <option value="assembly">Assemblage</option>
+        </FormInput>
+    </Flex>
+
+    {#if flatMode === "article"}
+    
+        {#await flattenAssembly(assembly)}
             <h4>Chargement</h4>
-        </Wrapper>
-    {:then flattenAssemblyResult} 
-        <Table>
-            <svelte:fragment slot="head">
-                <TableHead>Article ({flattenAssemblyResult.length})</TableHead>
-                <TableHead>Assemblages</TableHead>
-                <TableHead>Quantité totale</TableHead>
-                <TableHead>Prix</TableHead>
-            </svelte:fragment>
-        
-            <svelte:fragment slot="body">
-                {#each flattenAssemblyResult as far}
+        {:then flattenAssemblyResult} 
+            <Table embeded={true}>
+                <svelte:fragment slot="head">
+                    <TableHead>Article ({flattenAssemblyResult.length})</TableHead>
+                    <TableHead>Assemblages</TableHead>
+                    <TableHead>Quantité totale</TableHead>
+                    <TableHead>Prix</TableHead>
+                </svelte:fragment>
+            
+                <svelte:fragment slot="body">
+                    {#each flattenAssemblyResult as far}
+                        <TableRow>
+                            <TableCell><ArticleRow article={far.article} displayStock={true} displayApprox={true} /></TableCell>
+                            <TableCell>
+                                <Flex direction="col" items="start">
+                                    {#each far.subAssemblies as assembly}
+                                        <AssemblyPreview {assembly} />
+                                    {/each}
+                                </Flex>
+                            </TableCell>
+                            <TableCell>{far.quantity}</TableCell>
+                            <TableCell><Price value={far.quantity * (far.article.price ?? 0)} /></TableCell>
+                        </TableRow>
+                    {/each}
+                    
+                </svelte:fragment>
+    
+                <svelte:fragment slot="foot">
                     <TableRow>
-                        <TableCell><ArticleRow article={far.article} displayStock={true} displayApprox={true} /></TableCell>
-                        <TableCell>
-                            <Flex direction="col" items="start">
-                                {#each far.subAssemblies as assembly}
-                                    <AssemblyPreview {assembly} />
-                                {/each}
-                            </Flex>
+                        <TableCell colspan={3}>
+                            Total prix
                         </TableCell>
-                        <TableCell>{far.quantity}</TableCell>
-                        <TableCell><Price value={far.quantity * (far.article.price ?? 0)} /></TableCell>
+                        <TableCell>
+                            <Price value={flattenAssemblyResult.map(far => (far.article.price ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} />
+                        </TableCell>
                     </TableRow>
-                {/each}
-                
-            </svelte:fragment>
-
-            <svelte:fragment slot="foot">
-                <TableRow>
-                    <TableCell colspan={3}>
-                        Total prix
-                    </TableCell>
-                    <TableCell>
-                        <Price value={flattenAssemblyResult.map(far => (far.article.price ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} />
-                    </TableCell>
-                </TableRow>
-            </svelte:fragment>
-        </Table>
-    {/await}
-
-{:else}
-
-    {#await flattenAssemblySubAssemblies(assembly)}
-        <Wrapper class="mt-6">
+                </svelte:fragment>
+            </Table>
+        {/await}
+    
+    {:else}
+    
+        {#await flattenAssemblySubAssemblies(assembly)}
             <h4>Chargement</h4>
-        </Wrapper>
-    {:then flattenAssemblySubAssembliesResult} 
-        <Table>
-            <svelte:fragment slot="head">
-                <TableHead>Assemblages ({flattenAssemblySubAssembliesResult.length})</TableHead>
-                <TableHead>Quantité totale</TableHead>
-                <TableHead>Durée d'assemblage</TableHead>
-            </svelte:fragment>
-        
-            <svelte:fragment slot="body">
-                {#each flattenAssemblySubAssembliesResult as far}
+        {:then flattenAssemblySubAssembliesResult} 
+            <Table embeded={true}>
+                <svelte:fragment slot="head">
+                    <TableHead>Assemblages ({flattenAssemblySubAssembliesResult.length})</TableHead>
+                    <TableHead>Quantité totale</TableHead>
+                    <TableHead>Durée d'assemblage</TableHead>
+                </svelte:fragment>
+            
+                <svelte:fragment slot="body">
+                    {#each flattenAssemblySubAssembliesResult as far}
+                        <TableRow>
+                            <TableCell><AssemblyPreview assembly={far.subAssembly} /></TableCell>
+                            <TableCell>{far.quantity}</TableCell>
+                            <TableCell>{(far.quantity * (far.subAssembly.assembly_time ?? 0) )|| "—"} Heures</TableCell>
+                        </TableRow>
+                    {/each}
+                    
+                </svelte:fragment>
+    
+                <svelte:fragment slot="foot">
                     <TableRow>
-                        <TableCell><AssemblyPreview assembly={far.subAssembly} /></TableCell>
-                        <TableCell>{far.quantity}</TableCell>
-                        <TableCell>{(far.quantity * (far.subAssembly.assembly_time ?? 0) )|| "—"} Heures</TableCell>
+                        <TableCell colspan={2}>
+                            Total
+                        </TableCell>
+                        <TableCell>
+                            {flattenAssemblySubAssembliesResult.map(far => (far.subAssembly.assembly_time ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} Heures
+                        </TableCell>
                     </TableRow>
-                {/each}
-                
-            </svelte:fragment>
+                </svelte:fragment>
+            </Table>
+        {/await}
+    
+    {/if}
 
-            <svelte:fragment slot="foot">
-                <TableRow>
-                    <TableCell colspan={2}>
-                        Total
-                    </TableCell>
-                    <TableCell>
-                        {flattenAssemblySubAssembliesResult.map(far => (far.subAssembly.assembly_time ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} Heures
-                    </TableCell>
-                </TableRow>
-            </svelte:fragment>
-        </Table>
-    {/await}
-
-{/if}
+</Wrapper>

@@ -9,7 +9,6 @@ import { setAssemblyContext } from "$lib/components/assemblies/assemblyContext";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Grid from "$lib/components/layout/grid.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
@@ -22,7 +21,6 @@ import { setAssemblyContext } from "$lib/components/assemblies/assemblyContext";
     export let form: ActionData;
 
     let mode: "nested" | "flat" = "nested";
-    let flatMode: "assembly" | "article" = "article";
 
     let editAssembly = false;
     let editAssemblyDeleteThumbnail = false; 
@@ -100,7 +98,6 @@ import { setAssemblyContext } from "$lib/components/assemblies/assemblyContext";
         <AssemblyEditor />
     </Flex>
 {:else}
-    <Button on:click={() => flatMode = (flatMode === "assembly") ? "article" : "assembly"} class="mt-6">{flatMode === "assembly" ? "Vue des articles" : "Vue des assemblages"}</Button>
-    <AssemblyFlat bind:assembly={data.assembly} bind:flatMode />
+    <AssemblyFlat bind:assembly={data.assembly} />
 {/if}
 
