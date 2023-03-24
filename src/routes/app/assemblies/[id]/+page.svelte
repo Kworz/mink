@@ -1,7 +1,7 @@
 <script lang="ts">
     import { browser } from "$app/environment";
     import { invalidateAll } from "$app/navigation";
-import { setAssemblyContext } from "$lib/components/assemblies/assemblyContext";
+    import { setAssemblyContext } from "$lib/components/assemblies/assemblyContext";
     import AssemblyEditor from "$lib/components/assemblies/AssemblyEditor.svelte";
     import AssemblyFlat from "$lib/components/assemblies/AssemblyFlat.svelte";
     import AssemblyTree from "$lib/components/assemblies/AssemblyTree.svelte";

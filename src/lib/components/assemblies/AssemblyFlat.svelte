@@ -68,7 +68,7 @@
         }
 
         await subFlatten(assembly);
-        return flattenRelations;
+        return flattenRelations.sort((a, b) => b.subAssemblies.length - a.subAssemblies.length);
     }
 
     const flattenAssemblySubAssemblies = async (assembly: AssembliesResponse): Promise<Array<FlattenAssemblySubAssembliesRelations>> => {
@@ -140,9 +140,9 @@
                         <TableRow>
                             <TableCell><ArticleRow article={far.article} displayStock={true} displayApprox={true} /></TableCell>
                             <TableCell>
-                                <Flex direction="col" items="start">
+                                <Flex direction={far.subAssemblies.length > 1 ? "row" : "col"} items="start">
                                     {#each far.subAssemblies as assembly}
-                                        <AssemblyPreview {assembly} />
+                                        <AssemblyPreview {assembly} minimized={far.subAssemblies.length > 1} />
                                     {/each}
                                 </Flex>
                             </TableCell>
@@ -181,7 +181,7 @@
                 <svelte:fragment slot="body">
                     {#each flattenAssemblySubAssembliesResult as far}
                         <TableRow>
-                            <TableCell><AssemblyPreview assembly={far.subAssembly} /></TableCell>
+                            <TableCell><AssemblyPreview assembly={far.subAssembly} imageSize="h-20" /></TableCell>
                             <TableCell>{far.quantity}</TableCell>
                             <TableCell>{(far.quantity * (far.subAssembly.assembly_time ?? 0) )|| "—"} Heures</TableCell>
                         </TableRow>
