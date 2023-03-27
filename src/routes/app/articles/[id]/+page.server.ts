@@ -2,6 +2,7 @@ import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
 import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../+page.server";
+import { ClientResponseError } from "pocketbase";
 
 export const load = (async ({ params, locals }) => {
 
@@ -187,5 +188,49 @@ export const actions: Actions = {
         }
 
         return { pinAttachedFile: { success: "Successfully pinned file"}}
+    },
+
+    updateStock: async ({ locals, params, request }) => {
+
+        const form = await request.formData();
+
+        try
+        {
+            if(locals.user?.id === undefined)
+                throw "user not authed";
+
+            const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
+
+            const quantityToOutput = Number(form.get("quantity_update"));
+
+            if(quantityToOutput === 0)
+                throw "La quantité à sortir est nulle";
+
+            const newQuantity = (article.quantity ?? 0) - quantityToOutput;
+
+            if(newQuantity < 0)
+                throw "Le stock tombe en dessous de 0, vérifiez la quantité initiale et la quantité à sortir";
+
+            const articleMovement: ArticleMovementsRecord = { 
+                article: params.id, 
+                user: locals.user.id, 
+                quantity_update: -quantityToOutput, 
+                reason: (form.get("reason")?.toString()) ?? "Mise à jour du stock"
+            };
+
+            await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
+            await locals.pb.collection(Collections.Article).update(params.id, form);
+
+            return { updateStock: { success: "Successfully updated stock" }};
+        }
+        catch(ex)
+        {
+            if(ex instanceof ClientResponseError)
+            {
+                return { updateStock: { error: ex.message }};
+            }
+
+            return { updateStock: { error: ex }};
+        }
     }
 }

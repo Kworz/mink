@@ -71,7 +71,7 @@
 
 </script>
 
-<Flex direction="col" gap={2}>
+<Flex direction="col" gap={2} class={$$props.class}>
     <Input bind:value={tempFilter} placeholder={"Filtre"} on:keydown={inputKeyUp}>
         <svelte:fragment slot="before">
             {#if filters.filter(k => k.hidden === undefined).length > 0}

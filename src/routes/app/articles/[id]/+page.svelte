@@ -26,8 +26,6 @@
     export let data: PageData;
     export let form: ActionData;
 
-    let pillMenuShown = false;
-
     let editArticle = false;
     let showConfirmDelete = false;
 
@@ -66,22 +64,22 @@
                 <p>Emplacement: <DetailLabel>{data.article.expand.store.location} / {data.article.expand.store.name}</DetailLabel></p>
             {/if}
 
-            <PillMenu bind:open={pillMenuShown}>
-                <PillMenuButton icon={Wrench} on:click={() => { editArticle = !editArticle; pillMenuShown = false; }}>Modifier l'article</PillMenuButton>
+            <PillMenu>
+                <PillMenuButton icon={Wrench} click={() => { editArticle = !editArticle; }}>Modifier l'article</PillMenuButton>
                 <form action="?/copyArticle" method="post" use:enhance>
                     <PillMenuButton icon={DocumentDuplicate} role="secondary">
                         Copier l'article
                     </PillMenuButton>
                 </form>
 
-                <PillMenuButton icon={QrCode} role="secondary" on:click={() => window.open(`/app/articles/print/?articles=${data.article.id}`, '_blank')?.focus()}>Imprimer l'etiquette</PillMenuButton>
+                <PillMenuButton icon={QrCode} role="secondary" click={() => window.open(`/app/articles/print/?articles=${data.article.id}`, '_blank')?.focus()}>Imprimer l'etiquette</PillMenuButton>
 
                 {#if showConfirmDelete}
                     <form action="?/deleteArticle" method="post" use:enhance>
                         <PillMenuButton icon={Trash} role="danger">Confirmer la suppression</PillMenuButton>
                     </form>
                 {:else}
-                    <PillMenuButton icon={Trash} on:click={() => showConfirmDelete = true} role="danger">Supprimer l'article</PillMenuButton>                
+                    <PillMenuButton icon={Trash} click={() => showConfirmDelete = true} role="danger">Supprimer l'article</PillMenuButton>                
                 {/if}
             </PillMenu>
         {:else}
@@ -124,6 +122,26 @@
         </Flex>
     </Wrapper>
 </Flex>
+
+<Wrapper class="mt-6">
+    <h4>Sortie / Entrée de stock</h4>
+
+    {#if form?.updateStock?.error}
+        <p class="my-2 text-red-500">{form.updateStock.error}</p>
+    {/if}
+
+    {#if form?.updateStock?.success}
+        <p class="my-2 text-emerald-500">{form.updateStock.success}</p>
+    {/if}
+
+    <form action="?/updateStock" method="post" use:enhanceNoReset>
+        <Flex direction="col" items="start" class="mt-4">
+            <FormInput type="number" name="quantity_update" label="Quantité" labelMandatory={true} value={0} />
+            <FormInput type="text" name="reason" label="Raison" labelMandatory={true} value={"Sortie de stock"} />
+            <Button>Modifier la quantité en stock</Button>
+        </Flex>
+    </form>
+</Wrapper>
 
 <Flex direction="col" gap={6} class="mt-6">
     {#if data.articleMovements.length > 0}
