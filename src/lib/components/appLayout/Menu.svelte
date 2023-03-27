@@ -1,4 +1,6 @@
 <script>
+    import { page } from "$app/stores";
+    import { onMount } from "svelte";
     import Flex from "../layout/flex.svelte";
     import { setMenuContext } from "./menuContext";
 
@@ -14,9 +16,16 @@
             $isShrinked = true;
     }
 
+    onMount(() => {
+        page.subscribe(() => {
+            if($isShrinked === false)
+                $isShrinked = true;
+        });
+    });
+
 </script>
 
-<button class="shrink-0 bg-white dark:bg-zinc-800 shadow-2xl duration-300 text-start {$isShrinked ? "p-4" : "py-6 px-8"}" on:click|self={() => $isShrinked = !$isShrinked} on:mouseenter={mouseEnter} on:mouseleave={mouseLeave}>
+<button class="shrink-0 bg-white dark:bg-zinc-800 overflow-y-scroll shadow-2xl duration-300 text-start {$isShrinked ? "p-4" : "py-6 w-screen md:w-auto px-8"}" on:click|self={() => $isShrinked = !$isShrinked} on:mouseenter={mouseEnter} on:mouseleave={mouseLeave}>
     <Flex direction="col" gap={2}>
         <slot />
     </Flex>
