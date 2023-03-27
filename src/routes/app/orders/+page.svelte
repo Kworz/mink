@@ -1,10 +1,9 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
 
-
     import Button from "$lib/components/Button.svelte";
-import FormInput from "$lib/components/FormInput.svelte";
-import Flex from "$lib/components/layout/flex.svelte";
+    import FormInput from "$lib/components/FormInput.svelte";
+    import Flex from "$lib/components/layout/flex.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
@@ -13,8 +12,6 @@ import Flex from "$lib/components/layout/flex.svelte";
     import type { PageData } from "./$types";
     import OrderTable from "./OrderTable.svelte";
     export let data: PageData;
-
-    let pillMenuOpen = false;
 
     let showCompletedOrders = false;
     let createOrder = false;
@@ -26,8 +23,8 @@ import Flex from "$lib/components/layout/flex.svelte";
 <Wrapper>
     <h2>Commandes</h2>
 
-    <PillMenu bind:open={pillMenuOpen}>
-        <PillMenuButton icon={PlusCircle} on:click={() => { createOrder = !createOrder; pillMenuOpen = false;}}>Créer une commande</PillMenuButton>
+    <PillMenu>
+        <PillMenuButton icon={PlusCircle} click={() => createOrder = !createOrder }>Créer une commande</PillMenuButton>
     </PillMenu>
     
     <Flex items="center" gap={2}>

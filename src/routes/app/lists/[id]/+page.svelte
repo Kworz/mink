@@ -32,8 +32,6 @@
     let confirmDelete = false;
     let createOrder = false;
 
-    let pillMenuOpen = false;
-
     let queryFilters: FilterQueryResult<"name" | "supplier" | "manufacturer" | "reference" | "valid"> = {};
     let filter: string = "";
 
@@ -129,12 +127,12 @@
         <p>Articles validés: <DetailLabel>{remainingElements} / {data.nomenclature_rows.length}</DetailLabel>.</p>
     {/if}
 
-    <PillMenu bind:open={pillMenuOpen}>
-        <PillMenuButton icon={Wrench} on:click={() => { editList = true; pillMenuOpen = false }}>Éditer les informations</PillMenuButton>
-        <PillMenuButton icon={DocumentChartBar} on:click={() => { createOrder = true; pillMenuOpen = false }}>Créer une commande</PillMenuButton>
+    <PillMenu>
+        <PillMenuButton icon={Wrench} click={() => editList = true }>Éditer les informations</PillMenuButton>
+        <PillMenuButton icon={DocumentChartBar} click={() => createOrder = true }>Créer une commande</PillMenuButton>
 
-        <PillMenuButton icon={ArrowUpTray} on:click={() => window.open(`/app/lists/${data.list.id}/export/`, '_blank')?.focus()} role="secondary">Export Excel</PillMenuButton>
-        <PillMenuButton icon={QrCode} on:click={() => window.open(`/app/lists/print/?lists=${data.list.id}`, '_blank')?.focus()} role="secondary">Imprimer l'étiquette de suivi</PillMenuButton>
+        <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/lists/${data.list.id}/export/`, '_blank')?.focus()} role="secondary">Export Excel</PillMenuButton>
+        <PillMenuButton icon={QrCode} click={() => window.open(`/app/lists/print/?lists=${data.list.id}`, '_blank')?.focus()} role="secondary">Imprimer l'étiquette de suivi</PillMenuButton>
 
         {#if confirmDelete}
             <form action="?/removeList" method="post" use:enhanceNoReset>

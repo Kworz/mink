@@ -33,7 +33,6 @@
 
     let view: 'flat' | 'nested' = 'flat';
     
-    let menuPillShown = false;
     let editNomenclature = false;
     let addToNomenclature = false;
 
@@ -56,16 +55,15 @@
     }
 
     $: nestedNomenclature = computeNested(data.nomenclature);
-    $: console.log(nestedNomenclature);
 
 </script>
 
 <svelte:head><title>Nomenclature — {data.nomenclature.name}</title></svelte:head>
 
 <Wrapper class="relative z-50">
-    <PillMenu bind:open={menuPillShown}>
-        <PillMenuButton icon={Wrench} on:click={() => { editNomenclature = true; menuPillShown = false;}}>Modifier les informations</PillMenuButton>
-        <PillMenuButton icon={PlusCircle} on:click={() => { addToNomenclature = !addToNomenclature; menuPillShown = false}}>Ajouter des articles</PillMenuButton>
+    <PillMenu>
+        <PillMenuButton icon={Wrench} click={() => editNomenclature = true }>Modifier les informations</PillMenuButton>
+        <PillMenuButton icon={PlusCircle} click={() => addToNomenclature = !addToNomenclature }>Ajouter des articles</PillMenuButton>
         <PillMenuButton icon={view === "nested" ? Square2Stack : Square3Stack3d} on:click={() => { view = (view === "nested") ? "flat" : "nested" }}>{view === "flat" ? "Vue imbriquée" : "Vue plate"}</PillMenuButton>
         <form action="?/copyNomenclature" method="post" use:enhanceNoReset>
             <PillMenuButton role="warning" icon={DocumentDuplicate}>Copier la nomenclature</PillMenuButton>

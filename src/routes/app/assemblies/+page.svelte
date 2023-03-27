@@ -1,6 +1,10 @@
 <script lang="ts">
+    import { browser } from "$app/environment";
     import { goto } from "$app/navigation";
+    import AssemblyPreview from "$lib/components/assemblies/AssemblyPreview.svelte";
     import Button from "$lib/components/Button.svelte";
+    import type { FilterCondition } from "$lib/components/filter/filter2";
+    import Filter2 from "$lib/components/filter/Filter2.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
@@ -17,6 +21,9 @@
     import type { PageData } from "./$types";
 
     export let data: PageData;
+
+    let filters: Array<FilterCondition> = [];
+    let filter = "";
 
     let createAssembly = false;
 
@@ -42,13 +49,22 @@
         goto(`/app/assemblies/${createdAssembly.id}`);
     }
 
+    const triggerResfresh = () => {
+        if(browser)
+            goto(`/app/assemblies/?filter=${filter}`);
+    }
+
+    $: filter, triggerResfresh();
+
 </script>
 
 <Wrapper>
     <h3>Liste des assemblages</h3>
 
+    <Filter2 bind:filter bind:filters availableFilters={[{ name: "name", default: true }, { name:"description" }, { name: "favorite" }]} class="mt-6" />
+
     <PillMenu>
-        <PillMenuButton icon={PlusCircle} on:click={() => createAssembly = !createAssembly}>Créer un assemblage</PillMenuButton>
+        <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>Créer un assemblage</PillMenuButton>
     </PillMenu>
 
     <Table embeded={true}>
@@ -78,7 +94,9 @@
             {#each data.assemblies as assembly}
                 <TableRow>
                     <TableCell><Icon src={Star} theme={assembly.favorite ? "solid" : ""} class="h-6 w-6 text-violet-500" /></TableCell>
-                    <TableCell><a href="/app/assemblies/{assembly.id}">{assembly.name}</a></TableCell>
+                    <TableCell>
+                        <AssemblyPreview assembly={assembly} imageSize="h-24" />
+                    </TableCell>
                     <TableCell>{assembly.description}</TableCell>
                 </TableRow>
             {/each}

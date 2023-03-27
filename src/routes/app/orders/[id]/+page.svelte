@@ -61,7 +61,7 @@
 <Wrapper class="w-4/5 mx-auto aspect-A4 p-8">
     <h2>Commande <span class="px-3 py-1 rounded-full bg-violet-500 text-white font-medium">{data.order.name}</span></h2>
 
-    <Grid cols={2} gap={24} items="start">
+    <Grid cols={2} gap={24} items="start" class="mt-6">
         <Wrapper2>
             <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
                 <svelte:fragment slot="body">
@@ -86,7 +86,7 @@
         </Wrapper2>
 
         <Wrapper2>
-            <Table embeded={true}>
+            <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
                 <svelte:fragment slot="body">
                     <TableRow>
                         <TableCell><h3>{data.order.expand?.supplier.name}</h3></TableCell>
@@ -123,29 +123,24 @@
                 {/each}
             {/if}
         </svelte:fragment>
-
-        <svelte:fragment slot="foot">
-            {#if data.order.state === OrdersStateOptions.draft}
-                <TableRow>
-                    <TableCell colspan={8}>
-                        <h3 class="mb-3">Ajouter un article a la commande</h3>
-                        <form action="?/createOrderRow" method="post" use:enhance class="flex flex-row gap-4 items-end">
-                            <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
-                                <ArticleFinder bind:selectedArticle filters={[{ field: "supplier", operator: "~", value: data.order.supplier, hidden: true }]} />
-                            </div>
-                            {#if selectedArticle !== undefined}
-                                <input type="hidden" name="order" value={data.order.id} />
-                                <input type="hidden" name="article" value={selectedArticle?.id} />
-                                <FormInput name="quantity" type="number" min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
-                                <Button class="ml-auto">Ajouter l'article</Button>
-                            {/if}
-                        </form>
-                    </TableCell>
-                </TableRow>
-            {/if}
-        </svelte:fragment>
-
     </Table>
+
+    {#if data.order.state === OrdersStateOptions.draft}
+        <Wrapper2 class="mt-6">
+            <h3 class="mb-3">Ajouter un article a la commande</h3>
+            <form action="?/createOrderRow" method="post" use:enhance class="flex flex-row gap-4 items-end">
+                <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
+                    <ArticleFinder bind:selectedArticle filters={[{ field: "supplier", operator: "~", value: data.order.supplier, hidden: true }]} />
+                </div>
+                {#if selectedArticle !== undefined}
+                    <input type="hidden" name="order" value={data.order.id} />
+                    <input type="hidden" name="article" value={selectedArticle?.id} />
+                    <FormInput name="quantity" type="number" min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
+                    <Button class="ml-auto">Ajouter l'article</Button>
+                {/if}
+            </form>
+        </Wrapper2>
+    {/if}
 
     <Table class="w-auto ml-auto"  backgroundColor="dark:bg-zinc-700">
         <svelte:fragment slot="body">

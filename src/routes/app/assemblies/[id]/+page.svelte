@@ -12,7 +12,6 @@
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
-    import Wrapper2 from "$lib/components/Wrapper2.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { DocumentCheck, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import type { ActionData, PageData, Snapshot } from "./$types";
@@ -76,24 +75,19 @@
             {/if}
         {/if}
     
-    
         <PillMenu>
-            <PillMenuButton icon={DocumentCheck} on:click={() => mode = (mode === "nested") ? "flat" : "nested"}>{mode === "nested" ? "Vue applanie" : "Vue imbriquée"}</PillMenuButton>
-            <PillMenuButton icon={WrenchScrewdriver} on:click={() => editAssembly = !editAssembly}>Modifier l'assemblage</PillMenuButton>
+            <PillMenuButton icon={DocumentCheck} click={() => { mode = (mode === "nested") ? "flat" : "nested" }}>{mode === "nested" ? "Vue applanie" : "Vue imbriquée"}</PillMenuButton>
+            <PillMenuButton icon={WrenchScrewdriver} click={() => editAssembly = !editAssembly}>Modifier l'assemblage</PillMenuButton>
         </PillMenu>
     </Wrapper>
 </Flex>
 
-
-
 {#if mode === "nested"}
     <Flex gap={6} class="mt-6" items="start">
 
-        <Wrapper2 class="w-fit shrink-0">
-            {#key data.assembly.id}
-                <AssemblyTree bind:assembly={data.assembly} />
-            {/key}
-        </Wrapper2>
+        <Wrapper class="w-fit shrink-0">
+            <AssemblyTree bind:assembly={data.assembly} />
+        </Wrapper>
     
         <AssemblyEditor />
     </Flex>
