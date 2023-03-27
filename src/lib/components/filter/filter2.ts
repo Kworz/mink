@@ -99,3 +99,60 @@ export function convertToPocketbaseFilter(filters: Array<FilterCondition>): stri
 
     return encodeURIComponent(mappedFilters.join(" && "));
 }
+
+/**
+ * Pocketbase like filter to be executed on client side
+ * @param filters filters to apply
+ * @param element element to filter
+ * @returns is item valid to filter or not
+ */
+export function clientSideFilter(filters: Array<FilterCondition>, element: Record<string, (string | number | boolean) | (string | boolean | number)[]>): boolean
+{
+    return filters.every(filter => {
+
+        let value: string | number | boolean | (string | number | boolean)[] | undefined = undefined;
+
+        if(filter.field.split(".").length > 1) {
+            const parts = filter.field.split(".");
+
+            if(element.expand[parts[0]] === undefined)
+                return false;
+
+            if(Array.isArray(element.expand[parts[0]]))
+            {
+                value = element.expand[parts[0]].map(k => k[parts[1]]);
+            }
+            else
+            {
+                value = element.expand[parts[0]][parts[1]]
+            }
+        }
+        else
+        {
+            value = element[filter.field]
+        }
+
+        if(value === undefined)
+            return false;
+        
+        switch(filter.operator)
+        {
+            case "=":
+                return value === filter.value;
+            case "!=":
+                return value !== filter.value;
+            case ">":
+                return value > filter.value;
+            case "<":
+                return value < filter.value;
+            case ">=":
+                return value >= filter.value;
+            case "<=":
+                return value <= filter.value;
+            case "~":
+                return Array.isArray(value) ? value.findIndex(k => String(k).toLowerCase().includes(filter.value.toLowerCase())) > -1 : String(value).includes(filter.value.toLowerCase());
+            case "!~":
+                return !(Array.isArray(value) ? value.findIndex(k => String(k).toLowerCase().includes(filter.value.toLowerCase())) > -1 : String(value).includes(filter.value.toLowerCase()));
+        }
+    });
+}
