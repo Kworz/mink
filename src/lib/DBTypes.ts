@@ -9,6 +9,8 @@ export enum Collections {
 	ArticleStores = "article_stores",
 	ArticleView = "article_view",
 	Assemblies = "assemblies",
+	AssembliesBuylists = "assemblies_buylists",
+	AssembliesBuylistsRows = "assemblies_buylists_rows",
 	AssembliesRelations = "assemblies_relations",
 	Build = "build",
 	BuildRow = "build_row",
@@ -93,6 +95,18 @@ export type AssembliesRecord = {
 	thumbnail?: string
 	attached_files?: string[]
 	assembly_time?: number
+}
+
+export type AssembliesBuylistsRecord = {
+	name: string
+	assembly: RecordIdString
+	project?: RecordIdString
+}
+
+export type AssembliesBuylistsRowsRecord = {
+	buylist: RecordIdString
+	article: RecordIdString
+	quantity?: number
 }
 
 export type AssembliesRelationsRecord = {
@@ -205,6 +219,8 @@ export type ArticlePricepointResponse<Texpand = unknown> = ArticlePricepointReco
 export type ArticleStoresResponse = ArticleStoresRecord & BaseSystemFields
 export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields<Texpand>
 export type AssembliesResponse = AssembliesRecord & BaseSystemFields
+export type AssembliesBuylistsResponse<Texpand = unknown> = AssembliesBuylistsRecord & BaseSystemFields<Texpand>
+export type AssembliesBuylistsRowsResponse<Texpand = unknown> = AssembliesBuylistsRowsRecord & BaseSystemFields<Texpand>
 export type AssembliesRelationsResponse<Texpand = unknown> = AssembliesRelationsRecord & BaseSystemFields<Texpand>
 export type BuildResponse<Texpand = unknown> = BuildRecord & BaseSystemFields<Texpand>
 export type BuildRowResponse<Texpand = unknown> = BuildRowRecord & BaseSystemFields<Texpand>
@@ -228,6 +244,8 @@ export type CollectionRecords = {
 	article_stores: ArticleStoresRecord
 	article_view: ArticleViewRecord
 	assemblies: AssembliesRecord
+	assemblies_buylists: AssembliesBuylistsRecord
+	assemblies_buylists_rows: AssembliesBuylistsRowsRecord
 	assemblies_relations: AssembliesRelationsRecord
 	build: BuildRecord
 	build_row: BuildRowRecord
@@ -250,6 +268,8 @@ export type CollectionResponses = {
 	article_stores: ArticleStoresResponse
 	article_view: ArticleViewResponse
 	assemblies: AssembliesResponse
+	assemblies_buylists: AssembliesBuylistsResponse
+	assemblies_buylists_rows: AssembliesBuylistsRowsResponse
 	assemblies_relations: AssembliesRelationsResponse
 	build: BuildResponse
 	build_row: BuildRowResponse
