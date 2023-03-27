@@ -2,6 +2,7 @@
     import { onDestroy, onMount } from "svelte";
     import jsQR, { type QRCode } from "jsqr";
     import { goto } from "$app/navigation";
+    import { parseQRCodeData } from "$lib/components/qrcode/qrcode";
 
     let videoSource: HTMLVideoElement;
     let canvas: HTMLCanvasElement;
@@ -9,10 +10,6 @@
 
     let code: QRCode | null = null;
     let stream: MediaStream | undefined;
-
-    const prefixes = {
-        "list": "lists"
-    }
 
     onMount(async () => {
         try {
@@ -46,15 +43,8 @@
                 
                 if(code !== null)
                 {
-                    const split = code.data.split(':');
-                    if(split.length > 1)
-                    {
-                        const part = prefixes[split.at(0)];
-                        const part2 = split.at(1);
-                        goto(`/app/${part}/${part2}`);
-                    }
-                    else
-                        goto(`/app/articles/${code.data}`);
+                    const url = parseQRCodeData(code.data);
+                    goto(url);
                 }
             }
             catch(ex)
