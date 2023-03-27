@@ -21,13 +21,13 @@
     let createList = false;
 
     let createListName = "";
-    let createListBaseAssembly = "";
-    let createListProject = "";
+    let createListBaseAssembly: string | undefined = undefined;
+    let createListProject: string | undefined = undefined;
 
     const createListFn = async () => {
 
-        if(createListName === "" || createListBaseAssembly === "" || createListProject === "")
-            return;
+        if(createListName === "" || createListBaseAssembly === undefined || createListProject === undefined)
+        { return }
 
         const list = {
             name: createListName,
@@ -56,18 +56,21 @@
     </PillMenu>
 
     {#if createList}
+        <h4>Créer une liste</h4>
         <div class="flex flex-col md:flex-row gap-4 items-start md:items-end mt-6">
-            <h4>Créer une liste</h4>
             <FormInput name="name" label="Nom de la liste" labelMandatory bind:value={createListName} />
+            {createListProject}
             <FormInput name="assembly" type="select" label="Assemblage" labelMandatory bind:value={createListBaseAssembly}>
-                {#await $page.data.pb.collection(Collections.Assemblies).getFullList() then assemblies}
+                {#await $page.data.pb.collection(Collections.Assemblies).getFullList({sort: "-favorite,name"}) then assemblies}
+                    <option value={undefined}>—</option>
                     {#each assemblies as assembly}
                         <option value={assembly.id}>{assembly.name}</option>
                     {/each}
                 {/await}
             </FormInput>
             <FormInput name="project" type="select" label="" labelMandatory bind:value={createListProject} >
-                {#await $page.data.pb.collection(Collections.Projects).getFullList() then projects}
+                {#await $page.data.pb.collection(Collections.Projects).getFullList({sort: "-updated,name"}) then projects}
+                    <option value={undefined}>—</option>
                     {#each projects as project}
                         <option value={project.id}>{project.name}</option>
                     {/each}

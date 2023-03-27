@@ -45,7 +45,7 @@
 
                 <TableRow>
                     <TableCell><ArticleRow article={far.far.article} /></TableCell>
-                    <TableCell>{far.far.quantity} / {far.buyListRelation?.quantity}</TableCell>
+                    <TableCell>{far.buyListRelation?.quantity ?? 0} / {far.far.quantity}</TableCell>
                     <TableCell>{far.far.quantity <= (far.buyListRelation?.quantity ?? 0) ? "oui" : "non"}</TableCell>
                 </TableRow>
             {/each}
