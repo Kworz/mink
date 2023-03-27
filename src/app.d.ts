@@ -17,6 +17,7 @@ declare global {
 	
 		interface PageData {
 			user: BaseAuthStore["model"] | undefined,
+			pb: PocketBase
 		}
 	
 		// interface Platform {}

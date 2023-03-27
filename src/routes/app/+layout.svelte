@@ -1,15 +1,18 @@
 <script lang="ts">
+    
     import Flex from "$lib/components/layout/flex.svelte";
-    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Bars3, Truck, DocumentChartBar, QueueList, QrCode, Bars4, PuzzlePiece } from "@steeze-ui/heroicons";
+    import { ListBullet, CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Truck, DocumentChartBar, QueueList, QrCode, PuzzlePiece } from "@steeze-ui/heroicons";
     import Menu from "$lib/components/appLayout/Menu.svelte";
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
     import TopBar from "$lib/components/appLayout/TopBar.svelte";
     import MenuSeparator from "$lib/components/appLayout/MenuSeparator.svelte";
+    import MenuCloseButton from "$lib/components/appLayout/MenuCloseButton.svelte";
 
 </script>
 
 <Flex gap={0} class="h-screen w-screen overflow-hidden">
     <Menu>
+        <MenuCloseButton />
         <MenuSeparator>Outils</MenuSeparator>
         <MenuItem icon={QrCode} href="/app/scanner" label="Scanner QRCode" />
 
