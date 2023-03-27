@@ -34,9 +34,12 @@
         <MenuItem icon={Wrench} href="/app/fabrication_orders" label="Ordres de fabrication" />
 
     </Menu>
-    <div class="grow p-6 overflow-y-scroll overflow-x-hidden">
-        <TopBar/>
-        <slot />
+
+    <div class="grow overflow-x-hidden overflow-y-scroll">
+        <TopBar />
+        <div class="w-full p-6">
+            <slot />
+        </div>
     </div>
 
     <div class="h-screen" id="side_menu" />

@@ -195,7 +195,7 @@ export type SuppliersRecord = {
 }
 
 export type UsersRecord = {
-
+	avatar?: string
 }
 
 // Response types include system fields and match responses from the PocketBase API
