@@ -74,7 +74,6 @@ export const flattenAssemblySubAssemblies = async (assembly: AssembliesResponse,
 
             for(const relation of relations)
             {
-                console.log(assembly, relation)
                 if(relation.assembly_child !== '' && relation.expand?.assembly_child !== undefined)
                 {
                     const flatRelation = flattenRelationsSub.find(fr => fr.subAssembly.id === relation.assembly_child)

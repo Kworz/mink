@@ -95,7 +95,7 @@
         }
         else
         {
-            confirmDelete = relation
+            confirmDelete = relation;
         }
     }
 
@@ -138,7 +138,7 @@
                     {#each subAssemblies as subAssembly}
                         <TableRow>
                             <TableCell>
-                                <AssemblyPreview assembly={subAssembly.expand.assembly_child} displayThumb={true} />
+                                <AssemblyPreview assembly={subAssembly.expand.assembly_child} />
                             </TableCell>
                             <TableCell>
                                 <Flex items="center">

@@ -9,7 +9,6 @@
 
 <script lang="ts">
 
-    import { page } from "$app/stores";
     import { Collections, type AssembliesRelationsResponse, type AssembliesResponse } from "$lib/DBTypes";
     import { pocketbase } from "$lib/pocketbase";
     import { Folder, FolderOpen } from "@steeze-ui/heroicons";
