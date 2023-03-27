@@ -13,8 +13,6 @@ export const getPillMenuContext = () => getContext<PillMenuContext>("pillMenu");
 
 /** Dispatch event on click outside of node */
 export function clickOutside(node: HTMLElement) {
-
-    console.log(this);
   
     const handleClick = (event: MouseEvent) => {
       if (node && !node.contains(event.target) && !event.defaultPrevented)

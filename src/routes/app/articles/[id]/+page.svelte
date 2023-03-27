@@ -40,7 +40,7 @@
     <title>Article — {data.article.name}</title>
 </svelte:head>
 
-<Flex gap={6} justify="between">
+<div class="flex flex-col md:flex-row gap-6">
     <Wrapper class="relative grow">
         {#if !editArticle}
             <h2 class="mb-2">{data.article.name}</h2>
@@ -101,7 +101,7 @@
         {/if}
     </Wrapper>
 
-    <Wrapper class="h-96 shrink-0 aspect-square relative p-0 overflow-hidden">
+    <Wrapper class="h-96 shrink-0 aspect-square relative p-0 overflow-hidden hidden md:block">
         {#if data.article.attached_files?.[selectedFile] === undefined || selectedFile === -1}
             <Flex justify="between" direction="col">
                 <h4>Ajouter un fichier</h4>
@@ -121,7 +121,7 @@
             <RoundButton icon={ArrowRight} on:click={() => selectedFile = selectedFile >= (data.article.attached_files?.length ?? -1) ? (data.article.attached_files?.length ?? -1) : selectedFile + 1} />
         </Flex>
     </Wrapper>
-</Flex>
+</div>
 
 <Wrapper class="mt-6">
     <h4>Sortie / Entrée de stock</h4>

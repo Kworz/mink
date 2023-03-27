@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type PocketBase from "pocketbase";
     import { browser } from "$app/environment";
     import { Collections } from "$lib/DBTypes";
     import { onMount } from "svelte";
@@ -12,7 +11,6 @@
     import Flex from "../layout/flex.svelte";
     import ArticleRow from "./ArticleRow.svelte";
     import { page } from "$app/stores";
-    import { pocketbase } from "$lib/pocketbase";
 
     let articleList: Array<ArticleResponseExpanded> = [];
 
@@ -25,7 +23,7 @@
 
         try
         {
-            const articles = await $pocketbase.collection(Collections.Article).getList<ArticleResponseExpanded>(1, 15, { filter: decodeURIComponent(filter), expand: "supplier", sort: "-updated" });
+            const articles = await $page.data.pb.collection(Collections.Article).getList<ArticleResponseExpanded>(1, 15, { filter: decodeURIComponent(filter), expand: "supplier", sort: "-updated" });
             articleList = articles?.items ?? []; 
         }
         catch(ex)

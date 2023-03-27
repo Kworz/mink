@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { AssembliesResponse } from "$lib/DBTypes";
-    import { pocketbase } from "$lib/pocketbase";
+    import { page } from "$app/stores";
     import { flattenAssembly, flattenAssemblySubAssemblies } from "./assemblyFlatener";
 
     import ArticleRow from "../article/ArticleRow.svelte";
@@ -31,7 +31,7 @@
 
     {#if flatMode === "article"}
     
-        {#await flattenAssembly(assembly, $pocketbase)}
+        {#await flattenAssembly(assembly, $page.data.pb)}
             <h4>Chargement</h4>
         {:then flattenAssemblyResult} 
             <Table embeded={true}>
@@ -75,7 +75,7 @@
     
     {:else}
     
-        {#await flattenAssemblySubAssemblies(assembly, $pocketbase)}
+        {#await flattenAssemblySubAssemblies(assembly, $page.data.pb)}
             <h4>Chargement</h4>
         {:then flattenAssemblySubAssembliesResult} 
             <Table embeded={true}>

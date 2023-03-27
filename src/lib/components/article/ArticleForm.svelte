@@ -1,7 +1,7 @@
 <script lang="ts">
     import { browser } from "$app/environment";
+    import { page } from "$app/stores";
     import { Collections, type ArticleStoresResponse, type SuppliersResponse } from "$lib/DBTypes";
-    import { pocketbase } from "$lib/pocketbase";
     import { onMount } from "svelte";
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import FormInput from "../FormInput.svelte";
@@ -17,8 +17,8 @@
         if(!browser)
             return;
         try {
-            suppliers = await $pocketbase.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
-            stores = await $pocketbase.collection(Collections.ArticleStores).getFullList<ArticleStoresResponse>();          
+            suppliers = await $page.data.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
+            stores = await $page.data.pb.collection(Collections.ArticleStores).getFullList<ArticleStoresResponse>();          
         }
         catch(ex)
         {

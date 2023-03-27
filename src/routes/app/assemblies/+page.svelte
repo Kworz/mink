@@ -15,7 +15,7 @@
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { Collections, type AssembliesRecord, type AssembliesResponse } from "$lib/DBTypes";
-    import { pocketbase } from "$lib/pocketbase";
+    import { page } from "$app/stores";
     import { PlusCircle, Star } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { PageData } from "./$types";
@@ -44,7 +44,7 @@
 
         } satisfies AssembliesRecord;
         
-        const createdAssembly = await $pocketbase.collection(Collections.Assemblies).create<AssembliesResponse>(assembly);
+        const createdAssembly = await $page.data.pb.collection(Collections.Assemblies).create<AssembliesResponse>(assembly);
 
         goto(`/app/assemblies/${createdAssembly.id}`);
     }
