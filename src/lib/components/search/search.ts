@@ -9,8 +9,8 @@ export const search = async (search: string, pb: Client) => {
     const assemblies = await pb.collection(Collections.Assemblies).getFullList<AssembliesResponse>({ filter: `name ~ "${search}"`, batch: 5 });
 
     return {
-        lists: structuredClone(lists),
-        articles: structuredClone(articles),
-        assemblies: structuredClone(assemblies)
+        lists: structuredClone(lists).slice(0, 5),
+        articles: structuredClone(articles).slice(0, 5),
+        assemblies: structuredClone(assemblies).slice(0, 5)
     };
 }
