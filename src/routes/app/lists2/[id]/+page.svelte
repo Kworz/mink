@@ -16,7 +16,7 @@
     let filters: Array<FilterCondition> = [];
     let filter: string = "";
 
-    $: flatenRelations = data["flattenAssemblyResult"].map((far) => {
+    $: flatenRelations = data.flattenAssemblyResult.map((far) => {
         return {
             far: far,
             buyListRelation: data.listItems.find(k => k.article === far.article)

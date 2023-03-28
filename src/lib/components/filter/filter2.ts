@@ -110,9 +110,10 @@ export function clientSideFilter(filters: Array<FilterCondition>, element: Recor
 {
     return filters.every(filter => {
 
-        let value: string | number | boolean | (string | number | boolean)[] | undefined = undefined;
+        let value: string | undefined = undefined;
 
-        if(filter.field.split(".").length > 1) {
+        if(filter.field.split(".").length > 1)
+        {
             const parts = filter.field.split(".");
 
             if(element.expand[parts[0]] === undefined)
@@ -120,16 +121,16 @@ export function clientSideFilter(filters: Array<FilterCondition>, element: Recor
 
             if(Array.isArray(element.expand[parts[0]]))
             {
-                value = element.expand[parts[0]].map(k => k[parts[1]]);
+                value = element.expand[parts[0]].map(k => String(k[parts[1]]));
             }
             else
             {
-                value = element.expand[parts[0]][parts[1]]
+                value = String(element.expand[parts[0]][parts[1]])
             }
         }
         else
         {
-            value = element[filter.field]
+            value = String(element[filter.field])
         }
 
         if(value === undefined)
@@ -150,9 +151,9 @@ export function clientSideFilter(filters: Array<FilterCondition>, element: Recor
             case "<=":
                 return value <= filter.value;
             case "~":
-                return Array.isArray(value) ? value.findIndex(k => String(k).toLowerCase().includes(filter.value.toLowerCase())) > -1 : String(value).includes(filter.value.toLowerCase());
+                return Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(filter.value.toLowerCase())) > -1 : value.includes(filter.value.toLowerCase());
             case "!~":
-                return !(Array.isArray(value) ? value.findIndex(k => String(k).toLowerCase().includes(filter.value.toLowerCase())) > -1 : String(value).includes(filter.value.toLowerCase()));
+                return !(Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(filter.value.toLowerCase())) > -1 : value.includes(filter.value.toLowerCase()));
         }
     });
 }
