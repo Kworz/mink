@@ -1,86 +1,98 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
+    import AssemblyPreview from "$lib/components/assemblies/AssemblyPreview.svelte";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-
+    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
+    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
+    import { Collections, type AssembliesBuylistsRecord } from "$lib/DBTypes";
+    import { PlusCircle } from "@steeze-ui/heroicons";
     import type { PageData } from "./$types";
 
     export let data: PageData;
 
-    let addList = false;
+    let createList = false;
+
+    let createListName = "";
+    let createListBaseAssembly: string | undefined = undefined;
+    let createListProject: string | undefined = undefined;
+
+    const createListFn = async () => {
+
+        if(createListName === "" || createListBaseAssembly === undefined || createListProject === undefined)
+        { return }
+
+        const list = {
+            name: createListName,
+            assembly: createListBaseAssembly,
+            project: createListProject,
+        } satisfies AssembliesBuylistsRecord;
+
+        try
+        {
+            const listCreated = await $page.data.pb.collection(Collections.AssembliesBuylists).create(list);
+            goto("/app/lists/" + listCreated.id);
+        }
+        catch(ex)
+        {
+            console.log(ex);
+        }
+    }
 
 </script>
 
-<svelte:head><title>Nomenclaturize — Listes</title></svelte:head>
-
 <Wrapper>
-    <Flex justify="between" items="center">
-        <h2>Listes</h2>
-        <Button on:click={() => addList = !addList}>Créer une liste</Button>
-    </Flex>
+    <h3>Listes d'achat d'assemblages (v2)</h3>
 
-    <Table embeded={true}>
-        <svelte:fragment slot="head">
-            <TableHead>Liste</TableHead>
-            <TableHead>Nomenclature de base</TableHead>
-            <TableHead>Affaire</TableHead>
-            <TableHead>Créé le</TableHead>
-        </svelte:fragment>
-    
-        <svelte:fragment slot="body">
+    <PillMenu>
+        <PillMenuButton icon={PlusCircle} click={() => createList = !createList}>Créer une liste</PillMenuButton>
+    </PillMenu>
 
-            {#if addList}
-                <TableRow>
-                    <TableCell>
-                        <form id="createList" action="?/newList" method="POST" class="flex flex-col">
-                            <FormInput form="createList" label="Nom de la liste" labelMandatory={true} name="name"/>
-                        </form>
-                    </TableCell>
-                    <TableCell>
-                        <FormInput form="createList" type="select" label="Nomenclature de base" labelMandatory={true} name="parent_nomenclature" value={data.nomenclatures.at(0)?.id}>
-                            {#each data.nomenclatures as nomenclature}
-                                <option value={nomenclature.id}>{nomenclature.name}</option>
-                            {/each}
-                        </FormInput>
-                    </TableCell>
-                    <TableCell>
-                        <FormInput form="createList" type="select" label="Affaire" labelMandatory={true} name="project" value="">
-                            <option value="">Aucun</option>
-                            {#each data.projects as project}
-                                <option value={project.id}>{project.name}</option>
-                            {/each}
-                        </FormInput>
-                    </TableCell>
-                    <TableCell><Button form="createList" class="self-end">Créer</Button></TableCell>
-                </TableRow>
-            {/if}
-
-
-            {#each data.lists as list}
-                <TableRow>
-                    <TableCell><a href="/app/lists/{list.id}">{list.name}</a></TableCell>
-                    <TableCell>
-                        {#if list.expand?.parent_nomenclature !== undefined}
-                            <a href="/app/nomenclatures/{list.expand.parent_nomenclature.id}">{list.expand.parent_nomenclature.name}</a>
-                        {:else}
-                            Aucune nomenclature parent
-                        {/if}                
-                    </TableCell>
-                    <TableCell>
-                        {#if list.expand?.project !== undefined}
-                            <a href="/app/projects/{list.expand.project.id}">{list.expand.project.name}</a>
-                        {:else}
-                            Aucun
-                        {/if}
-                    </TableCell>
-                    <TableCell>{list.created}</TableCell>
-                </TableRow>
-            {/each}
-        </svelte:fragment>
-    </Table>
+    {#if createList}
+        <h4>Créer une liste</h4>
+        <div class="flex flex-col md:flex-row gap-4 items-start md:items-end mt-6">
+            <FormInput name="name" label="Nom de la liste" labelMandatory bind:value={createListName} />
+            <FormInput name="assembly" type="select" label="Assemblage" labelMandatory bind:value={createListBaseAssembly}>
+                {#await $page.data.pb.collection(Collections.Assemblies).getFullList({sort: "-favorite,name"}) then assemblies}
+                    <option value={undefined}>—</option>
+                    {#each assemblies as assembly}
+                        <option value={assembly.id}>{assembly.name}</option>
+                    {/each}
+                {/await}
+            </FormInput>
+            <FormInput name="project" type="select" label="" labelMandatory bind:value={createListProject} >
+                {#await $page.data.pb.collection(Collections.Projects).getFullList({sort: "-updated,name"}) then projects}
+                    <option value={undefined}>—</option>
+                    {#each projects as project}
+                        <option value={project.id}>{project.name}</option>
+                    {/each}
+                {/await}
+            </FormInput>
+            <Button on:click={createListFn}>Créer</Button>
+        </div>
+    {/if}
 </Wrapper>
+
+<Table>
+    <svelte:fragment slot="head">
+        <TableHead>Liste</TableHead>
+        <TableHead>Assemblage de base</TableHead>
+        <TableHead>Affaire</TableHead>
+    </svelte:fragment>
+
+    <svelte:fragment slot="body">
+        {#each data.lists as list}
+            <TableRow>
+                <TableCell><a href="/app/lists/{list.id}">{list.name}</a></TableCell>
+                <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
+                <TableCell>{list.expand?.project?.name}</TableCell>
+            </TableRow>
+        {/each}
+    </svelte:fragment>
+</Table>

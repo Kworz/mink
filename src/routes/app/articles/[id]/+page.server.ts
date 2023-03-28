@@ -219,7 +219,8 @@ export const actions: Actions = {
             };
 
             await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
-            await locals.pb.collection(Collections.Article).update(params.id, form);
+            console.log(params.id, quantityToOutput);
+            await locals.pb.collection(Collections.Article).update(params.id, { "quantity-": quantityToOutput });
 
             return { updateStock: { success: "Successfully updated stock" }};
         }
