@@ -17,9 +17,7 @@
 
     let searchInput: HTMLInputElement | undefined = undefined;
 
-    const handleKeyboard = (e: KeyboardEvent) => {
-
-        console.log(e);
+    const handleKeyboard = (e: KeyboardEvent) => { 
 
         if (e.key === "Escape") {
             searchTerm = "";
