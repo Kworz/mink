@@ -1,9 +1,16 @@
 <script lang="ts">
     import { browser } from "$app/environment";
-    import type { UsersResponse } from "$lib/DBTypes";
+    import { page } from "$app/stores";
+    import { Collections, type UsersResponse } from "$lib/DBTypes";
     import { User } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
+    import { onMount } from "svelte";
+
     export let user: UsersResponse;
+
+    onMount(async () => {        
+        user = await $page.data.pb.collection(Collections.Users).getOne<UsersResponse>(user.id);
+    })
 
 </script>
 
