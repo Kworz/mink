@@ -67,6 +67,6 @@ export class LabelDocument {
     async addQRCode(text: string, x: number, y: number, size:number, margin = 4)
     {
         const QRCode = await qrcode.toDataURL(text, { "type": "image/png", margin });
-        this.addImage(QRCode, 2, 2, 18, 18);
+        this.addImage(QRCode, x, y, size, size);
     }
 }
