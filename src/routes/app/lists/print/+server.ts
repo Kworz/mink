@@ -3,6 +3,7 @@ import { Collections } from "$lib/DBTypes";
 
 import { LabelDocument } from "$lib/label/labelDocument";
 import type { AssembliesBuylistsResponseExpanded } from "../../lists/+page.server";
+import type jsPDF from "jspdf";
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 
@@ -18,16 +19,25 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         lists.push(await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(list, { expand: "project,assembly"}))
     }
 
-    const label = new LabelDocument(32, 57);
+    const label = new LabelDocument(59, 102);
 
     for(const [index, list] of lists.entries())
     {
-        await label.addQRCode(`list:${list.id}`, 2, 2, 18);
+        //get avatar from pocketbase and add it to the label
+        const url = locals.pb.getFileUrl(list.expand?.assembly, list.expand?.assembly.thumbnail);
 
-        label.printResizeText(list.expand?.project?.name, 6, 31, 38.5, 8, { align: "center" });
-        label.printResizeText(list.expand?.assembly?.name, 6, 31, 38.5, 16, { align: "center" });
+        const response = await fetch(url);
+        const blob = await response.arrayBuffer();
 
-        label.printResizeText(list.name, 8, 51, 28.5, 28, { align: "center" });
+        (label as jsPDF).addImage(new Uint8Array(blob), "PNG", 5, 5, 25, 25);
+
+        await label.addQRCode(`list:${list.id}`, 5, 32.5, 25);
+
+        label.printResizeText("Liste d'achat", 7, 50, 65, 15, { align: "center" });
+        label.printResizeText(list.expand?.assembly?.name, 8, 50, 65, 25, { align: "center" });
+
+        label.printResizeText(list.name, 8, 50, 65, 42.5, { align: "center" });
+        label.printResizeText(`Affaire: ${list.expand?.project?.name ?? "—"}`, 7, 50, 65, 50, { align: "center" });
 
         if(index + 1 < lists.length)
             label.addPage();        
