@@ -151,9 +151,9 @@ export function clientSideFilter(filters: Array<FilterCondition>, element: Recor
             case "<=":
                 return value <= filter.value;
             case "~":
-                return Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(filter.value.toLowerCase())) > -1 : value.includes(filter.value.toLowerCase());
+                return Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(filter.value.toLowerCase())) > -1 : value.toLowerCase().includes(filter.value.toLowerCase());
             case "!~":
-                return !(Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(filter.value.toLowerCase())) > -1 : value.includes(filter.value.toLowerCase()));
+                return !(Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(filter.value.toLowerCase())) > -1 : value.toLowerCase().includes(filter.value.toLowerCase()));
         }
     });
 }
