@@ -67,9 +67,9 @@
     <PillMenu>
         <PillMenuButton icon={PlusCircle} href="/app/articles/new">Créer un article</PillMenuButton>
         <PillMenuButton icon={ArrowDownTray} href="/app/articles/import" role="secondary">Importer des articles</PillMenuButton>
-        <PillMenuButton icon={ArrowUpTray} on:click={() => window.open(`/app/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
+        <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
         {#if selected.length > 0}
-            <PillMenuButton icon={QrCode} on:click={() => window.open(`/app/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>Imprimer les étiquettes</PillMenuButton>
+            <PillMenuButton icon={QrCode} click={() => window.open(`/app/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>Imprimer les étiquettes</PillMenuButton>
         {/if}
     </PillMenu>
 
