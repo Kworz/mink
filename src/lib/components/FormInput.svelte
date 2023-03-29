@@ -25,7 +25,7 @@
 
     export let backColors = "bg-gray-200 dark:bg-zinc-700";
     
-    const baseStyle = "border dark:border-zinc-800/50  rounded-md p-2 duration-100"
+    const baseStyle = "border dark:border-zinc-800/50  rounded-md p-2 duration-250"
 
     $: validateButton = validateOnBlur || validateOnChange;
 
@@ -61,18 +61,18 @@
 
     {#if type === "select"}
         {#if multiple} 
-            <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} multiple on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} multiple on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>
         {:else}
-            <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>
         {/if}
     {:else if type == "checkbox"}
-        <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
+        <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}/>
     {:else}
-        <input use:typeAction {name} {form} bind:value {min} {max} {step} class="{style}" class:ring-red-500={invalid} on:change={onChange} on:blur={onBlur}/>
+        <input use:typeAction {name} {form} bind:value {min} {max} {step} class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}/>
     {/if}
 
     {#if validateButton}
