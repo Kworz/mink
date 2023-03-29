@@ -4,8 +4,6 @@ import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page
 
 export const search = async (search: string, pb: Client) => {
 
-    console.log("searching for", search)
-
     const articles = await pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>({ filter: `name ~ "${search}"`, batch: 5, expand: "supplier", sort: "name" });
     const assemblies = await pb.collection(Collections.Assemblies).getFullList<AssembliesResponse>({ filter: `name ~ "${search}"`, batch: 5, sort: "name" });
     const lists = await pb.collection(Collections.AssembliesBuylists).getFullList<AssembliesBuylistsResponse>({ filter: `name ~ "${search}"`, batch: 5, sort: "name" });

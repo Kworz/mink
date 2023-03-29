@@ -72,7 +72,7 @@
                 {#if results.lists.length > 0}
                     <h4>Listes</h4>
                     {#each results.lists as list}
-                        <a href="/app/lists2/{list.id}">{list.name}</a>
+                        <a href="/app/lists/{list.id}">{list.name}</a>
                     {/each}
                 {/if}
             </button>
