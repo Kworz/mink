@@ -80,7 +80,7 @@
                         <PillMenuButton icon={Trash} role="danger">Confirmer la suppression</PillMenuButton>
                     </form>
                 {:else}
-                    <PillMenuButton icon={Trash} click={() => showConfirmDelete = true} role="danger">Supprimer l'article</PillMenuButton>                
+                    <PillMenuButton icon={Trash} click={() => { showConfirmDelete = true; return false;}} role="danger">Supprimer l'article</PillMenuButton>                
                 {/if}
             </PillMenu>
         {:else}
