@@ -201,12 +201,13 @@ export const actions: Actions = {
 
             const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
 
-            const quantityToOutput = Number(form.get("quantity_update"));
+            const quantityUpdate = Number(form.get("quantity_update"));
+            const quantityDirection = Number(form.get("direction"));
 
-            if(quantityToOutput === 0)
+            if(quantityUpdate === 0)
                 throw "La quantité à sortir est nulle";
 
-            const newQuantity = (article.quantity ?? 0) - quantityToOutput;
+            const newQuantity = (article.quantity ?? 0) + (quantityUpdate * quantityDirection);
 
             if(newQuantity < 0)
                 throw "Le stock tombe en dessous de 0, vérifiez la quantité initiale et la quantité à sortir";
@@ -214,12 +215,12 @@ export const actions: Actions = {
             const articleMovement: ArticleMovementsRecord = { 
                 article: params.id, 
                 user: locals.user.id, 
-                quantity_update: -quantityToOutput, 
+                quantity_update: quantityUpdate * quantityDirection, 
                 reason: (form.get("reason")?.toString()) ?? "Mise à jour du stock"
             };
 
             await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
-            await locals.pb.collection(Collections.Article).update(params.id, { "quantity-": quantityToOutput });
+            await locals.pb.collection(Collections.Article).update(params.id, { "quantity": newQuantity });
 
             return { updateStock: { success: "Successfully updated stock" }};
         }

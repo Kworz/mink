@@ -1,18 +1,24 @@
-import { Collections, type ArticleMovementsRecord } from "$lib/DBTypes";
+import { Collections, type ArticleMovementsRecord, AssembliesBuylistsRowsResponse, type OrdersRowsRecord, type OrdersRecord, OrdersStateOptions, SuppliersResponse } from "$lib/DBTypes";
 import { ClientResponseError } from "pocketbase";
 import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
 import type { PageServerLoad, Actions } from "./$types";
+import type { AssembliesBuylistsResponseExpanded } from "../+page.server";
+
+import { redirect } from "@sveltejs/kit";
 
 export const load = (async ({ locals, params }) => {
 
-    const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne(params.id, { expand: "assembly,project"});
+    const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project"});
     const listItems = await locals.pb.collection(Collections.AssembliesBuylistsRows).getFullList({ filter: `buylist = "${list.id}"`});
-    const flattenAssemblyResult = await flattenAssembly(list.expand.assembly, locals.pb);
+    const flattenAssemblyResult = await flattenAssembly(list.expand?.assembly, locals.pb);
+
+    const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>({ filter: [...new Set(flattenAssemblyResult.map(k => k.article.supplier).flat())].map(k => `id = "${k}"`).join(" || ") });
 
     return {
         list: structuredClone(list),
         listItems: structuredClone(listItems), 
-        flattenAssemblyResult: structuredClone(flattenAssemblyResult)
+        flattenAssemblyResult: structuredClone(flattenAssemblyResult),
+        suppliers: structuredClone(suppliers),
     }
 
 }) satisfies PageServerLoad;
@@ -90,5 +96,66 @@ export const actions: Actions = {
 
         }
         return { buyListRelationEdit: { success: "Successfully Created/updated row row" }};
+    },
+
+    generateOrder: async ({ locals, params, request }) => {
+    
+        const form = await request.formData();
+
+        const supplier = form.get("supplier")?.toString();
+
+        if(supplier === undefined)
+            return;
+
+        const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
+        const supplierResponse = await locals.pb.collection(Collections.Suppliers).getOne<SuppliersResponse>(supplier);
+        const assemblyRows = await flattenAssembly(list.expand?.assembly, locals.pb);
+
+        const orderRows: OrdersRowsRecord[] = [];
+
+        for(const assemblyRow of assemblyRows.filter(k => k.article.supplier?.includes(supplier)))
+        {
+            let buyListRelation: AssembliesBuylistsRowsResponse | undefined = undefined;
+
+            try
+            {
+                buyListRelation = await locals.pb.collection(Collections.AssembliesBuylistsRows).getFirstListItem<AssembliesBuylistsRowsResponse>(`article = "${assemblyRow.article}" && buylist = "${list.id}"`);
+            }
+            catch(ex) { null;}
+
+            if((buyListRelation?.quantity ?? 0) >= assemblyRow.quantity)
+                continue;
+
+            orderRows.push({
+                order: "",
+                article: assemblyRow.article.id,
+                quantity: assemblyRow.quantity - (buyListRelation?.quantity ?? 0),
+                project: list.project,
+            });
+        }
+
+        if(orderRows.length > 0)
+        {
+            const orderRecord: OrdersRecord = { 
+                "name": `Commande ${list.name} — ${supplierResponse.name}`,
+                "supplier": supplier,
+                "issuer": locals.user?.id,
+                "state": OrdersStateOptions.draft
+            };
+
+            const order = await locals.pb.collection(Collections.Orders).create(orderRecord);
+            orderRows.map(k => { return { ...k, order: order.id }});
+
+            for(const orderRow of orderRows)
+            {
+                await locals.pb.collection(Collections.OrdersRows).create({ ...orderRow, order: order.id });
+            }
+
+            throw redirect(303, `/app/orders/${order.id}`);
+        }
+        else
+        {
+            return { generateOrder: { error: "Nothing to order with this supplier" }};
+        }
     }
 };

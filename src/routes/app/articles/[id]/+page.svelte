@@ -32,6 +32,7 @@
     let selectedFile: number = (data.article.attached_files === undefined) ? -1 : 0;
 
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
+    $: if(form !== null) { setTimeout(() => form = null, 3000); }
     $: if(showConfirmDelete === true) { setTimeout(() => showConfirmDelete = false, 3000); }
 
 </script>
@@ -40,7 +41,7 @@
     <title>Article — {data.article.name}</title>
 </svelte:head>
 
-<div class="flex flex-col md:flex-row gap-6">
+<div class="flex flex-col-reverse md:flex-row gap-6">
     <Wrapper class="relative grow">
         {#if !editArticle}
             <h2 class="mb-2">{data.article.name}</h2>
@@ -101,7 +102,7 @@
         {/if}
     </Wrapper>
 
-    <Wrapper class="h-96 shrink-0 aspect-square relative p-0 overflow-hidden hidden md:block">
+    <Wrapper class="h-96 shrink-0 aspect-square mx-auto relative p-0 overflow-hidden">
         {#if data.article.attached_files?.[selectedFile] === undefined || selectedFile === -1}
             <Flex justify="between" direction="col">
                 <h4>Ajouter un fichier</h4>
@@ -124,7 +125,7 @@
 </div>
 
 <Wrapper class="mt-6">
-    <h4>Sortie / Entrée de stock</h4>
+    <h4 class="mb-2">Sortie / Entrée de stock</h4>
 
     {#if form?.updateStock?.error}
         <p class="my-2 text-red-500">{form.updateStock.error}</p>
@@ -134,12 +135,14 @@
         <p class="my-2 text-emerald-500">{form.updateStock.success}</p>
     {/if}
 
-    <form action="?/updateStock" method="post" use:enhanceNoReset>
-        <Flex direction="col" items="start" class="mt-4">
-            <FormInput type="number" name="quantity_update" label="Quantité" labelMandatory={true} value={0} />
-            <FormInput type="text" name="reason" label="Raison" labelMandatory={true} value={"Sortie de stock"} />
-            <Button>Modifier la quantité en stock</Button>
-        </Flex>
+    <form action="?/updateStock" method="post" use:enhanceNoReset class="flex flex-col md:flex-row gap-4 md:items-end">
+        <FormInput type="number" name="quantity_update" label="Quantité" labelMandatory value={0} />
+        <FormInput type="select" name="direction" label="Direction" labelMandatory value={-1}>
+            <option value={-1}>Sortie</option>
+            <option value={1}>Entrée</option>
+        </FormInput>
+        <FormInput type="text" name="reason" label="Raison" labelMandatory value={"Sortie de stock"} />
+        <Button>Modifier la quantité en stock</Button>
     </form>
 </Wrapper>
 
@@ -147,17 +150,17 @@
     {#if data.articleMovements.length > 0}
         <Table marginTop="">
             <svelte:fragment slot="head">
-                <TableHead>Movement quantité</TableHead>
-                <TableHead>Raison</TableHead>
+                <TableHead>Quantité</TableHead>
+                <TableHead class="hidden md:table-cell">Raison</TableHead>
                 <TableHead>Utilisateur</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead class="hidden md:table-cell">Date</TableHead>
             </svelte:fragment>
 
             <svelte:fragment slot="body">
                 {#each data.articleMovements as movement}
                     <TableRow>
                         <TableCell>{movement.quantity_update}</TableCell>
-                        <TableCell>{movement.reason ?? "—"}</TableCell>
+                        <TableCell class="hidden md:table-cell">{movement.reason ?? "—"}</TableCell>
                         <TableCell>
                             {#if movement.expand?.user !== undefined}
                                 <User user={movement.expand.user} />
@@ -165,7 +168,7 @@
                                 —
                             {/if}
                         </TableCell>
-                        <TableCell>{movement.created}</TableCell>
+                        <TableCell class="hidden md:table-cell">{movement.created}</TableCell>
                     </TableRow>
                 {/each}
             </svelte:fragment>
