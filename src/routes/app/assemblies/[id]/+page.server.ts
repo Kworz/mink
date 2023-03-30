@@ -7,7 +7,6 @@ export const load = (async ({ locals, params }) => {
 
     return {
         assembly: structuredClone(assembly),
-
     };
 
 }) satisfies PageServerLoad;

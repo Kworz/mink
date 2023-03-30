@@ -23,6 +23,9 @@ export const actions: Actions = {
             if(supplierID === null)
                 throw "could not find supplier ID";
 
+            if((form.get("thumbnail") as (Blob | null))?.size === 0)
+                form.delete("thumbnail");
+
             await locals.pb.collection(Collections.Suppliers).update(supplierID.toString(), form);
 
             return {

@@ -24,7 +24,6 @@
 
     $: if(form !== undefined && browser) { editSupplier = undefined; createSupplier = false; invalidateAll(); };
     $: if(deleteConfirm !== undefined) { setTimeout(() => deleteConfirm = undefined, 5000); }
-    
 
 </script>
 
@@ -38,6 +37,16 @@
             {/if}
 
             <Flex direction="col">
+
+                {#if editSupplier?.thumbnail !== "" && browser}
+                    <Flex items="center" gap={2}>
+                        <img src={`http://${window.location.hostname}:8090/api/files/${editSupplier?.collectionName}/${editSupplier?.id}/${editSupplier?.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
+                        <Button on:click={() => { editSupplier.thumbnail = "" }}>Supprimer l'image</Button>
+                    </Flex>
+                {:else}
+                    <FormInput type="file" name="thumbnail" label="Logo fournisseur" backgroundColor="bg-white" />
+                {/if}
+
                 <FormInput name="name" label="Nom du fournisseur" labelMandatory={true} value={editSupplier?.name ?? ""}  backgroundColor="bg-white"/>
                 <Flex items="center" gap={2}>
                     <input type="checkbox" name="internal" checked={editSupplier?.internal ?? false}>
@@ -89,7 +98,14 @@
                             {#if supplier.internal}
                                 <Icon src={Home} class="h-4 w-4" />
                             {/if}
-                            <a href={supplier.website ?? "#"}>{supplier.name}</a>
+                            <a href={supplier.website ?? "#"}>
+                                {#if supplier.thumbnail !== "" && browser}
+                                    <img src={`http://${window.location.hostname}:8090/api/files/${supplier.collectionName}/${supplier.id}/${supplier.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" />
+                                {/if}
+                                <span>
+                                    {supplier.name}
+                                </span>
+                            </a>
                         </Flex>
                     </TableCell>
                     <TableCell>{supplier.address}</TableCell>
