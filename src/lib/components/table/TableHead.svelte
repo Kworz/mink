@@ -9,7 +9,7 @@
 
 </script>
 
-<th class="{colWidth} p-4 border-b-2 border-b-violet-500/75 text-left">
+<th class="{colWidth} p-4 border-b-2 border-b-violet-500/75 text-left {$$props.class}">
     <Flex items="center" gap={1}>
         <span><slot /></span>
         {#if col !== undefined}

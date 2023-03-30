@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { invalidateAll } from "$app/navigation";
+    import { enhance } from "$app/forms";
+import { invalidateAll } from "$app/navigation";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import AssemblyPreview from "$lib/components/assemblies/AssemblyPreview.svelte";
     import Button from "$lib/components/Button.svelte";
@@ -17,7 +18,7 @@
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { Check, DocumentChartBar, QrCode, WrenchScrewdriver } from "@steeze-ui/heroicons";
+    import { Check, DocumentChartBar, DocumentPlus, QrCode, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
 
     import type { ActionData, PageData, Snapshot } from "./$types";
@@ -27,6 +28,8 @@
 
     let filters: Array<FilterCondition> = [];
     let filter: string = "";
+
+    let createOrder = false;
 
     $: flatenRelations = data.flattenAssemblyResult.map((far) => {
         return {
@@ -49,6 +52,7 @@
 
     <PillMenu>
         <PillMenuButton icon={WrenchScrewdriver}>Modifier la liste d'achat</PillMenuButton>
+        <PillMenuButton icon={DocumentPlus} click={() => createOrder = !createOrder}>Créer une commande</PillMenuButton>
         <PillMenuButton icon={DocumentChartBar} click={() => window.open(`/app/lists/${data.list.id}/export`, "_blank")?.focus()}>Exporter la liste</PillMenuButton>
         <PillMenuButton icon={QrCode} click={() => window.open(`/app/lists/print/?lists=${data.list.id}`, "_blank")?.focus()}>Imprimer l'etiquette</PillMenuButton>
     </PillMenu>
@@ -57,6 +61,20 @@
     <p>Assemblage de base: <DetailLabel>{data.list.expand.assembly?.name}</DetailLabel>.</p>
     <p>Manquant pour finaliser: <DetailLabel><Price value={flatenRelations.reduce((p, c) => p + ((c.far.article?.price ?? 0) * (c.far.quantity - (c.buyListRelation?.quantity ?? 0))), 0)}/></DetailLabel>.</p>
 </Wrapper>
+
+{#if createOrder}
+    <Wrapper class="mt-6">
+        <h4>Créer une commande</h4>
+        <form action="?/generateOrder" method="post" use:enhance class="flex flex-col gap-4 md:flex-row md:items-end">
+            <FormInput name="supplier" type="select" label="Fournisseur" labelMandatory>
+                {#each data.suppliers as supplier}
+                    <option value={supplier.id}>{supplier.name}</option>
+                {/each}
+            </FormInput>
+            <Button>Créer la commande</Button>
+        </form>
+    </Wrapper>
+{/if}
 
 <Wrapper class="mt-6">
     <Filter2 bind:filter bind:filters availableFilters={[{name: "name", default: true}, { name: "quantity" }, { name: "manufacturer" }, { name: "reference" }, { name: "supplier.name" }, { name: "valid" }, { name: "stock" }]} />
@@ -86,7 +104,7 @@
                         <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
                             <input type="hidden" name="article" value={far.far.article.id} />
                             <input type="hidden" name="buylist" value={data.list.id} />
-                            <FormInput name="quantity" type="number" value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} />
+                            <FormInput name="quantity" type="number" step={0.1} value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} />
                             <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                         </form>
                     </TableCell>

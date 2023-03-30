@@ -58,7 +58,7 @@
     </form>
 </MenuSide>
 
-<Wrapper class="w-4/5 mx-auto aspect-A4 p-8">
+<Wrapper class="p-8">
     <h2>Commande <span class="px-3 py-1 rounded-full bg-violet-500 text-white font-medium">{data.order.name}</span></h2>
 
     <Grid cols={2} gap={24} items="start" class="mt-6">
