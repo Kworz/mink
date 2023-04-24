@@ -54,6 +54,7 @@ export type ArticleRecord = {
 	name: string
 	quantity?: number
 	order_quantity?: number
+	critical_quantity?: number
 	supplier?: RecordIdString[]
 	price?: number
 	reference?: string
@@ -62,6 +63,7 @@ export type ArticleRecord = {
 	pinned_file?: string
 	label?: boolean
 	store?: RecordIdString
+	consumable?: boolean
 }
 
 export type ArticleMovementsRecord = {
