@@ -1,21 +1,26 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import { invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
+    import { page } from "$app/stores";
     import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
     import ArticleFinder from "$lib/components/article/ArticleFinder.svelte";
     import Button from "$lib/components/Button.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
+    import Flex from "$lib/components/layout/flex.svelte";
     import Grid from "$lib/components/layout/grid.svelte";
+    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
+    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import Wrapper2 from "$lib/components/Wrapper2.svelte";
-    import { OrdersStateOptions } from "$lib/DBTypes";
+    import { Collections, OrdersStateOptions } from "$lib/DBTypes";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
+    import { Printer, Trash } from "@steeze-ui/heroicons";
     import type { ArticleResponseExpanded } from "../../articles/+page.server";
 
     import type { ActionData, PageData } from "./$types";
@@ -32,6 +37,7 @@
     const statesKeys = Object.keys(states) as Array<OrdersStateOptions>;
 
     let selectedArticle: ArticleResponseExpanded | undefined = undefined;
+    let confirmDelete = false;
 
     export let data: PageData;
     export let form: ActionData;
@@ -41,28 +47,50 @@
     $: completeTotal = htTotal + tvaSubtotal;
     
     $: if(form !== null) { invalidateAll(); selectedArticle = undefined; }
+    $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 3500) };
+
+    const deleteOrder = async () => {
+        if(confirmDelete === false)
+        {
+            confirmDelete = true;
+            return;
+        }
+        
+        await $page.data.pb.collection(Collections.Orders).delete(data.order.id);
+        const orderRows = await $page.data.pb.collection(Collections.OrdersRows).getFullList({ filter: `order = "${data.order.id}"`});
+
+        for(const or of orderRows)
+        {
+            await $page.data.pb.collection(Collections.OrdersRows).delete(or.id);
+        }
+        goto("/app/orders");
+    }
 
 </script>
 
-<MenuSide>
-    <h2>Commande</h2>
-    <p>Réglages de la commande</p>
-
-    <form action="?/editOrder" method="post" use:enhanceNoReset class="flex flex-col gap-4 mt-6">
-        <FormInput bind:value={data.order.name} name="name" label="Nom de la commande" labelMandatory={true} backgroundColor="bg-white" validateOnChange={true}/>
-        <FormInput type="select" bind:value={data.order.state} name="state" label="État de la commande" labelMandatory={true} backgroundColor="bg-white" validateOnChange={true}>
-            {#each statesKeys as state}
-                <option value={state} class="capitalize">{states[state]}</option>
-            {/each}
-        </FormInput>
-    </form>
-</MenuSide>
-
 <Wrapper class="p-8">
-    <h2>Commande <span class="px-3 py-1 rounded-full bg-violet-500 text-white font-medium">{data.order.name}</span></h2>
 
+    <PillMenu>
+        <PillMenuButton icon={Printer} click={() => window.open(`/app/orders/${data.order.id}/export`, '_blank')?.focus()}>Créer un PDF de la commande</PillMenuButton>
+        <PillMenuButton icon={Trash} click={() => { deleteOrder(); return false; }}>Supprimer</PillMenuButton>
+    </PillMenu>
+
+    <form action="?/editOrder" method="post" use:enhanceNoReset class="flex flex-col gap-4">
+        <Flex items="center">
+            <h2>Commande N°</h2>
+            <FormInput name="name" value={data.order.name} validateOnChange />
+        </Flex>
+        <Flex items="center">
+            <h4>État de la commande:</h4>        
+            <FormInput type="select" name="state" value={data.order.state} validateOnChange>
+                {#each statesKeys as state}
+                    <option value={state} class="capitalize">{states[state]}</option>
+                {/each}
+            </FormInput>
+        </Flex>
+    </form>
     <Grid cols={2} gap={24} items="start" class="mt-6">
-        <Wrapper2>
+        <Wrapper2 padding="p-4">
             <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
                 <svelte:fragment slot="body">
                     <TableRow>
@@ -85,7 +113,8 @@
             </Table>
         </Wrapper2>
 
-        <Wrapper2>
+        <Wrapper2 padding="p-4">
+            <h4>Fournisseur</h4>
             <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
                 <svelte:fragment slot="body">
                     <TableRow>
@@ -99,7 +128,7 @@
         </Wrapper2>
     </Grid>
 
-    <Table backgroundColor="dark:bg-zinc-700">
+    <Table backgroundColor="bg-gray-200 dark:bg-zinc-700">
         <svelte:fragment slot="head">
             <TableHead>Projet</TableHead>
             <TableHead>Désignation</TableHead>
@@ -142,7 +171,7 @@
         </Wrapper2>
     {/if}
 
-    <Table class="w-auto ml-auto"  backgroundColor="dark:bg-zinc-700">
+    <Table class="w-max ml-auto" backgroundColor="bg-gray-200 dark:bg-zinc-700">
         <svelte:fragment slot="body">
             <TableRow>
                 <TableCell>Total (HT)</TableCell>

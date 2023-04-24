@@ -1,4 +1,4 @@
-import { Collections, type ArticleMovementsRecord, type OrdersRowsResponse, type OrdersResponse, type SuppliersResponse, type ListResponse } from "$lib/DBTypes";
+import { Collections, type ArticleMovementsRecord, type OrdersRowsResponse, type OrdersResponse, type SuppliersResponse, type ListResponse, OrdersStateOptions } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../articles/+page.server";
 import type { ListResponseExpanded } from "../lists/+page.server";
 import type { Actions, PageServerLoad } from "./$types";
@@ -44,7 +44,7 @@ export const actions: Actions = {
             if(locals.user === undefined || locals.user === null)
                 throw "User not logged in";
 
-            const order_rows = await locals.pb.collection(Collections.OrdersRows).update<OrdersRowsResponse<{order: OrdersResponse}>>(order_row.toString(), {
+            const order_row2 = await locals.pb.collection(Collections.OrdersRows).update<OrdersRowsResponse<{order: OrdersResponse}>>(order_row.toString(), {
                 "quantity_received+": quantity_received.toString()
             }, { expand: "order"});
 
@@ -54,10 +54,20 @@ export const actions: Actions = {
                 article: articleID.toString(),
                 quantity_update: Number(quantity_received.toString()),
                 user: locals.user.id,
-                reason: `Réception commande ${order_rows.expand?.order.name}`
+                reason: `Réception commande ${order_row2.expand?.order.name}`
             };
 
             await locals.pb.collection(Collections.ArticleMovements).create(movement);
+
+            const orderRowsIncomplete = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ expand: "article.supplier,order.supplier", filter: `(order.state = "placed" || order.state = "acknowledged") && quantity != quantity_received`});
+
+            if(orderRowsIncomplete.length === 0)
+            {
+                await locals.pb.collection(Collections.Orders).update(order_row2.order, { state: OrdersStateOptions.completed });
+            }
+
+            return { receiveArticle: { success: true }};
+
         }
         catch(ex)
         {
