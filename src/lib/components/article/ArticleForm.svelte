@@ -43,6 +43,9 @@
     <FormInput type="number" label="Prix" name="price" step={0.0001} value={article?.price} />
     <FormInput type="number" name="order_quantity" label="Quantité minimale de commande" value={article?.order_quantity} min={1} />
 
+    <FormInput type="checkbox" name="consumable" label="Consommable" checked={article?.consumable} />
+    <FormInput type="number" name="critical_quantity" label="Quantité critique" value={article?.critical_quantity} />
+
     <FormInput type="select" name="supplier" label="Fournisseur" value={article?.supplier} multiple={true}>
         {#each suppliers as supplier}
             <option value={supplier.id} selected={article?.supplier?.includes(supplier.id)}>{supplier.name}</option>

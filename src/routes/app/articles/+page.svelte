@@ -81,7 +81,9 @@
             { name: "supplier.name" },
             { name: "store.name"},
             { name: "price" },
-            { name: "quantity" }
+            { name: "quantity" },
+            { name: "critical_quantity"},
+            { name: "consumable" }
         ]} />
     </div>
 
@@ -90,6 +92,7 @@
         <svelte:fragment slot="head">
             <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)}/></TableTitle>
             <TableTitle col="name" bind:activeSort>Article ({data.articleList.totalItems})</TableTitle>
+            <TableTitle col="consumable" bind:activeSort>Consommable ?</TableTitle>
             <TableTitle col="quantity" bind:activeSort>Stock</TableTitle>
             <TableTitle col="store.name" bind:activeSort>Emplacement</TableTitle>
             <TableTitle col="reference" bind:activeSort>Référence</TableTitle>
@@ -106,7 +109,19 @@
                     <TableCell>
                         <ArticleRow {article} displayPrice={false} displayManufacturer={false} bind:displayThumb={displayThumbs} displayApprox={true} />
                     </TableCell>
-                    <TableCell>{article.quantity}</TableCell>
+                    <TableCell>{article.consumable ? "Oui" : "Non"}</TableCell>
+                    <TableCell>
+                        {#if article.critical_quantity}
+                            <span
+                                class:text-red-500={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
+                                class:font-semibold={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
+                            >
+                                {article.quantity}
+                            </span>         
+                        {:else}               
+                            {article.quantity}
+                        {/if}
+                    </TableCell>
                     <TableCell>
                         {#if article.expand?.store !== undefined}
                             <Store store={article.expand.store} />

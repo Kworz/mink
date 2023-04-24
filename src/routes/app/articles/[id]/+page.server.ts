@@ -50,6 +50,7 @@ export const actions: Actions = {
             
             const form = await request.formData();
             form.set("label", String(form.has("label")));
+            form.set("consumable", String(form.has("consumable")));
 
             const oldArticle = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
             const newArticle = await locals.pb.collection(Collections.Article).update<ArticleResponse>(params.id, form);

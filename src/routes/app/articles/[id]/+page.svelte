@@ -61,6 +61,9 @@
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity}</DetailLabel>.</p>
 
+            {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{data.article.critical_quantity}</DetailLabel>.</p>{/if}
+            <p>Consommable: <DetailLabel>{data.article.consumable ? "Oui" : "Non"}</DetailLabel>.</p>
+
             {#if data.article.expand?.store}
                 <p>Emplacement: <DetailLabel>{data.article.expand.store.location} / {data.article.expand.store.name}</DetailLabel></p>
             {/if}
