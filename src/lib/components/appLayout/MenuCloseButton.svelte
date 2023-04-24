@@ -12,7 +12,7 @@
 {#if !$isShrinked}
 
 <button 
-    class="flex gap-2 rounded-md {$isShrinked ? "p-2" : "py-2 px-4"} items-center duration-200 font-medium hover:bg-red-200 hover:text-red-700 text-zinc-800 dark:text-white"
+    class="flex gap-2 rounded-md {$isShrinked ? "p-2" : "py-2 px-4"} items-center duration-200 font-medium hover:bg-red-200 hover:text-red-700 text-zinc-800 dark:text-white block: md:hidden"
     on:click={() => $isShrinked = true}
 >
     <Icon src={XMark} class="h-4 w-4" />
