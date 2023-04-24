@@ -10,7 +10,7 @@
 
 </script>
 
-<div class="bg-white dark:bg-zinc-800 px-6 py-4 sticky drop-shadow-lg border-l border-l-zinc-300/25">
+<div class="bg-white dark:bg-zinc-800 px-6 py-4 sticky drop-shadow-lg border-x border-l-zinc-300/25">
     <Flex items="center" justify="between">
 
         <button class="flex gap-4 items-center md:hidden" on:click={() => $menuShrinked = !$menuShrinked}>

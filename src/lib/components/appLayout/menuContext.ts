@@ -6,6 +6,7 @@ type MenuContext = {
 }
 
 export const menuShrinked = writable<boolean>(true);
+export const menuRightShrinked = writable<boolean>(false);
 
 export const setMenuContext = () => setContext<MenuContext>("menu", {
 
