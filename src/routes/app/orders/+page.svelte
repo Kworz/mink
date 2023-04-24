@@ -14,9 +14,21 @@
     export let data: PageData;
 
     let showCompletedOrders = false;
+    let showCancelledOrders = false;
     let createOrder = false;
 
-    $: orders = (showCompletedOrders) ? data.orders : data.orders.filter(k => k.state !== OrdersStateOptions.completed);
+    $: orders = data.orders.filter(k => {
+
+        let result = true;
+
+        if(!showCancelledOrders)
+            result = result && k.state !== OrdersStateOptions.cancelled;
+        
+        if(!showCompletedOrders)
+            result = result && k.state !== OrdersStateOptions.completed;
+        
+        return result;
+    });
 
 </script>
 
@@ -30,6 +42,11 @@
     <Flex items="center" gap={2}>
         <input type="checkbox" bind:checked={showCompletedOrders}/>
         <span>Afficher les commandes terminées</span>
+    </Flex>
+
+    <Flex items="center" gap={2}>
+        <input type="checkbox" bind:checked={showCancelledOrders}/>
+        <span>Afficher les commandes annulées</span>
     </Flex>
 </Wrapper>
 
