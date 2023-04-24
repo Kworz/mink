@@ -7,7 +7,7 @@
 
 </script>
 
-<table class="table-auto w-full {embeded ? "" : "p-4 rounded-lg drop-shadow-lg"} {marginTop} {backgroundColor} {$$props.class}">
+<table class="table-auto w-full {embeded ? "" : "p-4 rounded-lg drop-shadow-sm"} {marginTop} {backgroundColor} {$$props.class}">
     <thead>
         <tr>
             <slot name="head" />
