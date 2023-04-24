@@ -50,7 +50,7 @@
 </script>
 
 <Flex gap={1} direction="col">
-    {#if label}
+    {#if label && type !== "checkbox"}
         <span class="text-zinc-700 dark:text-white text-sm leading-4">
             {label}
             {#if labelMandatory}
@@ -70,7 +70,10 @@
             </select>
         {/if}
     {:else if type == "checkbox"}
-        <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}/>
+        <Flex items="center" gap={2} class="my-2">
+            <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}/>
+            <span>{label}</span>
+        </Flex>
     {:else}
         <input use:typeAction {name} {form} bind:value {min} {max} {step} class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}/>
     {/if}
