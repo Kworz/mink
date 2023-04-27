@@ -59,7 +59,9 @@ export const actions: Actions = {
 
             await locals.pb.collection(Collections.ArticleMovements).create(movement);
 
-            const orderRowsIncomplete = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ expand: "article.supplier,order.supplier", filter: `(order.state = "placed" || order.state = "acknowledged") && quantity != quantity_received`});
+            const orderRowsIncomplete = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ expand: "article.supplier,order.supplier", filter: `(order.state = "placed" || order.state = "acknowledged") && order = "${order_row2.order}" && quantity > quantity_received`});
+
+            console.log(orderRowsIncomplete);
 
             if(orderRowsIncomplete.length === 0)
             {
