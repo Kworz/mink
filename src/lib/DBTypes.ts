@@ -200,6 +200,13 @@ export type ProjectsRecord = {
 	attached_users?: RecordIdString[]
 }
 
+export enum SuppliersPaymentRuleOptions {
+	"order" = "order",
+	"received" = "received",
+	"30eom" = "30eom",
+	"45eom" = "45eom",
+	"60d" = "60d",
+}
 export type SuppliersRecord = {
 	name: string
 	internal?: boolean
@@ -208,6 +215,7 @@ export type SuppliersRecord = {
 	contact_email?: string
 	payment_rules?: string
 	thumbnail?: string
+	payment_rule?: SuppliersPaymentRuleOptions
 }
 
 export type UsersRecord = {
