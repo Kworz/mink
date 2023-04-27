@@ -32,6 +32,7 @@
 {#if editSupplier !== undefined || createSupplier}
 
     <MenuSide closable on:close={() => { editSupplier = undefined; createSupplier = false; }}>
+
         <form action={createSupplier ? "?/createSupplier" : "?/editSupplier"} method="post" use:enhance>
 
             {#if !createSupplier}
@@ -40,7 +41,7 @@
 
             <Flex direction="col">
 
-                {#if editSupplier?.thumbnail !== "" && browser}
+                {#if (editSupplier?.thumbnail ?? "") !== "" && browser}
                     <Flex items="center" gap={2}>
                         <img src={`http://${window.location.hostname}:8090/api/files/${editSupplier?.collectionName}/${editSupplier?.id}/${editSupplier?.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
                         <Button size="small" role="danger" on:click={() => { editSupplier.thumbnail = "" }}>Supprimer l'image</Button>
@@ -60,7 +61,7 @@
 
                 <FormInput type="select" name="payment_rule" value={editSupplier?.payment_rule ?? ""} label="Conditions de paiement" >
                     <option value={undefined}>—</option>
-                    <option value="order">à la commande</option>
+                    <option value="order">À la commande</option>
                     <option value="received">À la reception</option>
                     <option value="30eom">30 Jours fin du mois</option>
                     <option value="45eom">45 Jours fin du mois</option>
