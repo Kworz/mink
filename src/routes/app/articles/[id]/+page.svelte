@@ -58,10 +58,10 @@
             <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
-            {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity}</DetailLabel>.</p>{/if}
+            {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>
 
-            {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{data.article.critical_quantity}</DetailLabel>.</p>{/if}
+            {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{data.article.critical_quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>{/if}
             <p>Consommable: <DetailLabel>{data.article.consumable ? "Oui" : "Non"}</DetailLabel>.</p>
 
             {#if data.article.expand?.store}
