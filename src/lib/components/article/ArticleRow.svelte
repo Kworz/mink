@@ -43,7 +43,7 @@
         {#if displayPrice}<span class="text-sm block"><DetailLabel>{article.price} €</DetailLabel></span>{/if}
         {#if (article.quantity ?? 0) > 0 && displayStock === true} <span class="text-sm text-emerald-600 block">{article.quantity} En stock.</span> {/if}
         {#if article.expand?.["orders_rows(article)"] !== undefined && displayApprox === true}
-            {@const amount = article.expand?.["orders_rows(article)"].map(k => k.quantity - (k.quantity_received ?? 0)).reduce((c, p) => p = c+p, 0)}
+            {@const amount = article.expand?.["orders_rows(article)"].filter(k => k.expand?.order.state != "cancelled").map(k => k.quantity - (k.quantity_received ?? 0)).reduce((c, p) => p = c+p, 0)}
             {#if amount > 0}
                 <span class="text-sm text-amber-500 block">{amount} En approvisionement.</span>
             {/if}

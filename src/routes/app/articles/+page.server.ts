@@ -15,7 +15,7 @@ export const load = (async ({ locals, url }) => {
         const filter = url.searchParams.get("filter") ?? "";
         const page = Number(url.searchParams.get("page")) ?? 1;
         
-        const articles = await locals.pb.collection(Collections.Article).getList<ArticleResponseExpanded>(page, 50, { sort, filter, expand: "supplier,store,orders_rows(article),article_view(article)" });
+        const articles = await locals.pb.collection(Collections.Article).getList<ArticleResponseExpanded>(page, 50, { sort, filter, expand: "supplier,store,orders_rows(article).order,article_view(article)" });
         
         return {
             articleList: structuredClone(articles)

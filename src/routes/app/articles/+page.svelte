@@ -107,7 +107,7 @@
                 <TableRow>
                     <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                     <TableCell>
-                        <ArticleRow {article} displayPrice={false} displayManufacturer={false} bind:displayThumb={displayThumbs} displayApprox={true} />
+                        <ArticleRow {article} displayPrice={false} displayManufacturer={false} bind:displayThumb={displayThumbs} displayApprox />
                     </TableCell>
                     <TableCell>{article.consumable ? "Oui" : "Non"}</TableCell>
                     <TableCell>

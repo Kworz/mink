@@ -45,7 +45,7 @@
                 <svelte:fragment slot="body">
                     {#each flattenAssemblyResult as far}
                         <TableRow>
-                            <TableCell><ArticleRow article={far.article} displayStock={true} displayApprox={true} /></TableCell>
+                            <TableCell><ArticleRow article={far.article} displayStock displayApprox /></TableCell>
                             <TableCell>
                                 <Flex direction={far.subAssemblies.length > 1 ? "row" : "col"} items="start">
                                     {#each far.subAssemblies as assembly}
