@@ -166,7 +166,7 @@
                     {#each subArticles as subArticle}
                         <TableRow>
                             <TableCell>
-                                <ArticleRow article={subArticle.expand?.article_child} />
+                                <ArticleRow article={subArticle.expand?.article_child} displayStock displayApprox />
                             </TableCell>
                             <TableCell>
                                 <Flex items="center">

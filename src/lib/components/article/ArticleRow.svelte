@@ -41,7 +41,10 @@
         <a href="/app/articles/{article.id}" class="block">{article.name}</a>
         {#if displayManufacturer}<span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
         {#if displayPrice}<span class="text-sm block"><DetailLabel>{article.price} €</DetailLabel></span>{/if}
-        {#if (article.quantity ?? 0) > 0 && displayStock === true} <span class="text-sm text-emerald-600 block">{article.quantity} En stock.</span> {/if}
+        {#if (article.quantity ?? 0) > 0 && displayStock === true}
+            {@const shouldOrder = (article.quantity ?? 0) < (article.critical_quantity ?? 0)}
+            <span class="text-sm block" class:text-red-500={shouldOrder} class:text-emerald-500={!shouldOrder}>{article.quantity} En stock.</span>
+        {/if}
         {#if article.expand?.["orders_rows(article)"] !== undefined && displayApprox === true}
             {@const amount = article.expand?.["orders_rows(article)"].filter(k => k.expand?.order.state != "cancelled").map(k => k.quantity - (k.quantity_received ?? 0)).reduce((c, p) => p = c+p, 0)}
             {#if amount > 0}
