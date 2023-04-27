@@ -40,9 +40,9 @@ import { invalidateAll } from "$app/navigation";
 
     $: if(form !== null) { filter = ""; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
 
-    export const snapshot: Snapshot<string> = {
-        capture: () => filter,
-        restore: (value) => filter = value
+    export const snapshot: Snapshot<FilterCondition[]> = {
+        capture: () => filters,
+        restore: (value) => { filters = value; }
     }
 
 </script>
@@ -57,8 +57,8 @@ import { invalidateAll } from "$app/navigation";
         <PillMenuButton icon={QrCode} click={() => window.open(`/app/lists/print/?lists=${data.list.id}`, "_blank")?.focus()}>Imprimer l'etiquette</PillMenuButton>
     </PillMenu>
 
-    <p>Affaire: <DetailLabel>{data.list.expand.project?.name}</DetailLabel>.</p>
-    <p>Assemblage de base: <DetailLabel>{data.list.expand.assembly?.name}</DetailLabel>.</p>
+    <p>Affaire: <DetailLabel>{data.list.expand?.project?.name}</DetailLabel>.</p>
+    <p>Assemblage de base: <DetailLabel>{data.list.expand?.assembly?.name}</DetailLabel>.</p>
     <p>Manquant pour finaliser: <DetailLabel><Price value={flatenRelations.reduce((p, c) => p + ((c.far.article?.price ?? 0) * (c.far.quantity - (c.buyListRelation?.quantity ?? 0))), 0)}/></DetailLabel>.</p>
 </Wrapper>
 
@@ -94,7 +94,7 @@ import { invalidateAll } from "$app/navigation";
                 <TableRow>
                     <TableCell><ArticleRow article={far.far.article} displayStock displayApprox /></TableCell>
                     <TableCell>
-                        <Flex direction={far.far.subAssemblies.length > 1 ? "row" : "col"} gap={2}>
+                        <Flex direction={far.far.subAssemblies.length > 1 ? "row" : "col"} gap={2} items={far.far.subAssemblies.length > 1 ? "center" : undefined}>
                             {#each far.far["subAssemblies"] as assembly}
                                 <AssemblyPreview {assembly} imageSize="h-10" minimized={far.far.subAssemblies.length > 1}/>
                             {/each}
@@ -104,7 +104,7 @@ import { invalidateAll } from "$app/navigation";
                         <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
                             <input type="hidden" name="article" value={far.far.article.id} />
                             <input type="hidden" name="buylist" value={data.list.id} />
-                            <FormInput name="quantity" type="number" step={0.1} value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} />
+                            <FormInput name="quantity" type="number" step={0.1} value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${far.far.article.id}`]?.error ?? undefined} />
                             <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                         </form>
                     </TableCell>
