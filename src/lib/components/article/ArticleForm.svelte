@@ -46,6 +46,14 @@
     <FormInput type="checkbox" name="consumable" label="Consommable" checked={article?.consumable} />
     <FormInput type="number" name="critical_quantity" label="Quantité critique" value={article?.critical_quantity} />
 
+    <FormInput type="select" name="unit" label="Unité d'oeuvre" value={article?.unit}>
+        <option value="">Unité</option>
+        <option value="ml">Metre linéaire</option>
+        <option value="kg">Kilogramme</option>
+        <option value="g">Gramme</option>
+        <option value="l">Litre</option>    
+    </FormInput>
+
     <FormInput type="select" name="supplier" label="Fournisseur" value={article?.supplier} multiple={true}>
         {#each suppliers as supplier}
             <option value={supplier.id} selected={article?.supplier?.includes(supplier.id)}>{supplier.name}</option>

@@ -26,7 +26,6 @@
     let filters: Array<FilterCondition> = [];
     let filter: string = "";
 
-    let displayThumbs = true;
     let selected: Array<string> = [];
 
     let activeSort = $page.url.searchParams.get("sort") ?? "name";
@@ -57,8 +56,6 @@
 
     <h2>Articles</h2>
     <p>Liste des articles disponible dans la base.</p>
-    <h4 class="mt-3">Réglages liste</h4>
-    <p><input type="checkbox" bind:checked={displayThumbs} /> Afficher les miniatures.</p>
 
 </Wrapper>
 
@@ -107,7 +104,7 @@
                 <TableRow>
                     <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                     <TableCell>
-                        <ArticleRow {article} displayPrice={false} displayManufacturer={false} bind:displayThumb={displayThumbs} displayApprox />
+                        <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayApprox />
                     </TableCell>
                     <TableCell>{article.consumable ? "Oui" : "Non"}</TableCell>
                     <TableCell>
@@ -116,10 +113,10 @@
                                 class:text-red-500={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
                                 class:font-semibold={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
                             >
-                                {article.quantity}
+                                {article.quantity} {article.unit || ""}
                             </span>         
                         {:else}               
-                            {article.quantity}
+                            {article.quantity} {article.unit || ""}
                         {/if}
                     </TableCell>
                     <TableCell>

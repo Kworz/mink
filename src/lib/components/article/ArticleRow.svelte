@@ -43,7 +43,7 @@
         {#if displayPrice}<span class="text-sm block"><DetailLabel>{article.price} €</DetailLabel></span>{/if}
         {#if (article.quantity ?? 0) > 0 && displayStock === true}
             {@const shouldOrder = (article.quantity ?? 0) < (article.critical_quantity ?? 0)}
-            <span class="text-sm block" class:text-red-500={shouldOrder} class:text-emerald-500={!shouldOrder}>{article.quantity} En stock.</span>
+            <span class="text-sm block" class:text-red-500={shouldOrder} class:text-emerald-500={!shouldOrder}>{article.quantity} {article.unit || "pièces"} en stock.</span>
         {/if}
         {#if article.expand?.["orders_rows(article)"] !== undefined && displayApprox === true}
             {@const amount = article.expand?.["orders_rows(article)"].filter(k => k.expand?.order.state != "cancelled").map(k => k.quantity - (k.quantity_received ?? 0)).reduce((c, p) => p = c+p, 0)}
