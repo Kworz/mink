@@ -15,6 +15,7 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import { menuRightShrinked } from "$lib/components/appLayout/menuContext";
 
     export let data: PageData;
     export let form: ActionData;
@@ -28,62 +29,53 @@
 
 </script>
 
-
 {#if editSupplier !== undefined || createSupplier}
 
-<MenuSide>
-    <form action={createSupplier ? "?/createSupplier" : "?/editSupplier"} method="post" use:enhance>
+    <MenuSide closable on:close={() => { editSupplier = undefined; createSupplier = false; }}>
+        <form action={createSupplier ? "?/createSupplier" : "?/editSupplier"} method="post" use:enhance>
 
-        {#if !createSupplier}
-            <input type="hidden" name="id" value={editSupplier?.id ?? ""} />
-        {/if}
-
-        <Flex direction="col">
-
-            {#if editSupplier?.thumbnail !== "" && browser}
-                <Flex items="center" gap={2}>
-                    <img src={`http://${window.location.hostname}:8090/api/files/${editSupplier?.collectionName}/${editSupplier?.id}/${editSupplier?.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
-                    <Button size="small" role="danger" on:click={() => { editSupplier.thumbnail = "" }}>Supprimer l'image</Button>
-                </Flex>
-            {:else}
-                <FormInput type="file" name="thumbnail" label="Logo fournisseur" backgroundColor="bg-white" />
+            {#if !createSupplier}
+                <input type="hidden" name="id" value={editSupplier?.id ?? ""} />
             {/if}
 
-            <FormInput name="name" label="Nom du fournisseur" labelMandatory={true} value={editSupplier?.name ?? ""}  backgroundColor="bg-white"/>
-            <Flex items="center" gap={2}>
-                <input type="checkbox" name="internal" checked={editSupplier?.internal ?? false}>
-                <span>Fournisseur interne</span>
+            <Flex direction="col">
+
+                {#if editSupplier?.thumbnail !== "" && browser}
+                    <Flex items="center" gap={2}>
+                        <img src={`http://${window.location.hostname}:8090/api/files/${editSupplier?.collectionName}/${editSupplier?.id}/${editSupplier?.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
+                        <Button size="small" role="danger" on:click={() => { editSupplier.thumbnail = "" }}>Supprimer l'image</Button>
+                    </Flex>
+                {:else}
+                    <FormInput type="file" name="thumbnail" label="Logo fournisseur" backgroundColor="bg-white" />
+                {/if}
+
+                <FormInput name="name" label="Nom du fournisseur" labelMandatory={true} value={editSupplier?.name ?? ""}  backgroundColor="bg-white"/>
+                <Flex items="center" gap={2}>
+                    <input type="checkbox" name="internal" checked={editSupplier?.internal ?? false}>
+                    <span>Fournisseur interne</span>
+                </Flex>
+                <FormInput name="website" label="Site web" value={editSupplier?.website ?? ""} />
+                <FormInput name="address" label="Adresse" value={editSupplier?.address ?? ""} />
+                <FormInput type="email" name="contact_email" label="Email de contact" value={editSupplier?.contact_email ?? ""}/>
+
+                <FormInput type="select" name="payment_rule" value={editSupplier?.payment_rule ?? ""} label="Conditions de paiement" >
+                    <option value={undefined}>—</option>
+                    <option value="order">à la commande</option>
+                    <option value="received">À la reception</option>
+                    <option value="30eom">30 Jours fin du mois</option>
+                    <option value="45eom">45 Jours fin du mois</option>
+                    <option value="60d">60 Jours</option>
+                </FormInput>
+
             </Flex>
-            <FormInput name="website" label="Site web" value={editSupplier?.website ?? ""} />
-            <FormInput name="address" label="Adresse" value={editSupplier?.address ?? ""} />
-            <FormInput type="email" name="contact_email" label="Email de contact" value={editSupplier?.contact_email ?? ""}/>
 
-            <FormInput type="select" name="payment_rule" value={editSupplier?.payment_rule ?? ""} label="Conditions de paiement" >
-                <option value={undefined}>—</option>
-                <option value="order">à la commande</option>
-                <option value="received">À la reception</option>
-                <option value="30eom">30 Jours fin du mois</option>
-                <option value="45eom">45 Jours fin du mois</option>
-                <option value="60d">60 Jours</option>
-            </FormInput>
-
-        </Flex>
-
-        <Flex class="mt-6">
-            <Button role="success">Valider les modifications</Button>
-            <Button on:click={() => { 
-                console.log("prevent");
-                if(createSupplier)
-                {
-                    createSupplier = false;
-                }else{
-                    editSupplier = undefined;
-                }
-                }} role="warning">Annuler les modifications</Button>
-        </Flex>
-    
-    </form>
-</MenuSide>
+            <Flex class="mt-6">
+                <Button role="success">Valider les modifications</Button>
+                <Button on:click={() => (createSupplier) ? createSupplier = false : editSupplier = undefined} role="warning">Annuler les modifications</Button>
+            </Flex>
+        
+        </form>
+    </MenuSide>
     
 {/if}
 
