@@ -1,8 +1,12 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, ArticleTagsRelationsResponse, type ArticleTagsResponse } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../+page.server";
-import { ClientResponseError } from "pocketbase";
+import { ClientResponseError, Collection } from "pocketbase";
+
+export type ArticleTagsRelationsResponseExpanded = ArticleTagsRelationsResponse<{
+    tag: ArticleTagsResponse
+}>;
 
 export const load = (async ({ params, locals }) => {
 
@@ -12,11 +16,15 @@ export const load = (async ({ params, locals }) => {
         const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(itemId, { expand: "supplier,store" });
         const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{"user": UsersResponse}>>(undefined, { filter: `article="${itemId}"`, sort: "-created", expand: "user" });
         const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();
+        const articleTags = await locals.pb.collection(Collections.ArticleTagsRelations).getFullList<ArticleTagsRelationsResponseExpanded>({ filter: `article="${itemId}"`, expand: "tag" });
+        const tags = await locals.pb.collection(Collections.ArticleTags).getFullList<ArticleTagsResponse>();
 
         return {
             article: structuredClone(article),
             articleMovements: structuredClone(articleMovements),
-            nomenclatures: structuredClone(nomenclatures)
+            nomenclatures: structuredClone(nomenclatures),
+            articleTags: structuredClone(articleTags),
+            tags: structuredClone(tags)
         }
     }
     catch(ex) 
@@ -233,6 +241,39 @@ export const actions: Actions = {
             }
 
             return { updateStock: { error: ex }};
+        }
+    },
+
+    createTag: async ({ locals, request }) => {
+
+        const form = await request.formData();
+
+        try
+        {
+            await locals.pb.collection(Collections.ArticleTags).create(form);
+        }
+        catch(ex)
+        {
+            if(ex instanceof ClientResponseError)
+                return { createTag: { error: ex.message }};
+
+            return { createTag: { error: ex }};
+        }
+    },
+
+    addTag: async ({ locals, params, request }) => {
+        const form = await request.formData();
+
+        try
+        {
+            await locals.pb.collection(Collections.ArticleTagsRelations).create({ article: params.id, tag: form.get("tag")?.toString(), value: form.get("value")?.toString() });
+        }
+        catch(ex)
+        {
+            if(ex instanceof ClientResponseError)
+                return { addTag: { error: ex.message }};
+
+            return { addTag: { error: ex }};
         }
     }
 }

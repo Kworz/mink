@@ -7,6 +7,8 @@ export enum Collections {
 	ArticleMovements = "article_movements",
 	ArticlePricepoint = "article_pricepoint",
 	ArticleStores = "article_stores",
+	ArticleTags = "article_tags",
+	ArticleTagsRelations = "article_tags_relations",
 	ArticleView = "article_view",
 	Assemblies = "assemblies",
 	AssembliesBuylists = "assemblies_buylists",
@@ -82,6 +84,16 @@ export type ArticlePricepointRecord = {
 export type ArticleStoresRecord = {
 	name: string
 	location?: string
+}
+
+export type ArticleTagsRecord = {
+	name: string
+}
+
+export type ArticleTagsRelationsRecord = {
+	article: RecordIdString
+	tag: RecordIdString
+	value: string
 }
 
 export type ArticleViewRecord<Tstock_price = unknown> = {
@@ -227,6 +239,8 @@ export type ArticleResponse<Texpand = unknown> = ArticleRecord & BaseSystemField
 export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
 export type ArticlePricepointResponse<Texpand = unknown> = ArticlePricepointRecord & BaseSystemFields<Texpand>
 export type ArticleStoresResponse = ArticleStoresRecord & BaseSystemFields
+export type ArticleTagsResponse = ArticleTagsRecord & BaseSystemFields
+export type ArticleTagsRelationsResponse<Texpand = unknown> = ArticleTagsRelationsRecord & BaseSystemFields<Texpand>
 export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields<Texpand>
 export type AssembliesResponse = AssembliesRecord & BaseSystemFields
 export type AssembliesBuylistsResponse<Texpand = unknown> = AssembliesBuylistsRecord & BaseSystemFields<Texpand>
@@ -252,6 +266,8 @@ export type CollectionRecords = {
 	article_movements: ArticleMovementsRecord
 	article_pricepoint: ArticlePricepointRecord
 	article_stores: ArticleStoresRecord
+	article_tags: ArticleTagsRecord
+	article_tags_relations: ArticleTagsRelationsRecord
 	article_view: ArticleViewRecord
 	assemblies: AssembliesRecord
 	assemblies_buylists: AssembliesBuylistsRecord
@@ -276,6 +292,8 @@ export type CollectionResponses = {
 	article_movements: ArticleMovementsResponse
 	article_pricepoint: ArticlePricepointResponse
 	article_stores: ArticleStoresResponse
+	article_tags: ArticleTagsResponse
+	article_tags_relations: ArticleTagsRelationsResponse
 	article_view: ArticleViewResponse
 	assemblies: AssembliesResponse
 	assemblies_buylists: AssembliesBuylistsResponse

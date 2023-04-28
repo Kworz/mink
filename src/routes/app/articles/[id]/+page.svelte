@@ -19,15 +19,18 @@
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { ArrowLeft, ArrowRight, Check, DocumentDuplicate, QrCode, Trash, Wrench } from "@steeze-ui/heroicons";
+    import { ArrowLeft, ArrowRight, Check, DocumentDuplicate, PlusCircle, QrCode, Trash, Wrench } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
+    import Grid from "$lib/components/layout/grid.svelte";
 
     export let data: PageData;
     export let form: ActionData;
 
     let editArticle = false;
     let showConfirmDelete = false;
+
+    let createTag = false;
 
     let selectedFile: number = (data.article.attached_files === undefined) ? -1 : 0;
 
@@ -149,11 +152,11 @@
     </form>
 </Wrapper>
 
-<Flex direction="col" gap={6} class="mt-6">
+<Grid gap={6} cols={data.articleMovements.length > 0 ? 2 : 1} items="start" class="mt-6">
     {#if data.articleMovements.length > 0}
         <Table marginTop="">
             <svelte:fragment slot="head">
-                <TableHead>Quantité</TableHead>
+                <TableHead>Δ Quantité</TableHead>
                 <TableHead class="hidden md:table-cell">Raison</TableHead>
                 <TableHead>Utilisateur</TableHead>
                 <TableHead class="hidden md:table-cell">Date</TableHead>
@@ -177,4 +180,60 @@
             </svelte:fragment>
         </Table>
     {/if}
-</Flex>
+    <Wrapper>
+        <h4>Tags article</h4>
+
+        <PillMenu>
+            <PillMenuButton icon={PlusCircle} click={() => createTag = !createTag}>Créer un tag</PillMenuButton>
+        </PillMenu>
+
+        <Table marginTop="" embeded>
+            <svelte:fragment slot="head">
+                <TableHead>Tag</TableHead>
+                <TableHead>Valeur</TableHead>
+            </svelte:fragment>
+
+            <svelte:fragment slot="body">
+                {#each data.articleTags as tag}
+                    <TableRow>
+                        <TableCell>{tag.expand?.tag.name}</TableCell>
+                        <TableCell>{tag.value}</TableCell>
+                    </TableRow>
+                {:else}
+                    <TableRow>
+                        <TableCell colspan={2}>Aucun tag</TableCell>
+                    </TableRow>
+                {/each}
+            </svelte:fragment>
+        </Table>
+
+        <section class="mt-6">
+            {#if data.tags.length > 0 && !createTag}
+                <h5>Ajouter un tag</h5>
+                {#if form?.addTag?.error}<p class="text-red-500">{form?.addTag?.error}</p>{/if}
+                <form action="?/addTag" method="post" use:enhance class="mt-2">
+                    <Flex items="end" gap={6}>
+                        <FormInput type="select" name="tag" label="Tag" labelMandatory>
+                            {#each data.tags as tag}
+                                <option value={tag.id}>{tag.name}</option>
+                            {/each}
+                        </FormInput>
+                        <FormInput type="text" name="value" label="Valeur" labelMandatory />
+                        <Button>Ajouter le tag</Button>
+                    </Flex>
+                </form>
+            {/if}
+            {#if data.tags.length === 0 || createTag}
+                <h5>Créer un tag</h5>
+                {#if form?.createTag?.error}<p class="text-red-500">{form?.createTag?.error}</p>{/if}
+                <form action="?/createTag" method="post" use:enhance class="mt-2">
+                    <Flex items="end" gap={6}>
+                        <FormInput type="text" name="name" label="Nom du tag" labelMandatory />
+                        <Button>Créer le tag</Button>
+                    </Flex>
+                </form>
+            {/if}
+        </section>
+        
+    </Wrapper>
+</Grid>
