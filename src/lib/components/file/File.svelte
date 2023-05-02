@@ -9,6 +9,7 @@
     import StlFile from "./STLFile.svelte";
 
     export let fileName: string;
+    export let fancyFileName: string | undefined;
     export let collectionName: string;
     export let collectionID: string;
     export let isPinned = false;
@@ -31,7 +32,7 @@
                 </form>
             {/if}
             {#if !isImage}
-                <a href="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}">
+                <a href="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" download={(fancyFileName) ? `${fancyFileName}.${fileName.split(".").at(-1)}` : fileName}>
                     <Icon src={ArrowDownTray} class="h-6 w-6 text-blue-400" />
                 </a>
             {/if}
