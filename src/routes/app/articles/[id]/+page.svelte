@@ -31,11 +31,13 @@
     let showConfirmDelete = false;
 
     let createTag = false;
+    let editTag: undefined | string = undefined;
 
     let selectedFile: number = (data.article.attached_files === undefined) ? -1 : 0;
 
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(form !== null) { setTimeout(() => form = null, 3000); }
+    $: if(form?.editTag !== undefined) { editTag = undefined }
     $: if(showConfirmDelete === true) { setTimeout(() => showConfirmDelete = false, 3000); }
 
 </script>
@@ -98,7 +100,7 @@
                     <Button role="warning">
                         <Icon src={Check} class="h-4 w-4 inline-block mr-2" />
                         Modifier
-                    </Button>     
+                    </Button>
                     <Button role="danger" on:click={() => editArticle = !editArticle}>
                         <Icon src={Wrench} class="h-4 w-4 inline-block mr-2" />
                         Annuler la modification
@@ -120,7 +122,7 @@
                 </form>
             </Flex>
         {:else if data.article.attached_files[selectedFile] !== undefined}
-            <File fileName={data.article.attached_files[selectedFile]} collectionName={data.article.collectionName} collectionID={data.article.id} isPinned={data.article.pinned_file === data.article.attached_files[selectedFile]} />
+            <File fileName={data.article.attached_files[selectedFile]} fancyFileName={data.article.reference} collectionName={data.article.collectionName} collectionID={data.article.id} isPinned={data.article.pinned_file === data.article.attached_files[selectedFile]} />
         {/if}
 
         <Flex items="center" justify="between" class="absolute bottom-4 left-4 right-4">
@@ -195,10 +197,30 @@
 
             <svelte:fragment slot="body">
                 {#each data.articleTags as tag}
-                    <TableRow>
-                        <TableCell>{tag.expand?.tag.name}</TableCell>
-                        <TableCell>{tag.value}</TableCell>
-                    </TableRow>
+                    {#if tag.id === editTag}
+                        <TableRow>
+                            <TableCell>
+                                {tag.expand?.tag.name}
+                            </TableCell>
+                            <TableCell>
+                                <form action="?/editTag" method="post" use:enhance>
+                                    <Flex items="end" gap={6}>
+                                        <FormInput type="text" name="value" label="Valeur" labelMandatory value={tag.value} />
+                                        <input type="hidden" name="id" value={tag.id} />
+                                        <Button role="success">Valider</Button>
+                                    </Flex>
+                                </form>
+                            </TableCell>
+                        </TableRow>
+                    {:else}
+                        <TableRow>
+                            <TableCell>{tag.expand?.tag.name}</TableCell>
+                            <TableCell>
+                                {tag.value}
+                                <button on:click={() => editTag = tag.id}><Icon src={Wrench} class="h-4 w-4 ml-2 text-orange-500" /></button>
+                            </TableCell>
+                        </TableRow>
+                    {/if}
                 {:else}
                     <TableRow>
                         <TableCell colspan={2}>Aucun tag</TableCell>

@@ -275,5 +275,25 @@ export const actions: Actions = {
 
             return { addTag: { error: ex }};
         }
+    },
+
+    editTag: async ({ locals, request }) => {
+        const form = await request.formData();
+
+        const id = form.get("id")?.toString();
+
+        try
+        {
+            if(id === undefined)
+                throw "id not found";
+            
+            await locals.pb.collection(Collections.ArticleTagsRelations).update(id, form);
+            
+            return { editTag: { success: true }};
+        }
+        catch(ex)
+        {
+            return { editTag: { error: (ex instanceof ClientResponseError) ? ex.message : ex}};
+        }
     }
 }
