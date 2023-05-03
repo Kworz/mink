@@ -85,7 +85,7 @@ import { invalidateAll } from "$app/navigation";
             <TableHead>Sous assemblages</TableHead>
             <TableHead>Quantité</TableHead>
             <TableHead>Quantité nécessaire</TableHead>
-            <TableHead>Prix restant</TableHead>
+            <TableHead>Prix restant / total</TableHead>
             <TableHead>Validé ?</TableHead>
         </svelte:fragment>
         <svelte:fragment slot="body">
@@ -109,7 +109,7 @@ import { invalidateAll } from "$app/navigation";
                         </form>
                     </TableCell>
                     <TableCell>{far.far.quantity}</TableCell>
-                    <TableCell><Price value={(far.far.quantity - (far.buyListRelation?.quantity ?? 0)) * (far.far.article.price ?? 0)} /></TableCell>
+                    <TableCell><Price value={(far.far.quantity - (far.buyListRelation?.quantity ?? 0)) * (far.far.article.price ?? 0)} /> / <Price value={far.far.quantity * (far.far.article.price ?? 0)} /></TableCell>
                     <TableCell>
                         {@const isValid = far.far.quantity <= (far.buyListRelation?.quantity ?? 0)}
                         <span class="font-semibold {isValid ? "text-emerald-500" : "text-red-500"}">{isValid ? "Oui" : "Non"}</span>
