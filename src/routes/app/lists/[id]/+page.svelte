@@ -104,7 +104,7 @@ import { invalidateAll } from "$app/navigation";
                         <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
                             <input type="hidden" name="article" value={far.far.article.id} />
                             <input type="hidden" name="buylist" value={data.list.id} />
-                            <FormInput name="quantity" type="number" step={0.1} value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${far.far.article.id}`]?.error ?? undefined} />
+                            <FormInput name="quantity" type="number" step={far.far.article.unit === "" ? 1 : 0.1} value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${far.far.article.id}`]?.error ?? undefined} />
                             <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                         </form>
                     </TableCell>
