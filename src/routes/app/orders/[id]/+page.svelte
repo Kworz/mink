@@ -69,7 +69,6 @@
 </script>
 
 <Wrapper class="p-8">
-
     <PillMenu>
         <PillMenuButton icon={Printer} click={() => window.open(`/app/orders/${data.order.id}/export`, '_blank')?.focus()}>Créer un PDF de la commande</PillMenuButton>
         <PillMenuButton icon={Trash} click={() => { deleteOrder(); return false; }}>Supprimer</PillMenuButton>
@@ -89,104 +88,105 @@
             </FormInput>
         </Flex>
     </form>
-    <Grid cols={2} gap={24} items="start" class="mt-6">
-        <Wrapper2 padding="p-4">
-            <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
-                <svelte:fragment slot="body">
-                    <TableRow>
-                        <TableCell><h3>Metalizz</h3></TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>
-                            <p>
-                                840 Chemin de chabanne,
-                                26270 Loriol sur drome
-                            </p>
-                        </TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>
-                            <DetailLabel>{data.order.expand?.issuer.email}</DetailLabel>
-                        </TableCell>
-                    </TableRow>
-                </svelte:fragment>
-            </Table>
-        </Wrapper2>
-
-        <Wrapper2 padding="p-4">
-            <h4>Fournisseur</h4>
-            <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
-                <svelte:fragment slot="body">
-                    <TableRow>
-                        <TableCell><h3>{data.order.expand?.supplier.name}</h3></TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell><p>{data.order.expand?.supplier.address}</p></TableCell>
-                    </TableRow>
-                </svelte:fragment>
-            </Table>
-        </Wrapper2>
-    </Grid>
-
-    <Table backgroundColor="bg-gray-200 dark:bg-zinc-700">
-        <svelte:fragment slot="head">
-            <TableHead>Projet</TableHead>
-            <TableHead>Désignation</TableHead>
-            <TableHead>Référence</TableHead>
-            <TableHead>Quantité</TableHead>
-            <TableHead>Délai Souhaité</TableHead>
-            {#if data.order.state === OrdersStateOptions.acknowledged}
-                <TableHead>Délai A/R</TableHead>
-            {/if}
-            <TableHead>Prix </TableHead>
-            <TableHead>Total</TableHead>
-            {#if data.order.state == OrdersStateOptions.draft}
-                <TableHead>Supprimer</TableHead>
-            {/if}
-        </svelte:fragment>
-
-        <svelte:fragment slot="body">
-            {#if data.order.expand?.["orders_rows(order)"]}
-                {#each data.order.expand?.["orders_rows(order)"] as order_row (order_row.id)}
-                    <OrderRow bind:order={data.order} bind:orderRow={order_row} projects={data.projects} />
-                {/each}
-            {/if}
-        </svelte:fragment>
-    </Table>
-
-    {#if data.order.state === OrdersStateOptions.draft}
-        <Wrapper2 class="mt-6">
-            <h3 class="mb-3">Ajouter un article a la commande</h3>
-            <form action="?/createOrderRow" method="post" use:enhance class="flex flex-row gap-4 items-end">
-                <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
-                    <ArticleFinder bind:selectedArticle filters={[{ field: "supplier", operator: "~", value: data.order.supplier, hidden: true }]} />
-                </div>
-                {#if selectedArticle !== undefined}
-                    <input type="hidden" name="order" value={data.order.id} />
-                    <input type="hidden" name="article" value={selectedArticle?.id} />
-                    <FormInput name="quantity" type="number" min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
-                    <Button class="ml-auto">Ajouter l'article</Button>
-                {/if}
-            </form>
-        </Wrapper2>
-    {/if}
-
-    <Table class="w-max ml-auto" backgroundColor="bg-gray-200 dark:bg-zinc-700">
-        <svelte:fragment slot="body">
-            <TableRow>
-                <TableCell>Total (HT)</TableCell>
-                <TableCell><Price value={htTotal} /></TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell>TVA (20%)</TableCell>
-                <TableCell><Price value={tvaSubtotal} /></TableCell>
-            </TableRow>
-        </svelte:fragment>
-        <svelte:fragment slot="foot">
-            <TableRow>
-                <TableCell>Total (TTC)</TableCell>
-                <TableCell><Price value={completeTotal} /></TableCell>
-            </TableRow>
-        </svelte:fragment>
-    </Table>
 </Wrapper>
+
+<Grid cols={2} gap={8} items="start" class="mt-8">
+    <Wrapper padding="p-2">
+        <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
+            <svelte:fragment slot="body">
+                <TableRow>
+                    <TableCell><h3>Metalizz</h3></TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>
+                        <p>
+                            840 Chemin de chabanne,
+                            26270 Loriol sur drome
+                        </p>
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>
+                        <DetailLabel>{data.order.expand?.issuer.email}</DetailLabel>
+                    </TableCell>
+                </TableRow>
+            </svelte:fragment>
+        </Table>
+    </Wrapper>
+
+    <Wrapper padding="p-2">
+        <h4>Fournisseur</h4>
+        <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
+            <svelte:fragment slot="body">
+                <TableRow>
+                    <TableCell><h3>{data.order.expand?.supplier.name}</h3></TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell><p>{data.order.expand?.supplier.address}</p></TableCell>
+                </TableRow>
+            </svelte:fragment>
+        </Table>
+    </Wrapper>
+</Grid>
+
+<Table marginTop="mt-8">
+    <svelte:fragment slot="head">
+        <TableHead>Projet</TableHead>
+        <TableHead>Désignation</TableHead>
+        <TableHead>Référence</TableHead>
+        <TableHead>Quantité</TableHead>
+        <TableHead>Délai Souhaité</TableHead>
+        {#if data.order.state === OrdersStateOptions.acknowledged}
+            <TableHead>Délai A/R</TableHead>
+        {/if}
+        <TableHead>Prix A/R</TableHead>
+        <TableHead>Total</TableHead>
+        {#if data.order.state == OrdersStateOptions.draft}
+            <TableHead>Supprimer</TableHead>
+        {/if}
+    </svelte:fragment>
+
+    <svelte:fragment slot="body">
+        {#if data.order.expand?.["orders_rows(order)"]}
+            {#each data.order.expand?.["orders_rows(order)"] as order_row (order_row.id)}
+                <OrderRow bind:order={data.order} bind:orderRow={order_row} projects={data.projects} />
+            {/each}
+        {/if}
+    </svelte:fragment>
+</Table>
+
+{#if data.order.state === OrdersStateOptions.draft}
+    <Wrapper class="mt-6">
+        <h3 class="mb-3">Ajouter un article a la commande</h3>
+        <form action="?/createOrderRow" method="post" use:enhance class="flex flex-row gap-4 items-end">
+            <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
+                <ArticleFinder bind:selectedArticle filters={[{ field: "supplier", operator: "~", value: data.order.supplier, hidden: true }]} />
+            </div>
+            {#if selectedArticle !== undefined}
+                <input type="hidden" name="order" value={data.order.id} />
+                <input type="hidden" name="article" value={selectedArticle?.id} />
+                <FormInput name="quantity" type="number" min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
+                <Button class="ml-auto">Ajouter l'article</Button>
+            {/if}
+        </form>
+    </Wrapper>
+{/if}
+
+<Table class="w-max ml-auto">
+    <svelte:fragment slot="body">
+        <TableRow>
+            <TableCell>Total (HT)</TableCell>
+            <TableCell><Price value={htTotal} /></TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell>TVA (20%)</TableCell>
+            <TableCell><Price value={tvaSubtotal} /></TableCell>
+        </TableRow>
+    </svelte:fragment>
+    <svelte:fragment slot="foot">
+        <TableRow>
+            <TableCell>Total (TTC)</TableCell>
+            <TableCell><Price value={completeTotal} /></TableCell>
+        </TableRow>
+    </svelte:fragment>
+</Table>
