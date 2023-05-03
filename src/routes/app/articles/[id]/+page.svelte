@@ -23,6 +23,7 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import Grid from "$lib/components/layout/grid.svelte";
+    import Price from "$lib/components/formatters/Price.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -63,6 +64,7 @@
             <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
+            {#if data.orderRows.length > 0}<p>Prix unitaire moyen pondéré: <DetailLabel><Price value={data.orderRows.reduce((p, c) => p = p + (c.ack_price ?? 0), 0) / data.orderRows.length} /></DetailLabel> ({data.orderRows.length} commandes)</p>{/if}
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>
 

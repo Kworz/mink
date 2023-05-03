@@ -1,8 +1,9 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, ArticleTagsRelationsResponse, type ArticleTagsResponse } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, ArticleTagsRelationsResponse, type ArticleTagsResponse, OrdersRowsResponse, OrdersStateOptions } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../+page.server";
 import { ClientResponseError, Collection } from "pocketbase";
+import type { OrderRowsResponseExpanded } from "../../approx/+page.server";
 
 export type ArticleTagsRelationsResponseExpanded = ArticleTagsRelationsResponse<{
     tag: ArticleTagsResponse
@@ -14,6 +15,7 @@ export const load = (async ({ params, locals }) => {
     {
         const itemId = params.id;
         const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(itemId, { expand: "supplier,store" });
+        const orderRows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `article="${itemId}"`, expand: "order.supplier" });
         const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{"user": UsersResponse}>>(undefined, { filter: `article="${itemId}"`, sort: "-created", expand: "user" });
         const nomenclatures = await locals.pb.collection(Collections.Nomenclature).getFullList<NomenclatureResponse>();
         const articleTags = await locals.pb.collection(Collections.ArticleTagsRelations).getFullList<ArticleTagsRelationsResponseExpanded>({ filter: `article="${itemId}"`, expand: "tag" });
@@ -22,6 +24,7 @@ export const load = (async ({ params, locals }) => {
         return {
             article: structuredClone(article),
             articleMovements: structuredClone(articleMovements),
+            orderRows: structuredClone(orderRows.filter(row => [OrdersStateOptions.completed, OrdersStateOptions.placed, OrdersStateOptions.acknowledged].includes(row.expand?.order?.state))),
             nomenclatures: structuredClone(nomenclatures),
             articleTags: structuredClone(articleTags),
             tags: structuredClone(tags)
