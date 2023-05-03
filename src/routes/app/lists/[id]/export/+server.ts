@@ -1,54 +1,46 @@
-import { Collections, type ListRowResponse, type ListResponse, type NomenclatureRowResponse } from "$lib/DBTypes";
+import { Collections, type AssembliesBuylistsRowsResponse } from "$lib/DBTypes";
 import type { RequestHandler } from "@sveltejs/kit";
 
-import xlsx from "node-xlsx";
+import xlsx, { type WorkSheetOptions } from "node-xlsx";
+import type { AssembliesBuylistsResponseExpanded } from "../../+page.server";
+import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 
     try
     {        
-        const list = await locals.pb.collection(Collections.List).getOne<ListResponse>(params.id, {
-            expand: "parent_nomenclature"
-        });
-
-        const list_rows = await locals.pb.collection(Collections.ListRow).getFullList<ListRowResponse>(undefined, {
-            filter: `parent_list="${params.id}"`,
-        });
-
-        const nomenclature_rows = await locals.pb.collection(Collections.NomenclatureRow).getFullList<NomenclatureRowResponse>(undefined, {
-            filter: `parent_nomenclature="${list.parent_nomenclature}"`,
-            expand: `child_article`
-        });
+        const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project"});
+        const listItems = await locals.pb.collection(Collections.AssembliesBuylistsRows).getFullList<AssembliesBuylistsRowsResponse>({ filter: `buylist = "${list.id}"`});
+        const flattenAssemblyResult = await flattenAssembly(list.expand?.assembly, locals.pb);
 
         const excel: (string | number)[][] = [];
 
         excel.push(["Liste", sanitizeString(list.name)]);
-        excel.push(["Nomenclature de base", list.expand?.parent_nomenclature.name]);
+        excel.push(["Nomenclature de base", list.expand?.assembly.name]);
         excel.push([]);
-        excel.push(["Désignation", "Quantitée présente", "Quantité requise", "Quantité a commander", "Validé ?", "Fabriquant", "Fournisseur", "Référence", "Prix"])
+        excel.push(["Désignation", "Quantitée présente", "Quantité requise", "Validé ?", "Fabriquant", "Fournisseur", "Référence", "Prix"])
 
-        for(const nomRow of nomenclature_rows)
+        for(const far of flattenAssemblyResult)
         {
-            const list_row_article = list_rows.find(lr => lr.parent_nomenclature_row === nomRow.id);
+            const listRelationArticle = listItems.find(k => k.article === far.article.id);
 
             excel.push([
-                nomRow.expand?.child_article.name,
-                list_row_article?.quantity ?? 0,
-                nomRow.quantity_required,
-                (nomRow.quantity_required - (list_row_article?.quantity ?? 0)),
-                nomRow.quantity_required - (list_row_article?.quantity ?? 0) == 0 ? "Oui" : "Non",
-                nomRow.expand?.child_article.manufacturer,
-                nomRow.expand?.child_article.supplier,
-                nomRow.expand?.child_article.reference,
-                nomRow.expand?.child_article.price
+                far.article.name,
+                listRelationArticle?.quantity ?? 0,
+                far.quantity,
+                far.quantity <= (listRelationArticle?.quantity ?? 0) ? "Oui" : "Non",
+                far.article.manufacturer ?? "",
+                far.article.expand?.supplier?.map(k => k.name).join(", ") ?? "",
+                far.article.reference ?? "",
+                far.article.price ?? 0
             ]);
         }
 
         const sheetOptions = {
-            '!cols': [{wch: 80}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}]
-        };
+            '!cols': [{wch: 80}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 20}]
+        } satisfies WorkSheetOptions;
 
-        const buffer = xlsx.build([{name: "Liste " + sanitizeString(list.name), data: excel, options: sheetOptions}]);
+        const buffer = xlsx.build([{name: "Liste", data: excel, options: sheetOptions}]);
 
         return new Response(buffer, {
             status: 200,
