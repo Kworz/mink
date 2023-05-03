@@ -64,7 +64,16 @@
             <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
-            {#if data.orderRows.length > 0}<p>Prix unitaire moyen pondéré: <DetailLabel><Price value={data.orderRows.reduce((p, c) => p = p + (c.ack_price ?? 0), 0) / data.orderRows.length} /></DetailLabel> ({data.orderRows.length} commandes)</p>{/if}
+            {#if data.orderRows.length > 0}
+                <div class="group">
+                    <p>Prix unitaire moyen pondéré: <DetailLabel><Price value={data.orderRows.reduce((p, c) => p = p + (c.ack_price ?? 0) * c.quantity, 0) / data.orderRows.reduce((p, c) => p = p + c.quantity, 0)} /></DetailLabel></p>
+                    <ol class="hidden group-hover:block">
+                        {#each data.orderRows as orderRow}
+                            <li><a href="/app/orders/{orderRow.order}">{orderRow.quantity} x <Price value={orderRow.ack_price ?? 0} /></a></li>
+                        {/each}
+                    </ol>
+                </div>
+            {/if}
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>{/if}
             <p>Quantité en stock: <DetailLabel>{data.article.quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>
 
