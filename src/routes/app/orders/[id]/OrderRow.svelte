@@ -1,6 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-import Button from "$lib/components/Button.svelte";
+    import Button from "$lib/components/Button.svelte";
     import Date from "$lib/components/formatters/Date.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import FormInput from "$lib/components/FormInput.svelte";

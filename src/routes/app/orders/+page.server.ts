@@ -15,7 +15,7 @@ export type OrdersResponseExpanded = OrdersResponse<{
 
 export const load = (async ({ locals }) => {
 
-    const orders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ expand: "issuer,orders_rows(order).article,supplier"});
+    const orders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ expand: "issuer,orders_rows(order).article,supplier", sort: "-created"});
     const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
 
     return {
