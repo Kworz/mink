@@ -66,6 +66,7 @@ export type ArticleRecord = {
 	store?: RecordIdString
 	consumable?: boolean
 	unit?: string
+	unit_quantity?: number
 }
 
 export type ArticleMovementsRecord = {
@@ -207,8 +208,8 @@ export type OrdersRowsRecord = {
 
 export type ProjectsRecord = {
 	name: string
-	start_date: IsoDateString
-	end_date: IsoDateString
+	start_date?: IsoDateString
+	end_date?: IsoDateString
 	attached_users?: RecordIdString[]
 }
 

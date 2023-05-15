@@ -21,6 +21,7 @@
     import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
     import Store from "$lib/components/store/Store.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
+    import { returnArticleUnit } from "$lib/components/article/artictleUnits";
     export let data: PageData;
 
     let filters: Array<FilterCondition> = [];
@@ -113,10 +114,10 @@
                                 class:text-red-500={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
                                 class:font-semibold={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
                             >
-                                {article.quantity} {article.unit || ""}
+                                {returnArticleUnit(article.unit, article.unit_quantity, article.quantity)}
                             </span>         
                         {:else}               
-                            {article.quantity} {article.unit || ""}
+                            {returnArticleUnit(article.unit, article.unit_quantity, article.quantity)}
                         {/if}
                     </TableCell>
                     <TableCell>

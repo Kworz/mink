@@ -24,6 +24,7 @@
     import type { ActionData, PageData } from "./$types";
     import Grid from "$lib/components/layout/grid.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
+    import { returnArticleUnit } from "$lib/components/article/artictleUnits";
 
     export let data: PageData;
     export let form: ActionData;
@@ -50,6 +51,8 @@
 <div class="flex flex-col-reverse md:flex-row gap-6">
     <Wrapper class="relative grow">
         {#if !editArticle}
+        
+            {#if form?.delete?.error !== undefined}<h4>{form.delete?.error}</h4>{/if}
             <h2 class="mb-2">{data.article.name}</h2>
             
             {#if data.article.expand?.supplier !== undefined}
@@ -74,15 +77,13 @@
                     </ol>
                 </div>
             {/if}
-            {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{data.article.order_quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>{/if}
-            <p>Quantité en stock: <DetailLabel>{data.article.quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>
+            {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.order_quantity)}</DetailLabel>.</p>{/if}
+            <p>Quantité en stock: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.quantity)}</DetailLabel>.</p>
 
-            {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{data.article.critical_quantity} {data.article.unit || "pièces"}</DetailLabel>.</p>{/if}
+            {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.critical_quantity)}</DetailLabel>.</p>{/if}
             <p>Consommable: <DetailLabel>{data.article.consumable ? "Oui" : "Non"}</DetailLabel>.</p>
 
-            {#if data.article.expand?.store}
-                <p>Emplacement: <DetailLabel>{data.article.expand.store.location} / {data.article.expand.store.name}</DetailLabel></p>
-            {/if}
+            {#if data.article.expand?.store}<p>Emplacement: <DetailLabel>{data.article.expand.store.location} / {data.article.expand.store.name}</DetailLabel></p>{/if}
 
             <PillMenu>
                 <PillMenuButton icon={Wrench} click={() => { editArticle = !editArticle; }}>Modifier l'article</PillMenuButton>
@@ -178,7 +179,7 @@
             <svelte:fragment slot="body">
                 {#each data.articleMovements as movement}
                     <TableRow>
-                        <TableCell>{movement.quantity_update}</TableCell>
+                        <TableCell>{movement.quantity_update} {returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.quantity)}</TableCell>
                         <TableCell class="hidden md:table-cell">{movement.reason ?? "—"}</TableCell>
                         <TableCell>
                             {#if movement.expand?.user !== undefined}

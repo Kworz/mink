@@ -1,8 +1,8 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, ArticleTagsRelationsResponse, type ArticleTagsResponse, OrdersRowsResponse, OrdersStateOptions } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type NomenclatureResponse, type NomenclatureRowRecord, type NomenclatureRowResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type ArticleTagsResponse, OrdersStateOptions } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../+page.server";
-import { ClientResponseError, Collection } from "pocketbase";
+import { ClientResponseError } from "pocketbase";
 import type { OrderRowsResponseExpanded } from "../../approx/+page.server";
 
 export type ArticleTagsRelationsResponseExpanded = ArticleTagsRelationsResponse<{
@@ -42,7 +42,14 @@ export const actions: Actions = {
 
     deleteArticle: async ({ params, locals }) => {
         try
-        {            
+        {
+            const relations = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse>({ filter: `article = "${params.id}"` });
+            
+            for(const relation of relations)
+            {
+                await locals.pb.collection(Collections.ArticleMovements).delete(relation.id);
+            }
+
             await locals.pb.collection("article").delete(params.id);
         }
         catch(ex)
@@ -60,7 +67,6 @@ export const actions: Actions = {
                 throw "user not authed";
             
             const form = await request.formData();
-            form.set("label", String(form.has("label")));
             form.set("consumable", String(form.has("consumable")));
 
             const oldArticle = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);

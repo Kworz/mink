@@ -34,8 +34,8 @@ devDependencies:
     specifier: ^5.0.9
     version: 5.0.9
   '@threlte/extras':
-    specifier: ^4.9.3
-    version: 4.9.3(three@0.150.1)
+    specifier: 5.0.0-next.11
+    version: 5.0.0-next.11(three@0.150.1)
   '@threlte/preprocess':
     specifier: ^0.0.2
     version: 0.0.2
@@ -541,9 +541,10 @@ packages:
     resolution: {integrity: sha512-3u8SGLD/fzOh0sEf1MDa0FVpp7oLqdEUR8nvGEkWZvGDwKUlhe0XxSmXNzvAYwCSnNLsYYfwiAWy8wBrVkoRlg==}
     dev: true
 
-  /@threlte/extras@4.9.3(three@0.150.1):
-    resolution: {integrity: sha512-1XVa9a3C+EQE9vMCZopZ2oZGncDlk/Claz+voFCTZvUqJl0xpPWBQTPNM6V61nXu8k5t+JKSGam3TWygBnfxug==}
+  /@threlte/extras@5.0.0-next.11(three@0.150.1):
+    resolution: {integrity: sha512-i7m7PLXEl7KCu8XVrqUjST1Whii2G9EeR/2nwzht7WZSqwzVevb/avpyZ7Dr12Nse1ZURUMnLxRaB+oDFlpjYQ==}
     dependencies:
+      lodash: 4.17.21
       troika-three-text: 0.46.4(three@0.150.1)
     transitivePeerDependencies:
       - three

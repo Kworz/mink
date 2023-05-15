@@ -18,7 +18,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
         excel.push(["Liste", sanitizeString(list.name)]);
         excel.push(["Nomenclature de base", list.expand?.assembly.name]);
         excel.push([]);
-        excel.push(["Désignation", "Quantitée présente", "Quantité requise", "Validé ?", "Fabriquant", "Fournisseur", "Référence", "Prix"])
+        excel.push(["Désignation", "Quantitée présente", "Quantité requise", "Quantité a commander", "Validé ?", "Fabriquant", "Fournisseur", "Référence", "Prix"])
 
         for(const far of flattenAssemblyResult)
         {
