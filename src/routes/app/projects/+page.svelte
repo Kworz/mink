@@ -1,14 +1,28 @@
 <script lang="ts">
 
+    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
+    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
+    import { PlusCircle } from "@steeze-ui/heroicons";
 
-    import type { PageData } from "./$types";
+    import type { ActionData, PageData } from "./$types";
+    import FormInput from "$lib/components/FormInput.svelte";
+    import Button from "$lib/components/Button.svelte";
+    import { invalidateAll } from "$app/navigation";
+    import { enhance } from "$app/forms";
+    import Flex from "$lib/components/layout/flex.svelte";
     export let data: PageData;
+
+    let createProject = false;
+
+    export let form: ActionData;
+
+    $: if(form?.createProject.success) { invalidateAll(); };
 
 </script>
 
@@ -16,6 +30,24 @@
 
 <Wrapper>
     <h2>Affaires</h2>
+
+    <PillMenu>
+        <PillMenuButton click={() => createProject = !createProject} icon={PlusCircle}>Créer une affaire</PillMenuButton>
+    </PillMenu>
+
+    {#if createProject}
+        <form action="?/createProject" method="POST" use:enhance class="flex flex-row gap-4 items-end">
+            <FormInput label="Nom de l'affaire" name="name" labelMandatory />
+            <FormInput type="date" name="start_date" label="Date de début" labelManadatory />
+            <FormInput type="date" name="end_date" label="Date de fin" labelManadatory />
+            <FormInput type="select" name="attached_users" label="Utilisateurs" labelManadatory multiple value={[]}>
+                {#each data.users as user}
+                    <option value={user.id}>{user.username} ({user.email})</option>
+                {/each}
+            </FormInput>
+            <Button role="success">Créer</Button>
+        </form>
+    {/if}
 
     <Table embeded={true}>
         <svelte:fragment slot="head">
@@ -33,9 +65,11 @@
                     <TableCell>{project.end_date}</TableCell>
                     <TableCell>
                         {#if project.expand?.attached_users !== undefined}
-                            {#each project.expand.attached_users as user}
-                                <User {user} />
-                            {/each}
+                            <Flex gap={2}>
+                                {#each project.expand.attached_users as user}
+                                    <User {user} />
+                                {/each}
+                            </Flex>
                         {/if}
                     </TableCell>
                 </TableRow>
