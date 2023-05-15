@@ -9,6 +9,8 @@ export const actions: Actions = {
 
         let createdArticle = undefined;
 
+        formData.set("consumable", String(formData.has("consumable")));
+        
         try
         {
             createdArticle = await locals.pb.collection(Collections.Article).create<ArticleResponse>(formData);
