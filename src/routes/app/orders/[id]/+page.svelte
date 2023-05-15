@@ -42,7 +42,7 @@
     export let data: PageData;
     export let form: ActionData;
 
-    $: htTotal = (data.order.expand?.["orders_rows(order)"]?.map(k => k.quantity * (k.expand?.article.price ?? 0)).reduce((p, c) => p + c, 0) ?? 0);
+    $: htTotal = (data.order.expand?.["orders_rows(order)"]?.map(k => k.quantity * (k.ack_price || (k.expand?.article.price ?? 0))).reduce((p, c) => p + c, 0) ?? 0);
     $: tvaSubtotal = Math.floor(((htTotal * 1.20) - htTotal) * 100) / 100;
     $: completeTotal = htTotal + tvaSubtotal;
     
