@@ -179,7 +179,7 @@
             <svelte:fragment slot="body">
                 {#each data.articleMovements as movement}
                     <TableRow>
-                        <TableCell>{movement.quantity_update} {returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.quantity)}</TableCell>
+                        <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
                         <TableCell class="hidden md:table-cell">{movement.reason ?? "—"}</TableCell>
                         <TableCell>
                             {#if movement.expand?.user !== undefined}

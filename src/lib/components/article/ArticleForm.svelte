@@ -7,7 +7,6 @@
     import FormInput from "../FormInput.svelte";
     import Flex from "../layout/flex.svelte";
     import Grid from "../layout/grid.svelte";
-    import { articleUnits } from "./artictleUnits";
 
     export let article: ArticleResponseExpanded = {
         id: "",
@@ -75,7 +74,7 @@
         </FormInput>
     
         {#if article?.unit?.startsWith("b")}
-            <FormInput type="number" name="unit_quantity" label="{articleUnits[article?.unit][1].replace("#", "")}" bind:value={article.unit_quantity} step={1} min={1} />
+            <FormInput type="number" name="unit_quantity" label="Quantité du contenant" bind:value={article.unit_quantity} step={1} min={1} labelMandatory />
         {/if}
     </Grid>
 
