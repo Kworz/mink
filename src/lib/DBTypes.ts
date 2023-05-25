@@ -14,13 +14,7 @@ export enum Collections {
 	AssembliesBuylists = "assemblies_buylists",
 	AssembliesBuylistsRows = "assemblies_buylists_rows",
 	AssembliesRelations = "assemblies_relations",
-	Build = "build",
-	BuildRow = "build_row",
 	FabricationOrders = "fabrication_orders",
-	List = "list",
-	ListRow = "list_row",
-	Nomenclature = "nomenclature",
-	NomenclatureRow = "nomenclature_row",
 	Orders = "orders",
 	OrdersRows = "orders_rows",
 	Projects = "projects",
@@ -131,20 +125,6 @@ export type AssembliesRelationsRecord = {
 	quantity: number
 }
 
-export type BuildRecord = {
-	name: string
-	project?: RecordIdString
-	parent_nomenclature: RecordIdString
-	parent_list: RecordIdString
-}
-
-export type BuildRowRecord = {
-	build: RecordIdString
-	parent_nomenclature_row: RecordIdString
-	group?: string
-	assembled?: boolean
-}
-
 export type FabricationOrdersRecord = {
 	article: RecordIdString
 	quantity: number
@@ -153,31 +133,6 @@ export type FabricationOrdersRecord = {
 	project?: RecordIdString
 	start_date: IsoDateString
 	end_date: IsoDateString
-}
-
-export type ListRecord = {
-	name: string
-	parent_nomenclature: RecordIdString
-	project?: RecordIdString
-}
-
-export type ListRowRecord = {
-	parent_list: RecordIdString
-	parent_nomenclature_row: RecordIdString
-	quantity?: number
-}
-
-export type NomenclatureRecord = {
-	name: string
-	description?: string
-	created_by?: RecordIdString
-}
-
-export type NomenclatureRowRecord = {
-	parent_nomenclature: RecordIdString
-	child_article: RecordIdString
-	quantity_required: number
-	group?: string
 }
 
 export enum OrdersStateOptions {
@@ -247,13 +202,7 @@ export type AssembliesResponse = AssembliesRecord & BaseSystemFields
 export type AssembliesBuylistsResponse<Texpand = unknown> = AssembliesBuylistsRecord & BaseSystemFields<Texpand>
 export type AssembliesBuylistsRowsResponse<Texpand = unknown> = AssembliesBuylistsRowsRecord & BaseSystemFields<Texpand>
 export type AssembliesRelationsResponse<Texpand = unknown> = AssembliesRelationsRecord & BaseSystemFields<Texpand>
-export type BuildResponse<Texpand = unknown> = BuildRecord & BaseSystemFields<Texpand>
-export type BuildRowResponse<Texpand = unknown> = BuildRowRecord & BaseSystemFields<Texpand>
 export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersRecord & BaseSystemFields<Texpand>
-export type ListResponse<Texpand = unknown> = ListRecord & BaseSystemFields<Texpand>
-export type ListRowResponse<Texpand = unknown> = ListRowRecord & BaseSystemFields<Texpand>
-export type NomenclatureResponse<Texpand = unknown> = NomenclatureRecord & BaseSystemFields<Texpand>
-export type NomenclatureRowResponse<Texpand = unknown> = NomenclatureRowRecord & BaseSystemFields<Texpand>
 export type OrdersResponse<Texpand = unknown> = OrdersRecord & BaseSystemFields<Texpand>
 export type OrdersRowsResponse<Texpand = unknown> = OrdersRowsRecord & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = ProjectsRecord & BaseSystemFields<Texpand>
@@ -274,13 +223,7 @@ export type CollectionRecords = {
 	assemblies_buylists: AssembliesBuylistsRecord
 	assemblies_buylists_rows: AssembliesBuylistsRowsRecord
 	assemblies_relations: AssembliesRelationsRecord
-	build: BuildRecord
-	build_row: BuildRowRecord
 	fabrication_orders: FabricationOrdersRecord
-	list: ListRecord
-	list_row: ListRowRecord
-	nomenclature: NomenclatureRecord
-	nomenclature_row: NomenclatureRowRecord
 	orders: OrdersRecord
 	orders_rows: OrdersRowsRecord
 	projects: ProjectsRecord
@@ -300,13 +243,7 @@ export type CollectionResponses = {
 	assemblies_buylists: AssembliesBuylistsResponse
 	assemblies_buylists_rows: AssembliesBuylistsRowsResponse
 	assemblies_relations: AssembliesRelationsResponse
-	build: BuildResponse
-	build_row: BuildRowResponse
 	fabrication_orders: FabricationOrdersResponse
-	list: ListResponse
-	list_row: ListRowResponse
-	nomenclature: NomenclatureResponse
-	nomenclature_row: NomenclatureRowResponse
 	orders: OrdersResponse
 	orders_rows: OrdersRowsResponse
 	projects: ProjectsResponse
