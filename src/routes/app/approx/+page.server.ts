@@ -1,6 +1,5 @@
 import { Collections, type ArticleMovementsRecord, type OrdersRowsResponse, type OrdersResponse, type SuppliersResponse, type ListResponse, OrdersStateOptions } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../articles/+page.server";
-import type { ListResponseExpanded } from "../lists/+page.server";
 import type { Actions, PageServerLoad } from "./$types";
 
 export type OrderRowsResponseExpanded = OrdersRowsResponse<{ article: ArticleResponseExpanded, order: OrdersResponse<{ supplier: SuppliersResponse}> }>;
@@ -10,12 +9,10 @@ export type ListResponseCompleteExpand = ListResponse;
 export const load = (async ({ locals}) => {
 
     const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ expand: "article.supplier,order.supplier", filter: `(order.state = "placed" || order.state = "acknowledged") && quantity != quantity_received`});
-    const lists = await locals.pb.collection(Collections.List).getFullList<ListResponseExpanded>({ expand: "project,parent_nomenclature,list_row(parent_list),nomenclature_row(parent_list.parent_nomenclature)"});
     const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
 
     return {
         order_rows: structuredClone(order_rows),
-        lists: structuredClone(lists),
         suppliers: structuredClone(suppliers)
     }
 }) satisfies PageServerLoad;

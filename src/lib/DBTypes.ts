@@ -5,8 +5,6 @@
 export enum Collections {
 	Article = "article",
 	ArticleMovements = "article_movements",
-	ArticlePricepoint = "article_pricepoint",
-	ArticleStores = "article_stores",
 	ArticleTags = "article_tags",
 	ArticleTagsRelations = "article_tags_relations",
 	ArticleView = "article_view",
@@ -18,6 +16,8 @@ export enum Collections {
 	Orders = "orders",
 	OrdersRows = "orders_rows",
 	Projects = "projects",
+	Stores = "stores",
+	StoresRelations = "stores_relations",
 	Suppliers = "suppliers",
 	Users = "users",
 }
@@ -68,17 +68,6 @@ export type ArticleMovementsRecord = {
 	user: RecordIdString
 	quantity_update: number
 	reason?: string
-}
-
-export type ArticlePricepointRecord = {
-	article: RecordIdString
-	supplier: RecordIdString
-	price?: number
-}
-
-export type ArticleStoresRecord = {
-	name: string
-	location?: string
 }
 
 export type ArticleTagsRecord = {
@@ -168,6 +157,18 @@ export type ProjectsRecord = {
 	attached_users?: RecordIdString[]
 }
 
+export type StoresRecord = {
+	name: string
+	location?: string
+	temporary?: boolean
+}
+
+export type StoresRelationsRecord = {
+	store: RecordIdString
+	article?: RecordIdString
+	quantity?: number
+}
+
 export enum SuppliersPaymentRuleOptions {
 	"order" = "order",
 	"received" = "received",
@@ -193,8 +194,6 @@ export type UsersRecord = {
 // Response types include system fields and match responses from the PocketBase API
 export type ArticleResponse<Texpand = unknown> = ArticleRecord & BaseSystemFields<Texpand>
 export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
-export type ArticlePricepointResponse<Texpand = unknown> = ArticlePricepointRecord & BaseSystemFields<Texpand>
-export type ArticleStoresResponse = ArticleStoresRecord & BaseSystemFields
 export type ArticleTagsResponse = ArticleTagsRecord & BaseSystemFields
 export type ArticleTagsRelationsResponse<Texpand = unknown> = ArticleTagsRelationsRecord & BaseSystemFields<Texpand>
 export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields<Texpand>
@@ -206,6 +205,8 @@ export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersReco
 export type OrdersResponse<Texpand = unknown> = OrdersRecord & BaseSystemFields<Texpand>
 export type OrdersRowsResponse<Texpand = unknown> = OrdersRowsRecord & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = ProjectsRecord & BaseSystemFields<Texpand>
+export type StoresResponse = StoresRecord & BaseSystemFields
+export type StoresRelationsResponse<Texpand = unknown> = StoresRelationsRecord & BaseSystemFields<Texpand>
 export type SuppliersResponse = SuppliersRecord & BaseSystemFields
 export type UsersResponse = UsersRecord & AuthSystemFields
 
@@ -214,8 +215,6 @@ export type UsersResponse = UsersRecord & AuthSystemFields
 export type CollectionRecords = {
 	article: ArticleRecord
 	article_movements: ArticleMovementsRecord
-	article_pricepoint: ArticlePricepointRecord
-	article_stores: ArticleStoresRecord
 	article_tags: ArticleTagsRecord
 	article_tags_relations: ArticleTagsRelationsRecord
 	article_view: ArticleViewRecord
@@ -227,6 +226,8 @@ export type CollectionRecords = {
 	orders: OrdersRecord
 	orders_rows: OrdersRowsRecord
 	projects: ProjectsRecord
+	stores: StoresRecord
+	stores_relations: StoresRelationsRecord
 	suppliers: SuppliersRecord
 	users: UsersRecord
 }
@@ -234,8 +235,6 @@ export type CollectionRecords = {
 export type CollectionResponses = {
 	article: ArticleResponse
 	article_movements: ArticleMovementsResponse
-	article_pricepoint: ArticlePricepointResponse
-	article_stores: ArticleStoresResponse
 	article_tags: ArticleTagsResponse
 	article_tags_relations: ArticleTagsRelationsResponse
 	article_view: ArticleViewResponse
@@ -247,6 +246,8 @@ export type CollectionResponses = {
 	orders: OrdersResponse
 	orders_rows: OrdersRowsResponse
 	projects: ProjectsResponse
+	stores: StoresResponse
+	stores_relations: StoresRelationsResponse
 	suppliers: SuppliersResponse
 	users: UsersResponse
 }

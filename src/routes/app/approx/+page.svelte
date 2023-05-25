@@ -46,14 +46,14 @@
     {#each suppliersSplittedRows as orderRows}
         <Wrapper class="mt-6">
             <h3>{data.suppliers.find(k => k.id === orderRows.supplier)?.name ?? "Fournisseur introuvable"}</h3>
-            <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
+            <ApproxTable orderRows={orderRows.rows} />
         </Wrapper>
     {/each}
 {:else}
     {#each datesSplittedRows as orderRows}
         <Wrapper class="mt-6">
             <h3><Date date={orderRows.date} format="long" colorDate={true}/></h3>
-            <ApproxTable orderRows={orderRows.rows} lists={data.lists} />
+            <ApproxTable orderRows={orderRows.rows} />
         </Wrapper>
     {/each}
 {/if}
