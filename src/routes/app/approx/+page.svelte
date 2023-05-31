@@ -27,6 +27,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Nomenclaturize - Approvisionement</title>
+</svelte:head>
+
 <Wrapper>
     <h2>Approvisionement</h2>
     <p>Articles en attente de réception.</p>
@@ -46,14 +50,14 @@
     {#each suppliersSplittedRows as orderRows}
         <Wrapper class="mt-6">
             <h3>{data.suppliers.find(k => k.id === orderRows.supplier)?.name ?? "Fournisseur introuvable"}</h3>
-            <ApproxTable orderRows={orderRows.rows} />
+            <ApproxTable orderRows={orderRows.rows} stores={data.stores} />
         </Wrapper>
     {/each}
 {:else}
     {#each datesSplittedRows as orderRows}
         <Wrapper class="mt-6">
             <h3><Date date={orderRows.date} format="long" colorDate={true}/></h3>
-            <ApproxTable orderRows={orderRows.rows} />
+            <ApproxTable orderRows={orderRows.rows} stores={data.stores} />
         </Wrapper>
     {/each}
 {/if}

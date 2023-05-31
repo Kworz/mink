@@ -1,8 +1,6 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
     import { goto, invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
     import ArticleFinder from "$lib/components/article/ArticleFinder.svelte";
     import Button from "$lib/components/Button.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
@@ -17,7 +15,6 @@
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
-    import Wrapper2 from "$lib/components/Wrapper2.svelte";
     import { Collections, OrdersStateOptions } from "$lib/DBTypes";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { Printer, Trash } from "@steeze-ui/heroicons";
@@ -37,6 +34,8 @@
     const statesKeys = Object.keys(states) as Array<OrdersStateOptions>;
 
     let selectedArticle: ArticleResponseExpanded | undefined = undefined;
+    let selectedArticleQuantity = 0;
+
     let confirmDelete = false;
 
     export let data: PageData;
@@ -66,9 +65,32 @@
         goto("/app/orders");
     }
 
+    const addOrderRow = async () => {
+
+        if(selectedArticle === undefined) return;
+
+        try
+        {
+                await $page.data.pb.collection(Collections.OrdersRows).create({
+                order: data.order.id,
+                article: selectedArticle.id,
+                quantity: selectedArticleQuantity,
+            });
+
+            selectedArticle = undefined;
+            selectedArticleQuantity = 0;
+
+            invalidateAll();
+        }
+        catch(e)
+        {
+            console.error(e);
+        }
+    }
+
 </script>
 
-<Wrapper class="p-8">
+<Wrapper>
     <PillMenu>
         <PillMenuButton icon={Printer} click={() => window.open(`/app/orders/${data.order.id}/export`, '_blank')?.focus()}>Créer un PDF de la commande</PillMenuButton>
         <PillMenuButton icon={Trash} click={() => { deleteOrder(); return false; }}>Supprimer</PillMenuButton>
@@ -91,19 +113,14 @@
 </Wrapper>
 
 <Grid cols={2} gap={8} items="start" class="mt-8">
-    <Wrapper padding="p-2">
+    <Wrapper>
         <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
             <svelte:fragment slot="body">
                 <TableRow>
-                    <TableCell><h3>Metalizz</h3></TableCell>
+                    <TableCell><h3>{import.meta.env.VITE_COMPANY_NAME}</h3></TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell>
-                        <p>
-                            840 Chemin de chabanne,
-                            26270 Loriol sur drome
-                        </p>
-                    </TableCell>
+                    <TableCell><p>{@html import.meta.env.VITE_COMPANY_ADDRESS.split(",").join(',</br>')}</p></TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell>
@@ -114,7 +131,7 @@
         </Table>
     </Wrapper>
 
-    <Wrapper padding="p-2">
+    <Wrapper>
         <h4>Fournisseur</h4>
         <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
             <svelte:fragment slot="body">
@@ -122,7 +139,7 @@
                     <TableCell><h3>{data.order.expand?.supplier.name}</h3></TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell><p>{data.order.expand?.supplier.address}</p></TableCell>
+                    <TableCell><p>{@html data.order.expand?.supplier.address?.split(",").join(',</br>')}</p></TableCell>
                 </TableRow>
             </svelte:fragment>
         </Table>
@@ -158,17 +175,16 @@
 {#if data.order.state === OrdersStateOptions.draft}
     <Wrapper class="mt-6">
         <h3 class="mb-3">Ajouter un article a la commande</h3>
-        <form action="?/createOrderRow" method="post" use:enhance class="flex flex-row gap-4 items-end">
+        <div class="flex flex-row gap-4 items-end">
             <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
                 <ArticleFinder bind:selectedArticle filters={[{ field: "supplier", operator: "~", value: data.order.supplier, hidden: true }]} />
             </div>
+
             {#if selectedArticle !== undefined}
-                <input type="hidden" name="order" value={data.order.id} />
-                <input type="hidden" name="article" value={selectedArticle?.id} />
-                <FormInput name="quantity" type="number" min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
-                <Button class="ml-auto">Ajouter l'article</Button>
+                <FormInput name="quantity" type="number" bind:value={selectedArticleQuantity} min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
+                <Button class="ml-auto" on:click={addOrderRow}>Ajouter l'article</Button>
             {/if}
-        </form>
+        </div>
     </Wrapper>
 {/if}
 

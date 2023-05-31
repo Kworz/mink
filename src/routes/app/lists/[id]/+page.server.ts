@@ -1,4 +1,4 @@
-import { Collections, type ArticleMovementsRecord, AssembliesBuylistsRowsResponse, type OrdersRowsRecord, type OrdersRecord, OrdersStateOptions, SuppliersResponse } from "$lib/DBTypes";
+import { Collections, type ArticleMovementsRecord, type OrdersRowsRecord, type OrdersRecord, OrdersStateOptions, type StoresRelationsResponse, type SuppliersResponse, type AssembliesBuylistsResponse, type StoresResponse, type AssembliesBuylistsRowsResponse } from "$lib/DBTypes";
 import { ClientResponseError } from "pocketbase";
 import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
 import type { PageServerLoad, Actions } from "./$types";
@@ -9,16 +9,17 @@ import { redirect } from "@sveltejs/kit";
 export const load = (async ({ locals, params }) => {
 
     const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project"});
-    const listItems = await locals.pb.collection(Collections.AssembliesBuylistsRows).getFullList({ filter: `buylist = "${list.id}"`});
+    const storeRelations = await locals.pb.collection(Collections.StoresRelations).getFullList({ filter: `store = "${list.store}"`});
+
     const flattenAssemblyResult = await flattenAssembly(list.expand?.assembly, locals.pb);
 
     const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>({ filter: [...new Set(flattenAssemblyResult.map(k => k.article.supplier).flat())].map(k => `id = "${k}"`).join(" || ") });
 
     return {
         list: structuredClone(list),
-        listItems: structuredClone(listItems), 
         flattenAssemblyResult: structuredClone(flattenAssemblyResult),
         suppliers: structuredClone(suppliers),
+        storeRelations: structuredClone(storeRelations)
     }
 
 }) satisfies PageServerLoad;
@@ -28,74 +29,116 @@ export const actions: Actions = {
     buyListRelationEdit: async ({ locals, request, params }) => {
 
         const form = await request.formData();
-        const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne(params.id);
+        const articleID = form.get("article")?.toString();
+        const quantity = Number(form.get("quantity")?.toString());
+        const buylist = form.get("buylist")?.toString();
+        let storeToUse = form.get('store')?.toString();
 
         try
         {
-            const articleID = form.get("article")?.toString();
-            const quantity = Number(form.get("quantity")?.toString());
-            const buylist = form.get("buylist")?.toString();
-
             if(articleID === undefined || quantity === undefined || buylist === undefined)
                 throw "Invalid form data";
 
-            const article = await locals.pb.collection(Collections.Article).getOne(articleID);
+            const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponse>(params.id);
+            const storeRelationLinkedList = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${articleID}" && store = "${list.store}"` });
 
-            if(article.quantity < quantity)
-                throw "Buy list affectation quantity is higher than article quantity";
+            const deltaQuantity = quantity - (storeRelationLinkedList.at(0)?.quantity ?? 0);
 
-            const buyListRelation = await locals.pb.collection(Collections.AssembliesBuylistsRows).getFirstListItem(`article = "${articleID}" && buylist = "${buylist}"`);
+            if(storeToUse === undefined)
+            {
+                if(deltaQuantity > 0)
+                {
+                    const storesToChooseFrom = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${articleID}" && quantity > 0 && store.temporary = false` });
 
-            const articleMovement: ArticleMovementsRecord = {
-                article: articleID,
-                quantity_update: -(quantity - buyListRelation.quantity),
-                user: locals.user?.id,
-                reason: `${(quantity - buyListRelation.quantity) < 0 ? "Retour de " : "Affectation à"} ${list.name}`
-            };
+                    if(storesToChooseFrom.length > 1)
+                        return { buyListRelationEdit: { [articleID]: { storesToGetFrom: structuredClone(storesToChooseFrom) }}};
+                    else
+                        storeToUse = storesToChooseFrom[0].store;
+                }
+                else
+                {
+                    const storesWithRelations = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${articleID}" && quantity > 0 && store.temporary = false`, expand: "store" })).at(0);
+                    
+                    if(storesWithRelations !== undefined)
+                        storeToUse = storesWithRelations.expand?.store?.id;
+                    else
+                    {
+                        const storesToSendTo = await locals.pb.collection(Collections.Stores).getFullList<StoresResponse>({ filter: "temporary = false"});
 
-            await locals.pb.collection(Collections.AssembliesBuylistsRows).update(buyListRelation.id, { quantity: quantity });
-            await locals.pb.collection(Collections.Article).update(articleID, { "quantity-": (quantity - buyListRelation.quantity)})
-            await locals.pb.collection(Collections.ArticleMovements).create(articleMovement);
+                        if(storesToSendTo.length > 1)
+                            return { buyListRelationEdit: { [articleID]: { storesToSendTo: structuredClone(storesToSendTo) }}};
+                        else
+                            storeToUse = storesToSendTo[0].id;
+                    }
+                }
+            }
+
+            if(deltaQuantity > 0)
+            {
+                const storesRelationsWithArticle = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${articleID}" && quantity > 0 && store = "${storeToUse}"` });
+                const selectedStore = storesRelationsWithArticle.at(0);
+
+                if(storesRelationsWithArticle.length === 0 || selectedStore === undefined)
+                    throw "No article in stock";
+
+                if((selectedStore?.quantity ?? 0) < deltaQuantity)
+                    throw "Buy list affectation quantity is higher than article quantity";
+
+                const buyListRelation = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${articleID}" && store = "${list.store}"` })).at(0);
+
+                const articleMovement: ArticleMovementsRecord = {
+                    article: articleID,
+                    quantity_update: -deltaQuantity,
+                    user: locals.user?.id,
+                    store_in: selectedStore?.store,
+                    store_out: list.store
+                };
+                
+                if(buyListRelation === undefined)
+                    await locals.pb.collection(Collections.StoresRelations).create({ article: articleID, store: list.store, quantity: quantity });
+                else
+                    await locals.pb.collection(Collections.StoresRelations).update(buyListRelation.id, { "quantity+": deltaQuantity });
+                
+                await locals.pb.collection(Collections.StoresRelations).update(selectedStore.id, { "quantity-": deltaQuantity });
+                await locals.pb.collection(Collections.ArticleMovements).create(articleMovement);
+
+            }
+            else
+            {
+                const buyListRelation = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${articleID}" && store = "${list.store}"` })).at(0);
+
+                if(buyListRelation !== undefined)
+                    await locals.pb.collection(Collections.StoresRelations).update(buyListRelation.id, { "quantity+": deltaQuantity });
+                else
+                    throw "Cant decrease undefined quantity"
+
+                const storeRelation = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `store = "${storeToUse}" && article = "${articleID}"` })).at(0);
+
+                if(storeRelation === undefined)
+                    await locals.pb.collection(Collections.StoresRelations).create({ article: articleID, store: storeToUse, quantity: -deltaQuantity });
+                else
+                    await locals.pb.collection(Collections.StoresRelations).update(storeRelation.id, { "quantity-": deltaQuantity });
+                
+                await locals.pb.collection(Collections.ArticleMovements).create({
+                    article: articleID,
+                    quantity_update: -deltaQuantity,
+                    user: locals.user?.id,
+                    store_in: list.store,
+                    store_out: storeToUse
+                });
+            }
         }
         catch(ex)
         {
-            if(ex instanceof ClientResponseError)
-            {
-                try
-                {
-                    const articleID = form.get("article")?.toString();
-                    const quantity = Number(form.get("quantity")?.toString());
-                    const buylist = form.get("buylist")?.toString();
-
-                    if(articleID === undefined || quantity === undefined || buylist === undefined)
-                        throw "Invalid form data";
-                    
-                    const article = await locals.pb.collection(Collections.Article).getOne(articleID);
-
-                    if(article.quantity < quantity)
-                        throw "Buy list affectation quantity is higher than article quantity";
-
-                    const articleMovement: ArticleMovementsRecord = {
-                        article: articleID,
-                        quantity_update: -quantity,
-                        user: locals.user?.id,
-                        reason: `Affectation à ${list.name}`
-                    };
-
-                    await locals.pb.collection(Collections.AssembliesBuylistsRows).create({ article: form.get("article"), buylist: form.get("buylist"), quantity: form.get("quantity") });
-                    await locals.pb.collection(Collections.ArticleMovements).create(articleMovement);
-                    await locals.pb.collection(Collections.Article).update(articleID, { "quantity-": quantity });
-                }
-                catch(ex)
-                {
-                    return { buyListRelationEdit: { error: (ex instanceof ClientResponseError) ? ex.message : ex }}
-                }
-            }
-            else
-                return { buyListRelationEdit: { [`${form.get("article")?.toString() ?? "all"}`]: { error: ex }}}
-
+            console.log(ex);
+            return { buyListRelationEdit: { [articleID ?? "all"]: { error: (ex instanceof ClientResponseError) ? ex.message : ex }}};
         }
-        return { buyListRelationEdit: { success: "Successfully Created/updated row row" }};
+
+        return {
+            buyListRelationEdit: { 
+                success: true,
+                [articleID]: { success: "Successfully Created/updated row row" }
+            }};
     },
 
     generateOrder: async ({ locals, params, request }) => {
@@ -115,13 +158,7 @@ export const actions: Actions = {
 
         for(const assemblyRow of assemblyRows.filter(k => k.article.supplier?.includes(supplier)))
         {
-            let buyListRelation: AssembliesBuylistsRowsResponse | undefined = undefined;
-
-            try
-            {
-                buyListRelation = await locals.pb.collection(Collections.AssembliesBuylistsRows).getFirstListItem<AssembliesBuylistsRowsResponse>(`article = "${assemblyRow.article}" && buylist = "${list.id}"`);
-            }
-            catch(ex) { null;}
+            const buyListRelation = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${assemblyRow.article.id}" && store = "${list.store}"` })).at(0);
 
             if((buyListRelation?.quantity ?? 0) >= assemblyRow.quantity)
                 continue;
@@ -136,12 +173,12 @@ export const actions: Actions = {
 
         if(orderRows.length > 0)
         {
-            const orderRecord: OrdersRecord = { 
-                "name": `Commande ${list.name} — ${supplierResponse.name}`,
-                "supplier": supplier,
-                "issuer": locals.user?.id,
-                "state": OrdersStateOptions.draft
-            };
+            const orderRecord = { 
+                name: `Commande ${list.name} — ${supplierResponse.name}`,
+                supplier: supplier,
+                issuer: locals.user?.id,
+                state: OrdersStateOptions.draft,
+            } satisfies OrdersRecord;
 
             const order = await locals.pb.collection(Collections.Orders).create(orderRecord);
             orderRows.map(k => { return { ...k, order: order.id }});

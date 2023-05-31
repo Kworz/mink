@@ -22,7 +22,7 @@
     let mode: "nested" | "flat" = "nested";
 
     let editAssembly = false;
-    let editAssemblyDeleteThumbnail = false; 
+    let editAssemblyDeleteThumbnail = false;
 
     setAssemblyContext(data.assembly);
 

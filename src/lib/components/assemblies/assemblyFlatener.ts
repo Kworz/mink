@@ -28,12 +28,13 @@ export const flattenAssembly = async (assembly: AssembliesResponse, pocketbase: 
 
     async function subFlatten (assembly: AssembliesResponse, quantity = 1)
     {
-        const relations = await pocketbase.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsResponseExpanded>({ filter: `parent="${assembly.id}"`, expand: 'article_child.supplier' }) ?? [];
+        const relations = await pocketbase.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsResponseExpanded>({ filter: `parent="${assembly.id}"` }) ?? [];
 
         for(const relation of relations)
         {
-            if(relation.article_child !== '' && relation.expand?.article_child !== undefined)
+            if(relation.article_child !== '' && relation.article_child !== undefined)
             {
+
                 const flatRelation = flattenRelations.find(fr => fr.article.id === relation.article_child)
                 if(flatRelation)
                 {
@@ -42,8 +43,10 @@ export const flattenAssembly = async (assembly: AssembliesResponse, pocketbase: 
                 }
                 else
                 {
+                    const article = await pocketbase.collection(Collections.Article).getOne<ArticleResponseExpanded>(relation.article_child, { expand: "supplier,orders_rows(article).order,article_view(article),stores_relations(article).store"});
+
                     flattenRelations.push({
-                        article: relation.expand.article_child,
+                        article: article,
                         subAssemblies: [assembly],
                         quantity: (relation.quantity * quantity)
                     });

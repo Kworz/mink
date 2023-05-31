@@ -1,4 +1,5 @@
-import { Collections, type ArticleMovementsRecord, type OrdersRowsResponse, type OrdersResponse, type SuppliersResponse, type ListResponse, OrdersStateOptions } from "$lib/DBTypes";
+import { Collections, type ArticleMovementsRecord, type OrdersRowsResponse, type OrdersResponse, type SuppliersResponse, type ListResponse, OrdersStateOptions, StoresResponse, type StoresRelationsResponse } from "$lib/DBTypes";
+import { ClientResponseError } from "pocketbase";
 import type { ArticleResponseExpanded } from "../articles/+page.server";
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -10,10 +11,12 @@ export const load = (async ({ locals}) => {
 
     const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ expand: "article.supplier,order.supplier", filter: `(order.state = "placed" || order.state = "acknowledged") && quantity != quantity_received`});
     const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
+    const stores = await locals.pb.collection(Collections.Stores).getFullList<StoresResponse>();
 
     return {
         order_rows: structuredClone(order_rows),
-        suppliers: structuredClone(suppliers)
+        suppliers: structuredClone(suppliers),
+        stores: structuredClone(stores)
     }
 }) satisfies PageServerLoad;
 
@@ -25,53 +28,59 @@ export const actions: Actions = {
 
             const form = await request.formData();
 
-            const order_row = form.get("order_row")
-            const articleID = form.get("article");
-            const quantity_received = form.get("received_quantity");
+            const order_row = form.get("order_row")?.toString();
+            const articleID = form.get("article")?.toString();
+            const quantity_received = Number(form.get("received_quantity")?.toString());
 
-            if(order_row === null)
+            const store_in = form.get("store_in")?.toString();
+
+            if(order_row ===  undefined)
                 throw "Order row id is null";
 
-            if(articleID === null)
+            if(articleID === undefined)
                 throw "Article ID is null";
             
-            if(quantity_received === null)
+            if(quantity_received === undefined)
                 throw "Quantity received is null";
 
             if(locals.user === undefined || locals.user === null)
                 throw "User not logged in";
 
-            const order_row2 = await locals.pb.collection(Collections.OrdersRows).update<OrdersRowsResponse<{order: OrdersResponse}>>(order_row.toString(), {
-                "quantity_received+": quantity_received.toString()
-            }, { expand: "order"});
+            if(store_in === undefined)
+                throw "Le stock de destination n'est pas défini";
 
-            await locals.pb.collection(Collections.Article).update(articleID.toString(), { "quantity+": quantity_received.toString()});
+            const storeInRecord = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `store = "${store_in}" && article = "${articleID}"`})).at(0);
+
+            if(storeInRecord === undefined)
+                await locals.pb.collection(Collections.StoresRelations).create({ store: store_in, article: articleID, quantity: quantity_received });
+            else
+                await locals.pb.collection(Collections.StoresRelations).update(storeInRecord.id, { "quantity+": quantity_received });
             
-            const movement: ArticleMovementsRecord = {
-                article: articleID.toString(),
-                quantity_update: Number(quantity_received.toString()),
+            await locals.pb.collection(Collections.ArticleMovements).create({
+                article: articleID,
+                quantity_update: quantity_received,
                 user: locals.user.id,
-                reason: `Réception commande ${order_row2.expand?.order.name}`
-            };
+                store_in,
+            } satisfies ArticleMovementsRecord);
 
-            await locals.pb.collection(Collections.ArticleMovements).create(movement);
+            const order_row2 = await locals.pb.collection(Collections.OrdersRows).update<OrdersRowsResponse<{order: OrdersResponse}>>(order_row, {
+                "quantity_received+": quantity_received
+            }, { expand: "order"});  
 
             const orderRowsIncomplete = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ expand: "article.supplier,order.supplier", filter: `(order.state = "placed" || order.state = "acknowledged") && order = "${order_row2.order}" && quantity > quantity_received`});
-
-            console.log(orderRowsIncomplete);
-
+            
             if(orderRowsIncomplete.length === 0)
-            {
                 await locals.pb.collection(Collections.Orders).update(order_row2.order, { state: OrdersStateOptions.completed });
-            }
+            else
+                console.log("remaining incomplete order rows", orderRowsIncomplete.length);
+            
 
             return { receiveArticle: { success: true }};
-
         }
         catch(ex)
         {
             console.log(ex);
-            return { receiveArticle: { error: ex }};
+            return { receiveArticle: { error: (ex instanceof ClientResponseError) ? ex.message : ex }};
         }
     }
 };

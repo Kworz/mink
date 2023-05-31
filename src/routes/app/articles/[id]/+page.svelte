@@ -25,6 +25,7 @@
     import Grid from "$lib/components/layout/grid.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import { returnArticleUnit } from "$lib/components/article/artictleUnits";
+    import Store from "$lib/components/store/Store.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -37,10 +38,16 @@
 
     let selectedFile: number = (data.article.attached_files === undefined) ? -1 : 0;
 
+    let articleStoreDirection: "inward" | "outward" | "moved" = "inward";
+    
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(form !== null) { setTimeout(() => form = null, 3000); }
     $: if(form?.editTag !== undefined) { editTag = undefined }
     $: if(showConfirmDelete === true) { setTimeout(() => showConfirmDelete = false, 3000); }
+    
+    $: articleQuantity = data.storeRelations.filter(sr => (sr.expand?.store?.temporary ?? true) === false).reduce((p, c) => p = p + (c.quantity ?? 0), 0);
+    $: exploitableStoreRelations = data.storeRelations.filter(k => (k.quantity ?? 0) > 0 && !k.expand?.store.temporary)
+    $: articlePreffedStores = data.storeRelations.filter(k => (k.quantity ?? 0) > 0).map(k => k.store);
 
 </script>
 
@@ -48,7 +55,7 @@
     <title>Article — {data.article.name}</title>
 </svelte:head>
 
-<div class="flex flex-col-reverse md:flex-row gap-6">
+<div class="flex flex-col-reverse md:flex-row gap-6 md:items-start">
     <Wrapper class="relative grow">
         {#if !editArticle}
         
@@ -78,12 +85,12 @@
                 </div>
             {/if}
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.order_quantity)}</DetailLabel>.</p>{/if}
-            <p>Quantité en stock: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.quantity)}</DetailLabel>.</p>
+            <p>Quantité en stock: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, articleQuantity)}</DetailLabel>.</p>
 
             {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.critical_quantity)}</DetailLabel>.</p>{/if}
             <p>Consommable: <DetailLabel>{data.article.consumable ? "Oui" : "Non"}</DetailLabel>.</p>
 
-            {#if data.article.expand?.store}<p>Emplacement: <DetailLabel>{data.article.expand.store.location} / {data.article.expand.store.name}</DetailLabel></p>{/if}
+            {#if data.article.expand?.store}<p>Emplacements ( à convertir ): <DetailLabel>{data.article.expand.store.location} / {data.article.expand.store.name}</DetailLabel></p>{/if}
 
             <PillMenu>
                 <PillMenuButton icon={Wrench} click={() => { editArticle = !editArticle; }}>Modifier l'article</PillMenuButton>
@@ -155,45 +162,112 @@
         <p class="my-2 text-emerald-500">{form.updateStock.success}</p>
     {/if}
 
-    <form action="?/updateStock" method="post" use:enhanceNoReset class="flex flex-col md:flex-row gap-4 md:items-end">
-        <FormInput type="number" name="quantity_update" label="Quantité" labelMandatory value={0} />
-        <FormInput type="select" name="direction" label="Direction" labelMandatory value={-1}>
-            <option value={-1}>Sortie</option>
-            <option value={1}>Entrée</option>
+    <form action="?/updateStock" method="post" use:enhance class="flex flex-col md:flex-row gap-4 md:items-end">
+
+        <FormInput type="number" name="quantity_update" label="Quantité" labelMandatory value={0} min={0} />
+
+        <FormInput type="select" name="direction" label="Direction" labelMandatory bind:value={articleStoreDirection}>
+            <option value={"inward"}>Entrée</option>
+            <option value={"outward"}>Sortie</option>
+            <option value={"moved"}>Déplacement</option>
         </FormInput>
-        <FormInput type="text" name="reason" label="Raison" labelMandatory value={"Sortie de stock"} />
+
+        {#if articleStoreDirection === "outward" || articleStoreDirection === "moved"}
+
+            <FormInput type="select" name="store_out" label="Stock de provenance" labelMandatory value={""}>
+                <option value={""}>—</option>
+
+                {#each data.stores.filter(k => !k.temporary && articlePreffedStores.includes(k.id)) as store}
+                    <option value={store.id}>{store.name} / {store.location}</option>
+                {/each}
+            </FormInput>
+        {/if}
+
+        {#if articleStoreDirection === "moved"}
+            <Icon src={ArrowRight} class="h-6 w-6 text-violet-500 mb-2" />
+        {/if}
+
+        {#if articleStoreDirection === "inward" || articleStoreDirection === "moved"}
+            <FormInput type="select" name="store_in" label="Stock de destination" labelMandatory value={""}>
+                <option value={""}>—</option>
+
+                <optgroup label="Article déja présent">
+                    {#each data.stores.filter(k => !k.temporary && articlePreffedStores.includes(k.id)) as store}
+                        <option value={store.id}>
+                            {store.name} / {store.location}
+                        </option>
+                    {/each}
+                </optgroup>
+
+                <optgroup label="Article non présent">
+                    {#each data.stores.filter(k => !k.temporary && !articlePreffedStores.includes(k.id)) as store}
+                        <option value={store.id}>
+                            {store.name} / {store.location}
+                        </option>
+                    {/each}
+                </optgroup>
+            </FormInput>
+        {/if}
+
         <Button>Modifier la quantité en stock</Button>
     </form>
 </Wrapper>
 
 <Grid gap={6} cols={data.articleMovements.length > 0 ? 2 : 1} items="start" class="mt-6">
-    {#if data.articleMovements.length > 0}
-        <Table marginTop="">
-            <svelte:fragment slot="head">
-                <TableHead>Δ Quantité</TableHead>
-                <TableHead class="hidden md:table-cell">Raison</TableHead>
-                <TableHead>Utilisateur</TableHead>
-                <TableHead class="hidden md:table-cell">Date</TableHead>
-            </svelte:fragment>
 
-            <svelte:fragment slot="body">
-                {#each data.articleMovements as movement}
-                    <TableRow>
-                        <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
-                        <TableCell class="hidden md:table-cell">{movement.reason ?? "—"}</TableCell>
-                        <TableCell>
-                            {#if movement.expand?.user !== undefined}
-                                <User user={movement.expand.user} />
-                            {:else}
-                                —
-                            {/if}
-                        </TableCell>
-                        <TableCell class="hidden md:table-cell">{movement.created}</TableCell>
-                    </TableRow>
-                {/each}
-            </svelte:fragment>
-        </Table>
-    {/if}
+    <Flex direction="col" gap={6}>
+        {#if exploitableStoreRelations.length > 0}
+            <Table marginTop="">
+                <svelte:fragment slot="head">
+                    <TableHead>Emplacement</TableHead>
+                    <TableHead>Quantité</TableHead>
+                </svelte:fragment>
+                <svelte:fragment slot="body">
+                    {#each exploitableStoreRelations as storeRelation}
+                        <TableRow>
+                            <TableCell><Store store={storeRelation.expand?.store} /></TableCell>
+                            <TableCell>{storeRelation.quantity}</TableCell>
+                        </TableRow>
+                    {/each}
+                </svelte:fragment>
+            </Table>
+        {/if}
+
+        {#if data.articleMovements.length > 0}
+            <Table marginTop="">
+                <svelte:fragment slot="head">
+                    <TableHead>Δ Quantité</TableHead>
+                    <TableHead>Utilisateur</TableHead>
+                    <TableHead>Déplacement</TableHead>
+                    <TableHead class="hidden md:table-cell">Date</TableHead>
+                </svelte:fragment>
+
+                <svelte:fragment slot="body">
+                    {#each data.articleMovements as movement}
+                        <TableRow>
+                            <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
+                            <TableCell>
+                                {#if movement.expand?.user !== undefined}
+                                    <User user={movement.expand.user} />
+                                {:else}
+                                    —
+                                {/if}
+                            </TableCell>
+                            <TableCell>
+                                <Flex items="center" gap={2}>
+                                    <span>{movement.expand?.store_out?.name ?? "Inconnu"}</span>
+                                    <Icon src={ArrowRight} class="h-4 w-4 inline-block text-violet-500" />
+                                    <span>{movement.expand?.store_in?.name ?? "Inconnu"}</span>
+                                </Flex>
+                            </TableCell>
+                            <TableCell class="hidden md:table-cell">{movement.created}</TableCell>
+                        </TableRow>
+                    {/each}
+                </svelte:fragment>
+            </Table>
+        {/if}
+    </Flex>
+
     <Wrapper>
         <h4>Tags article</h4>
 

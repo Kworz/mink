@@ -7,10 +7,12 @@
     import TableCell from "$lib/components/table/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
+    import type { StoresResponse } from "$lib/DBTypes";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import type { OrderRowsResponseExpanded } from "./+page.server";
 
     export let orderRows: Array<OrderRowsResponseExpanded>;
+    export let stores: Array<StoresResponse>;
 
 </script>
 
@@ -30,7 +32,7 @@
                     <ArticleRow article={orderRow.expand?.article} displayStock={true} />
                 </TableCell>
                 <TableCell><Date date={orderRow.ack_date} colorDate={true} /></TableCell>
-                <TableCell><a href="/app/lists/{orderRow.order}">{orderRow.expand?.order?.name}</a></TableCell>
+                <TableCell><a href="/app/orders/{orderRow.order}">{orderRow.expand?.order?.name}</a></TableCell>
                 <TableCell>{orderRow.quantity - (orderRow.quantity_received ?? 0)}</TableCell>
                 <TableCell>{orderRow.quantity_received}</TableCell>
                 <TableCell>
@@ -39,7 +41,13 @@
                         <input type="hidden" name="order_row" value={orderRow.id} />
 
                         <FormInput name="received_quantity" type="number" min={0} max={orderRow.quantity - (orderRow.quantity_received ?? 0)} value={0} label="Quantité recue" labelMandatory={true} backgroundColor="bg-white" />
-                        <Button>Valider la réception</Button>
+                        <FormInput name="store_in" type="select" value="" labelMandatory label="Stock de destination">
+                            <option value=''>—</option>
+                            {#each stores as store}
+                                <option value={store.id}>{store.name} / {store.location}</option>
+                            {/each}
+                        </FormInput>
+                        <Button>Valider</Button>
                     </form>
                 </TableCell>
             </TableRow>

@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type ArticleResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type ArticleTagsResponse, OrdersStateOptions } from "$lib/DBTypes";
+import { Collections, type ArticleResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type ArticleTagsResponse, OrdersStateOptions, type StoresResponse, type StoresRelationsResponse } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../+page.server";
 import { ClientResponseError } from "pocketbase";
 import type { OrderRowsResponseExpanded } from "../../approx/+page.server";
@@ -13,19 +13,25 @@ export const load = (async ({ params, locals }) => {
 
     try
     {
-        const itemId = params.id;
-        const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(itemId, { expand: "supplier,store" });
-        const orderRows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `article="${itemId}"`, expand: "order.supplier" });
-        const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{"user": UsersResponse}>>(undefined, { filter: `article="${itemId}"`, sort: "-created", expand: "user" });
-        const articleTags = await locals.pb.collection(Collections.ArticleTagsRelations).getFullList<ArticleTagsRelationsResponseExpanded>({ filter: `article="${itemId}"`, expand: "tag" });
+        const articleID = params.id;
+
+        const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(articleID, { expand: "supplier,store,stores_relations(article).store" });
+        const orderRows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `article="${articleID}"`, expand: "order.supplier" });
+        const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{ "user": UsersResponse, "store_in": StoresResponse, "store_out": StoresResponse }>>(undefined, { filter: `article="${articleID}"`, sort: "-created", expand: "user,store_in,store_out" });
+        const articleTags = await locals.pb.collection(Collections.ArticleTagsRelations).getFullList<ArticleTagsRelationsResponseExpanded>({ filter: `article="${articleID}"`, expand: "tag" });
         const tags = await locals.pb.collection(Collections.ArticleTags).getFullList<ArticleTagsResponse>();
+
+        const storeRelations = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse<{ store: StoresResponse }>>({ filter: `article = "${articleID}"` , expand: "store"})
+        const stores = await locals.pb.collection(Collections.Stores).getFullList<StoresResponse>();
 
         return {
             article: structuredClone(article),
             articleMovements: structuredClone(articleMovements),
             orderRows: structuredClone(orderRows.filter(row => [OrdersStateOptions.completed, OrdersStateOptions.placed, OrdersStateOptions.acknowledged].includes(row.expand?.order?.state))),
             articleTags: structuredClone(articleTags),
-            tags: structuredClone(tags)
+            tags: structuredClone(tags),
+            storeRelations: structuredClone(storeRelations),
+            stores: structuredClone(stores)
         }
     }
     catch(ex) 
@@ -67,14 +73,7 @@ export const actions: Actions = {
             const form = await request.formData();
             form.set("consumable", String(form.has("consumable")));
 
-            const oldArticle = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
-            const newArticle = await locals.pb.collection(Collections.Article).update<ArticleResponse>(params.id, form);
-
-            if(oldArticle.quantity !== newArticle.quantity)
-            {
-                const articleMovement: ArticleMovementsRecord = { article: params.id, user: locals.user.id, quantity_update: (Number(newArticle.quantity) - Number(oldArticle.quantity)), reason: "Article update"} 
-                await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
-            }
+            await locals.pb.collection(Collections.Article).update<ArticleResponse>(params.id, form);
 
             return { edit: { success: "Updated object successfully" }};
         }
@@ -98,7 +97,7 @@ export const actions: Actions = {
                 id: undefined,
                 attached_files: undefined,
                 pinned_file: undefined,
-                name: article.name + " — Copy"
+                name: article.name + " — Copie"
             };
             
             newArticle = await locals.pb.collection(Collections.Article).create(newArticleObject);
@@ -111,46 +110,6 @@ export const actions: Actions = {
         }
 
         throw redirect(303, "/app/articles/" + newArticle.id);
-    },
-
-    addToNomenclature: async ({ locals, request, params }) => {
-        const form = await request.formData();
-
-        const parent_nomenclature = form.get("parent_nomenclature");
-        const item_id = params.id;
-        const item_quantity = form.get("item_quantity");
-
-        try {
-
-            if(parent_nomenclature === null || item_id === undefined || item_quantity === null)
-                throw "too few arguments"
-
-            try
-            {
-                const existingNomRow = await locals.pb.collection(Collections.NomenclatureRow).getFirstListItem<NomenclatureRowResponse>(`child_article="${item_id}" && parent_nomenclature="${parent_nomenclature.toString()}"`);
-                await locals.pb.collection(Collections.NomenclatureRow).update<NomenclatureRowResponse>(existingNomRow.id, { "quantity_required+": Number(item_quantity.toString()) });
-
-                return { addToNomenclature: { success: "Nomenclature updated successfully" }};
-            }
-            catch(ex)
-            {
-                console.log(ex);
-            }
-
-            const nomRow: NomenclatureRowRecord = {
-                parent_nomenclature: parent_nomenclature.toString(),
-                child_article: item_id,
-                quantity_required: Number(item_quantity.toString())
-            };
-
-            await locals.pb.collection(Collections.NomenclatureRow).create<NomenclatureRowResponse>(nomRow);
-
-            return { addToNomenclature: { success: "Article added successfully" }};
-        }
-        catch(ex)
-        {
-            return { addToNomenclature: { error: "Failed to add to nomenclature" }};
-        }
     },
 
     addAttachedFile: async ({ locals, params, request }) => {
@@ -215,30 +174,91 @@ export const actions: Actions = {
             if(locals.user?.id === undefined)
                 throw "user not authed";
 
-            const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
+            const direction = form.get("direction")?.toString();
 
-            const quantityUpdate = Number(form.get("quantity_update"));
-            const quantityDirection = Number(form.get("direction"));
+            const storeInID = form.get("store_in")?.toString();
+            const storeOutID = form.get("store_out")?.toString();
 
-            if(quantityUpdate === 0)
-                throw "La quantité à sortir est nulle";
+            const quantityDelta = Number(form.get("quantity_update")?.toString());
 
-            const newQuantity = (article.quantity ?? 0) + (quantityUpdate * quantityDirection);
+            const storeIn = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${params.id}" && store = "${storeInID}"` })).at(0);
+            const storeOut = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${params.id}" && store = "${storeOutID}"` })).at(0);
 
-            if(newQuantity < 0)
-                throw "Le stock tombe en dessous de 0, vérifiez la quantité initiale et la quantité à sortir";
+            if(direction === "outward" && storeOutID === undefined)
+                throw "L'emplacement de provenance n'est pas défini";
 
-            const articleMovement: ArticleMovementsRecord = { 
-                article: params.id, 
-                user: locals.user.id, 
-                quantity_update: quantityUpdate * quantityDirection, 
-                reason: (form.get("reason")?.toString()) ?? "Mise à jour du stock"
-            };
+            if(direction === "inward" && storeInID === undefined)
+                throw "L'emplacement de destination n'est pas défini";
 
-            await locals.pb.collection(Collections.ArticleMovements).create<ArticleMovementsResponse>(articleMovement);
-            await locals.pb.collection(Collections.Article).update(params.id, { "quantity": newQuantity });
+            if(direction === "moved" && (storeInID === undefined || storeOutID === undefined))
+                throw "L'emplacement de provenance ou de destination n'est pas défini";
 
-            return { updateStock: { success: "Successfully updated stock" }};
+            if(direction === "inward")
+            {
+                if(storeIn === undefined)
+                    await locals.pb.collection(Collections.StoresRelations).create<StoresRelationsResponse>({ article: params.id, store: storeInID, quantity: quantityDelta });
+                else
+                    await locals.pb.collection(Collections.StoresRelations).update<StoresRelationsResponse>(storeIn.id, { "quantity+": quantityDelta });
+
+                await locals.pb.collection(Collections.ArticleMovements).create(
+                    {
+                        article: params.id,
+                        user: locals.user.id,
+                        quantity_update: quantityDelta,
+                        store_in: storeInID,
+                        store_out: storeOutID,
+                    } satisfies ArticleMovementsRecord
+                );
+            }
+            else if (direction === "outward")
+            {
+                if(storeOut === undefined)
+                    throw "L'article n'est pas présent dans l'emplacement de provenance";
+                
+                if((storeOut.quantity ?? 0) < quantityDelta)
+                    throw "La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
+                
+                await locals.pb.collection(Collections.StoresRelations).update<StoresRelationsResponse>(storeOut.id, { "quantity-": quantityDelta });
+                await locals.pb.collection(Collections.ArticleMovements).create(
+                    {
+                        article: params.id,
+                        user: locals.user.id,
+                        quantity_update: quantityDelta,
+                        store_in: storeInID,
+                        store_out: storeOutID,
+                    } satisfies ArticleMovementsRecord
+                );
+            }
+            else if (direction === "moved")
+            {
+                if(storeOut === undefined)
+                    throw "L'article n'est pas présent dans l'emplacement de provenance";
+                
+                if(storeInID === storeOutID)
+                    throw "L'emplacement de provenance et de destination sont identiques";
+
+                if((storeOut.quantity ?? 0) < quantityDelta)
+                    throw "La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
+
+                if(storeIn === undefined)
+                    await locals.pb.collection(Collections.StoresRelations).create<StoresRelationsResponse>({ article: params.id, store: storeInID, quantity: quantityDelta });
+                else
+                    await locals.pb.collection(Collections.StoresRelations).update<StoresRelationsResponse>(storeIn.id, { "quantity+": quantityDelta });
+
+                await locals.pb.collection(Collections.StoresRelations).update<StoresRelationsResponse>(storeOut.id, { "quantity-": quantityDelta });
+
+                await locals.pb.collection(Collections.ArticleMovements).create(
+                    {
+                        article: params.id,
+                        user: locals.user.id,
+                        quantity_update: quantityDelta,
+                        store_in: storeInID,
+                        store_out: storeOutID,
+                    } satisfies ArticleMovementsRecord
+                );
+            }
+
+            return { updateStock: { success: "Stock mis à jour" }};
         }
         catch(ex)
         {

@@ -34,11 +34,12 @@ import { invalidateAll } from "$app/navigation";
     $: flatenRelations = data.flattenAssemblyResult.map((far) => {
         return {
             far: far,
-            buyListRelation: data.listItems.find(k => k.article === far.article.id)
+            //buyListRelation: data.listItems.find(k => k.article === far.article.id)
+            buyListRelation: data.storeRelations.find(k => k.article === far.article.id)
         }
     });
 
-    $: if(form !== null) { filter = ""; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
+    $: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
 
     export const snapshot: Snapshot<FilterCondition[]> = {
         capture: () => filters,
@@ -46,6 +47,10 @@ import { invalidateAll } from "$app/navigation";
     }
 
 </script>
+
+<svelte:head>
+    <title>Liste - {data.list.name}</title>
+</svelte:head>
 
 <Wrapper>
     <h3 class="mb-3">{data.list.name}</h3>
@@ -60,7 +65,9 @@ import { invalidateAll } from "$app/navigation";
     <p>Affaire: <DetailLabel>{data.list.expand?.project?.name}</DetailLabel>.</p>
     <p>Assemblage de base: <DetailLabel>{data.list.expand?.assembly?.name}</DetailLabel>.</p>
     <p>Manquant pour finaliser: <DetailLabel><Price value={flatenRelations.reduce((p, c) => p + ((c.far.article?.price ?? 0) * (c.far.quantity - (c.buyListRelation?.quantity ?? 0))), 0)}/></DetailLabel>.</p>
+
 </Wrapper>
+
 
 {#if createOrder}
     <Wrapper class="mt-6">
@@ -102,9 +109,30 @@ import { invalidateAll } from "$app/navigation";
                     </TableCell>
                     <TableCell>
                         <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
+
+                            {#if form?.buyListRelationEdit?.[far.far.article.id]}
+                                {@const data = form.buyListRelationEdit[far.far.article.id]}
+
+                                {#if data.storesToGetFrom !== undefined}
+                                    <FormInput type="select" name="store" label="Choisir un stock de provenance" labelMandatory>
+                                        {#each data.storesToGetFrom as store}
+                                            <option value={store.id}>{store.name}</option>
+                                        {/each}
+                                    </FormInput>
+                                {/if}
+
+                                {#if data.storesToSendTo !== undefined}
+                                    <FormInput type="select" name="store" label="Choisir un stock de destination">
+                                        {#each data.storesToSendTo as store}
+                                            <option value={store.id}>{store.name}</option>
+                                        {/each}
+                                    </FormInput>
+                                {/if}
+                            {/if}
+
                             <input type="hidden" name="article" value={far.far.article.id} />
                             <input type="hidden" name="buylist" value={data.list.id} />
-                            <FormInput name="quantity" type="number" step={far.far.article.unit === "" ? 1 : 0.1} value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${far.far.article.id}`]?.error ?? undefined} />
+                            <FormInput name="quantity" type="number" step={far.far.article.unit === "" ? 1 : 0.1} value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${far.far.article.id}`]?.error ?? (form?.buyListRelationEdit[`${far.far.article.id}`]?.success ?? undefined)} />
                             <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                         </form>
                     </TableCell>
