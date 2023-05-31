@@ -19,10 +19,12 @@
     export let data: PageData;
 
     let createProject = false;
+    let showClosedProjects = false;
 
     export let form: ActionData;
 
     $: if(form?.createProject.success) { invalidateAll(); };
+    $: projects = data.projects.filter(p => (showClosedProjects ? true : p.closed === false));
 
 </script>
 
@@ -31,6 +33,8 @@
 <Wrapper>
     <h2>Affaires</h2>
 
+    <FormInput type="checkbox" name="" label="Afficher les affaires cloturées" bind:checked={showClosedProjects} />
+
     <PillMenu>
         <PillMenuButton click={() => createProject = !createProject} icon={PlusCircle}>Créer une affaire</PillMenuButton>
     </PillMenu>
@@ -38,6 +42,7 @@
     {#if createProject}
         <form action="?/createProject" method="POST" use:enhance class="flex flex-row gap-4 items-end">
             <FormInput label="Nom de l'affaire" name="name" labelMandatory />
+            <FormInput label="Client" name="customer" />
             <FormInput type="date" name="start_date" label="Date de début" labelManadatory />
             <FormInput type="date" name="end_date" label="Date de fin" labelManadatory />
             <FormInput type="select" name="attached_users" label="Utilisateurs" labelManadatory multiple value={[]}>
@@ -52,15 +57,23 @@
     <Table embeded={true}>
         <svelte:fragment slot="head">
             <TableHead>Affaire</TableHead>
+            {#if showClosedProjects}
+                <TableHead>Cloturé ?</TableHead>
+            {/if}
+            <TableHead>Client</TableHead>
             <TableHead>Date de début</TableHead>
             <TableHead>Date de fin</TableHead>
             <TableHead>Utilisateurs</TableHead>
         </svelte:fragment>
     
         <svelte:fragment slot="body">
-            {#each data.projects as project}
+            {#each projects as project}
                 <TableRow>
                     <TableCell><a href="/app/projects/{project.id}">{project.name}</a></TableCell>
+                    {#if showClosedProjects}
+                        <TableCell>{project.closed ? "Oui" : "Non"}</TableCell>
+                    {/if}
+                    <TableCell>{project.customer || "—"}</TableCell>
                     <TableCell>{project.start_date}</TableCell>
                     <TableCell>{project.end_date}</TableCell>
                     <TableCell>

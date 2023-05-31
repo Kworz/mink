@@ -156,6 +156,7 @@ export type OrdersRowsRecord = {
 
 export type ProjectsRecord = {
 	name: string
+	customer?: string
 	start_date?: IsoDateString
 	end_date?: IsoDateString
 	attached_users?: RecordIdString[]

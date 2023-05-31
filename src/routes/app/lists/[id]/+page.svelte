@@ -38,7 +38,6 @@
     $: flatenRelations = data.flattenAssemblyResult.map((far) => {
         return {
             far: far,
-            //buyListRelation: data.listItems.find(k => k.article === far.article.id)
             buyListRelation: data.storeRelations.find(k => k.article === far.article.id)
         }
     });

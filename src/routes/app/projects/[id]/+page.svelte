@@ -7,7 +7,6 @@
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import type { ActionData, PageData } from "./$types";
     import { Temporal } from "@js-temporal/polyfill";
-    import { onMount } from "svelte";
     import { browser } from "$app/environment";
     import Table from "$lib/components/table/Table.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
@@ -15,15 +14,17 @@
     import TableCell from "$lib/components/table/TableCell.svelte";
     import User from "$lib/components/user/User.svelte";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import OrderTable from "../../orders/OrderTable.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
+    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
+    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
+    import { Wrench } from "@steeze-ui/heroicons";
 
     export let data: PageData;
     export let form: ActionData;
 
     let editProject = false;
 
-    $: if(form !== undefined && browser) { invalidateAll(); }
+    $: if(form !== null && browser) { invalidateAll(); editProject = false; };
 
 </script>
 
@@ -31,15 +32,22 @@
     {#if !editProject}
         <section>
             <h2>{data.project.name}</h2>
+            <h5 class="mb-2">Client: {data.project.customer}</h5>
             
             <p>Date de début: <DetailLabel>{data.project.start_date}</DetailLabel>.</p>
             <p>Date de fin: <DetailLabel>{data.project.end_date}</DetailLabel>.</p>
+            <p>Affaire cloturée: <DetailLabel>{data.project.closed ? "Oui" : "Non"}</DetailLabel>.</p>
     
-            <Button on:click={() => editProject = true} class="mt-6" size="small">Modifier le projet</Button>
+            <PillMenu>
+                <PillMenuButton icon={Wrench} click={() => editProject = !editProject}>Modifier l'affaire</PillMenuButton>
+            </PillMenu>
+
         </section>
     {:else}
         <form action="?/editProject" method="post" use:enhanceNoReset class="flex flex-col gap-2">
-            <FormInput name="name" label="Nom du projet" labelMandatory={true} bind:value={data.project.name} />
+            <FormInput name="name" label="Nom du projet" labelMandatory bind:value={data.project.name} />
+            <FormInput name="customer" label="Client du projet" bind:value={data.project.customer} />
+            <FormInput type="checkbox" name="closed" label="Affaire cloturée" bind:checked={data.project.closed} />
             <FormInput type="date" name="start_date" label="Date de début de projet" labelMandatory={true} value={Temporal.Instant.from(data.project.start_date).toZonedDateTimeISO('UTC').toPlainDate().toString()} />
             <FormInput type="date" name="end_date" label="Date de fin de projet" labelMandatory={true} value={Temporal.Instant.from(data.project.end_date).toZonedDateTimeISO('UTC').toPlainDate().toString()} />
     
@@ -52,25 +60,7 @@
 </Wrapper>
 
 <Wrapper class="mt-6">
-    <h2>Listes d'achats</h2>
-    <Table embeded={true}>
-        <svelte:fragment slot="head">
-            <TableHead>Liste</TableHead>
-            <TableHead>Date de création</TableHead>
-        </svelte:fragment>
-        <svelte:fragment slot="body">
-            {#each data.lists as list}
-                <TableRow>
-                    <TableCell><a href="/app/lists/{list.id}">{list.name}</a></TableCell>
-                    <TableCell>{list.created}</TableCell>
-                </TableRow>
-            {/each}
-        </svelte:fragment>
-    </Table>
-</Wrapper>
-
-<Wrapper class="mt-6">
-    <h2>Ordres de fabrication</h2>
+    <h3>Ordres de fabrication</h3>
 
     <Table class="self-start" embeded={true}>
         <svelte:fragment slot="head">
