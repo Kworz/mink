@@ -51,7 +51,12 @@
             e.preventDefault();
         }
         else if(e.key === "Backspace" && tempFilter.length === 0)
+        {
+            if(filters.at(-1)?.hidden)
+                return;
+            
             filters = [...filters.slice(0, -1)];
+        }
         else if(e.key === "ArrowUp")
         {
             selectedSuggestion = (selectedSuggestion === 0) ? 0 : selectedSuggestion - 1;
@@ -83,7 +88,7 @@
             {/if}
         </svelte:fragment>
         <Flex gap={2} class="mr-2">
-            <button on:click={convertFilter}>
+            <button on:click|preventDefault={convertFilter}>
                 <Icon src={Check}  class="h-6 w-6 text-emerald-500 hover:text-emerald-500/75 duration-300"/>
             </button>
         </Flex>
