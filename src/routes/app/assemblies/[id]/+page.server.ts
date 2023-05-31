@@ -17,6 +17,8 @@ export const actions: Actions = {
         {
             const form = await request.formData();
 
+            form.set("favorite", String(form.has("favorite")));
+
             if((form.get("thumbnail") as (Blob | null))?.size === 0)
                 form.delete("thumbnail");
 

@@ -49,6 +49,7 @@
                 <FormInput name="name" label="Nom de l'assemblage" value={data.assembly.name} labelMandatory />
                 <FormInput name="description" label="Description" value={data.assembly.description} />
                 <FormInput type="number" name="assembly_time" label="Durée de montage (heures)" min={0} step={0.25} value={data.assembly.assembly_time} />
+                <FormInput type="checkbox" name="favorite" label="Favori" checked={data.assembly.favorite} />
     
                 {#if data.assembly.thumbnail !== ""}
                     <Button on:click={() => editAssemblyDeleteThumbnail = !editAssemblyDeleteThumbnail} role={editAssemblyDeleteThumbnail ? "warning" : "danger"} class="self-start">{editAssemblyDeleteThumbnail ? "Anuller le retrait" : "Retirer la miniature"}</Button>
