@@ -10,7 +10,6 @@ export enum Collections {
 	ArticleView = "article_view",
 	Assemblies = "assemblies",
 	AssembliesBuylists = "assemblies_buylists",
-	AssembliesBuylistsRows = "assemblies_buylists_rows",
 	AssembliesRelations = "assemblies_relations",
 	FabricationOrders = "fabrication_orders",
 	Orders = "orders",
@@ -103,12 +102,6 @@ export type AssembliesBuylistsRecord = {
 	project?: RecordIdString
 	store: RecordIdString
 	closed?: boolean
-}
-
-export type AssembliesBuylistsRowsRecord = {
-	buylist: RecordIdString
-	article: RecordIdString
-	quantity?: number
 }
 
 export type AssembliesRelationsRecord = {
@@ -207,7 +200,6 @@ export type ArticleTagsRelationsResponse<Texpand = unknown> = ArticleTagsRelatio
 export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields<Texpand>
 export type AssembliesResponse = AssembliesRecord & BaseSystemFields
 export type AssembliesBuylistsResponse<Texpand = unknown> = AssembliesBuylistsRecord & BaseSystemFields<Texpand>
-export type AssembliesBuylistsRowsResponse<Texpand = unknown> = AssembliesBuylistsRowsRecord & BaseSystemFields<Texpand>
 export type AssembliesRelationsResponse<Texpand = unknown> = AssembliesRelationsRecord & BaseSystemFields<Texpand>
 export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersRecord & BaseSystemFields<Texpand>
 export type OrdersResponse<Texpand = unknown> = OrdersRecord & BaseSystemFields<Texpand>
@@ -228,7 +220,6 @@ export type CollectionRecords = {
 	article_view: ArticleViewRecord
 	assemblies: AssembliesRecord
 	assemblies_buylists: AssembliesBuylistsRecord
-	assemblies_buylists_rows: AssembliesBuylistsRowsRecord
 	assemblies_relations: AssembliesRelationsRecord
 	fabrication_orders: FabricationOrdersRecord
 	orders: OrdersRecord
@@ -248,7 +239,6 @@ export type CollectionResponses = {
 	article_view: ArticleViewResponse
 	assemblies: AssembliesResponse
 	assemblies_buylists: AssembliesBuylistsResponse
-	assemblies_buylists_rows: AssembliesBuylistsRowsResponse
 	assemblies_relations: AssembliesRelationsResponse
 	fabrication_orders: FabricationOrdersResponse
 	orders: OrdersResponse

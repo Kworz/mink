@@ -1,4 +1,4 @@
-import { Collections, type AssembliesBuylistsRowsResponse } from "$lib/DBTypes";
+import { Collections, type StoresRelationsResponse } from "$lib/DBTypes";
 import type { RequestHandler } from "@sveltejs/kit";
 
 import xlsx, { type WorkSheetOptions } from "node-xlsx";
@@ -8,9 +8,16 @@ import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
 export const GET: RequestHandler = async ({ params, locals }) => {
 
     try
-    {        
-        const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project"});
-        const listItems = await locals.pb.collection(Collections.AssembliesBuylistsRows).getFullList<AssembliesBuylistsRowsResponse>({ filter: `buylist = "${list.id}"`});
+    {   
+        if(params.id === undefined)
+            throw "Missing list id";
+
+        const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
+        const listItems = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `store = "${list.store}"`});
+
+        if(list.expand?.assembly === undefined)
+            throw "Unable to load assembly";
+
         const flattenAssemblyResult = await flattenAssembly(list.expand?.assembly, locals.pb);
 
         const excel: (string | number)[][] = [];
