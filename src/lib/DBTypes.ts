@@ -141,6 +141,8 @@ export type OrdersRecord = {
 	issuer: RecordIdString
 	state: OrdersStateOptions
 	attached_files?: string[]
+	vat?: number
+	delivery_fees?: number
 }
 
 export type OrdersRowsRecord = {
@@ -160,6 +162,7 @@ export type ProjectsRecord = {
 	start_date?: IsoDateString
 	end_date?: IsoDateString
 	attached_users?: RecordIdString[]
+	closed?: boolean
 }
 
 export type StoresRecord = {

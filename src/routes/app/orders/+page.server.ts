@@ -35,6 +35,7 @@ export const actions: Actions = {
             const form = await request.formData();
             form.set("state", "draft");
             form.set("issuer", locals.user!.id);
+            form.set("vat", import.meta.env.VITE_DEFAULT_VAT);
 
             createdOrder = await locals.pb.collection(Collections.Orders).create<OrdersResponse>(form);
         }

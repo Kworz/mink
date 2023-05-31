@@ -41,8 +41,8 @@
     export let data: PageData;
     export let form: ActionData;
 
-    $: htTotal = (data.order.expand?.["orders_rows(order)"]?.map(k => k.quantity * (k.ack_price || (k.expand?.article.price ?? 0))).reduce((p, c) => p + c, 0) ?? 0);
-    $: tvaSubtotal = Math.floor(((htTotal * 1.20) - htTotal) * 100) / 100;
+    $: htTotal = (data.order.expand?.["orders_rows(order)"]?.map(k => k.quantity * (k.ack_price || (k.expand?.article.price ?? 0))).reduce((p, c) => p + c, 0) ?? 0) + (data.order.delivery_fees ?? 0);
+    $: tvaSubtotal = Math.floor(((htTotal * (1 + (data.order.vat ?? 20) / 100)) - htTotal) * 100) / 100;
     $: completeTotal = htTotal + tvaSubtotal;
     
     $: if(form !== null) { invalidateAll(); selectedArticle = undefined; }
@@ -89,6 +89,10 @@
     }
 
 </script>
+
+<svelte:head>
+    <title>Commande — {data.order.name}</title>
+</svelte:head>
 
 <Wrapper>
     <PillMenu>
@@ -192,17 +196,31 @@
     <svelte:fragment slot="body">
         <TableRow>
             <TableCell>Total (HT)</TableCell>
-            <TableCell><Price value={htTotal} /></TableCell>
+            <TableCell colspan={2}><Price value={htTotal} /></TableCell>
         </TableRow>
         <TableRow>
-            <TableCell>TVA (20%)</TableCell>
+            <TableCell>Frais de livraison</TableCell>
+            <TableCell colspan={2}>
+                <form action="?/editOrder" method="post" use:enhanceNoReset>
+                    <FormInput label="Frais de livraison" name="delivery_fees" type="number" bind:value={data.order.delivery_fees} min={0} step={0.01} validateOnChange />
+                </form>
+            </TableCell>
+            <TableCell><Price value={data.order.delivery_fees} /></TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell>TVA</TableCell>
+            <TableCell>
+                <form action="?/editOrder" method="post" use:enhanceNoReset>
+                    <FormInput label="Taux de TVA" name="vat" type="number" bind:value={data.order.vat} min={0} max={100} step={0.1} validateOnChange />
+                </form>
+            </TableCell>
             <TableCell><Price value={tvaSubtotal} /></TableCell>
         </TableRow>
     </svelte:fragment>
     <svelte:fragment slot="foot">
         <TableRow>
             <TableCell>Total (TTC)</TableCell>
-            <TableCell><Price value={completeTotal} /></TableCell>
+            <TableCell colspan={2}><Price value={completeTotal} /></TableCell>
         </TableRow>
     </svelte:fragment>
 </Table>
