@@ -9,6 +9,7 @@
     import Flex from "../layout/flex.svelte";
     import { OrdersStateOptions } from "$lib/DBTypes";
     import { returnArticleUnit } from "./artictleUnits";
+    import Price from "../formatters/Price.svelte";
 
     export let article: ArticleResponseExpanded;
 
@@ -27,6 +28,10 @@
     /** Wether the manufacturer and reference are displayed */
     export let displayManufacturer = true;
 
+    $: articleQuantity = (article.expand?.["stores_relations(article)"]?.filter(s => s.expand?.store.temporary === false).reduce((p, c) => p + (c.quantity ?? 0), 0)) ?? 0;
+    $: approxQuantity = (article.expand?.["orders_rows(article)"]?.filter(k => [OrdersStateOptions.placed, OrdersStateOptions.acknowledged].includes(k.expand?.order.state)).map(k => k.quantity - (k.quantity_received ?? 0)).reduce((c, p) => p = c+p, 0)) ?? 0;
+    $: articlePrice = article.expand?.["orders_rows(article)"] !== undefined ? (article.expand?.["orders_rows(article)"]?.reduce((p, c) => p = p + (c.ack_price ?? 0) * c.quantity, 0) / article.expand?.["orders_rows(article)"]?.reduce((p, c) => p = p + c.quantity, 0)) : article.price;
+
 </script>
 
 <Flex items="center">
@@ -42,16 +47,13 @@
     <div>
         <a href="/app/articles/{article.id}" class="block">{article.name}</a>
         {#if displayManufacturer}<span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
-        {#if displayPrice}<span class="text-sm block"><DetailLabel>{article.price} €</DetailLabel></span>{/if}
-        {#if (article.quantity ?? 0) > 0 && displayStock === true}
-            {@const shouldOrder = (article.quantity ?? 0) < (article.critical_quantity ?? 0)}
-            <span class="text-sm block" class:text-red-500={shouldOrder} class:text-emerald-500={!shouldOrder}>{returnArticleUnit(article.unit, article.unit_quantity, article.quantity)} en stock.</span>
+        {#if displayPrice}<span class="text-sm block"><DetailLabel><Price value={articlePrice} /></DetailLabel></span>{/if}
+        {#if articleQuantity > 0 && displayStock === true}
+            {@const shouldOrder = articleQuantity < (article.critical_quantity ?? 0)}
+            <span class="text-sm block" class:text-red-500={shouldOrder} class:text-emerald-500={!shouldOrder}>{returnArticleUnit(article.unit, article.unit_quantity, articleQuantity)} en stock.</span>
         {/if}
-        {#if article.expand?.["orders_rows(article)"] !== undefined && displayApprox === true}
-            {@const amount = article.expand?.["orders_rows(article)"].filter(k => [OrdersStateOptions.placed, OrdersStateOptions.acknowledged].includes(k.expand?.order.state)).map(k => k.quantity - (k.quantity_received ?? 0)).reduce((c, p) => p = c+p, 0)}
-            {#if amount > 0}
-                <span class="text-sm text-amber-500 block">{amount} En approvisionement.</span>
-            {/if}
+        {#if approxQuantity > 0 && displayApprox === true}
+            <span class="text-sm text-amber-500 block">{returnArticleUnit(article.unit, article.unit_quantity, approxQuantity)} En approvisionement.</span>
         {/if}
     </div>
 </Flex>

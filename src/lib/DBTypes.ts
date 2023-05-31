@@ -67,6 +67,8 @@ export type ArticleMovementsRecord = {
 	article: RecordIdString
 	user: RecordIdString
 	quantity_update: number
+	store_in?: RecordIdString
+	store_out?: RecordIdString
 	reason?: string
 }
 
@@ -99,6 +101,7 @@ export type AssembliesBuylistsRecord = {
 	name: string
 	assembly: RecordIdString
 	project?: RecordIdString
+	store: RecordIdString
 }
 
 export type AssembliesBuylistsRowsRecord = {
@@ -165,7 +168,7 @@ export type StoresRecord = {
 
 export type StoresRelationsRecord = {
 	store: RecordIdString
-	article?: RecordIdString
+	article: RecordIdString
 	quantity?: number
 }
 

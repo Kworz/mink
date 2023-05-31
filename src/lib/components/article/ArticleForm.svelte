@@ -1,7 +1,7 @@
 <script lang="ts">
     import { browser } from "$app/environment";
     import { page } from "$app/stores";
-    import { Collections, type ArticleStoresResponse, type SuppliersResponse } from "$lib/DBTypes";
+    import { Collections, type StoresResponse, type SuppliersResponse } from "$lib/DBTypes";
     import { onMount } from "svelte";
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import FormInput from "../FormInput.svelte";
@@ -24,7 +24,7 @@
     };
 
     let suppliers: SuppliersResponse[] = [];
-    let stores: ArticleStoresResponse[] = [];
+    let stores: StoresResponse[] = [];
 
     onMount(async () => {
 
@@ -49,8 +49,6 @@
     <FormInput name="name" label="Nom de l'article" labelMandatory={true} bind:value={article.name} />
     <FormInput name="reference" label="Référence" bind:value={article.reference} />
     <FormInput name="manufacturer" label="Fabricant" bind:value={article.manufacturer} />
-
-    <FormInput type="number" name="quantity" label="Quantité disponible" labelMandatory={true} bind:value={article.quantity} step={article?.unit === "" ? 1 : 0.01} />
     
     <h3 class="my-2">Informations complémentaires</h3>
     
