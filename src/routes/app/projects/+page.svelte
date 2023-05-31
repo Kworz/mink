@@ -54,7 +54,7 @@
         </form>
     {/if}
 
-    <Table embeded={true}>
+    <Table embeded={true} marginTop="mt-2">
         <svelte:fragment slot="head">
             <TableHead>Affaire</TableHead>
             {#if showClosedProjects}

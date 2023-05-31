@@ -17,7 +17,10 @@
     import Wrapper from "$lib/components/Wrapper.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import { Wrench } from "@steeze-ui/heroicons";
+    import { ArrowRight, Wrench } from "@steeze-ui/heroicons";
+    import Price from "$lib/components/formatters/Price.svelte";
+    import Store from "$lib/components/store/Store.svelte";
+    import { Icon } from "@steeze-ui/svelte-icon";
 
     export let data: PageData;
     export let form: ActionData;
@@ -59,41 +62,115 @@
     {/if}
 </Wrapper>
 
-<Wrapper class="mt-6">
-    <h3>Ordres de fabrication</h3>
+{#if data.fabricationOrders.length > 0}
+    <Wrapper class="mt-6">
+        <h3>Ordres de fabrication</h3>
 
-    <Table class="self-start" embeded={true}>
-        <svelte:fragment slot="head">
-            <TableHead>Article demandé</TableHead>
-            <TableHead>Quantité</TableHead>
-            <TableHead>Demandeur</TableHead>
-            <TableHead>Receveur</TableHead>
-            <TableHead>Date butoir</TableHead>
-        </svelte:fragment>
-        <svelte:fragment slot="body">
-            {#each data.fabricationOrders as fabOrder}
+        <Table class="self-start" embeded={true}>
+            <svelte:fragment slot="head">
+                <TableHead>Article demandé</TableHead>
+                <TableHead>Quantité</TableHead>
+                <TableHead>Demandeur</TableHead>
+                <TableHead>Receveur</TableHead>
+                <TableHead>Date butoir</TableHead>
+            </svelte:fragment>
+            <svelte:fragment slot="body">
+                {#each data.fabricationOrders as fabOrder}
+                    <TableRow>
+                        <TableCell>
+                            {#if fabOrder.expand?.article !== undefined}
+                                <ArticleRow article={fabOrder.expand.article} displayStock={false} />
+                            {:else}
+                                —
+                            {/if}
+                        </TableCell>
+                        <TableCell>{fabOrder.quantity}</TableCell>
+                        <TableCell>
+                            {#if fabOrder.expand?.applicant !== undefined}
+                                <User user={fabOrder.expand.applicant} />
+                            {/if}
+                        </TableCell>
+                        <TableCell>
+                            {#if fabOrder.expand?.receiver !== undefined}
+                                <User user={fabOrder.expand.receiver} />
+                            {/if}
+                        </TableCell>
+                        <TableCell>{fabOrder.end_date}</TableCell>
+                    </TableRow>
+                {/each}
+            </svelte:fragment>
+        </Table>
+    </Wrapper>
+{/if}
+
+{#if data.order_rows.length > 0}
+    <Wrapper class="mt-6">
+        <h3>Flux de commandes</h3>
+    
+        <Table embeded marginTop="">
+            <svelte:fragment slot="head">
+                <TableHead>Article</TableHead>
+                <TableHead>Commande</TableHead>
+                <TableHead>Quantité</TableHead>
+                <TableHead>Prix total</TableHead>
+            </svelte:fragment>
+    
+            <svelte:fragment slot="body">
+                {#each data.order_rows as order_row}
+                    <TableRow>
+                        <TableCell><ArticleRow article={order_row.expand?.article} /></TableCell>
+                        <TableCell><a href="/app/orders/{order_row.order}">{order_row.expand?.order.name}</a></TableCell>
+                        <TableCell>{order_row.quantity}</TableCell>
+                        <TableCell><Price value={order_row.quantity * (order_row.ack_price ?? 0)} /></TableCell>
+                    </TableRow>
+                {/each}
+            </svelte:fragment>
+    
+            <svelte:fragment slot="foot">
                 <TableRow>
+                    <TableCell colspan={3}>Total flux de commandes</TableCell>
                     <TableCell>
-                        {#if fabOrder.expand?.article !== undefined}
-                            <ArticleRow article={fabOrder.expand.article} displayStock={false} />
-                        {:else}
-                            —
-                        {/if}
+                        <Price value={data.order_rows.reduce((acc, row) => acc + (row.quantity * (row.ack_price ?? 0)), 0)} />
                     </TableCell>
-                    <TableCell>{fabOrder.quantity}</TableCell>
-                    <TableCell>
-                        {#if fabOrder.expand?.applicant !== undefined}
-                            <User user={fabOrder.expand.applicant} />
-                        {/if}
-                    </TableCell>
-                    <TableCell>
-                        {#if fabOrder.expand?.receiver !== undefined}
-                            <User user={fabOrder.expand.receiver} />
-                        {/if}
-                    </TableCell>
-                    <TableCell>{fabOrder.end_date}</TableCell>
                 </TableRow>
-            {/each}
-        </svelte:fragment>
-    </Table>
-</Wrapper>
+            </svelte:fragment>
+        </Table>
+    </Wrapper>
+{/if}
+
+{#if data.stores_relations.length > 0}
+    <Wrapper class="mt-6">
+        <h3>Sorties de stock</h3>
+    
+        <Table embeded marginTop="">
+            <svelte:fragment slot="head">
+                <TableHead>Article</TableHead>
+                <TableHead>Quantité</TableHead>
+                <TableHead>Movement</TableHead>
+                <TableHead>Prix</TableHead>
+                
+            </svelte:fragment>
+    
+            <svelte:fragment slot="body">
+                {#each data.stores_relations as store_relation}
+                    <TableRow>
+                        <TableCell><ArticleRow article={store_relation.expand?.article} /></TableCell>
+                        <TableCell>{store_relation.quantity_update}</TableCell>
+                        <TableCell>
+                            <Flex items="center">
+                                <Store store={store_relation.expand?.store_out}/>
+                                <Icon src={ArrowRight} class="h-4 w-4 text-violet-500" />
+                                <Store store={store_relation.expand?.store_in} />
+                            </Flex>
+                        </TableCell>
+                        <TableCell>{store_relation.expand?.article.price}</TableCell>
+                    </TableRow>
+                {/each}
+            </svelte:fragment>
+    
+            <svelte:fragment slot="foot">
+    
+            </svelte:fragment>
+        </Table>
+    </Wrapper>
+{/if}
