@@ -14,10 +14,13 @@
     import { Collections, type AssembliesBuylistsRecord } from "$lib/DBTypes";
     import { PlusCircle } from "@steeze-ui/heroicons";
     import type { PageData } from "./$types";
+    import Filter2 from "$lib/components/filter/Filter2.svelte";
 
     export let data: PageData;
 
     let createList = false;
+
+    let showClosedLists = false;
 
     let createListName = "";
     let createListBaseAssembly: string | undefined = undefined;
@@ -45,14 +48,20 @@
         }
     }
 
+    $: lists = data.lists.filter(list => !showClosedLists ? (list.closed === false) : true);
+
 </script>
 
 <Wrapper>
-    <h3>Listes d'achat d'assemblages (v2)</h3>
+    <h3>Listes d'achat d'assemblages</h3>
+
+    <FormInput type="checkbox" name="" label="Afficher les listes terminées" bind:checked={showClosedLists} />
 
     <PillMenu>
         <PillMenuButton icon={PlusCircle} click={() => createList = !createList}>Créer une liste</PillMenuButton>
     </PillMenu>
+
+    <Filter2 class="mt-6 mb-2" />
 
     {#if createList}
         <h4>Créer une liste</h4>
@@ -77,22 +86,31 @@
             <Button on:click={createListFn}>Créer</Button>
         </div>
     {/if}
+
+    <Table embeded marginTop="">
+        <svelte:fragment slot="head">
+            <TableHead>Liste</TableHead>
+            {#if showClosedLists}
+                <TableHead>Terminée</TableHead>
+            {/if}
+            <TableHead>Assemblage de base</TableHead>
+            <TableHead>Affaire</TableHead>
+            
+        </svelte:fragment>
+    
+        <svelte:fragment slot="body">
+            {#each lists as list}
+                <TableRow>
+                    <TableCell><a href="/app/lists/{list.id}">{list.name}</a></TableCell>
+                    {#if showClosedLists}
+                        <TableCell>
+                            {list.closed ? "Oui" : "Non"}
+                        </TableCell>
+                    {/if}
+                    <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
+                    <TableCell>{list.expand?.project?.name}</TableCell>
+                </TableRow>
+            {/each}
+        </svelte:fragment>
+    </Table>
 </Wrapper>
-
-<Table>
-    <svelte:fragment slot="head">
-        <TableHead>Liste</TableHead>
-        <TableHead>Assemblage de base</TableHead>
-        <TableHead>Affaire</TableHead>
-    </svelte:fragment>
-
-    <svelte:fragment slot="body">
-        {#each data.lists as list}
-            <TableRow>
-                <TableCell><a href="/app/lists/{list.id}">{list.name}</a></TableCell>
-                <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
-                <TableCell>{list.expand?.project?.name}</TableCell>
-            </TableRow>
-        {/each}
-    </svelte:fragment>
-</Table>

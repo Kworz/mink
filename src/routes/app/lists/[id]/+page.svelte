@@ -1,6 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-import { invalidateAll } from "$app/navigation";
+    import { invalidateAll } from "$app/navigation";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import AssemblyPreview from "$lib/components/assemblies/AssemblyPreview.svelte";
     import Button from "$lib/components/Button.svelte";
@@ -21,7 +21,10 @@ import { invalidateAll } from "$app/navigation";
     import { Check, DocumentChartBar, DocumentPlus, QrCode, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
 
+    import { page } from "$app/stores";
+
     import type { ActionData, PageData, Snapshot } from "./$types";
+    import { Collections } from "$lib/DBTypes";
     
     export let data: PageData;
     export let form: ActionData;
@@ -30,6 +33,7 @@ import { invalidateAll } from "$app/navigation";
     let filter: string = "";
 
     let createOrder = false;
+    let editList = false;
 
     $: flatenRelations = data.flattenAssemblyResult.map((far) => {
         return {
@@ -39,7 +43,8 @@ import { invalidateAll } from "$app/navigation";
         }
     });
 
-    $: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
+    $: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; editList = false; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
+    $: if(form?.editList?.success) { editList = false; invalidateAll(); };
 
     export const snapshot: Snapshot<FilterCondition[]> = {
         capture: () => filters,
@@ -56,15 +61,44 @@ import { invalidateAll } from "$app/navigation";
     <h3 class="mb-3">{data.list.name}</h3>
 
     <PillMenu>
-        <PillMenuButton icon={WrenchScrewdriver}>Modifier la liste d'achat</PillMenuButton>
+        <PillMenuButton icon={WrenchScrewdriver} click={() => editList = !editList}>Modifier la liste d'achat</PillMenuButton>
         <PillMenuButton icon={DocumentPlus} click={() => createOrder = !createOrder}>Créer une commande</PillMenuButton>
         <PillMenuButton icon={DocumentChartBar} click={() => window.open(`/app/lists/${data.list.id}/export`, "_blank")?.focus()}>Exporter la liste</PillMenuButton>
         <PillMenuButton icon={QrCode} click={() => window.open(`/app/lists/print/?lists=${data.list.id}`, "_blank")?.focus()}>Imprimer l'etiquette</PillMenuButton>
     </PillMenu>
 
-    <p>Affaire: <DetailLabel>{data.list.expand?.project?.name}</DetailLabel>.</p>
-    <p>Assemblage de base: <DetailLabel>{data.list.expand?.assembly?.name}</DetailLabel>.</p>
-    <p>Manquant pour finaliser: <DetailLabel><Price value={flatenRelations.reduce((p, c) => p + ((c.far.article?.price ?? 0) * (c.far.quantity - (c.buyListRelation?.quantity ?? 0))), 0)}/></DetailLabel>.</p>
+    {#if editList}
+        <form action="?/editList" use:enhanceNoReset method="post" class="flex flex-row gap-4 items-end">
+            <FormInput name="name" type="text" label="Nom" labelMandatory value={data.list.name} />
+
+            {#await $page.data.pb.collection(Collections.Assemblies).getFullList() then assemblies}
+                <FormInput name="assembly" type="select" label="Assemblage" labelMandatory value={data.list.assembly}>
+                    {#each assemblies as assembly}
+                        <option value={assembly.id}>{assembly.name}</option>
+                    {/each}
+                </FormInput>
+            {/await}
+
+            {#await $page.data.pb.collection(Collections.Projects).getFullList() then projects}
+                <FormInput name="project" type="select" label="Affaire" value={data.list.project}>
+                    <option value="">—</option>
+                    {#each projects as project}
+                        <option value={project.id}>{project.name}</option>
+                    {/each}
+                </FormInput>
+            {/await}
+
+            <FormInput name="closed" type="checkbox" label="Terminée" checked={data.list.closed} />
+
+            <Button role="warning">Modifier</Button>
+        </form>
+    {:else}
+        <p>Affaire: <DetailLabel>{data.list.expand?.project?.name}</DetailLabel>.</p>
+        <p>Assemblage de base: <DetailLabel>{data.list.expand?.assembly?.name}</DetailLabel>.</p>
+        <p>Manquant pour finaliser: <DetailLabel><Price value={flatenRelations.reduce((p, c) => p + ((c.far.article?.price ?? 0) * (c.far.quantity - (c.buyListRelation?.quantity ?? 0))), 0)}/></DetailLabel>.</p>
+        <p>Terminée: <DetailLabel>{data.list.closed ? "Oui" : "Non"}</DetailLabel>.</p>
+    {/if}
+
 
 </Wrapper>
 

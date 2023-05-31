@@ -102,6 +102,7 @@ export type AssembliesBuylistsRecord = {
 	assembly: RecordIdString
 	project?: RecordIdString
 	store: RecordIdString
+	closed?: boolean
 }
 
 export type AssembliesBuylistsRowsRecord = {

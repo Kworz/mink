@@ -194,5 +194,21 @@ export const actions: Actions = {
         {
             return { generateOrder: { error: "Nothing to order with this supplier" }};
         }
+    },
+
+    editList: async ({ locals, request, params }) => {
+
+        const form = await request.formData();
+        form.set("closed", String(form.has("closed")));
+
+        try
+        {
+            await locals.pb.collection(Collections.AssembliesBuylists).update(params.id, form);
+            return { editList: { success: "Successfully updated row" }};
+        }
+        catch(e)
+        {
+            return { editList: { error: e.message }};
+        }
     }
 };
