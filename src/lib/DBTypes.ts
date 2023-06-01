@@ -111,14 +111,21 @@ export type AssembliesRelationsRecord = {
 	quantity: number
 }
 
+export enum FabricationOrdersStateOptions {
+	"asked" = "asked",
+	"started" = "started",
+	"completed" = "completed",
+	"cancelled" = "cancelled",
+}
 export type FabricationOrdersRecord = {
 	article: RecordIdString
 	quantity: number
 	applicant: RecordIdString
 	receiver: RecordIdString
-	project?: RecordIdString
 	start_date: IsoDateString
 	end_date: IsoDateString
+	state: FabricationOrdersStateOptions
+	project?: RecordIdString
 }
 
 export enum OrdersStateOptions {
@@ -193,22 +200,22 @@ export type UsersRecord = {
 }
 
 // Response types include system fields and match responses from the PocketBase API
-export type ArticleResponse<Texpand = unknown> = ArticleRecord & BaseSystemFields<Texpand>
-export type ArticleMovementsResponse<Texpand = unknown> = ArticleMovementsRecord & BaseSystemFields<Texpand>
-export type ArticleTagsResponse = ArticleTagsRecord & BaseSystemFields
-export type ArticleTagsRelationsResponse<Texpand = unknown> = ArticleTagsRelationsRecord & BaseSystemFields<Texpand>
-export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = ArticleViewRecord<Tstock_price> & BaseSystemFields<Texpand>
-export type AssembliesResponse = AssembliesRecord & BaseSystemFields
-export type AssembliesBuylistsResponse<Texpand = unknown> = AssembliesBuylistsRecord & BaseSystemFields<Texpand>
-export type AssembliesRelationsResponse<Texpand = unknown> = AssembliesRelationsRecord & BaseSystemFields<Texpand>
-export type FabricationOrdersResponse<Texpand = unknown> = FabricationOrdersRecord & BaseSystemFields<Texpand>
-export type OrdersResponse<Texpand = unknown> = OrdersRecord & BaseSystemFields<Texpand>
-export type OrdersRowsResponse<Texpand = unknown> = OrdersRowsRecord & BaseSystemFields<Texpand>
-export type ProjectsResponse<Texpand = unknown> = ProjectsRecord & BaseSystemFields<Texpand>
-export type StoresResponse = StoresRecord & BaseSystemFields
-export type StoresRelationsResponse<Texpand = unknown> = StoresRelationsRecord & BaseSystemFields<Texpand>
-export type SuppliersResponse = SuppliersRecord & BaseSystemFields
-export type UsersResponse = UsersRecord & AuthSystemFields
+export type ArticleResponse<Texpand = unknown> = Required<ArticleRecord> & BaseSystemFields<Texpand>
+export type ArticleMovementsResponse<Texpand = unknown> = Required<ArticleMovementsRecord> & BaseSystemFields<Texpand>
+export type ArticleTagsResponse = Required<ArticleTagsRecord> & BaseSystemFields
+export type ArticleTagsRelationsResponse<Texpand = unknown> = Required<ArticleTagsRelationsRecord> & BaseSystemFields<Texpand>
+export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = Required<ArticleViewRecord<Tstock_price>> & BaseSystemFields<Texpand>
+export type AssembliesResponse = Required<AssembliesRecord> & BaseSystemFields
+export type AssembliesBuylistsResponse<Texpand = unknown> = Required<AssembliesBuylistsRecord> & BaseSystemFields<Texpand>
+export type AssembliesRelationsResponse<Texpand = unknown> = Required<AssembliesRelationsRecord> & BaseSystemFields<Texpand>
+export type FabricationOrdersResponse<Texpand = unknown> = Required<FabricationOrdersRecord> & BaseSystemFields<Texpand>
+export type OrdersResponse<Texpand = unknown> = Required<OrdersRecord> & BaseSystemFields<Texpand>
+export type OrdersRowsResponse<Texpand = unknown> = Required<OrdersRowsRecord> & BaseSystemFields<Texpand>
+export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
+export type StoresResponse = Required<StoresRecord> & BaseSystemFields
+export type StoresRelationsResponse<Texpand = unknown> = Required<StoresRelationsRecord> & BaseSystemFields<Texpand>
+export type SuppliersResponse = Required<SuppliersRecord> & BaseSystemFields
+export type UsersResponse = Required<UsersRecord> & AuthSystemFields
 
 // Types containing all Records and Responses, useful for creating typing helper functions
 

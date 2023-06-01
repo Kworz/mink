@@ -44,6 +44,7 @@
 
     $: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; editList = false; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
     $: if(form?.editList?.success) { editList = false; invalidateAll(); };
+    $: if(form?.generateFabOrders) { alert(form?.generateFabOrders.error ?? form.generateFabOrders.success ?? "no error given"); invalidateAll(); }
 
     export const snapshot: Snapshot<FilterCondition[]> = {
         capture: () => filters,
@@ -62,6 +63,9 @@
     <PillMenu>
         <PillMenuButton icon={WrenchScrewdriver} click={() => editList = !editList}>Modifier la liste d'achat</PillMenuButton>
         <PillMenuButton icon={DocumentPlus} click={() => createOrder = !createOrder}>Créer une commande</PillMenuButton>
+        <form action="?/generateFabOrders" method="post" use:enhance>
+            <PillMenuButton icon={DocumentPlus}>Créer les ordres de fabrication</PillMenuButton>
+        </form>
         <PillMenuButton icon={DocumentChartBar} click={() => window.open(`/app/lists/${data.list.id}/export`, "_blank")?.focus()}>Exporter la liste</PillMenuButton>
         <PillMenuButton icon={QrCode} click={() => window.open(`/app/lists/print/?lists=${data.list.id}`, "_blank")?.focus()}>Imprimer l'etiquette</PillMenuButton>
     </PillMenu>

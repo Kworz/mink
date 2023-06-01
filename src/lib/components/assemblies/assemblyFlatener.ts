@@ -43,7 +43,7 @@ export const flattenAssembly = async (assembly: AssembliesResponse, pocketbase: 
                 }
                 else
                 {
-                    const article = await pocketbase.collection(Collections.Article).getOne<ArticleResponseExpanded>(relation.article_child, { expand: "supplier,orders_rows(article).order,article_view(article),stores_relations(article).store"});
+                    const article = await pocketbase.collection(Collections.Article).getOne<ArticleResponseExpanded>(relation.article_child, { expand: "supplier,orders_rows(article).order,article_view(article),stores_relations(article).store,fabrication_orders(article)"});
 
                     flattenRelations.push({
                         article: article,

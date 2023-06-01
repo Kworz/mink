@@ -1,4 +1,4 @@
-import { Collections, type ArticleMovementsRecord, type OrdersRowsRecord, type OrdersRecord, OrdersStateOptions, type StoresRelationsResponse, type SuppliersResponse, type AssembliesBuylistsResponse, type StoresResponse } from "$lib/DBTypes";
+import { Collections, type ArticleMovementsRecord, type OrdersRowsRecord, type OrdersRecord, OrdersStateOptions, type StoresRelationsResponse, type SuppliersResponse, type AssembliesBuylistsResponse, type StoresResponse, type FabricationOrdersRecord, FabricationOrdersStateOptions } from "$lib/DBTypes";
 import { ClientResponseError } from "pocketbase";
 import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
 import type { PageServerLoad, Actions } from "./$types";
@@ -194,6 +194,58 @@ export const actions: Actions = {
         {
             return { generateOrder: { error: "Nothing to order with this supplier" }};
         }
+    },
+
+    generateFabOrders: async ({ locals, params, request }) => {
+
+        let generatedFabOrder = 0;
+
+        try
+        {
+            const internalSupplier = import.meta.env.VITE_INTERNAL_SUPPLIER as string | undefined;
+
+            if(internalSupplier === undefined)
+                throw "No internal supplier defined";
+
+            const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
+            const assemblyRows = await flattenAssembly(list.expand?.assembly, locals.pb);
+
+            for(const assemblyRow of assemblyRows.filter(k => k.article.supplier?.includes(internalSupplier)))
+            {
+                const buyListRelation = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${assemblyRow.article.id}" && store = "${list.store}"` })).at(0);
+                const availableQuantity = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${assemblyRow.article.id}" && quantity > 0 && store.temporary = false`})).reduce((p, c) => p + c.quantity, 0);
+
+                const deltaQuantity = assemblyRow.quantity - (buyListRelation?.quantity ?? 0) - availableQuantity;
+
+                if(deltaQuantity <= 0)
+                    continue;
+
+                await locals.pb.collection(Collections.FabricationOrders).create({
+
+                    article: assemblyRow.article.id,
+                    quantity: deltaQuantity,
+                    project: list.project,
+                    receiver: locals.user?.id,
+                    applicant: locals.user?.id,
+                    start_date: new Date(),
+                    end_date: new Date(),
+                    state: FabricationOrdersStateOptions.asked
+
+                } satisfies FabricationOrdersRecord);
+
+                generatedFabOrder++;
+            }
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return { generateFabOrders: { error: (ex instanceof ClientResponseError) ? ex.message : ex }};
+        }
+
+        if(generatedFabOrder > 0)
+            return redirect(303, `/app/fabrication_orders`);
+        
+        return { generateFabOrders: { warning: "Generated 0 fabrication orders" }};
     },
 
     editList: async ({ locals, request, params }) => {
