@@ -10,8 +10,11 @@
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { Trash, Wrench } from "@steeze-ui/heroicons";
-    import type { PageData } from "./$types";
+    import type { ActionData, PageData } from "./$types";
+    import FormInput from "$lib/components/FormInput.svelte";
+
     export let data: PageData;
+    export let form: ActionData;
 
     let deleteConfirm = false;
 
@@ -22,10 +25,10 @@
 <Wrapper>
     <h2>Ordre de fabrication <RoundedLabel>#{data.fabricationOrder.id}</RoundedLabel></h2>
     
-
     <p>Demandeur: <DetailLabel>{data.fabricationOrder.expand?.applicant.username}</DetailLabel>.</p>
     <p>Receveur: <DetailLabel>{data.fabricationOrder.expand?.receiver.username}</DetailLabel>.</p>
     <p>Date butoir: <DetailLabel>{data.fabricationOrder.end_date}</DetailLabel>.</p>
+    <p>Statut: <DetailLabel>{data.fabricationOrder.state}</DetailLabel>.</p>
 
     <PillMenu>
         <PillMenuButton icon={Wrench} role="warning">Modifier l'ordre de fabrication</PillMenuButton>
@@ -37,10 +40,8 @@
             <PillMenuButton role="danger" icon={Trash} on:click={() => deleteConfirm = true}>Supprimer l'ordre de fabrication</PillMenuButton>
         {/if}
     </PillMenu>
-</Wrapper>
 
-<Wrapper class="mt-6">
-    <h3 class="mb-4">Article à fabriquer</h3>
+    <h3 class="mb-4 mt-6">Article à fabriquer</h3>
     
     <Flex items="center" justify="between">
         {#if data.fabricationOrder.expand?.article !== undefined}
@@ -48,6 +49,21 @@
         {/if}
         <h1 class="mr-12 text-zinc-500/50 dark:text-white/50">x {data.fabricationOrder.quantity}</h1>
     </Flex>
-    
+
+    {#if ["started", "asked"].includes(data.fabricationOrder.state)}
+        <form action="?/completeFabOrder" method="post" use:enhance class="mt-6 flex flex-row gap-4 items-end">
+            {#if form?.completeFabOrder?.stores}
+                <FormInput label="Stock de destination" name="store_in" labelMandatory type="select">
+                    {#each form.completeFabOrder.stores as store}
+                        <option value={store.id}>{store.name} / {store.location}</option>
+                    {/each}
+                </FormInput>
+
+                <Button role="success">Ordre de fabrication terminé</Button>
+            {:else}
+                <Button>Valider l'odre de fabrication</Button>
+            {/if}
+        </form>
+    {/if}
 </Wrapper>
 
