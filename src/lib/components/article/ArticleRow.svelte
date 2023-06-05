@@ -1,13 +1,24 @@
+<script lang="ts" context="module">
+
+    export type ArticleResponseExpanded = ArticleResponse<{
+        "article_fabrication_quantity(article)": [{ quantity: number }],
+        "article_order_quantity(article)": [{ quantity: number }],
+        "article_store_quantity(article)": [{ quantity: number }],
+        "article_price(article)": [{ price: number}]
+    }>;
+
+    export const articleResponseExpand = "article_fabrication_quantity(article),article_order_quantity(article),article_store_quantity(article),article_price(article)";
+
+</script>
+
 <script lang="ts">
     import { browser } from "$app/environment";
     import { VideoCameraSlash } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-
-    import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     
     import DetailLabel from "../DetailLabel.svelte";
     import Flex from "../layout/flex.svelte";
-    import { FabricationOrdersStateOptions, OrdersStateOptions } from "$lib/DBTypes";
+    import type { ArticleResponse } from "$lib/DBTypes";
     import { returnArticleUnit } from "./artictleUnits";
     import Price from "../formatters/Price.svelte";
 
@@ -28,10 +39,10 @@
     /** Wether the manufacturer and reference are displayed */
     export let displayManufacturer = true;
 
-    $: articleQuantity = (article.expand?.["stores_relations(article)"]?.filter(s => s.expand?.store.temporary === false).reduce((p, c) => p + (c.quantity ?? 0), 0)) ?? 0;
-    $: approxQuantity = (article.expand?.["orders_rows(article)"]?.filter(k => [OrdersStateOptions.placed, OrdersStateOptions.acknowledged].includes(k.expand?.order.state)).map(k => k.quantity - (k.quantity_received ?? 0)).reduce((c, p) => p = c+p, 0)) ?? 0;
-    $: fabricationQuantity = (article.expand?.["fabrication_orders(article)"]?.filter(k => [FabricationOrdersStateOptions.started, FabricationOrdersStateOptions.asked].includes(k.state)))?.map(k => k.quantity).reduce((c, p) => p = c+p, 0) ?? 0;
-    $: articlePrice = article.expand?.["orders_rows(article)"] !== undefined ? (article.expand?.["orders_rows(article)"]?.reduce((p, c) => p = p + (c.ack_price ?? 0) * c.quantity, 0) / article.expand?.["orders_rows(article)"]?.reduce((p, c) => p = p + c.quantity, 0)) : article.price;
+    $: articleQuantity = article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0;
+    $: approxQuantity = article.expand?.["article_order_quantity(article)"]?.at(0)?.quantity ?? 0;
+    $: fabricationQuantity = article.expand?.["article_fabrication_quantity(article)"]?.at(0)?.quantity ?? 0;
+    $: articlePrice = article.expand?.["article_price(article)"]?.at(0)?.price ?? article.price ?? 0;
 
 </script>
 

@@ -1,6 +1,6 @@
 import { Collections, type AssembliesRelationsResponse, type AssembliesResponse } from "$lib/DBTypes";
-import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
 import type Client from "pocketbase";
+import { articleResponseExpand, type ArticleResponseExpanded  } from "../article/ArticleRow.svelte";
 
 type FlattenAssemblyRelations = {
     article: ArticleResponseExpanded;
@@ -43,7 +43,7 @@ export const flattenAssembly = async (assembly: AssembliesResponse, pocketbase: 
                 }
                 else
                 {
-                    const article = await pocketbase.collection(Collections.Article).getOne<ArticleResponseExpanded>(relation.article_child, { expand: "supplier,orders_rows(article).order,article_view(article),stores_relations(article).store,fabrication_orders(article)"});
+                    const article = await pocketbase.collection(Collections.Article).getOne<ArticleResponseExpanded>(relation.article_child, { expand: `supplier,${articleResponseExpand}` });
 
                     flattenRelations.push({
                         article: article,

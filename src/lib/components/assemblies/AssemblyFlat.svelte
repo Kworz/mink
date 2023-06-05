@@ -54,7 +54,7 @@
                                 </Flex>
                             </TableCell>
                             <TableCell>{far.quantity}</TableCell>
-                            <TableCell><Price value={far.quantity * (far.article.price ?? 0)} /></TableCell>
+                            <TableCell><Price value={far.quantity * (far.article.expand?.["article_price(article)"]?.at(0)?.price ?? far.article.price ?? 0)} /></TableCell>
                         </TableRow>
                     {/each}
                     
@@ -66,7 +66,7 @@
                             Total prix
                         </TableCell>
                         <TableCell>
-                            <Price value={flattenAssemblyResult.map(far => (far.article.price ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} />
+                            <Price value={flattenAssemblyResult.map(far => (far.article.expand?.["article_price(article)"]?.at(0)?.price ?? far.article.price ?? 0) * far.quantity).reduce((p, c) => c = p + c, 0)} />
                         </TableCell>
                     </TableRow>
                 </svelte:fragment>
