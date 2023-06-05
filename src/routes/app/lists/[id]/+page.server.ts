@@ -48,10 +48,10 @@ export const actions: Actions = {
             {
                 if(deltaQuantity > 0)
                 {
-                    const storesToChooseFrom = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${articleID}" && quantity > 0 && store.temporary = false` });
+                    const storesToChooseFrom = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse<{ store: StoresResponse }>>({ filter: `article = "${articleID}" && quantity > 0 && store.temporary = false`, expand: "store" });
 
                     if(storesToChooseFrom.length > 1)
-                        return { buyListRelationEdit: { [articleID]: { storesToGetFrom: structuredClone(storesToChooseFrom) }}};
+                        return { buyListRelationEdit: { [articleID]: { storesToGetFrom: structuredClone(storesToChooseFrom).map(k => k.expand?.store) }}};
                     else
                         storeToUse = storesToChooseFrom[0].store;
                 }
@@ -88,10 +88,10 @@ export const actions: Actions = {
 
                 const articleMovement: ArticleMovementsRecord = {
                     article: articleID,
-                    quantity_update: -deltaQuantity,
+                    quantity_update: Math.abs(deltaQuantity),
                     user: locals.user?.id,
-                    store_in: selectedStore?.store,
-                    store_out: list.store
+                    store_in: list.store,
+                    store_out: selectedStore?.store
                 };
                 
                 if(buyListRelation === undefined)
@@ -123,8 +123,8 @@ export const actions: Actions = {
                     article: articleID,
                     quantity_update: -deltaQuantity,
                     user: locals.user?.id,
-                    store_in: list.store,
-                    store_out: storeToUse
+                    store_in: storeToUse,
+                    store_out: list.store
                 });
             }
         }
