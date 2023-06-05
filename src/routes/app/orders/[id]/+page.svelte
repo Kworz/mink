@@ -195,10 +195,6 @@
 <Table class="w-max ml-auto">
     <svelte:fragment slot="body">
         <TableRow>
-            <TableCell>Total (HT)</TableCell>
-            <TableCell colspan={2}><Price value={htTotal} /></TableCell>
-        </TableRow>
-        <TableRow>
             <TableCell>Frais de livraison</TableCell>
             <TableCell colspan={2}>
                 <form action="?/editOrder" method="post" use:enhanceNoReset>
@@ -206,6 +202,10 @@
                 </form>
             </TableCell>
             <TableCell><Price value={data.order.delivery_fees} /></TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell>Total (HT)</TableCell>
+            <TableCell colspan={2}><Price value={htTotal} /></TableCell>
         </TableRow>
         <TableRow>
             <TableCell>TVA</TableCell>
