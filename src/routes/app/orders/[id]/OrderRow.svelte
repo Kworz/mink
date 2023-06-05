@@ -71,7 +71,7 @@
         {#if order.state === OrdersStateOptions.acknowledged}
             <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                 <input type="hidden" name="id" value={orderRow.id} />
-                <FormInput type="number" name="ack_price" label={orderRow.ack_price === 0 ? "Prix a valider" : undefined} value={orderRow.ack_price || (orderRow.expand?.article.price ?? 0)} validateOnChange={true} step={0.001} min={0} />
+                <FormInput type="number" name="ack_price" label={orderRow.ack_price === 0 ? "Prix a valider" : undefined} value={orderRow.ack_price || (orderRow.expand?.article.price ?? 0)} validateOnChange={true} step={0.00001} min={0} />
             </form>
         {:else}
             <Price value={orderRow.expand?.article.price ?? 0} />
