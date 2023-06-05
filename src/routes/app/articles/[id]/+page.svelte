@@ -74,6 +74,8 @@
             <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
+            {#if data.article.non_physical}<p class="text-amber-500 font-medium">Article non physique.</p>{/if}
+
             {#if data.orderRows.length > 0}
                 <div class="group">
                     <p>Prix unitaire moyen pondéré: <DetailLabel><Price value={data.orderRows.reduce((p, c) => p = p + (c.ack_price ?? 0) * c.quantity, 0) / data.orderRows.reduce((p, c) => p = p + c.quantity, 0)} /></DetailLabel></p>
@@ -151,197 +153,201 @@
     </Wrapper>
 </div>
 
-<Wrapper class="mt-6">
-    <h4 class="mb-2">Sortie / Entrée de stock</h4>
+{#if !data.article.non_physical}
 
-    {#if form?.updateStock?.error}
-        <p class="my-2 text-red-500">{form.updateStock.error}</p>
-    {/if}
+    <Wrapper class="mt-6">
+        <h4 class="mb-2">Sortie / Entrée de stock</h4>
 
-    {#if form?.updateStock?.success}
-        <p class="my-2 text-emerald-500">{form.updateStock.success}</p>
-    {/if}
+        {#if form?.updateStock?.error}
+            <p class="my-2 text-red-500">{form.updateStock.error}</p>
+        {/if}
 
-    <form action="?/updateStock" method="post" use:enhance class="flex flex-col md:flex-row gap-4 md:items-end">
+        {#if form?.updateStock?.success}
+            <p class="my-2 text-emerald-500">{form.updateStock.success}</p>
+        {/if}
 
-        <FormInput type="number" name="quantity_update" label="Quantité" labelMandatory value={0} min={0} />
+        <form action="?/updateStock" method="post" use:enhance class="flex flex-col md:flex-row gap-4 md:items-end">
 
-        <FormInput type="select" name="direction" label="Direction" labelMandatory bind:value={articleStoreDirection}>
-            <option value={"inward"}>Entrée</option>
-            <option value={"outward"}>Sortie</option>
-            <option value={"moved"}>Déplacement</option>
-        </FormInput>
+            <FormInput type="number" name="quantity_update" label="Quantité" labelMandatory value={0} min={0} />
 
-        {#if articleStoreDirection === "outward" || articleStoreDirection === "moved"}
-
-            <FormInput type="select" name="store_out" label="Stock de provenance" labelMandatory value={""}>
-                <option value={""}>—</option>
-
-                {#each data.stores.filter(k => !k.temporary && articlePreffedStores.includes(k.id)) as store}
-                    <option value={store.id}>{store.name} / {store.location}</option>
-                {/each}
+            <FormInput type="select" name="direction" label="Direction" labelMandatory bind:value={articleStoreDirection}>
+                <option value={"inward"}>Entrée</option>
+                <option value={"outward"}>Sortie</option>
+                <option value={"moved"}>Déplacement</option>
             </FormInput>
-        {/if}
 
-        {#if articleStoreDirection === "moved"}
-            <Icon src={ArrowRight} class="h-6 w-6 text-violet-500 mb-2" />
-        {/if}
+            {#if articleStoreDirection === "outward" || articleStoreDirection === "moved"}
 
-        {#if articleStoreDirection === "inward" || articleStoreDirection === "moved"}
-            <FormInput type="select" name="store_in" label="Stock de destination" labelMandatory value={""}>
-                <option value={""}>—</option>
+                <FormInput type="select" name="store_out" label="Stock de provenance" labelMandatory value={""}>
+                    <option value={""}>—</option>
 
-                <optgroup label="Article déja présent">
                     {#each data.stores.filter(k => !k.temporary && articlePreffedStores.includes(k.id)) as store}
-                        <option value={store.id}>
-                            {store.name} / {store.location}
-                        </option>
+                        <option value={store.id}>{store.name} / {store.location}</option>
                     {/each}
-                </optgroup>
+                </FormInput>
+            {/if}
 
-                <optgroup label="Article non présent">
-                    {#each data.stores.filter(k => !k.temporary && !articlePreffedStores.includes(k.id)) as store}
-                        <option value={store.id}>
-                            {store.name} / {store.location}
-                        </option>
-                    {/each}
-                </optgroup>
-            </FormInput>
-        {/if}
+            {#if articleStoreDirection === "moved"}
+                <Icon src={ArrowRight} class="h-6 w-6 text-violet-500 mb-2" />
+            {/if}
 
-        <Button>Modifier la quantité en stock</Button>
-    </form>
-</Wrapper>
+            {#if articleStoreDirection === "inward" || articleStoreDirection === "moved"}
+                <FormInput type="select" name="store_in" label="Stock de destination" labelMandatory value={""}>
+                    <option value={""}>—</option>
 
-<Grid gap={6} cols={data.articleMovements.length > 0 ? 2 : 1} items="start" class="mt-6">
+                    <optgroup label="Article déja présent">
+                        {#each data.stores.filter(k => !k.temporary && articlePreffedStores.includes(k.id)) as store}
+                            <option value={store.id}>
+                                {store.name} / {store.location}
+                            </option>
+                        {/each}
+                    </optgroup>
 
-    <Flex direction="col" gap={6}>
-        {#if exploitableStoreRelations.length > 0}
-            <Table marginTop="">
-                <svelte:fragment slot="head">
-                    <TableHead>Emplacement</TableHead>
-                    <TableHead>Quantité</TableHead>
-                </svelte:fragment>
-                <svelte:fragment slot="body">
-                    {#each exploitableStoreRelations as storeRelation}
-                        <TableRow>
-                            <TableCell><Store store={storeRelation.expand?.store} /></TableCell>
-                            <TableCell>{storeRelation.quantity}</TableCell>
-                        </TableRow>
-                    {/each}
-                </svelte:fragment>
-            </Table>
-        {/if}
+                    <optgroup label="Article non présent">
+                        {#each data.stores.filter(k => !k.temporary && !articlePreffedStores.includes(k.id)) as store}
+                            <option value={store.id}>
+                                {store.name} / {store.location}
+                            </option>
+                        {/each}
+                    </optgroup>
+                </FormInput>
+            {/if}
 
-        {#if data.articleMovements.length > 0}
-            <Table marginTop="">
-                <svelte:fragment slot="head">
-                    <TableHead>Δ Quantité</TableHead>
-                    <TableHead>Utilisateur</TableHead>
-                    <TableHead>Déplacement</TableHead>
-                    <TableHead class="hidden md:table-cell">Date</TableHead>
-                </svelte:fragment>
+            <Button>Modifier la quantité en stock</Button>
+        </form>
+    </Wrapper>
 
-                <svelte:fragment slot="body">
-                    {#each data.articleMovements as movement}
-                        <TableRow>
-                            <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
-                            <TableCell>
-                                {#if movement.expand?.user !== undefined}
-                                    <User user={movement.expand.user} />
-                                {:else}
-                                    —
-                                {/if}
-                            </TableCell>
-                            <TableCell>
-                                <Flex items="center" gap={2}>
-                                    <span>{movement.expand?.store_out?.name ?? "Inconnu"}</span>
-                                    <Icon src={ArrowRight} class="h-4 w-4 inline-block text-violet-500" />
-                                    <span>{movement.expand?.store_in?.name ?? "Inconnu"}</span>
-                                </Flex>
-                            </TableCell>
-                            <TableCell class="hidden md:table-cell">{movement.created}</TableCell>
-                        </TableRow>
-                    {/each}
-                </svelte:fragment>
-            </Table>
-        {/if}
-    </Flex>
+    <Grid gap={6} cols={data.articleMovements.length > 0 ? 2 : 1} items="start" class="mt-6">
 
-    <Wrapper>
-        <h4>Tags article</h4>
+        <Flex direction="col" gap={6}>
+            {#if exploitableStoreRelations.length > 0}
+                <Table marginTop="">
+                    <svelte:fragment slot="head">
+                        <TableHead>Emplacement</TableHead>
+                        <TableHead>Quantité</TableHead>
+                    </svelte:fragment>
+                    <svelte:fragment slot="body">
+                        {#each exploitableStoreRelations as storeRelation}
+                            <TableRow>
+                                <TableCell><Store store={storeRelation.expand?.store} /></TableCell>
+                                <TableCell>{storeRelation.quantity}</TableCell>
+                            </TableRow>
+                        {/each}
+                    </svelte:fragment>
+                </Table>
+            {/if}
 
-        <PillMenu>
-            <PillMenuButton icon={PlusCircle} click={() => createTag = !createTag}>Créer un tag</PillMenuButton>
-        </PillMenu>
+            {#if data.articleMovements.length > 0}
+                <Table marginTop="">
+                    <svelte:fragment slot="head">
+                        <TableHead>Δ Quantité</TableHead>
+                        <TableHead>Utilisateur</TableHead>
+                        <TableHead>Déplacement</TableHead>
+                        <TableHead class="hidden md:table-cell">Date</TableHead>
+                    </svelte:fragment>
 
-        <Table marginTop="" embeded>
-            <svelte:fragment slot="head">
-                <TableHead>Tag</TableHead>
-                <TableHead>Valeur</TableHead>
-            </svelte:fragment>
-
-            <svelte:fragment slot="body">
-                {#each data.articleTags as tag}
-                    {#if tag.id === editTag}
-                        <TableRow>
-                            <TableCell>
-                                {tag.expand?.tag.name}
-                            </TableCell>
-                            <TableCell>
-                                <form action="?/editTag" method="post" use:enhance>
-                                    <Flex items="end" gap={6}>
-                                        <FormInput type="text" name="value" label="Valeur" labelMandatory value={tag.value} />
-                                        <input type="hidden" name="id" value={tag.id} />
-                                        <Button role="success">Valider</Button>
+                    <svelte:fragment slot="body">
+                        {#each data.articleMovements as movement}
+                            <TableRow>
+                                <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
+                                <TableCell>
+                                    {#if movement.expand?.user !== undefined}
+                                        <User user={movement.expand.user} />
+                                    {:else}
+                                        —
+                                    {/if}
+                                </TableCell>
+                                <TableCell>
+                                    <Flex items="center" gap={2}>
+                                        <span>{movement.expand?.store_out?.name ?? "Inconnu"}</span>
+                                        <Icon src={ArrowRight} class="h-4 w-4 inline-block text-violet-500" />
+                                        <span>{movement.expand?.store_in?.name ?? "Inconnu"}</span>
                                     </Flex>
-                                </form>
-                            </TableCell>
-                        </TableRow>
+                                </TableCell>
+                                <TableCell class="hidden md:table-cell">{movement.created}</TableCell>
+                            </TableRow>
+                        {/each}
+                    </svelte:fragment>
+                </Table>
+            {/if}
+        </Flex>
+
+        <Wrapper>
+            <h4>Tags article</h4>
+
+            <PillMenu>
+                <PillMenuButton icon={PlusCircle} click={() => createTag = !createTag}>Créer un tag</PillMenuButton>
+            </PillMenu>
+
+            <Table marginTop="" embeded>
+                <svelte:fragment slot="head">
+                    <TableHead>Tag</TableHead>
+                    <TableHead>Valeur</TableHead>
+                </svelte:fragment>
+
+                <svelte:fragment slot="body">
+                    {#each data.articleTags as tag}
+                        {#if tag.id === editTag}
+                            <TableRow>
+                                <TableCell>
+                                    {tag.expand?.tag.name}
+                                </TableCell>
+                                <TableCell>
+                                    <form action="?/editTag" method="post" use:enhance>
+                                        <Flex items="end" gap={6}>
+                                            <FormInput type="text" name="value" label="Valeur" labelMandatory value={tag.value} />
+                                            <input type="hidden" name="id" value={tag.id} />
+                                            <Button role="success">Valider</Button>
+                                        </Flex>
+                                    </form>
+                                </TableCell>
+                            </TableRow>
+                        {:else}
+                            <TableRow>
+                                <TableCell>{tag.expand?.tag.name}</TableCell>
+                                <TableCell>
+                                    {tag.value}
+                                    <button on:click={() => editTag = tag.id}><Icon src={Wrench} class="h-4 w-4 ml-2 text-orange-500" /></button>
+                                </TableCell>
+                            </TableRow>
+                        {/if}
                     {:else}
                         <TableRow>
-                            <TableCell>{tag.expand?.tag.name}</TableCell>
-                            <TableCell>
-                                {tag.value}
-                                <button on:click={() => editTag = tag.id}><Icon src={Wrench} class="h-4 w-4 ml-2 text-orange-500" /></button>
-                            </TableCell>
+                            <TableCell colspan={2}>Aucun tag</TableCell>
                         </TableRow>
-                    {/if}
-                {:else}
-                    <TableRow>
-                        <TableCell colspan={2}>Aucun tag</TableCell>
-                    </TableRow>
-                {/each}
-            </svelte:fragment>
-        </Table>
+                    {/each}
+                </svelte:fragment>
+            </Table>
 
-        <section class="mt-6">
-            {#if data.tags.length > 0 && !createTag}
-                <h5>Ajouter un tag</h5>
-                {#if form?.addTag?.error}<p class="text-red-500">{form?.addTag?.error}</p>{/if}
-                <form action="?/addTag" method="post" use:enhance class="mt-2">
-                    <Flex items="end" gap={6}>
-                        <FormInput type="select" name="tag" label="Tag" labelMandatory>
-                            {#each data.tags as tag}
-                                <option value={tag.id}>{tag.name}</option>
-                            {/each}
-                        </FormInput>
-                        <FormInput type="text" name="value" label="Valeur" labelMandatory />
-                        <Button>Ajouter le tag</Button>
-                    </Flex>
-                </form>
-            {/if}
-            {#if data.tags.length === 0 || createTag}
-                <h5>Créer un tag</h5>
-                {#if form?.createTag?.error}<p class="text-red-500">{form?.createTag?.error}</p>{/if}
-                <form action="?/createTag" method="post" use:enhance class="mt-2">
-                    <Flex items="end" gap={6}>
-                        <FormInput type="text" name="name" label="Nom du tag" labelMandatory />
-                        <Button>Créer le tag</Button>
-                    </Flex>
-                </form>
-            {/if}
-        </section>
-        
-    </Wrapper>
-</Grid>
+            <section class="mt-6">
+                {#if data.tags.length > 0 && !createTag}
+                    <h5>Ajouter un tag</h5>
+                    {#if form?.addTag?.error}<p class="text-red-500">{form?.addTag?.error}</p>{/if}
+                    <form action="?/addTag" method="post" use:enhance class="mt-2">
+                        <Flex items="end" gap={6}>
+                            <FormInput type="select" name="tag" label="Tag" labelMandatory>
+                                {#each data.tags as tag}
+                                    <option value={tag.id}>{tag.name}</option>
+                                {/each}
+                            </FormInput>
+                            <FormInput type="text" name="value" label="Valeur" labelMandatory />
+                            <Button>Ajouter le tag</Button>
+                        </Flex>
+                    </form>
+                {/if}
+                {#if data.tags.length === 0 || createTag}
+                    <h5>Créer un tag</h5>
+                    {#if form?.createTag?.error}<p class="text-red-500">{form?.createTag?.error}</p>{/if}
+                    <form action="?/createTag" method="post" use:enhance class="mt-2">
+                        <Flex items="end" gap={6}>
+                            <FormInput type="text" name="name" label="Nom du tag" labelMandatory />
+                            <Button>Créer le tag</Button>
+                        </Flex>
+                    </form>
+                {/if}
+            </section>
+            
+        </Wrapper>
+    </Grid>
+
+{/if}

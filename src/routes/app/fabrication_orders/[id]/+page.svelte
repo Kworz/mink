@@ -45,7 +45,7 @@
     
     <Flex items="center" justify="between">
         {#if data.fabricationOrder.expand?.article !== undefined}
-            <ArticleRow article={data.fabricationOrder.expand?.article} />
+            <ArticleRow article={data.fabricationOrder.expand.article} />
         {/if}
         <h1 class="mr-12 text-zinc-500/50 dark:text-white/50">x {data.fabricationOrder.quantity}</h1>
     </Flex>

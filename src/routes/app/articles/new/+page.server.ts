@@ -10,6 +10,7 @@ export const actions: Actions = {
         let createdArticle = undefined;
 
         formData.set("consumable", String(formData.has("consumable")));
+        formData.set("non_physical", String(formData.has("non_physical")));
         
         try
         {
