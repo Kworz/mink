@@ -17,6 +17,7 @@
         <TableHead>Numéro de commande</TableHead>
         <TableHead>Fournisseur</TableHead>
         <TableHead>Montant (HT)</TableHead>
+        <TableHead>Montant (TTC)</TableHead>
         <TableHead>État</TableHead>
         <TableHead>Demandeur</TableHead>
     </svelte:fragment>
@@ -26,14 +27,8 @@
             <TableRow>
                 <TableCell><a href="/app/orders/{order.id}">{order.name}</a></TableCell>
                 <TableCell><Supplier supplier={order.expand?.supplier} /></TableCell>
-                <TableCell>
-                    <Price 
-                        value={order.expand?.["orders_rows(order)"]?.map(k => {
-                            return (k.expand?.article.price ?? 0) * k.quantity
-                        }).reduce((p, c) => c = p + c, 0) ?? 0}
-                    >
-                    </Price>
-                </TableCell>
+                <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.gross_price ?? 0} /></TableCell>
+                <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.net_price ?? 0} /></TableCell>
                 <TableCell><OrderState state={order.state} /></TableCell>
                 <TableCell><User user={order?.expand?.issuer}/></TableCell>
             </TableRow>

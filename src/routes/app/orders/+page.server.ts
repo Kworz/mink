@@ -10,12 +10,14 @@ export type OrdersResponseExpanded = OrdersResponse<{
     'orders_rows(order)': Array<OrdersRowsResponse<{
         article: ArticleResponse
     }>>,
+    'orders_total_price(order_ref)': [{ gross_price: number, net_price: number }],
     supplier: SuppliersResponse
 }>;
 
 export const load = (async ({ locals }) => {
 
-    const orders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ expand: "issuer,orders_rows(order).article,supplier", sort: "-created"});
+    const orders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ expand: "issuer,orders_rows(order).article,supplier,orders_total_price(order_ref)", sort: "-created"});
+    
     const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
 
     return {

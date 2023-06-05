@@ -114,10 +114,10 @@
                                 class:text-red-500={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
                                 class:font-semibold={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
                             >
-                                {returnArticleUnit(article.unit, article.unit_quantity, article.quantity)}
+                                {returnArticleUnit(article.unit, article.unit_quantity, article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0)}
                             </span>         
                         {:else}               
-                            {returnArticleUnit(article.unit, article.unit_quantity, article.quantity)}
+                            {returnArticleUnit(article.unit, article.unit_quantity, article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0)}
                         {/if}
                     </TableCell>
                     <TableCell>
@@ -138,8 +138,8 @@
                         </Flex>
                     </TableCell>
                     <TableCell>{article.manufacturer}</TableCell>
-                    <TableCell><Price value={article.price ?? 0} /></TableCell>
-                    <TableCell><Price value={(article.price ?? 0) * (article.quantity ?? 0)} /></TableCell>
+                    <TableCell><Price value={article.expand?.["article_price(article)"]?.at(0)?.price ?? article.price} /></TableCell>
+                    <TableCell><Price value={(article.expand?.["article_price(article)"]?.at(0)?.price ?? article.price) * (article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0)} /></TableCell>
                 </TableRow>
             {/each}
         </svelte:fragment>

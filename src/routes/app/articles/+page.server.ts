@@ -1,8 +1,9 @@
 import { Collections, type ArticleResponse, type SuppliersResponse, type OrdersRowsResponse, type StoresResponse, type StoresRelationsResponse, type FabricationOrdersResponse } from "$lib/DBTypes";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
+import { articleResponseExpand, type ArticleResponseExpanded } from "$lib/components/article/ArticleRow.svelte";
 
-export type ArticleResponseExpanded = ArticleResponse<{
+export type ArticleResponseExpanded2 = ArticleResponse<{
     supplier: Array<SuppliersResponse>,
     'orders_rows(article)': Array<OrdersRowsResponse>,
     'stores_relations(article)': Array<StoresRelationsResponse<{
@@ -19,7 +20,7 @@ export const load = (async ({ locals, url }) => {
         const filter = url.searchParams.get("filter") ?? "";
         const page = Number(url.searchParams.get("page")) ?? 1;
         
-        const articles = await locals.pb.collection(Collections.Article).getList<ArticleResponseExpanded>(page, 50, { sort, filter, expand: "supplier,orders_rows(article).order,stores_relations(article).store,fabrication_orders(article),article_view(article)" });
+        const articles = await locals.pb.collection(Collections.Article).getList<ArticleResponseExpanded>(page, 50, { sort, filter, expand: articleResponseExpand });
         
         return {
             articleList: structuredClone(articles)

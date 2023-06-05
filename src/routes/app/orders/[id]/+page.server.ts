@@ -5,10 +5,10 @@ import type { Actions, PageServerLoad } from "./$types";
 
 export const load = (async ({ params, locals }) => {
 
-    const order = await locals.pb.collection(Collections.Orders).getOne<OrdersResponseExpanded>(params.id, { expand: "issuer,project,orders_rows(order).article,supplier" });
+    const order = await locals.pb.collection(Collections.Orders).getOne<OrdersResponseExpanded>(params.id, { expand: "issuer,project,orders_rows(order).article,supplier", order: "name" });
     const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
 
-    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>({ filter: `supplier ~ "${order.supplier}"`});
+    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>({ filter: `supplier ~ "${order.supplier}"` });
 
     return {
         order: structuredClone(order),
