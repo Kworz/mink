@@ -71,9 +71,6 @@ export const actions: Actions = {
             
             if(orderRowsIncomplete.length === 0)
                 await locals.pb.collection(Collections.Orders).update(order_row2.order, { state: OrdersStateOptions.completed });
-            else
-                console.log("remaining incomplete order rows", orderRowsIncomplete.length);
-            
 
             return { receiveArticle: { success: true }};
         }

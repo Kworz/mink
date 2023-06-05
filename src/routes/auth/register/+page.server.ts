@@ -6,12 +6,8 @@ export const actions: Actions = {
 
         const formData = await request.formData();
 
-        //console.log(formData);
-
         try {
-            const user = await locals.pb.collection(Collections.Users).create<UsersResponse>(formData);
-            console.log(user);
-            
+            const user = await locals.pb.collection(Collections.Users).create<UsersResponse>(formData);            
         }
         catch(ex)
         {            
