@@ -95,7 +95,6 @@ export const flattenAssemblySubAssemblies = async (assembly: AssembliesResponse,
                     await subFlattenSubAssemblies(relation.expand?.assembly_child, relation.quantity * quantity);
                 }
             }
-            
         }
         flattenRelationsSub.push({
             subAssembly: assembly,

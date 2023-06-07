@@ -26,6 +26,7 @@ export const actions: Actions = {
             const form = await request.formData();
             form.set("start_date", Temporal.Now.plainDateISO().toString());
             form.set("applicant", locals.user?.id ?? "");
+            form.set("state", "asked");
 
             newFabricationOrder = await locals.pb.collection(Collections.FabricationOrders).create(form);
         }

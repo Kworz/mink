@@ -44,7 +44,7 @@
 
     $: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; editList = false; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
     $: if(form?.editList?.success) { editList = false; invalidateAll(); };
-    $: if(form?.generateFabOrders) { alert(form?.generateFabOrders.error ?? form.generateFabOrders.success ?? "no error given"); invalidateAll(); }
+    $: if(form?.generateFabOrders) { alert(form?.generateFabOrders.error ?? "no error given"); invalidateAll(); }
 
     export const snapshot: Snapshot<FilterCondition[]> = {
         capture: () => filters,
@@ -98,13 +98,15 @@
     {:else}
         <p>Affaire: <DetailLabel>{data.list.expand?.project?.name}</DetailLabel>.</p>
         <p>Assemblage de base: <DetailLabel>{data.list.expand?.assembly?.name}</DetailLabel>.</p>
-        <p>Manquant pour finaliser: <DetailLabel><Price value={flatenRelations.reduce((p, c) => p + ((c.far.article?.price ?? 0) * (c.far.quantity - (c.buyListRelation?.quantity ?? 0))), 0)}/></DetailLabel>.</p>
+        <p>Manquant pour finaliser: 
+            <DetailLabel>
+                <Price value={flatenRelations.reduce((p, c) => p + ((c.far.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.far.article?.price ?? 0) * (c.far.quantity - (c.buyListRelation?.quantity ?? 0))), 0)}/>
+            </DetailLabel>.
+        </p>
         <p>Terminée: <DetailLabel>{data.list.closed ? "Oui" : "Non"}</DetailLabel>.</p>
     {/if}
 
-
 </Wrapper>
-
 
 {#if createOrder}
     <Wrapper class="mt-6">
@@ -122,10 +124,10 @@
 
 <Wrapper class="mt-6">
     <Filter2 bind:filter bind:filters availableFilters={[{name: "name", default: true}, { name: "quantity" }, { name: "manufacturer" }, { name: "reference" }, { name: "supplier.name" }, { name: "valid" }, { name: "stock" }]} />
-    {@const tableData = flatenRelations.filter((element) => clientSideFilter(filters, {...element.far.article, quantity: element.far.quantity, valid: (element.buyListRelation?.quantity ?? 0) >= element.far.quantity, stock: element.far.article.quantity > 0 }))}
+    {@const assemblyRelations = flatenRelations.filter((element) => clientSideFilter(filters, {...element.far.article, quantity: element.far.quantity, valid: (element.buyListRelation?.quantity ?? 0) >= element.far.quantity, stock: element.far.article.quantity > 0 }))}
     <Table embeded={true}>
         <svelte:fragment slot="head">
-            <TableHead>Article ({tableData.length})</TableHead>
+            <TableHead>Article ({assemblyRelations.length})</TableHead>
             <TableHead>Sous assemblages</TableHead>
             <TableHead>Quantité</TableHead>
             <TableHead>Quantité nécessaire</TableHead>
@@ -133,22 +135,27 @@
             <TableHead>Validé ?</TableHead>
         </svelte:fragment>
         <svelte:fragment slot="body">
-            {#each tableData as far}
+            {#each assemblyRelations as assemblyRelation}
+
+                {@const requiredQuantity = assemblyRelation.far.quantity - (assemblyRelation.buyListRelation?.quantity ?? 0)}
+                {@const requiredPrice = requiredQuantity * (assemblyRelation.far.article.expand?.["article_price(article)"]?.at(0)?.price ?? assemblyRelation.far.article.price ?? 0)}
+                {@const totalPrice = assemblyRelation.far.quantity * (assemblyRelation.far.article.expand?.["article_price(article)"]?.at(0)?.price ?? assemblyRelation.far.article.price ?? 0)}
+                {@const isValid = assemblyRelation.far.quantity <= (assemblyRelation.buyListRelation?.quantity ?? 0)}
 
                 <TableRow>
-                    <TableCell><ArticleRow article={far.far.article} displayStock displayApprox /></TableCell>
+                    <TableCell><ArticleRow article={assemblyRelation.far.article} displayStock displayApprox /></TableCell>
                     <TableCell>
-                        <Flex direction={far.far.subAssemblies.length > 1 ? "row" : "col"} gap={2} items={far.far.subAssemblies.length > 1 ? "center" : undefined}>
-                            {#each far.far["subAssemblies"] as assembly}
-                                <AssemblyPreview {assembly} imageSize="h-10" minimized={far.far.subAssemblies.length > 1}/>
+                        <Flex direction={assemblyRelation.far.subAssemblies.length > 1 ? "row" : "col"} gap={2} items={assemblyRelation.far.subAssemblies.length > 1 ? "center" : undefined}>
+                            {#each assemblyRelation.far["subAssemblies"] as assembly}
+                                <AssemblyPreview {assembly} imageSize="h-10" minimized={assemblyRelation.far.subAssemblies.length > 1}/>
                             {/each}
                         </Flex>
                     </TableCell>
                     <TableCell>
                         <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
 
-                            {#if form?.buyListRelationEdit?.[far.far.article.id]}
-                                {@const data = form.buyListRelationEdit[far.far.article.id]}
+                            {#if form?.buyListRelationEdit?.[assemblyRelation.far.article.id]}
+                                {@const data = form.buyListRelationEdit[assemblyRelation.far.article.id]}
 
                                 {#if data.storesToGetFrom !== undefined}
                                     <FormInput type="select" name="store" label="Choisir un stock de provenance" labelMandatory>
@@ -167,18 +174,15 @@
                                 {/if}
                             {/if}
 
-                            <input type="hidden" name="article" value={far.far.article.id} />
+                            <input type="hidden" name="article" value={assemblyRelation.far.article.id} />
                             <input type="hidden" name="buylist" value={data.list.id} />
-                            <FormInput name="quantity" type="number" step={far.far.article.unit === "" ? 1 : 0.1} value={far.buyListRelation?.quantity ?? 0} max={far.far.quantity} invalid={form?.buyListRelationEdit[`${far.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${far.far.article.id}`]?.error ?? (form?.buyListRelationEdit[`${far.far.article.id}`]?.success ?? undefined)} />
+                            <FormInput name="quantity" type="number" step={assemblyRelation.far.article.unit === "" ? 1 : 0.1} value={assemblyRelation.buyListRelation?.quantity ?? 0} max={assemblyRelation.far.quantity} invalid={form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.error ?? (form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.success ?? undefined)} />
                             <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                         </form>
                     </TableCell>
-                    <TableCell>{far.far.quantity}</TableCell>
-                    <TableCell><Price value={(far.far.quantity - (far.buyListRelation?.quantity ?? 0)) * (far.far.article.price ?? 0)} /> / <Price value={far.far.quantity * (far.far.article.price ?? 0)} /></TableCell>
-                    <TableCell>
-                        {@const isValid = far.far.quantity <= (far.buyListRelation?.quantity ?? 0)}
-                        <span class="font-semibold {isValid ? "text-emerald-500" : "text-red-500"}">{isValid ? "Oui" : "Non"}</span>
-                    </TableCell>
+                    <TableCell>{assemblyRelation.far.quantity}</TableCell>
+                    <TableCell><Price value={requiredPrice} /> / <Price value={totalPrice} /></TableCell>
+                    <TableCell><span class="font-semibold {isValid ? "text-emerald-500" : "text-red-500"}">{isValid ? "Oui" : "Non"}</span></TableCell>
                 </TableRow>
             {/each}
         </svelte:fragment>
