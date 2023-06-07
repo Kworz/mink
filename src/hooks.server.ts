@@ -13,7 +13,7 @@ export const handle = (async ({ event, resolve }) => {
 
     if(event.route.id?.startsWith("/app") && event.locals.user === undefined)
     {
-        return new Response(null, {status: 303, headers: { 'location': '/auth/login' }});
+        return new Response(null, {status: 303, headers: { 'location': `/auth/login?target=${btoa(event.url.pathname)}` }});
     }
     else
     {

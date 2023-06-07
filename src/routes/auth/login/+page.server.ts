@@ -14,7 +14,10 @@ export const load = (async ({ locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-    default: async ({ request, locals }) => {
+    default: async ({ request, locals, url }) => {
+
+
+        const targetPage = url.searchParams.get('target');
 
         const formData = await request.formData();
 
@@ -41,6 +44,6 @@ export const actions: Actions = {
             }
         }
 
-        throw redirect(303, '/app');
+        throw redirect(303, targetPage ? atob(targetPage) : '/app');
     }
 }
