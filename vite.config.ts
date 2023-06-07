@@ -5,6 +5,11 @@ const config: UserConfig = {
 	plugins: [sveltekit()],
 	ssr:{
 		noExternal: ["@fontsource/inter", 'three', 'troika-three-text']
+	},
+	server: {
+		hmr: {
+			host: "localhost"
+		}
 	}
 };
 
