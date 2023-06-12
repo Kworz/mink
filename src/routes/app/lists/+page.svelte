@@ -15,6 +15,7 @@
     import { PlusCircle } from "@steeze-ui/heroicons";
     import type { PageData } from "./$types";
     import Filter2 from "$lib/components/filter/Filter2.svelte";
+    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
 
     export let data: PageData;
 
@@ -90,9 +91,7 @@
     <Table embeded marginTop="">
         <svelte:fragment slot="head">
             <TableHead>Liste</TableHead>
-            {#if showClosedLists}
-                <TableHead>Terminée</TableHead>
-            {/if}
+            {#if showClosedLists}<TableHead>Terminée</TableHead>{/if}
             <TableHead>Assemblage de base</TableHead>
             <TableHead>Affaire</TableHead>
             
@@ -102,11 +101,7 @@
             {#each lists as list}
                 <TableRow>
                     <TableCell><a href="/app/lists/{list.id}">{list.name}</a></TableCell>
-                    {#if showClosedLists}
-                        <TableCell>
-                            {list.closed ? "Oui" : "Non"}
-                        </TableCell>
-                    {/if}
+                    {#if showClosedLists}<TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>{/if}
                     <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
                     <TableCell>{list.expand?.project?.name}</TableCell>
                 </TableRow>
