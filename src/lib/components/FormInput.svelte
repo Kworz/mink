@@ -24,6 +24,7 @@
     export let validateOnChange = false;
 
     export let backColors = "bg-gray-200 dark:bg-zinc-700";
+    export let parentClass: string | undefined = undefined;
     
     const baseStyle = "border dark:border-zinc-800/50  rounded-md p-2 duration-250"
 
@@ -49,7 +50,7 @@
 
 </script>
 
-<Flex gap={1} direction="col">
+<Flex gap={1} direction="col" class={parentClass}>
     {#if label && type !== "checkbox"}
         <span class="text-zinc-700 dark:text-white text-sm leading-4">
             {label}
