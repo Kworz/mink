@@ -25,6 +25,7 @@
 
     import type { ActionData, PageData, Snapshot } from "./$types";
     import { Collections } from "$lib/DBTypes";
+    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
     
     export let data: PageData;
     export let form: ActionData;
@@ -182,7 +183,7 @@
                     </TableCell>
                     <TableCell>{assemblyRelation.far.quantity}</TableCell>
                     <TableCell><Price value={requiredPrice} /> / <Price value={totalPrice} /></TableCell>
-                    <TableCell><span class="font-semibold {isValid ? "text-emerald-500" : "text-red-500"}">{isValid ? "Oui" : "Non"}</span></TableCell>
+                    <TableCell><RoundedLabel role={isValid ? "success" : "danger"}>{isValid ? "Oui" : "Non"}</RoundedLabel></TableCell>
                 </TableRow>
             {/each}
         </svelte:fragment>

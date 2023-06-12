@@ -22,6 +22,7 @@
 
     import type { ActionData, PageData } from "./$types";
     import OrderRow from "./OrderRow.svelte";
+    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
 
     const states: Record<OrdersStateOptions, string> = {
         "draft": "Brouillon",
@@ -100,19 +101,15 @@
         <PillMenuButton icon={Trash} click={() => { deleteOrder(); return false; }}>Supprimer</PillMenuButton>
     </PillMenu>
 
-    <form action="?/editOrder" method="post" use:enhanceNoReset class="flex flex-col gap-4">
-        <Flex items="center">
-            <h2>Commande N°</h2>
-            <FormInput name="name" value={data.order.name} validateOnChange />
-        </Flex>
-        <Flex items="center">
-            <h4>État de la commande:</h4>        
-            <FormInput type="select" name="state" value={data.order.state} validateOnChange>
-                {#each statesKeys as state}
-                    <option value={state} class="capitalize">{states[state]}</option>
-                {/each}
-            </FormInput>
-        </Flex>
+    <h3>Commande <RoundedLabel>{data.order.sub_id}</RoundedLabel></h3>
+
+    <form action="?/editOrder" method="post" use:enhanceNoReset class="flex md:flex-row flex-col gap-2 mt-4">
+        <FormInput label="Description" labelMandatory name="name" value={data.order.name} validateOnChange parentClass="grow" />
+        <FormInput label="Etat de la commande" type="select" name="state" value={data.order.state} validateOnChange>
+            {#each statesKeys as state}
+                <option value={state} class="capitalize">{states[state]}</option>
+            {/each}
+        </FormInput>
     </form>
 </Wrapper>
 

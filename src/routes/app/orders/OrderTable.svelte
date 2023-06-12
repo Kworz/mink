@@ -1,5 +1,6 @@
 <script lang="ts">
     import Price from "$lib/components/formatters/Price.svelte";
+    import Flex from "$lib/components/layout/flex.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
@@ -25,7 +26,14 @@
     <svelte:fragment slot="body">
         {#each orders as order}
             <TableRow>
-                <TableCell><a href="/app/orders/{order.id}">{order.name}</a></TableCell>
+                <TableCell>
+                    <a href="/app/orders/{order.id}">
+                        <Flex direction="col" gap={1}>
+                            <span>{order.name}</span>
+                            <span class="text-sm text-zinc-500">{order.sub_id}</span>
+                        </Flex>
+                    </a>
+                </TableCell>
                 <TableCell><Supplier supplier={order.expand?.supplier} /></TableCell>
                 <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.gross_price ?? 0} /></TableCell>
                 <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.net_price ?? 0} /></TableCell>

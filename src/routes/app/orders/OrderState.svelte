@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import Flex from "$lib/components/layout/flex.svelte";
+    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
     import type { OrdersStateOptions } from "$lib/DBTypes";
     import { ArchiveBoxXMark, Check, DocumentText, Envelope, EnvelopeOpen } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
@@ -22,9 +22,17 @@
         "cancelled": "Anullée"
     };
 
+    let roleChoosen = {
+        "draft": "secondary",
+        "placed": "warning",
+        "acknowledged": "info",
+        "completed": "success",
+        "cancelled": "warning"
+    };
+
 </script>
 
-<Flex gap={2} items="center">
-    <span>{names[state]}</span>
-    <Icon src={icons[state]} class="h-4 w-4 text-violet-500" />
-</Flex>
+<RoundedLabel role={roleChoosen[state]}>
+    {names[state]}
+    <Icon src={icons[state]} class="h-4 w-4 ml-1 mb-1 inline" />
+</RoundedLabel>

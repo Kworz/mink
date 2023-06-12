@@ -34,7 +34,15 @@ export const actions: Actions = {
 
         try
         {
+            const creationDate = new Date();
+
+            const currentDayOrders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ filter: `created ~ "${creationDate.toISOString().split("T").at(0)}"`, sort: "-created" });
+            const subId = `${currentDayOrders.length+1}-${creationDate.toISOString().split("T").at(0)?.replaceAll("-", "")}`;
+            
             const form = await request.formData();
+
+            form.set("sub_id", subId)
+
             form.set("state", "draft");
             form.set("issuer", locals.user!.id);
             form.set("vat", import.meta.env.VITE_DEFAULT_VAT);

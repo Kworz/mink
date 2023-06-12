@@ -4,16 +4,20 @@
 
 export enum Collections {
 	Article = "article",
+	ArticleFabricationQuantity = "article_fabrication_quantity",
 	ArticleMovements = "article_movements",
+	ArticleOrderQuantity = "article_order_quantity",
+	ArticlePrice = "article_price",
+	ArticleStoreQuantity = "article_store_quantity",
 	ArticleTags = "article_tags",
 	ArticleTagsRelations = "article_tags_relations",
-	ArticleView = "article_view",
 	Assemblies = "assemblies",
 	AssembliesBuylists = "assemblies_buylists",
 	AssembliesRelations = "assemblies_relations",
 	FabricationOrders = "fabrication_orders",
 	Orders = "orders",
 	OrdersRows = "orders_rows",
+	OrdersTotalPrice = "orders_total_price",
 	Projects = "projects",
 	Stores = "stores",
 	StoresRelations = "stores_relations",
@@ -60,6 +64,12 @@ export type ArticleRecord = {
 	consumable?: boolean
 	unit?: string
 	unit_quantity?: number
+	non_physical?: boolean
+}
+
+export type ArticleFabricationQuantityRecord<Tquantity = unknown> = {
+	article?: RecordIdString
+	quantity?: null | Tquantity
 }
 
 export type ArticleMovementsRecord = {
@@ -71,6 +81,21 @@ export type ArticleMovementsRecord = {
 	reason?: string
 }
 
+export type ArticleOrderQuantityRecord<Tquantity = unknown> = {
+	article?: RecordIdString
+	quantity?: null | Tquantity
+}
+
+export type ArticlePriceRecord<Tprice = unknown> = {
+	article?: RecordIdString
+	price?: null | Tprice
+}
+
+export type ArticleStoreQuantityRecord<Tquantity = unknown> = {
+	article?: RecordIdString
+	quantity?: null | Tquantity
+}
+
 export type ArticleTagsRecord = {
 	name: string
 }
@@ -79,11 +104,6 @@ export type ArticleTagsRelationsRecord = {
 	article: RecordIdString
 	tag: RecordIdString
 	value: string
-}
-
-export type ArticleViewRecord<Tstock_price = unknown> = {
-	article?: RecordIdString
-	stock_price?: null | Tstock_price
 }
 
 export type AssembliesRecord = {
@@ -136,7 +156,9 @@ export enum OrdersStateOptions {
 	"cancelled" = "cancelled",
 }
 export type OrdersRecord = {
+	sub_id?: number
 	name: string
+	description?: string
 	supplier: RecordIdString
 	issuer: RecordIdString
 	state: OrdersStateOptions
@@ -154,6 +176,12 @@ export type OrdersRowsRecord = {
 	ack_date?: IsoDateString
 	ack_price?: number
 	quantity_received?: number
+}
+
+export type OrdersTotalPriceRecord<Tgross_price = unknown, Tnet_price = unknown> = {
+	order_ref?: RecordIdString
+	gross_price?: null | Tgross_price
+	net_price?: null | Tnet_price
 }
 
 export type ProjectsRecord = {
@@ -201,16 +229,20 @@ export type UsersRecord = {
 
 // Response types include system fields and match responses from the PocketBase API
 export type ArticleResponse<Texpand = unknown> = Required<ArticleRecord> & BaseSystemFields<Texpand>
+export type ArticleFabricationQuantityResponse<Tquantity = unknown, Texpand = unknown> = Required<ArticleFabricationQuantityRecord<Tquantity>> & BaseSystemFields<Texpand>
 export type ArticleMovementsResponse<Texpand = unknown> = Required<ArticleMovementsRecord> & BaseSystemFields<Texpand>
+export type ArticleOrderQuantityResponse<Tquantity = unknown, Texpand = unknown> = Required<ArticleOrderQuantityRecord<Tquantity>> & BaseSystemFields<Texpand>
+export type ArticlePriceResponse<Tprice = unknown, Texpand = unknown> = Required<ArticlePriceRecord<Tprice>> & BaseSystemFields<Texpand>
+export type ArticleStoreQuantityResponse<Tquantity = unknown, Texpand = unknown> = Required<ArticleStoreQuantityRecord<Tquantity>> & BaseSystemFields<Texpand>
 export type ArticleTagsResponse = Required<ArticleTagsRecord> & BaseSystemFields
 export type ArticleTagsRelationsResponse<Texpand = unknown> = Required<ArticleTagsRelationsRecord> & BaseSystemFields<Texpand>
-export type ArticleViewResponse<Tstock_price = unknown, Texpand = unknown> = Required<ArticleViewRecord<Tstock_price>> & BaseSystemFields<Texpand>
 export type AssembliesResponse = Required<AssembliesRecord> & BaseSystemFields
 export type AssembliesBuylistsResponse<Texpand = unknown> = Required<AssembliesBuylistsRecord> & BaseSystemFields<Texpand>
 export type AssembliesRelationsResponse<Texpand = unknown> = Required<AssembliesRelationsRecord> & BaseSystemFields<Texpand>
 export type FabricationOrdersResponse<Texpand = unknown> = Required<FabricationOrdersRecord> & BaseSystemFields<Texpand>
 export type OrdersResponse<Texpand = unknown> = Required<OrdersRecord> & BaseSystemFields<Texpand>
 export type OrdersRowsResponse<Texpand = unknown> = Required<OrdersRowsRecord> & BaseSystemFields<Texpand>
+export type OrdersTotalPriceResponse<Tgross_price = unknown, Tnet_price = unknown, Texpand = unknown> = Required<OrdersTotalPriceRecord<Tgross_price, Tnet_price>> & BaseSystemFields<Texpand>
 export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
 export type StoresResponse = Required<StoresRecord> & BaseSystemFields
 export type StoresRelationsResponse<Texpand = unknown> = Required<StoresRelationsRecord> & BaseSystemFields<Texpand>
@@ -221,16 +253,20 @@ export type UsersResponse = Required<UsersRecord> & AuthSystemFields
 
 export type CollectionRecords = {
 	article: ArticleRecord
+	article_fabrication_quantity: ArticleFabricationQuantityRecord
 	article_movements: ArticleMovementsRecord
+	article_order_quantity: ArticleOrderQuantityRecord
+	article_price: ArticlePriceRecord
+	article_store_quantity: ArticleStoreQuantityRecord
 	article_tags: ArticleTagsRecord
 	article_tags_relations: ArticleTagsRelationsRecord
-	article_view: ArticleViewRecord
 	assemblies: AssembliesRecord
 	assemblies_buylists: AssembliesBuylistsRecord
 	assemblies_relations: AssembliesRelationsRecord
 	fabrication_orders: FabricationOrdersRecord
 	orders: OrdersRecord
 	orders_rows: OrdersRowsRecord
+	orders_total_price: OrdersTotalPriceRecord
 	projects: ProjectsRecord
 	stores: StoresRecord
 	stores_relations: StoresRelationsRecord
@@ -240,16 +276,20 @@ export type CollectionRecords = {
 
 export type CollectionResponses = {
 	article: ArticleResponse
+	article_fabrication_quantity: ArticleFabricationQuantityResponse
 	article_movements: ArticleMovementsResponse
+	article_order_quantity: ArticleOrderQuantityResponse
+	article_price: ArticlePriceResponse
+	article_store_quantity: ArticleStoreQuantityResponse
 	article_tags: ArticleTagsResponse
 	article_tags_relations: ArticleTagsRelationsResponse
-	article_view: ArticleViewResponse
 	assemblies: AssembliesResponse
 	assemblies_buylists: AssembliesBuylistsResponse
 	assemblies_relations: AssembliesRelationsResponse
 	fabrication_orders: FabricationOrdersResponse
 	orders: OrdersResponse
 	orders_rows: OrdersRowsResponse
+	orders_total_price: OrdersTotalPriceResponse
 	projects: ProjectsResponse
 	stores: StoresResponse
 	stores_relations: StoresRelationsResponse
