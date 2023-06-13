@@ -11,7 +11,7 @@
 
     const { isShrinked } = getMenuContext();
 
-    $: active = $page.route.id?.includes(href);
+    $: active = $page.route.id?.includes(href) && href !== "/app";
 
 </script>
 

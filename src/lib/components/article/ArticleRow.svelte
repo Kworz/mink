@@ -57,7 +57,7 @@
     {/if}
 
     <div>
-        <a href="/app/articles/{article.id}" class="block">{article.name}</a>
+        <a href="/app/scm/articles/{article.id}" class="block">{article.name}</a>
         {#if displayManufacturer}<span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
         {#if displayPrice}<span class="text-sm block"><DetailLabel><Price value={articlePrice} /></DetailLabel></span>{/if}
         {#if articleQuantity > 0 && displayStock === true}

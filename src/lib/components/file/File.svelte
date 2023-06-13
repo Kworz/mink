@@ -26,7 +26,7 @@
     
         <Flex class="absolute top-4 right-4 opacity-50 hover:opacity-100 duration-200" gap={1}>
             {#if isImage}
-                <form action="/app/articles/{collectionID}?/pinAttachedFile" method="post" use:enhanceNoReset>
+                <form action="/app/scm/articles/{collectionID}?/pinAttachedFile" method="post" use:enhanceNoReset>
                     <input type="hidden" name="pinned_file" value={isPinned ? "" : fileName} />
                     <button><Icon src={Star} class="h-6 w-6 text-blue-400" theme={isPinned ? "solid" : ""}/></button>
                 </form>
@@ -36,7 +36,7 @@
                     <Icon src={ArrowDownTray} class="h-6 w-6 text-blue-400" />
                 </a>
             {/if}
-            <form action="/app/articles/{collectionID}?/removeAttachedFile" method="post" use:enhanceNoReset>
+            <form action="/app/scm/articles/{collectionID}?/removeAttachedFile" method="post" use:enhanceNoReset>
                 <input type="hidden" name="attached_files-" value={fileName} />
                 <button><Icon src={XMark} class="h-6 w-6 text-red-400"/></button>
             </form>

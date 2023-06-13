@@ -15,8 +15,8 @@ export function parseQRCodeData(data: string): string
     {
         const part = prefixes[split.at(0)];
         const part2 = split.at(1);
-        return `/app/${part}/${part2}`;
+        return `/app/scm/${part}/${part2}`;
     }
     else
-        return `/app/articles/${data}`;
+        return `/app/scm/articles/${data}`;
 }

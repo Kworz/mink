@@ -12,7 +12,7 @@
 
 </script>
 
-<a href="/app/assemblies/{assembly.id}">
+<a href="/app/scm/assemblies/{assembly.id}">
     <Flex items="center">
     
         {#if assembly.thumbnail !== "" && browser}
