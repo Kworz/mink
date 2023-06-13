@@ -1,6 +1,6 @@
 <script lang="ts">
     
-    import { CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Truck, DocumentChartBar, QueueList, PuzzlePiece, ChevronLeft } from "@steeze-ui/heroicons";
+    import { CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Truck, DocumentChartBar, QueueList, PuzzlePiece, ChevronLeft, ListBullet, UserGroup, Sparkles } from "@steeze-ui/heroicons";
     import Flex from "$lib/components/layout/flex.svelte";
     import Menu from "$lib/components/appLayout/Menu.svelte";
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
@@ -15,26 +15,16 @@
         <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
         <MenuCloseButton />
 
-        <MenuSeparator>Articles</MenuSeparator>
-        <MenuItem icon={CircleStack} href="/app/articles" label="Base articles" />
-        <MenuItem icon={Truck} href="/app/suppliers" label="Fournisseurs" />
-        <MenuItem icon={QueueList} href="/app/approx" label="Approvisionements" />
-
-        <MenuSeparator>Nomenclatures</MenuSeparator>
-        <MenuItem icon={ClipboardDocumentCheck} href="/app/lists" label="Listes d'achats" />
-        <MenuItem icon={PuzzlePiece} href="/app/assemblies" label="Assemblages" />
-
-        <MenuSeparator>Gestion</MenuSeparator>
-        <MenuItem icon={DocumentText} href="/app/projects" label="Affaires" />
-        <MenuItem icon={DocumentChartBar} href="/app/orders" label="Commandes" />
-        <MenuItem icon={Calendar} href="/app/planning" label="Planning" />
-        <MenuItem icon={Wrench} href="/app/fabrication_orders" label="Ordres de fabrication" />
+        <MenuSeparator></MenuSeparator>
+        <MenuItem icon={ListBullet} href="/app/crm/leads" label="Leads" />
+        <MenuItem icon={UserGroup} href="/app/crm/companies" label="Sociétés & Contacts" />
+        <MenuItem icon={Sparkles} href="/app/crm/interests" label="Interets" />
 
     </Menu>
 
     <div class="grow overflow-x-hidden overflow-y-scroll">
         <TopBar />
-        <div class="w-full p-6">
+        <div class="w-full p-6" id="main_content">
             <slot />
         </div>
     </div>

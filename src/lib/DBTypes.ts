@@ -14,6 +14,11 @@ export enum Collections {
 	Assemblies = "assemblies",
 	AssembliesBuylists = "assemblies_buylists",
 	AssembliesRelations = "assemblies_relations",
+	CrmCompany = "crm_company",
+	CrmCompanyContact = "crm_company_contact",
+	CrmInterest = "crm_interest",
+	CrmLeads = "crm_leads",
+	CrmLeadsInterests = "crm_leads_interests",
 	FabricationOrders = "fabrication_orders",
 	Orders = "orders",
 	OrdersRows = "orders_rows",
@@ -131,6 +136,62 @@ export type AssembliesRelationsRecord = {
 	quantity: number
 }
 
+export enum CrmCompanySizeOptions {
+	"0-5" = "0-5",
+	"5-20" = "5-20",
+	"20-50" = "20-50",
+	"50-100" = "50-100",
+	"100-250" = "100-250",
+	"250-500" = "250-500",
+	"500-1000" = "500-1000",
+	"1000+" = "1000+",
+}
+export type CrmCompanyRecord = {
+	name: string
+	country?: string
+	field?: string
+	sector?: string
+	type?: string
+	size?: CrmCompanySizeOptions
+}
+
+export type CrmCompanyContactRecord = {
+	name: string
+	email?: string
+	phone?: string
+	address?: string
+	spoken_langs?: string
+	company: RecordIdString
+	company_role?: string
+}
+
+export type CrmInterestRecord = {
+	name: string
+	description?: string
+	color?: string
+}
+
+export enum CrmLeadsStateOptions {
+	"prospect" = "prospect",
+	"suspect" = "suspect",
+	"active" = "active",
+	"customer" = "customer",
+	"lost" = "lost",
+}
+export type CrmLeadsRecord = {
+	company: RecordIdString
+	company_contacts: RecordIdString[]
+	origin?: string
+	comment?: string
+	state?: CrmLeadsStateOptions
+}
+
+export type CrmLeadsInterestsRecord = {
+	lead: RecordIdString
+	interest: RecordIdString
+	order?: number
+}
+
 export enum FabricationOrdersStateOptions {
 	"asked" = "asked",
 	"started" = "started",
@@ -156,9 +217,8 @@ export enum OrdersStateOptions {
 	"cancelled" = "cancelled",
 }
 export type OrdersRecord = {
-	sub_id?: number
+	sub_id: string
 	name: string
-	description?: string
 	supplier: RecordIdString
 	issuer: RecordIdString
 	state: OrdersStateOptions
@@ -239,6 +299,11 @@ export type ArticleTagsRelationsResponse<Texpand = unknown> = Required<ArticleTa
 export type AssembliesResponse = Required<AssembliesRecord> & BaseSystemFields
 export type AssembliesBuylistsResponse<Texpand = unknown> = Required<AssembliesBuylistsRecord> & BaseSystemFields<Texpand>
 export type AssembliesRelationsResponse<Texpand = unknown> = Required<AssembliesRelationsRecord> & BaseSystemFields<Texpand>
+export type CrmCompanyResponse<Texpand = unknown> = Required<CrmCompanyRecord> & BaseSystemFields<Texpand>
+export type CrmCompanyContactResponse<Texpand = unknown> = Required<CrmCompanyContactRecord> & BaseSystemFields<Texpand>
+export type CrmInterestResponse = Required<CrmInterestRecord> & BaseSystemFields
+export type CrmLeadsResponse<Texpand = unknown> = Required<CrmLeadsRecord> & BaseSystemFields<Texpand>
+export type CrmLeadsInterestsResponse<Texpand = unknown> = Required<CrmLeadsInterestsRecord> & BaseSystemFields<Texpand>
 export type FabricationOrdersResponse<Texpand = unknown> = Required<FabricationOrdersRecord> & BaseSystemFields<Texpand>
 export type OrdersResponse<Texpand = unknown> = Required<OrdersRecord> & BaseSystemFields<Texpand>
 export type OrdersRowsResponse<Texpand = unknown> = Required<OrdersRowsRecord> & BaseSystemFields<Texpand>
@@ -263,6 +328,11 @@ export type CollectionRecords = {
 	assemblies: AssembliesRecord
 	assemblies_buylists: AssembliesBuylistsRecord
 	assemblies_relations: AssembliesRelationsRecord
+	crm_company: CrmCompanyRecord
+	crm_company_contact: CrmCompanyContactRecord
+	crm_interest: CrmInterestRecord
+	crm_leads: CrmLeadsRecord
+	crm_leads_interests: CrmLeadsInterestsRecord
 	fabrication_orders: FabricationOrdersRecord
 	orders: OrdersRecord
 	orders_rows: OrdersRowsRecord
@@ -286,6 +356,11 @@ export type CollectionResponses = {
 	assemblies: AssembliesResponse
 	assemblies_buylists: AssembliesBuylistsResponse
 	assemblies_relations: AssembliesRelationsResponse
+	crm_company: CrmCompanyResponse
+	crm_company_contact: CrmCompanyContactResponse
+	crm_interest: CrmInterestResponse
+	crm_leads: CrmLeadsResponse
+	crm_leads_interests: CrmLeadsInterestsResponse
 	fabrication_orders: FabricationOrdersResponse
 	orders: OrdersResponse
 	orders_rows: OrdersRowsResponse

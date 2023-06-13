@@ -4,11 +4,22 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import Portal from "svelte-portal";
 
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
     const dispatch = createEventDispatcher();
 
     export let closable = false;
+    export let noBlur = false;
+
+    onMount(() => {
+        if(!noBlur)
+            document.getElementById("main_content")!.style.filter = "blur(1px)grayscale(1)";
+    });
+
+    onDestroy(() => {
+        if(!noBlur)
+            document.getElementById("main_content")!.style.filter = "";
+    })
 
 </script>
 

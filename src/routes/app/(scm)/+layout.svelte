@@ -37,7 +37,7 @@
 
     <div class="grow overflow-x-hidden overflow-y-scroll">
         <TopBar />
-        <div class="w-full p-6">
+        <div class="w-full p-6" id="main_content">
             <slot />
         </div>
     </div>
