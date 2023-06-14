@@ -7,11 +7,15 @@
     import TopBar from "$lib/components/appLayout/TopBar.svelte";
     import MenuSeparator from "$lib/components/appLayout/MenuSeparator.svelte";
     import MenuCloseButton from "$lib/components/appLayout/MenuCloseButton.svelte";
+    import { page } from "$app/stores";
 
 </script>
 
 <Flex gap={0} class="h-screen w-screen overflow-hidden">
     <Menu>
+        {#if $page.route.id !== "/app/(base)"}
+            <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
+        {/if}
         <MenuCloseButton />
 
         <MenuSeparator>Outils</MenuSeparator>
