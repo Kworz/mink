@@ -15,7 +15,8 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
-    import { menuRightShrinked } from "$lib/components/appLayout/menuContext";
+
+    import { env } from "$env/dynamic/public";
 
     export let data: PageData;
     export let form: ActionData;
@@ -43,7 +44,7 @@
 
                 {#if (editSupplier?.thumbnail ?? "") !== "" && browser}
                     <Flex items="center" gap={2}>
-                        <img src={`http://${window.location.hostname}:8090/api/files/${editSupplier?.collectionName}/${editSupplier?.id}/${editSupplier?.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
+                        <img src={`http://${env.PUBLIC_POCKETBASE_ADDRESS}/api/files/${editSupplier?.collectionName}/${editSupplier?.id}/${editSupplier?.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
                         <Button size="small" role="danger" on:click={() => { editSupplier.thumbnail = "" }}>Supprimer l'image</Button>
                     </Flex>
                 {:else}
@@ -106,7 +107,7 @@
                             {/if}
                             <a href={supplier.website ?? "#"}>
                                 {#if supplier.thumbnail !== "" && browser}
-                                    <img src={`http://${window.location.hostname}:8090/api/files/${supplier.collectionName}/${supplier.id}/${supplier.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" />
+                                    <img src={`http://${env.PUBLIC_POCKETBASE_ADDRESS}/api/files/${supplier.collectionName}/${supplier.id}/${supplier.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" />
                                 {/if}
                                 <span>
                                     {supplier.name}
