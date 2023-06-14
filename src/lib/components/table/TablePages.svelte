@@ -8,7 +8,8 @@
 </script>
 
 {#if totalPages > 1}
-    <Flex class="mt-6">
+    <Flex class="mt-6" items="center">
+        <span>Pages</span>
         {#each [...Array(totalPages).keys()] as number}
             {@const roleMinus = (currentPage <= 0) ? number + 1 === 1 : number + 1 === currentPage}
             {@const rolePlus = (currentPage > totalPages) ? number + 1 === totalPages : number + 1 === currentPage}
