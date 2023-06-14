@@ -11,11 +11,14 @@
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
-    import { Collections, type AssembliesBuylistsRecord } from "$lib/DBTypes";
+    import { Collections, type AssembliesBuylistsRecord, type StoresRecord } from "$lib/DBTypes";
     import { PlusCircle } from "@steeze-ui/heroicons";
-    import type { PageData } from "./$types";
+    import type { PageData, Snapshot } from "./$types";
     import Filter2 from "$lib/components/filter/Filter2.svelte";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
+    import type { FilterCondition } from "$lib/components/filter/filter2";
+    import { browser } from "$app/environment";
+    import Flex from "$lib/components/layout/flex.svelte";
 
     export let data: PageData;
 
@@ -26,30 +29,74 @@
     let createListName = "";
     let createListBaseAssembly: string | undefined = undefined;
     let createListProject: string | undefined = undefined;
+    let createMultipleLists = false;
+    let createMultipleListsCount = 1;
+
+    let selected: string[] = [];
 
     const createListFn = async () => {
 
         if(createListName === "" || createListBaseAssembly === undefined || createListProject === undefined)
         { return }
 
-        const list = {
-            name: createListName,
-            assembly: createListBaseAssembly,
-            project: createListProject,
-        } satisfies AssembliesBuylistsRecord;
+        for(let i = 0; i < createMultipleListsCount; i++)
+        {
+            try
+            {
+                const listStore = await $page.data.pb.collection(Collections.Stores).create({
+                    "name": (createMultipleLists) ? `${createListName} - ${i + 1}` : createListName,
+                    "location": "Caisse navette",
+                    "temporary": true
 
-        try
-        {
-            const listCreated = await $page.data.pb.collection(Collections.AssembliesBuylists).create(list);
-            goto("/app/scm/lists/" + listCreated.id);
-        }
-        catch(ex)
-        {
-            console.log(ex);
+                } satisfies StoresRecord);
+
+                const list = {
+                    name: `${createListName} - ${i + 1}`,
+                    assembly: createListBaseAssembly,
+                    project: createListProject,
+                    store: listStore.id,
+                } satisfies AssembliesBuylistsRecord;
+
+                if(createMultipleLists)
+                    list.name = `${createListName} - ${i + 1}`;
+                
+                const listCreated = await $page.data.pb.collection(Collections.AssembliesBuylists).create(list);
+
+                if(!createMultipleLists)
+                {
+                    goto("/app/scm/lists/" + listCreated.id);
+                    return;
+                }
+            }
+            catch(ex)
+            {
+                console.log(ex);
+            }
+
+            goto(`/app/scm/lists`);
         }
     }
 
+    let filters: Array<FilterCondition> = [];
+    let filter: string = $page.url.searchParams.get("filter") ?? "";
+
+    let activeSort = $page.url.searchParams.get("sort") ?? "assembly.name";
+
+    export const snapshot: Snapshot<Array<FilterCondition>> = {
+        capture: () => filters,
+        restore: (value) => filters = value
+    }
+
+    const triggerRefresh = () => {
+        if(browser) {
+            goto(`/app/scm/lists?sort=${activeSort}&filter=${filter}`, { noScroll: true });
+        }
+    }
+
+    $: filter, activeSort, triggerRefresh();
+
     $: lists = data.lists.filter(list => !showClosedLists ? (list.closed === false) : true);
+    $: selectedAll = data.lists.length === selected.length;
 
 </script>
 
@@ -61,8 +108,6 @@
     <PillMenu>
         <PillMenuButton icon={PlusCircle} click={() => createList = !createList}>Créer une liste</PillMenuButton>
     </PillMenu>
-
-    <Filter2 class="mt-6 mb-2" />
 
     {#if createList}
         <h4>Créer une liste</h4>
@@ -84,22 +129,45 @@
                     {/each}
                 {/await}
             </FormInput>
+
+            <FormInput name="multipleCreate" label="Créer plusieurs listes" type="checkbox" bind:checked={createMultipleLists} />
+
+            {#if createMultipleLists}<FormInput name="" type="number" label="Nombre de listes" min={1} step={1} bind:value={createMultipleListsCount}/>{/if}
+
             <Button on:click={createListFn}>Créer</Button>
         </div>
     {/if}
 
-    <Table embeded marginTop="">
+</Wrapper>
+
+<Wrapper class="mt-6">
+
+    {#if selected.length > 0}
+        <Flex items="end" class="mb-6">
+            <Button on:click={() => window.open(`/app/scm/lists/print?lists=${selected.join(",")}`, '_blank')}>Imprimer</Button>
+        </Flex>
+    {/if}
+
+    <Filter2 bind:filter bind:filters availableFilters={[
+        { name: "name", default: true },
+        { name: "assembly.name" },
+        { name: "project.name" }
+    ]} />
+
+    <Table embeded>
         <svelte:fragment slot="head">
-            <TableHead>Liste</TableHead>
+            <TableHead><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.lists.map(k => k.id)}/></TableHead>
+            <TableHead col="name" bind:activeSort>Liste</TableHead>
             {#if showClosedLists}<TableHead>Terminée</TableHead>{/if}
-            <TableHead>Assemblage de base</TableHead>
-            <TableHead>Affaire</TableHead>
+            <TableHead col="assembly.name" bind:activeSort>Assemblage de base</TableHead>
+            <TableHead col="project.name" bind:activeSort>Affaire</TableHead>
             
         </svelte:fragment>
     
         <svelte:fragment slot="body">
             {#each lists as list}
                 <TableRow>
+                    <TableCell><input type="checkbox" bind:group={selected} value={list.id} /></TableCell>
                     <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
                     {#if showClosedLists}<TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>{/if}
                     <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
