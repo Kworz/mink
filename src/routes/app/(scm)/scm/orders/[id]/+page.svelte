@@ -20,6 +20,8 @@
     import { Printer, Trash } from "@steeze-ui/heroicons";
     import type { ArticleResponseExpanded } from "../../articles/+page.server";
 
+    import { env } from "$env/dynamic/public";
+
     import type { ActionData, PageData } from "./$types";
     import OrderRow from "./OrderRow.svelte";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
@@ -118,10 +120,10 @@
         <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
             <svelte:fragment slot="body">
                 <TableRow>
-                    <TableCell><h3>{import.meta.env.VITE_COMPANY_NAME}</h3></TableCell>
+                    <TableCell><h3>{env.PUBLIC_COMPANY_NAME}</h3></TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell><p>{@html import.meta.env.VITE_COMPANY_ADDRESS.split(",").join(',</br>')}</p></TableCell>
+                    <TableCell><p>{@html env.PUBLIC_COMPANY_ADDRESS.split(",").join(',</br>')}</p></TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell>

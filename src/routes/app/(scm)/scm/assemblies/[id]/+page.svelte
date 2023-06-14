@@ -16,6 +16,8 @@
     import { DocumentCheck, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import type { ActionData, PageData, Snapshot } from "./$types";
 
+    import { env } from "$env/dynamic/public";
+
     export let data: PageData;
     export let form: ActionData;
 
@@ -38,7 +40,7 @@
 <Flex gap={6} items="start">
 
     {#if data.assembly.thumbnail && browser}
-        <img src="http://{window.location.hostname}:8090/api/files/{data.assembly.collectionName}/{data.assembly.id}/{data.assembly.thumbnail}?thumb=200x200" alt={data.assembly.thumbnail} class="aspect-square object-cover rounded-lg border border-zinc-500/50 w-48" />
+        <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{data.assembly.collectionName}/{data.assembly.id}/{data.assembly.thumbnail}?thumb=200x200" alt={data.assembly.thumbnail} class="aspect-square object-cover rounded-lg border border-zinc-500/50 w-48" />
     {/if}
     <Wrapper class="grow">
         <h3>Visualisation de l'assemblage {data.assembly.name}.</h3>
