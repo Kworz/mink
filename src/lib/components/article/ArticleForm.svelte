@@ -74,6 +74,7 @@
     
             <FormInput type="number" name="order_quantity" label="Quantité minimale de commande" bind:value={article.order_quantity} min={article?.unit === "" ? 1 : 0.01} step={article?.unit === "" ? 1 : 0.01} />
             <FormInput type="number" name="critical_quantity" label="Quantité critique" bind:value={article.critical_quantity} step={article?.unit === "" ? 1 : 0.01} />
+            <FormInput type="number" name="price" label="Prix d'achat temporaire" bind:value={article.price} step={0.01} min={0} />
     
             <FormInput type="checkbox" name="consumable" label="Consommable" bind:checked={article.consumable} />
         </section>
