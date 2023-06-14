@@ -4,6 +4,8 @@ import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
 import type { PageServerLoad, Actions } from "./$types";
 import type { AssembliesBuylistsResponseExpanded } from "../+page.server";
 
+import { env } from "$env/dynamic/public";
+
 import { redirect } from "@sveltejs/kit";
 
 export const load = (async ({ locals, params }) => {
@@ -202,7 +204,7 @@ export const actions: Actions = {
 
         try
         {
-            const internalSupplier = import.meta.env.VITE_INTERNAL_SUPPLIER as string | undefined;
+            const internalSupplier = env.PUBLIC_INTERNAL_SUPPLIER as string | undefined;
 
             if(internalSupplier === undefined)
                 throw "No internal supplier defined";

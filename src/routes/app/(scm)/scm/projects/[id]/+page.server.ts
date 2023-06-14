@@ -3,6 +3,8 @@ import type { OrderRowsResponseExpanded } from "../../approx/proxy+page.server";
 import type { FabricationOrdersResponseExpanded } from "../../fabrication_orders/+page.server";
 import type { PageServerLoad, Actions } from "./$types";
 
+import { env } from "$env/dynamic/public";
+
 export const load = (async ({ locals, params }) => {
 
     const projectID = params.id;
@@ -19,7 +21,7 @@ export const load = (async ({ locals, params }) => {
     const stores_relations = buylistsStores.length > 0 ? (await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{ article: ArticleResponse, store_in: StoresResponse, store_out: StoresResponse}>>({ filter, expand: "article,store_in,store_out"})) : [];
 
     const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `project = "${projectID}"`, expand: 'order,article' });
-    const fabricationOrders = await locals.pb.collection(Collections.FabricationOrders).getFullList<FabricationOrdersResponseExpanded>({ filter: `project = "${projectID}" && article.supplier !~ "${import.meta.env.VITE_INTERNAL_SUPPLIER}"`, expand: 'article,applicant,receiver'});
+    const fabricationOrders = await locals.pb.collection(Collections.FabricationOrders).getFullList<FabricationOrdersResponseExpanded>({ filter: `project = "${projectID}" && article.supplier !~ "${env.PUBLIC_INTERNAL_SUPPLIER}"`, expand: 'article,applicant,receiver'});
 
     return {
         project: structuredClone(project),

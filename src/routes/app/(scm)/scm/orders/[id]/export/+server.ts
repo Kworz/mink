@@ -4,6 +4,8 @@ import type jsPDF from "jspdf";
 import type { OrderRowsResponseExpanded } from "../../../approx/+page.server";
 import type { RequestHandler } from "./$types";
 
+import { env } from "$env/dynamic/public";
+
 import autoTable from "jspdf-autotable";
 import type { OrdersResponseExpanded } from "../../+page.server";
 
@@ -56,11 +58,11 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
             doc.setFontSize(14);
             doc.text(order.expand?.supplier.name, 7.5, 35);
-            doc.text(import.meta.env.VITE_COMPANY_NAME ?? ".env empty", 210 / 2 + 7.5, 35);
+            doc.text(env.PUBLIC_COMPANY_NAME ?? ".env empty", 210 / 2 + 7.5, 35);
             doc.setFontSize(12);
 
             doc.text(order.expand?.supplier.address?.split(", "), 7.5, 52);
-            doc.text(import.meta.env.VITE_COMPANY_ADDRESS?.split(", "), 210 / 2 + 7.5, 52);
+            doc.text(env.PUBLIC_COMPANY_ADDRESS?.split(", "), 210 / 2 + 7.5, 52);
 
             doc.setTextColor(139, 92 ,246)
             doc.textWithLink(order.expand?.supplier.contact_email, 7.5, 45, { url: `mailto:${order.expand?.supplier.contact_email}` })

@@ -1,6 +1,7 @@
 import PocketBase from "pocketbase";
+import { env } from "$env/dynamic/public";
 
-export const getPocketbase = async (cookie: string, baseURL = `http://${window.location.hostname}:8090/`): Promise<PocketBase> => {
+export const getPocketbase = async (cookie: string, baseURL = `http://${env.PUBLIC_POCKETBASE_ADDRESS}/`): Promise<PocketBase> => {
 
     const pb = new PocketBase(baseURL);
     pb.authStore.loadFromCookie(cookie);

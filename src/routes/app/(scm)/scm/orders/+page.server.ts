@@ -4,6 +4,8 @@ import type { Actions, PageServerLoad } from "./$types";
 
 import { ClientResponseError } from "pocketbase";
 
+import { env } from "$env/dynamic/public";
+
 export type OrdersResponseExpanded = OrdersResponse<{
     issuer: UsersResponse,
     project: ProjectsResponse,
@@ -45,7 +47,7 @@ export const actions: Actions = {
 
             form.set("state", "draft");
             form.set("issuer", locals.user!.id);
-            form.set("vat", import.meta.env.VITE_DEFAULT_VAT);
+            form.set("vat", env.PUBLIC_DEFAULT_VAT);
 
             createdOrder = await locals.pb.collection(Collections.Orders).create<OrdersResponse>(form);
         }

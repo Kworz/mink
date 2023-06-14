@@ -8,6 +8,8 @@
 
     import StlFile from "./STLFile.svelte";
 
+    import { env } from "$env/dynamic/public";
+
     export let fileName: string;
     export let fancyFileName: string | undefined;
     export let collectionName: string;
@@ -32,7 +34,7 @@
                 </form>
             {/if}
             {#if !isImage}
-                <a href="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" download={(fancyFileName) ? `${fancyFileName}.${fileName.split(".").at(-1)}` : fileName}>
+                <a href="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" download={(fancyFileName) ? `${fancyFileName}.${fileName.split(".").at(-1)}` : fileName}>
                     <Icon src={ArrowDownTray} class="h-6 w-6 text-blue-400" />
                 </a>
             {/if}
@@ -42,13 +44,13 @@
             </form>
         </Flex>
         {#if isImage}
-            <img src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover h-full" />
+            <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover h-full" />
         {:else if isStlFile}
-            <StlFile url="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
+            <StlFile url="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" />
         {:else if isPDFFile}
-            <iframe src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" height="100%" width="100%" title="PDF File"></iframe>
+            <iframe src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" height="100%" width="100%" title="PDF File"></iframe>
         {:else if isDXFFile}
-            <DxFfile url="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}" />
+            <DxFfile url="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" />
         {:else}
             <Flex class="inset-0 m-2" direction="col">
                 <Icon src={Document} class="h-32 aspect-square text-zinc-800/50" />

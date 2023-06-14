@@ -6,6 +6,8 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import Flex from "../layout/flex.svelte";
 
+    import { env } from "$env/dynamic/public";
+
     export let assembly: AssembliesResponse;
     export let minimized = false;
     export let imageSize = "h-10 hover:h-20";
@@ -16,7 +18,7 @@
     <Flex items="center">
     
         {#if assembly.thumbnail !== "" && browser}
-            <img src="http://{window.location.hostname}:8090/api/files/{assembly.collectionName}/{assembly.id}/{assembly.thumbnail}?thumb=200x200" alt={assembly.thumbnail} class="aspect-square object-cover {imageSize} duration-100 rounded-md border border-zinc-500/50" />
+            <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{assembly.collectionName}/{assembly.id}/{assembly.thumbnail}?thumb=200x200" alt={assembly.thumbnail} class="aspect-square object-cover {imageSize} duration-100 rounded-md border border-zinc-500/50" />
         {:else}
             <div class="aspect-square object-cover {imageSize} rounded-md border border-zinc-500/50">
                 <Icon src={VideoCameraSlash} class="h-full w-5 m-auto text-red-500" />

@@ -3,6 +3,8 @@
     import { Cube, Document, Map } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
 
+    import { env } from "$env/dynamic/public";
+
     export let fileName: string;
     export let collectionName: string;
     export let collectionID: string;
@@ -18,7 +20,7 @@
 {#if browser}
     <button class="aspect-square {selected === false ? "border-zinc-500/50 border" : "border-blue-500/50 border-2"} duration-100 rounded-[3px] bg-white relative" on:click>
         {#if isImage}
-            <img src="http://{window.location.hostname}:8090/api/files/{collectionName}/{collectionID}/{fileName}?thumb=100x100" alt={fileName} class="aspect-square object-cover" />
+            <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}?thumb=100x100" alt={fileName} class="aspect-square object-cover" />
         {:else if isStlFile}
             <Icon src={Cube} class="h-12 w-12 m-auto text-zinc-500" />
         {:else if extension === "DXF"}
