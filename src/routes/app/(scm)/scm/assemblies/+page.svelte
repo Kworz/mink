@@ -11,9 +11,13 @@
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { PlusCircle, PuzzlePiece, Star, VideoCameraSlash } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import type { PageData } from "./$types";
+    import type { ActionData, PageData } from "./$types";
+    import { enhance } from "$app/forms";
+
+    import { env } from "$env/dynamic/public";
 
     export let data: PageData;
+    export let form: ActionData;
 
     let filters: Array<FilterCondition> = [];
     let filter = "";
@@ -43,7 +47,8 @@
 
     {#if createAssembly}
         <h4 class="mt-6 mb-2">Créer un assemblage</h4>
-        <form action="?/createAssembly" class="flex flex-col md:flex-row gap-4 items-end">
+        {#if form?.createAssembly?.error}<p class="text-red-500">{form?.createAssembly?.error}</p>{/if}
+        <form action="?/createAssembly" method="post" use:enhance class="flex flex-col md:flex-row gap-4 items-end">
             <FormInput name="name" label="Nom" labelMandatory bind:value={createAssemblyName} />
             <FormInput name="description" label="Description" labelMandatory bind:value={createAssemblyDesc} parentClass="grow" />
             <Button role="primary">Créer</Button>
@@ -60,7 +65,7 @@
                 <Flex items="center">
                 
                     {#if assembly.thumbnail !== "" && browser}
-                        <img src="http://{window.location.hostname}:8090/api/files/{assembly.collectionName}/{assembly.id}/{assembly.thumbnail}?thumb=200x200" alt={assembly.thumbnail} class="aspect-square object-cover h-24 duration-100 rounded-md border border-zinc-500/50" />
+                        <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{assembly.collectionName}/{assembly.id}/{assembly.thumbnail}?thumb=200x200" alt={assembly.thumbnail} class="aspect-square object-cover h-24 duration-100 rounded-md border border-zinc-500/50" />
                     {:else}
                         <div class="aspect-square object-cover rounded-md border h-24 border-zinc-500/50">
                             <Icon src={VideoCameraSlash} class="h-full w-5 m-auto text-red-500" />

@@ -30,5 +30,5 @@ export const actions: Actions = {
         {
             return { editAssembly: { error: ex.toJSON() }};
         }
-    } 
+    }
 }

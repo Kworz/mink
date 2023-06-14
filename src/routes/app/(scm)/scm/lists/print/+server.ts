@@ -19,7 +19,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         lists.push(await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(list, { expand: "project,assembly"}))
     }
 
-    const label = new LabelDocument(59, 102);
+    const label = new LabelDocument(59, 102) as (jsPDF & LabelDocument);
 
     for(const [index, list] of lists.entries())
     {
@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         const response = await fetch(url);
         const blob = await response.arrayBuffer();
 
-        (label as jsPDF).addImage(new Uint8Array(blob), "PNG", 5, 5, 25, 25);
+        label.addImage(new Uint8Array(blob), "PNG", 5, 5, 25, 25);
 
         await label.addQRCode(`list:${list.id}`, 5, 32.5, 25);
 

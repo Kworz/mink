@@ -25,7 +25,7 @@
     export let data: PageData;
 
     let filters: Array<FilterCondition> = [];
-    let filter: string = "";
+    let filter: string = $page.url.searchParams.get("filter") ?? "";
 
     let selected: Array<string> = [];
 
@@ -84,7 +84,6 @@
             { name: "consumable" }
         ]} />
     </div>
-
 
     <Table embeded={true}>
         <svelte:fragment slot="head">

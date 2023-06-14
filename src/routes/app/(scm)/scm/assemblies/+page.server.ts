@@ -20,16 +20,19 @@ export const load = (async ({ locals, url }) => {
 export const actions: Actions = {
     createAssembly: async ({ locals, request }) => {
         const form = await request.formData();
+        
+        let createAssemblyID = "";
 
         try
         {
-            const assembly = await locals.pb.collection(Collections.Assemblies).create(form);
-
-            return redirect(303, `/app/scm/assemblies/${assembly.id}`);
+           const {id} = await locals.pb.collection(Collections.Assemblies).create(form);
+           createAssemblyID = id;
         }
         catch(ex)
         {
             return { createAssembly: { error: (ex instanceof ClientResponseError ? ex.message : ex) }};
         }
+
+        throw redirect(303, `/app/scm/assemblies/${createAssemblyID}`);
     }
 }
