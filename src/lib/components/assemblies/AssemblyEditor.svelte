@@ -30,6 +30,12 @@
     let addSubAssemblySelected: string | undefined = undefined;
     let addSubAssemblyQuantity: number = 1;
 
+    let confirmBatchDelete = false;
+
+    let createNewSubAssembly = false;
+    let newSubAssemblyName = "";
+    let newSubAssemblyDesc = "";
+
     const addArticle = async () => {
 
         if($selectedAssembly === undefined)
@@ -86,9 +92,9 @@
 
     let confirmDelete: string | undefined = undefined;
 
-    const deleteRelation = async (relation: string) => {
+    const deleteRelation = async (relation: string, force = false) => {
 
-        if(confirmDelete === relation)
+        if(confirmDelete === relation || force)
         {
             await $page.data.pb?.collection(Collections.AssembliesRelations).delete(relation);
             await refreshData();
@@ -109,6 +115,34 @@
 
         await refreshData();
     }
+
+    const createNewSubAssemblyFn = async (relations: string[]) => {
+
+        const new_asm = await $page.data.pb?.collection(Collections.Assemblies).create({
+            name: newSubAssemblyName,
+            description: newSubAssemblyDesc
+        });
+
+        if(new_asm === undefined)
+            return;
+
+        for(const relation of relations)
+        {
+            await $page.data.pb?.collection(Collections.AssembliesRelations).update(relation, { parent: new_asm.id } satisfies Partial<AssembliesRelationsRecord>);
+        }
+
+        await $page.data.pb?.collection(Collections.AssembliesRelations).create({
+            parent: $selectedAssembly?.id,
+            assembly_child: new_asm.id,
+            quantity: 1
+        });
+
+        selectedArticles = [];
+
+        await refreshData();
+    }
+
+    let selectedArticles: Array<string> = [];
 
     onMount(async () => {
         if(browser)
@@ -156,31 +190,75 @@
         {/if}
 
         {#if subArticles.length > 0}
-            <Table marginTop="">
-                <svelte:fragment slot="head">
-                    <TableHead>Article ({subArticles.length})</TableHead>
-                    <TableHead>Quantité</TableHead>
-                    <TableHead>Supprimer</TableHead>
-                </svelte:fragment>
-                <svelte:fragment slot="body">
-                    {#each subArticles as subArticle}
-                        <TableRow>
-                            <TableCell>
-                                <ArticleRow article={subArticle.expand?.article_child} displayStock displayApprox />
-                            </TableCell>
-                            <TableCell>
-                                <Flex items="center">
-                                    <FormInput name="" type="number" bind:value={subArticle.quantity} />
-                                    <Button size="small" on:click={() => updateRelation(subArticle.id)}>Mettre à jour</Button>
-                                </Flex>
-                            </TableCell>
-                            <TableCell>
-                                <Button size="small" role="danger" on:click={() => deleteRelation(subArticle.id)}>{confirmDelete === subArticle.id ? "Confirmer!" : "Supprimer"}</Button>
-                            </TableCell>
-                        </TableRow>
-                    {/each}
-                </svelte:fragment>
-            </Table>
+
+            <Wrapper>
+                {#if selectedArticles.length > 0}
+                    <Flex>
+                        <Button role="danger" size="small" on:click={() => {
+                            if(confirmBatchDelete)
+                            {
+                                selectedArticles.forEach(async (article) => await deleteRelation(article, true))
+                                confirmBatchDelete = false;
+                                selectedArticles = [];
+                            }
+                            else
+                            {
+                                confirmBatchDelete = true;
+                            }
+                        }}>{confirmBatchDelete ? "Confirmer !" : "Supprimer les articles sélectionnés"}</Button>
+
+
+                        {#if createNewSubAssembly}
+                            <FormInput name="asm_name" label="Nom du nouvel assemblage" labelMandatory bind:value={newSubAssemblyName} />
+                            <FormInput name="asm_desc" label="Description du nouvel assemblage" bind:value={newSubAssemblyDesc} />
+                        {/if}
+
+                        <Button size="small" role="secondary" on:click={() => {
+                            if(createNewSubAssembly)
+                            {
+                                createNewSubAssemblyFn(selectedArticles);
+                                createNewSubAssembly = false;
+                            }
+                            else
+                            {
+                                createNewSubAssembly = true;
+                            }
+                        }}>Former un nouveau sous assemblage</Button>
+                    </Flex>
+                {/if}
+
+                <Table embeded marginTop="">
+                    <svelte:fragment slot="head">
+                        <TableHead></TableHead>
+                        <TableHead>Article ({subArticles.length})</TableHead>
+                        <TableHead>Quantité</TableHead>
+                        <TableHead>Supprimer</TableHead>
+                    </svelte:fragment>
+                    <svelte:fragment slot="body">
+                        {#each subArticles as subArticle}
+                            <TableRow>
+                                <TableCell>
+                                    <input type="checkbox" bind:group={selectedArticles} value={subArticle.id} />
+                                </TableCell>
+                                <TableCell>
+                                    <ArticleRow article={subArticle.expand?.article_child} displayStock displayApprox />
+                                </TableCell>
+                                <TableCell>
+                                    <Flex items="center">
+                                        <FormInput name="" type="number" bind:value={subArticle.quantity} />
+                                        <Button size="small" on:click={() => updateRelation(subArticle.id)}>Mettre à jour</Button>
+                                    </Flex>
+                                </TableCell>
+                                <TableCell>
+                                    <Button size="small" role="danger" on:click={() => deleteRelation(subArticle.id)}>{confirmDelete === subArticle.id ? "Confirmer!" : "Supprimer"}</Button>
+                                </TableCell>
+                            </TableRow>
+                        {/each}
+                    </svelte:fragment>
+                </Table>
+            </Wrapper>
+
+            
         {/if}
 
         <Grid cols={2} gap={6} items="start">
