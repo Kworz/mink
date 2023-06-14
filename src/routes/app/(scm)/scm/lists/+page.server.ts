@@ -6,9 +6,12 @@ export type AssembliesBuylistsResponseExpanded = AssembliesBuylistsResponse<{
     assembly: AssembliesResponse
 }>
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ locals, url }) => {
 
-    const lists = await locals.pb.collection(Collections.AssembliesBuylists).getFullList({ expand: "project,assembly" });
+    const filter = url.searchParams.get("filter") || "";
+    const sort = url.searchParams.get("sort") || "assembly.name";
+
+    const lists = await locals.pb.collection(Collections.AssembliesBuylists).getFullList({ expand: "project,assembly", filter, sort });
 
     return {
         lists: structuredClone(lists)
