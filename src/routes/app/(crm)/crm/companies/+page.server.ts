@@ -8,12 +8,13 @@ export type CrmCompanyResponseExpanded = CrmCompanyResponse<{
 
 export const load = (async ({ locals, url }) => {
 
+    const sort = url.searchParams.get("sort") ?? "name";
     const filter = url.searchParams.get("filter") ?? "";
-    const page = Number(url.searchParams.get("page") ?? 0);
+    const page = Number(url.searchParams.get("page")) ?? 1;
 
     try
     {
-        const companies = await locals.pb.collection(Collections.CrmCompany).getList<CrmCompanyResponseExpanded>(page, 50,{ expand: "crm_company_contact(company)", filter });
+        const companies = await locals.pb.collection(Collections.CrmCompany).getList<CrmCompanyResponseExpanded>(page, 50,{ expand: "crm_company_contact(company)", filter, sort });
         return { companies: structuredClone(companies) };
     }
     catch(ex)

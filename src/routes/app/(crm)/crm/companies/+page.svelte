@@ -4,7 +4,7 @@
     import Flex from "$lib/components/layout/flex.svelte";
     import { justifies } from "$lib/components/layout/flexTypes";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import type { ActionData, PageData } from "./$types";
+    import type { ActionData, PageData, Snapshot } from "./$types";
     import { BuildingOffice, ChevronDown, ChevronUp, Wrench } from "@steeze-ui/heroicons";
     import type { CrmCompanyResponseExpanded } from "./+page.server";
     import { CrmCompanySizeOptions, type CrmCompanyContactResponse } from "$lib/DBTypes";
@@ -14,6 +14,13 @@
     import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Button from "$lib/components/Button.svelte";
+    import Filter2 from "$lib/components/filter/Filter2.svelte";
+    import { browser } from "$app/environment";
+    import { page } from "$app/stores";
+    import type { FilterCondition } from "$lib/components/filter/filter2";
+    import { goto } from "$app/navigation";
+    import TablePages from "$lib/components/table/TablePages.svelte";
+    import DetailLabel from "$lib/components/DetailLabel.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -27,6 +34,25 @@
     let editContact: CrmCompanyContactResponse | undefined = undefined;
 
     const sizeOptions = Object.entries(CrmCompanySizeOptions).map(([key, value]) => ({ key, value }));
+
+    let filters: Array<FilterCondition> = [];
+    let filter: string = $page.url.searchParams.get("filter") ?? "";
+
+    let activeSort = $page.url.searchParams.get("sort") ?? "name";
+    let itemsPage = Number($page.url.searchParams.get("page")) ?? 1;
+
+    export const snapshot: Snapshot<Array<FilterCondition>> = {
+        capture: () => filters,
+        restore: (value) => filters = value
+    }
+
+    const triggerRefresh = () => {
+        if(browser) {
+            goto(`/app/crm/companies?sort=${activeSort}&page=${itemsPage}&filter=${filter}`, { noScroll: true });
+        }
+    }
+
+    $: filter, activeSort, itemsPage, triggerRefresh();
 
     $: if(form !== null) { editCompany = undefined; editContact = undefined; newCompany = false; newContact = false; }
 
@@ -82,22 +108,31 @@
 
             <Button role={editContact ? "warning" : "primary"}>{editContact ? "Modifier" : "Créer"}</Button>
         </form>
-    
     </MenuSide> 
 {/if}
 
 <Wrapper>
     <h2>Sociétés et contacts</h2>
     <p>Liste des sociétés avec lesquelles il y as deja eu conversation</p>
+    <p>Nombre de sociétés: <DetailLabel>{data.companies?.totalItems}</DetailLabel>.</p>
 
     <PillMenu>
         <PillMenuButton icon={BuildingOffice} click={() => newCompany = true}>Nouvelle société</PillMenuButton>
     </PillMenu>
 </Wrapper>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 mt-6">
+<Wrapper class="mt-6">
+    <Filter2 bind:filter bind:filters availableFilters={[
+        { name: "name", default: true },
+        { name: "state" },
+        { name: "origin" }
+    ]} />
+    <TablePages totalPages={data.companies?.totalPages} bind:currentPage={itemsPage} />
+</Wrapper>
+
+<div class="grid gap-6 grid-cols-1 lg:grid-cols-2 mt-6">
     {#each data.companies?.items ?? [] as company}
-        <Wrapper>
+        <Wrapper class="self-start">
             <Flex justify="between" items="center">
                 <h3 class="mb-2">{company.name}</h3>
                 <button on:click={() => editCompany = company}>
@@ -117,7 +152,7 @@
                     </button>
                 </Flex>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 {expandedCompany === company.id ? "mt-2" : ""}">
                     {#each expandedCompany === company.id ? company.expand["crm_company_contact(company)"] : [] as contact (contact.id)}
                         <Wrapper2 padding="p-4">
                             <button class="absolute top-6 right-6" on:click={() => editContact = contact}>

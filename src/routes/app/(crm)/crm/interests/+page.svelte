@@ -15,6 +15,7 @@
     import Button from "$lib/components/Button.svelte";
     import type { CrmInterestResponse } from "$lib/DBTypes";
     import { Icon } from "@steeze-ui/svelte-icon";
+    import InterestLabel from "./InterestLabel.svelte";
 
     let createInterest = false;
     let editInterest: CrmInterestResponse | undefined = undefined;
@@ -26,13 +27,29 @@
     $: if(form != null) { createInterest = false; editInterest = undefined; invalidateAll(); };
 
     const colorList = [
+        "bg-slate-500",
+        "bg-gray-500",
+        "bg-zinc-500",
+        "bg-neutral-500",
+        "bg-stone-500",
         "bg-red-500",
+        "bg-orange-500",
+        "bg-amber-500",
         "bg-yellow-500",
+        "bg-lime-500",
         "bg-green-500",
+        "bg-emerald-500",
+        "bg-teal-500",
+        "bg-cyan-500",
+        "bg-sky-500",
         "bg-blue-500",
         "bg-indigo-500",
+        "bg-violet-500",
         "bg-purple-500",
+        "bg-fuchsia-500",
         "bg-pink-500",
+        "bg-rose-500",
+        "background-rainbow"
     ];
 
 </script>
@@ -82,7 +99,7 @@
 
         {#each data.interests as interest}
             <TableRow>
-                <TableCell><span class="py-1 px-3 text-white font-medium {interest.color} rounded-full">{interest.name}</span></TableCell>
+                <TableCell><InterestLabel {interest} /></TableCell>
                 <TableCell>{interest.description}</TableCell>
                 <TableCell>
                     <Button size="small" role="warning" on:click={() => editInterest = interest} class="mr-2">Modifier</Button>
