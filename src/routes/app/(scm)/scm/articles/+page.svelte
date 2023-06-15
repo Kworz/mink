@@ -73,15 +73,12 @@
 
     <div class="w-2/3">
         <Filter2 bind:filter bind:filters availableFilters={[
-            { name: "name", default: true },
-            { name: "reference" },
-            { name: "manufacturer" },
-            { name: "supplier.name" },
-            { name: "store.name"},
-            { name: "price" },
-            { name: "quantity" },
-            { name: "critical_quantity"},
-            { name: "consumable" }
+            { name: "name", default: true, type: "string" },
+            { name: "reference", type: "string" },
+            { name: "manufacturer", type: "string" },
+            { name: "supplier.name", type: "array" },
+            { name: "critical_quantity", type: "number"},
+            { name: "consumable", type: "boolean" }
         ]} />
     </div>
 

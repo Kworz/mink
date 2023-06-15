@@ -39,7 +39,7 @@
 <Wrapper>
     <h3>Liste des assemblages</h3>
 
-    <Filter2 bind:filter bind:filters availableFilters={[{ name: "name", default: true }, { name:"description" }, { name: "favorite" }]} class="mt-6" />
+    <Filter2 bind:filter bind:filters availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }, { name: "favorite", type: "boolean" }]} class="mt-6" />
 
     <PillMenu>
         <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>Créer un assemblage</PillMenuButton>

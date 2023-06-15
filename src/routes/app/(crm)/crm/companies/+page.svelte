@@ -123,9 +123,9 @@
 
 <Wrapper class="mt-6">
     <Filter2 bind:filter bind:filters availableFilters={[
-        { name: "name", default: true },
-        { name: "state" },
-        { name: "origin" }
+        { name: "name", default: true, type: "string" },
+        { name: "state", type: "string" },
+        { name: "origin", type: "string" }
     ]} />
     <TablePages totalPages={data.companies?.totalPages} bind:currentPage={itemsPage} />
 </Wrapper>

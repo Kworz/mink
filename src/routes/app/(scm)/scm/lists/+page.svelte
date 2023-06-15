@@ -149,16 +149,17 @@
     {/if}
 
     <Filter2 bind:filter bind:filters availableFilters={[
-        { name: "name", default: true },
-        { name: "assembly.name" },
-        { name: "project.name" }
+        { name: "name", default: true, type: "string" },
+        { name: "assembly.name", type: "string" },
+        { name: "project.name", type: "string" },
+        { name: "closed", type: "boolean" }
     ]} />
 
     <Table embeded>
         <svelte:fragment slot="head">
             <TableHead><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.lists.map(k => k.id)}/></TableHead>
             <TableHead col="name" bind:activeSort>Liste</TableHead>
-            {#if showClosedLists}<TableHead>Terminée</TableHead>{/if}
+            {#if showClosedLists}<TableHead col="closed" bind:activeSort>Terminée</TableHead>{/if}
             <TableHead col="assembly.name" bind:activeSort>Assemblage de base</TableHead>
             <TableHead col="project.name" bind:activeSort>Affaire</TableHead>
             
