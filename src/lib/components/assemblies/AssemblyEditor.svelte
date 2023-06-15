@@ -5,7 +5,7 @@
     import { onMount } from "svelte";
     import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import ArticleFinder from "../article/ArticleFinder.svelte";
-    import ArticleRow from "../article/ArticleRow.svelte";
+    import ArticleRow, { articleResponseExpand } from "../article/ArticleRow.svelte";
     import Button from "../Button.svelte";
     import FormInput from "../FormInput.svelte";
     import Flex from "../layout/flex.svelte";
@@ -20,6 +20,8 @@
     import { getAssemblyContext } from "./assemblyContext";
     import AssemblyPreview from "./AssemblyPreview.svelte";
     import type { AssembliesRelationsReponseExpanded } from "./AssemblyTree.svelte";
+    import { Icon } from "@steeze-ui/svelte-icon";
+    import { ChevronDown, ChevronUp } from "@steeze-ui/heroicons";
     const { selectedAssembly } = getAssemblyContext();
 
     let relations : AssembliesRelationsReponseExpanded[] = [];
@@ -51,7 +53,8 @@
 
             parent: $selectedAssembly.id,
             article_child: addArticleSelected.id,
-            quantity: addArticleQuantity
+            quantity: addArticleQuantity,
+            order: (subArticlesRelations.at(-1)?.order ?? 0) -1
 
         } satisfies AssembliesRelationsRecord;
 
@@ -142,17 +145,56 @@
         await refreshData();
     }
 
-    let selectedArticles: Array<string> = [];
+    const changeRelationOrder = async (relation: string, index: number, direction: "up" | "down", cat: "assembly" | "article" = "article") => {
+
+        if(direction === "up" && index === 0)
+            return;
+
+        if(direction === "down" && (index === subArticlesRelations.length - 1 || index === subAssembliesRelations.length - 1))
+            return;
+            
+        const relativeIndex = direction === "up" ? index - 1 : index + 1;
+        const newOrder = (cat === "article") ? subArticlesRelations[relativeIndex].order : subAssembliesRelations[relativeIndex].order;
+        const oldOrder = (cat === "article") ? subArticlesRelations[index].order : subAssembliesRelations[index].order;
+            
+        const swappedRelation = (cat === "article") ? subArticlesRelations[relativeIndex].id : subAssembliesRelations[relativeIndex].id;
+
+        await $page.data.pb?.collection(Collections.AssembliesRelations).update(swappedRelation, { order: oldOrder } satisfies Partial<AssembliesRelationsRecord>);
+        await $page.data.pb?.collection(Collections.AssembliesRelations).update(relation, { order: newOrder } satisfies Partial<AssembliesRelationsRecord>);
+
+        await refreshData();
+    }
+
+    let selectedArticles: string[] = [];
+    let selectedAssemblies: string[] = [];
 
     onMount(async () => {
         if(browser)
             await refreshData();
+
+        if(subArticlesRelations.filter(r => r.order === 0).length === subArticlesRelations.length)
+        {
+            for(const [index, subArticleRelation] of subArticlesRelations.entries())
+            {
+                await $page.data.pb?.collection(Collections.AssembliesRelations).update(subArticleRelation.id, { order: index + 1 } satisfies Partial<AssembliesRelationsRecord>);
+            }
+            await refreshData();
+        }
+
+        if(subAssembliesRelations.filter(r => r.order === 0).length === subAssembliesRelations.length)
+        {
+            for(const [index, subAssembliesRelation] of subAssembliesRelations.entries())
+            {
+                await $page.data.pb?.collection(Collections.AssembliesRelations).update(subAssembliesRelation.id, { order: index + 1 } satisfies Partial<AssembliesRelationsRecord>);
+            }
+            await refreshData();
+        }
     });
 
-    const refreshData = async () => relations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${$selectedAssembly.id}"`, expand: 'assembly_child,article_child.supplier' }) ?? [];
+    const refreshData = async () => relations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent = "${$selectedAssembly.id}"`, expand: `assembly_child,article_child.supplier`, sort: "-order" }) ?? [];
 
-    $: subAssemblies = relations.filter(r => r.assembly_child !== undefined && r.expand?.assembly_child !== undefined);
-    $: subArticles = relations.filter(r => r.article_child !== undefined && r.expand?.article_child !== undefined);
+    $: subAssembliesRelations = relations.filter(r => r.assembly_child !== undefined && r.expand?.assembly_child !== undefined);
+    $: subArticlesRelations = relations.filter(r => r.article_child !== undefined && r.expand?.article_child !== undefined);
 
     $: $selectedAssembly, refreshData();
 
@@ -161,27 +203,51 @@
 {#if $selectedAssembly !== undefined}
     <Grid cols={1} gap={6} items="center" class="w-full">
 
-        {#if subAssemblies.length > 0}
+        {#if subAssembliesRelations.length > 0}
             <Table marginTop="">
                 <svelte:fragment slot="head">
-                    <TableHead>Sous assemblage ({subAssemblies.length})</TableHead>
+                    <TableHead></TableHead>
+                    <TableHead>Sous assemblage ({subAssembliesRelations.length})</TableHead>
                     <TableHead>Quantité</TableHead>
                     <TableHead>Supprimer</TableHead>
                 </svelte:fragment>
                 <svelte:fragment slot="body">
-                    {#each subAssemblies as subAssembly}
+                    {#each subAssembliesRelations as subAssemblyRelation, index}
                         <TableRow>
-                            <TableCell>
-                                <AssemblyPreview assembly={subAssembly.expand.assembly_child} />
-                            </TableCell>
-                            <TableCell>
-                                <Flex items="center">
-                                    <FormInput name="" type="number" bind:value={subAssembly.quantity} />
-                                    <Button size="small" on:click={() => updateRelation(subAssembly.id)}>Mettre à jour</Button>
+                            <TableCell>                
+                                <Flex items="center" direction="col" gap={2}>
+                                    {#if index !== 0}
+                                        <button class="text-gray-500 hover:text-violet-500 duration-100" on:click={() => {
+                                            changeRelationOrder(subAssemblyRelation.id, index, "up", "assembly");
+                                        }}>
+                                            <Icon src={ChevronUp} class="h-6 w-6" />
+                                        </button>
+                                    {/if}
+
+                                    <span>{subAssemblyRelation.order}</span>
+
+                                    <input type="checkbox" bind:group={selectedAssemblies} value={subAssemblyRelation.id} />
+
+                                    {#if index !== subArticlesRelations.length - 1}
+                                        <button class="text-gray-500 hover:text-violet-500 duration-100" on:click={() => {
+                                            changeRelationOrder(subAssemblyRelation.id, index, "down", "assembly")
+                                        }}>
+                                            <Icon src={ChevronDown} class="h-6 w-6" />
+                                        </button>
+                                    {/if}
                                 </Flex>
                             </TableCell>
                             <TableCell>
-                                <Button size="small" role="danger" on:click={() => deleteRelation(subAssembly.id)}>{confirmDelete === subAssembly.id ? "Confirmer!" : "Supprimer"}</Button>
+                                <AssemblyPreview assembly={subAssemblyRelation.expand.assembly_child} />
+                            </TableCell>
+                            <TableCell>
+                                <Flex items="center">
+                                    <FormInput name="" type="number" bind:value={subAssemblyRelation.quantity} />
+                                    <Button size="small" on:click={() => updateRelation(subAssemblyRelation.id)}>Mettre à jour</Button>
+                                </Flex>
+                            </TableCell>
+                            <TableCell>
+                                <Button size="small" role="danger" on:click={() => deleteRelation(subAssemblyRelation.id)}>{confirmDelete === subAssemblyRelation.id ? "Confirmer!" : "Supprimer"}</Button>
                             </TableCell>
                         </TableRow>
                     {/each}
@@ -189,7 +255,7 @@
             </Table>
         {/if}
 
-        {#if subArticles.length > 0}
+        {#if subArticlesRelations.length > 0}
 
             <Wrapper>
                 {#if selectedArticles.length > 0}
@@ -206,7 +272,6 @@
                                 confirmBatchDelete = true;
                             }
                         }}>{confirmBatchDelete ? "Confirmer !" : "Supprimer les articles sélectionnés"}</Button>
-
 
                         {#if createNewSubAssembly}
                             <FormInput name="asm_name" label="Nom du nouvel assemblage" labelMandatory bind:value={newSubAssemblyName} />
@@ -230,27 +295,47 @@
                 <Table embeded marginTop="">
                     <svelte:fragment slot="head">
                         <TableHead></TableHead>
-                        <TableHead>Article ({subArticles.length})</TableHead>
+                        <TableHead>Article ({subArticlesRelations.length})</TableHead>
                         <TableHead>Quantité</TableHead>
                         <TableHead>Supprimer</TableHead>
                     </svelte:fragment>
                     <svelte:fragment slot="body">
-                        {#each subArticles as subArticle}
+                        {#each subArticlesRelations as subArticleRelation, index (subArticleRelation.id)}
                             <TableRow>
                                 <TableCell>
-                                    <input type="checkbox" bind:group={selectedArticles} value={subArticle.id} />
-                                </TableCell>
-                                <TableCell>
-                                    <ArticleRow article={subArticle.expand?.article_child} displayStock displayApprox />
-                                </TableCell>
-                                <TableCell>
-                                    <Flex items="center">
-                                        <FormInput name="" type="number" bind:value={subArticle.quantity} />
-                                        <Button size="small" on:click={() => updateRelation(subArticle.id)}>Mettre à jour</Button>
+                                    <Flex items="center" direction="col" gap={2}>
+                                        {#if index !== 0}
+                                            <button class="text-gray-500 hover:text-violet-500 duration-100" on:click={() => {
+                                                changeRelationOrder(subArticleRelation.id, index, "up");
+                                            }}>
+                                                <Icon src={ChevronUp} class="h-6 w-6" />
+                                            </button>
+                                        {/if}
+
+                                        <span>{subArticleRelation.order}</span>
+
+                                        <input type="checkbox" bind:group={selectedArticles} value={subArticleRelation.id} />
+
+                                        {#if index !== subArticlesRelations.length - 1}
+                                            <button class="text-gray-500 hover:text-violet-500 duration-100" on:click={() => {
+                                                changeRelationOrder(subArticleRelation.id, index, "down")
+                                            }}>
+                                                <Icon src={ChevronDown} class="h-6 w-6" />
+                                            </button>
+                                        {/if}
                                     </Flex>
                                 </TableCell>
                                 <TableCell>
-                                    <Button size="small" role="danger" on:click={() => deleteRelation(subArticle.id)}>{confirmDelete === subArticle.id ? "Confirmer!" : "Supprimer"}</Button>
+                                    <ArticleRow article={subArticleRelation.expand?.article_child} displayStock displayApprox />
+                                </TableCell>
+                                <TableCell>
+                                    <Flex items="center">
+                                        <FormInput name="" type="number" bind:value={subArticleRelation.quantity} />
+                                        <Button size="small" on:click={() => updateRelation(subArticleRelation.id)}>Mettre à jour</Button>
+                                    </Flex>
+                                </TableCell>
+                                <TableCell>
+                                    <Button size="small" role="danger" on:click={() => deleteRelation(subArticleRelation.id)}>{confirmDelete === subArticleRelation.id ? "Confirmer!" : "Supprimer"}</Button>
                                 </TableCell>
                             </TableRow>
                         {/each}
@@ -284,7 +369,7 @@
                 <h4 class="mb-4">Ajouter un article</h4>
 
                 <Flex direction="col" items="start">
-                    <ArticleFinder bind:selectedArticle={addArticleSelected} filters={subArticles.map(a => { return { field: "id", operator: "!=", value: a.article_child, hidden: true}})} />
+                    <ArticleFinder bind:selectedArticle={addArticleSelected} filters={subArticlesRelations.map(a => { return { field: "id", operator: "!=", value: a.article_child, hidden: true}})} />
                     {#if addArticleSelected}
                         <FormInput name="quantity" label="Quantité" labelMandatory={true} type="number" bind:value={addArticleQuantity} />
                         <Button on:click={addArticle}>Ajouter</Button>
