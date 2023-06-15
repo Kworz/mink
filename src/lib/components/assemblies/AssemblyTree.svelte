@@ -14,9 +14,9 @@
     import { Folder, FolderOpen } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { onMount } from "svelte";
-    import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
     import AssemblyButton from "./AssemblyButton.svelte";
     import { getAssemblyContext } from "./assemblyContext";
+    import type { ArticleResponseExpanded } from "../article/ArticleRow.svelte";
 
     export let assembly: AssembliesResponse;
     export let nestLevel = 20;
@@ -24,7 +24,7 @@
     const { selectedAssembly } = getAssemblyContext();
 
     let childRelations: AssembliesRelationsReponseExpanded[] = [];
-    const refreshRelations = async () => childRelations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${assembly.id}"`, expand: 'assembly_child,article_child.supplier' });
+    const refreshRelations = async () => childRelations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent="${assembly.id}"`, expand: `assembly_child,article_child.supplier` });
 
     onMount(async () => {
         await refreshRelations();

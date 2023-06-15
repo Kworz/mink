@@ -55,9 +55,9 @@
             {/each}
         </Flex>
         <Filter2 bind:filter={filter} bind:filters={filters} availableFilters={[
-            { name: "name", default: true },
-            { name: "reference" },
-            { name: "manufacturer" }
+            { name: "name", default: true, type: "string" },
+            { name: "reference", type: "string" },
+            { name: "manufacturer", type: "string" }
         ]} />
     {:else}
         <ArticleRow bind:article={selectedArticle} />

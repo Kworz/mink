@@ -7,7 +7,7 @@
         "article_price(article)": [{ price: number}]
     }>;
 
-    export const articleResponseExpand = "article_fabrication_quantity(article),article_order_quantity(article),article_store_quantity(article),article_price(article)";
+    export const articleResponseExpand = `article_fabrication_quantity(article),article_order_quantity(article),article_store_quantity(article),article_price(article)`;
 
 </script>
 

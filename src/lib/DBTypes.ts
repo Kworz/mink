@@ -299,7 +299,7 @@ export type ArticleTagsRelationsResponse<Texpand = unknown> = Required<ArticleTa
 export type AssembliesResponse = Required<AssembliesRecord> & BaseSystemFields
 export type AssembliesBuylistsResponse<Texpand = unknown> = Required<AssembliesBuylistsRecord> & BaseSystemFields<Texpand>
 export type AssembliesRelationsResponse<Texpand = unknown> = Required<AssembliesRelationsRecord> & BaseSystemFields<Texpand>
-export type CrmCompanyResponse<Texpand = unknown> = Required<CrmCompanyRecord> & BaseSystemFields<Texpand>
+export type CrmCompanyResponse = Required<CrmCompanyRecord> & BaseSystemFields
 export type CrmCompanyContactResponse<Texpand = unknown> = Required<CrmCompanyContactRecord> & BaseSystemFields<Texpand>
 export type CrmInterestResponse = Required<CrmInterestRecord> & BaseSystemFields
 export type CrmLeadsResponse<Texpand = unknown> = Required<CrmLeadsRecord> & BaseSystemFields<Texpand>

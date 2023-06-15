@@ -1,6 +1,7 @@
 export type Filter = {
     name: string;
     default?: true;
+    type?: "array" | "string" | "number" | "boolean";
 }
 
 export type FilterCondition = {
@@ -74,7 +75,15 @@ export function predictField(value: string, availableFilters: Array<Filter>): st
     }
     else if (part === 1)
     {
-        const operators = ['=' , '~', '!=' , '>' , '<' , '>=', '<=', '!~'].filter(k => k.includes(parts[1]));
+        const filterType = availableFilters.find(k => k.name === parts[0])?.type;
+        const reccomendedOperatorsForType: Record<Filter["type"], string[]> = {
+            "array": ["~", "!~"],
+            "string": ["=", "!=", "~", "!~"],
+            "number": ["=", "!=", ">", "<", ">=", "<="],
+            "boolean": ["=", "!="]
+        };
+
+        const operators = ((filterType !== undefined) ? reccomendedOperatorsForType[filterType] : ['=' , '~', '!=' , '>' , '<' , '>=', '<=', '!~']).filter(k => k.includes(parts[1]));
         return operators.length === 1 ? [] : operators;
     }
     else

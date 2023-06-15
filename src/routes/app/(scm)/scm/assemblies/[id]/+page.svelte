@@ -88,7 +88,7 @@
 {#if mode === "nested"}
     <Flex gap={6} class="mt-6" items="start">
 
-        <Wrapper class="w-fit shrink-0">
+        <Wrapper class="w-fit shrink-0 hidden lg:block">
             <AssemblyTree bind:assembly={data.assembly} />
         </Wrapper>
     
