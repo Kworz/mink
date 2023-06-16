@@ -6,8 +6,8 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
@@ -145,6 +145,7 @@
     {#if selected.length > 0}
         <Flex items="end" class="mb-6">
             <Button on:click={() => window.open(`/app/scm/lists/print?lists=${selected.join(",")}`, '_blank')}>Imprimer</Button>
+            <Button on:click={() => goto(`/app/scm/lists/grid?ids=${selected.join(",")}`)}>Ouvrir la grille</Button>
         </Flex>
     {/if}
 
@@ -155,7 +156,25 @@
         { name: "closed", type: "boolean" }
     ]} />
 
-    <Table embeded>
+    <Table headers={[
+        "selectAll",
+        { label: "List", colname: "name" },
+        { label: "Terminée", colname: "closed" },
+        { label: "Assemblage de base", colname: "assembly.name" },
+        { label: "Affaire", colname: "project.name" }]} 
+    bind:activeSort>
+
+    {#each lists as list}
+        <TableCell><input type="checkbox" bind:group={selected} value={list.id} /></TableCell>
+        <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
+        <TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>
+        <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
+        <TableCell>{list.expand?.project?.name}</TableCell>
+    {/each}
+
+    </Table>
+
+<!--     <Table embeded>
         <svelte:fragment slot="head">
             <TableHead><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.lists.map(k => k.id)}/></TableHead>
             <TableHead col="name" bind:activeSort>Liste</TableHead>
@@ -176,5 +195,5 @@
                 </TableRow>
             {/each}
         </svelte:fragment>
-    </Table>
+    </Table> -->
 </Wrapper>

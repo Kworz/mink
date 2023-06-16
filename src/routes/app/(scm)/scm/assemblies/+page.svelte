@@ -74,7 +74,7 @@
 
                     <div>
                         <p>
-                            {#if assembly.favorite}<Icon src={Star} theme="solid" class="h-4 w-4 mb-1 mr-2 text-violet-500 inline" />{/if}
+                            {#if assembly.favorite}<Icon src={Star} theme="solid" class="h-4 w-4 mb-1 mr-0.25 text-violet-500 inline" />{/if}
                             {assembly.name}
                         </p>
                         <p class="text-zinc-500 text-base font-normal">{assembly.description}</p>
