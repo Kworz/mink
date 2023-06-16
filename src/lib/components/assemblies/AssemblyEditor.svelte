@@ -242,8 +242,7 @@
                             </TableCell>
                             <TableCell>
                                 <Flex items="center">
-                                    <FormInput name="" type="number" bind:value={subAssemblyRelation.quantity} />
-                                    <Button size="small" on:click={() => updateRelation(subAssemblyRelation.id)}>Mettre à jour</Button>
+                                    <FormInput name="" type="number" bind:value={subAssemblyRelation.quantity} blur={() => updateRelation(subAssemblyRelation.id)}/>
                                 </Flex>
                             </TableCell>
                             <TableCell>

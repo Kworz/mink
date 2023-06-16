@@ -3,10 +3,12 @@ import { Collections } from "$lib/DBTypes";
 import type { ArticleResponseExpanded } from "../+page.server";
 
 import { LabelDocument } from "$lib/label/labelDocument";
+import type jsPDF from "jspdf";
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 
     const articlesIDS = url.searchParams.get("articles");
+    const images = (url.searchParams.get("images") ?? "false") === "true";
 
     if(articlesIDS === null)
         return new Response("Wrong request", { status: 400 });
@@ -18,11 +20,27 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         articles.push(await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(article, { expand: "supplier"}))
     }
 
-    const label = new LabelDocument(32, 57);
+    const label = new LabelDocument(32, 57) as (jsPDF & LabelDocument);
 
     for(const [index, article] of articles.entries())
     {
-        await label.addQRCode(article.id, 2, 2, 18);
+        if(images)
+        {
+            const imageUrl = locals.pb.files.getUrl(article, article.pinned_file);
+            const response = await fetch(imageUrl);
+
+            console.log(article, imageUrl, response.status);
+
+            if(response.status === 200)
+            {
+                const blob = await response.arrayBuffer();
+                label.addImage(new Uint8Array(blob), "PNG", 2, 2, 18, 18);
+            }
+            else
+                await label.addQRCode(article.id, 2, 2, 18);
+        }
+        else
+            await label.addQRCode(article.id, 2, 2, 18);
 
         label.printResizeText(article.manufacturer, 6, 31, 38.5, 8, { align: "center" });
         label.printResizeText(article.reference, 6, 31, 38.5, 16, { align: "center" });
