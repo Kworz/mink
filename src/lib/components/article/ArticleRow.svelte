@@ -48,7 +48,7 @@
 
 </script>
 
-<Flex items="center">
+<Flex items="center" class="min-w-[30em]">
 
     {#if displayThumb === true && article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file) && browser}
         <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{article.collectionName}/{article.id}/{article.pinned_file}?thumb=200x200" alt={article.pinned_file} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
