@@ -8,6 +8,7 @@
     export let labelMandatory = false;
 
     export let invalid = false;
+    export let valid = false;
 
     export let value: string[] | string | number = "";
     export let checked: boolean | undefined = undefined;
@@ -32,16 +33,22 @@
 
     let exitButton: HTMLButtonElement | undefined = undefined;
 
+    export let blur: ((value: string | string[] | number | boolean) => void) | undefined = undefined;
+
     function typeAction(node: HTMLInputElement) {
         node.type = type;
     }
 
     function onBlur() {
-        if(validateOnBlur && exitButton)
+
+        if(blur)
+            blur(value);
+        else if(validateOnBlur && exitButton)
             exitButton.click();
     }
 
-    function onChange() {
+    function onChange()
+    {
         if(validateOnChange && exitButton)
             exitButton.click();
     }
@@ -62,21 +69,21 @@
 
     {#if type === "select"}
         {#if multiple} 
-            <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} multiple on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} multiple on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>
         {:else}
-            <select {name} {form} bind:value class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}>
                 <slot />
             </select>
         {/if}
     {:else if type == "checkbox"}
         <Flex items="center" gap={2} class="my-2">
-            <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}/>
+            <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}/>
             <span>{label}</span>
         </Flex>
     {:else}
-        <input use:typeAction {name} {form} bind:value {min} {max} {step} class="{style}" class:ring-red-500={invalid} class:ring-2={invalid} on:change={onChange} on:blur={onBlur}/>
+        <input use:typeAction {name} {form} bind:value {min} {max} {step} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}/>
     {/if}
 
     {#if validateButton}
