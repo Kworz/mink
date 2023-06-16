@@ -1,5 +1,4 @@
 <script lang="ts">
-
     export let marginTop = "mt-6";
     export let backgroundColor = "bg-white dark:bg-zinc-800";
 
