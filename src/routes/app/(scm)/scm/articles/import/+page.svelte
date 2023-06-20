@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { env } from "$env/dynamic/private";
+    import { env } from "$env/dynamic/public";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
@@ -26,7 +26,6 @@
         {/if}
 
     </Flex>
-
 </form>
 
 {#if file !== undefined}    
