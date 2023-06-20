@@ -30,7 +30,6 @@
         <MenuSeparator>Gestion</MenuSeparator>
         <MenuItem icon={DocumentText} href="/app/scm/projects" label="Affaires" />
         <MenuItem icon={DocumentChartBar} href="/app/scm/orders" label="Commandes" />
-        <MenuItem icon={Calendar} href="/app/scm/planning" label="Planning" />
         <MenuItem icon={Wrench} href="/app/scm/fabrication_orders" label="Ordres de fabrication" />
 
     </Menu>

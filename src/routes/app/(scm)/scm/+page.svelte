@@ -16,7 +16,6 @@
 
     <HomeMenuItem icon={DocumentText} href="/app/scm/projects" title="Affaires" />
     <HomeMenuItem icon={DocumentChartBar} href="/app/scm/orders" title="Commandes" />
-    <HomeMenuItem icon={Calendar} href="/app/scm/planning" title="Planning" />
     <HomeMenuItem icon={Wrench} href="/app/scm/fabrication_orders" title="Ordres de fabrication" />
 
 </HomeMenuGrid>
