@@ -6,7 +6,6 @@
     import DetailLabel from "$lib/components/DetailLabel.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
     import Grid from "$lib/components/layout/grid.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
@@ -28,6 +27,7 @@
 
     const states: Record<OrdersStateOptions, string> = {
         "draft": "Brouillon",
+        "quotation": "Demande de devis",
         "placed": "Commandé",
         "acknowledged": "AR réceptionné",
         "completed": "Terminée",
@@ -151,7 +151,7 @@
 
 <Table marginTop="mt-8">
     <svelte:fragment slot="head">
-        <TableHead>Projet</TableHead>
+        <TableHead>Affaire</TableHead>
         <TableHead>Désignation</TableHead>
         <TableHead>Référence</TableHead>
         <TableHead>Quantité</TableHead>
@@ -180,7 +180,7 @@
         <h3 class="mb-3">Ajouter un article a la commande</h3>
         <div class="flex flex-row gap-4 items-end">
             <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
-                <ArticleFinder bind:selectedArticle filters={[{ field: "supplier", operator: "~", value: data.order.supplier, hidden: true }]} />
+                <ArticleFinder bind:selectedArticle />
             </div>
 
             {#if selectedArticle !== undefined}
