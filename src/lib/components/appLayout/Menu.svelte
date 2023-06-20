@@ -25,7 +25,7 @@
 
 </script>
 
-<button class="z-10 shrink-0 bg-white dark:bg-zinc-800 overflow-y-auto shadow-2xl duration-300 text-start {$isShrinked ? "w-0 overflow-x-hidden md:p-4 md:w-auto" : "py-6 w-screen md:w-auto px-8"}" on:click|self={() => $isShrinked = !$isShrinked} on:mouseenter={mouseEnter} on:mouseleave={mouseLeave}>
+<button class="z-10 shrink-0 dark:bg-white bg-zinc-800 overflow-y-auto shadow-2xl duration-300 text-start {$isShrinked ? "w-0 overflow-x-hidden md:p-4 md:w-auto" : "py-6 w-screen md:w-auto px-8"}" on:click|self={() => $isShrinked = !$isShrinked} on:mouseenter={mouseEnter} on:mouseleave={mouseLeave}>
     <Flex direction="col" gap={2}>
         <slot />
     </Flex>
