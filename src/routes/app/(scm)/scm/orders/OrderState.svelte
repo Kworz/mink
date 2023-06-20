@@ -2,12 +2,13 @@
 
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
     import type { OrdersStateOptions } from "$lib/DBTypes";
-    import { ArchiveBoxXMark, Check, DocumentText, Envelope, EnvelopeOpen } from "@steeze-ui/heroicons";
+    import { ArchiveBoxXMark, Check, DocumentMagnifyingGlass, DocumentText, Envelope, EnvelopeOpen } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     export let state: OrdersStateOptions;
 
     let icons: Record<OrdersStateOptions, typeof DocumentText> = {
         "draft": DocumentText,
+        "quotation": DocumentMagnifyingGlass,
         "placed": Envelope,
         "acknowledged": EnvelopeOpen,
         "cancelled": ArchiveBoxXMark,
@@ -16,6 +17,7 @@
 
     let names: Record<OrdersStateOptions, string> = {
         "draft": "Brouillon",
+        "quotation": "Demande de devis",
         "placed": "Envoyée",
         "acknowledged": "A/R recu",
         "completed": "Terminée",
@@ -24,6 +26,7 @@
 
     let roleChoosen = {
         "draft": "secondary",
+        "quotation": "info",
         "placed": "warning",
         "acknowledged": "info",
         "completed": "success",
