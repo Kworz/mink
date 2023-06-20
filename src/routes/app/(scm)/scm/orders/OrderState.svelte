@@ -18,7 +18,7 @@
     let names: Record<OrdersStateOptions, string> = {
         "draft": "Brouillon",
         "quotation": "Demande de devis",
-        "placed": "Envoyée",
+        "placed": "Commandé",
         "acknowledged": "A/R recu",
         "completed": "Terminée",
         "cancelled": "Anullée"
