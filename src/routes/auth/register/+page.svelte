@@ -6,7 +6,6 @@
     import Grid from "$lib/components/layout/grid.svelte";
 
     import type { ActionData } from "./$types";
-
     export let form: ActionData;
 
 </script>
@@ -17,6 +16,10 @@
 
         <h1>S'inscrire</h1>
         <p>Inscrivez vous sur Nomenclaturize.</p>
+
+        {#if form?.error}
+            <p class="text-red-500 font-medium">{form.error}</p>
+        {/if}
 
         <form method="post" use:enhance>
             <Flex direction="col" class="mt-8">
