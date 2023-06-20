@@ -1,9 +1,9 @@
 import { Collections, type AssembliesBuylistsResponse, type ProjectsResponse, type ArticleMovementsResponse, type ArticleResponse, type StoresResponse } from "$lib/DBTypes";
+import { articleResponseExpand, type ArticleResponseExpanded } from "$lib/components/article/ArticleRow.svelte";
+import { ClientResponseError } from "pocketbase";
 import type { OrderRowsResponseExpanded } from "../../approx/proxy+page.server";
 import type { FabricationOrdersResponseExpanded } from "../../fabrication_orders/+page.server";
 import type { PageServerLoad, Actions } from "./$types";
-
-import { env } from "$env/dynamic/public";
 
 export const load = (async ({ locals, params }) => {
 
@@ -16,18 +16,30 @@ export const load = (async ({ locals, params }) => {
 
     let filter = `${buylistsStores.map(bls => `store_in = "${bls}"`).join(" || ")}`;
     filter += (filter.length > 0) ? "&&" : "";
-    filter += `store_out != "" && quantity_update > 0`;
+    filter += `store_out != "" && quantity_update > 0 && article.internal = "false"`;
 
     const stores_relations = buylistsStores.length > 0 ? (await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{ article: ArticleResponse, store_in: StoresResponse, store_out: StoresResponse}>>({ filter, expand: "article,store_in,store_out"})) : [];
+    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponse>({ expand: articleResponseExpand });
+
+    const stores_relationsMapped = stores_relations.map(store_relation => {
+
+        const article = articles.find(a => a.id === store_relation.article)
+
+        if(store_relation.expand && article)
+            store_relation.expand.article = article;
+
+        return store_relation;
+    }) as Array<ArticleMovementsResponse<{ article: ArticleResponseExpanded, store_in: StoresResponse, store_out: StoresResponse}>>;
+
 
     const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `project = "${projectID}"`, expand: 'order,article' });
-    const fabricationOrders = await locals.pb.collection(Collections.FabricationOrders).getFullList<FabricationOrdersResponseExpanded>({ filter: `project = "${projectID}" && article.supplier !~ "${env.PUBLIC_INTERNAL_SUPPLIER}"`, expand: 'article,applicant,receiver'});
+    const fabricationOrders = await locals.pb.collection(Collections.FabricationOrders).getFullList<FabricationOrdersResponseExpanded>({ filter: `project = "${projectID}"`, expand: 'article,applicant,receiver'});
 
     return {
         project: structuredClone(project),
         order_rows: structuredClone(order_rows),
         fabricationOrders: structuredClone(fabricationOrders),
-        stores_relations: structuredClone(stores_relations),
+        stores_relations: structuredClone(stores_relationsMapped),
     }
 
 }) satisfies PageServerLoad;
@@ -46,7 +58,7 @@ export const actions: Actions = {
         }
         catch(e)
         {
-            return { editProject: { error: e.message }};
+            return { editProject: { error: (e instanceof ClientResponseError) ? e.message : e }};
         }
     }
 }

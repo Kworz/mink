@@ -148,13 +148,12 @@
                 <TableHead>Quantité</TableHead>
                 <TableHead>Movement</TableHead>
                 <TableHead>Prix</TableHead>
-                
             </svelte:fragment>
     
             <svelte:fragment slot="body">
                 {#each data.stores_relations as store_relation}
                     <TableRow>
-                        <TableCell><ArticleRow article={store_relation.expand?.article} /></TableCell>
+                        <TableCell><ArticleRow article={store_relation.expand?.article} displayManufacturer /></TableCell>
                         <TableCell>{store_relation.quantity_update}</TableCell>
                         <TableCell>
                             <Flex items="center">
@@ -163,13 +162,18 @@
                                 <Store store={store_relation.expand?.store_in} />
                             </Flex>
                         </TableCell>
-                        <TableCell>{store_relation.expand?.article.price}</TableCell>
+                        <TableCell><Price value={(((store_relation.expand?.article.expand?.["article_price(article)"]?.at(0)?.price) ?? store_relation.expand?.article.price) ?? 0) * store_relation.quantity_update} /></TableCell>
                     </TableRow>
                 {/each}
             </svelte:fragment>
     
             <svelte:fragment slot="foot">
-    
+                <TableRow>
+                    <TableCell colspan={3}>Total flux sortie de stock</TableCell>
+                    <TableCell>
+                        <Price value={data.stores_relations.reduce((acc, sr) => acc + (Math.abs(sr.quantity_update) * (((sr.expand?.article.expand?.["article_price(article)"]?.at(0)?.price) ?? sr.expand?.article.price) ?? 0)), 0)} />
+                    </TableCell>
+                </TableRow>
             </svelte:fragment>
         </Table>
     </Wrapper>
