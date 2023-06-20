@@ -13,3 +13,4 @@ pocketbase
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 deploy.sh
+types.sh
