@@ -17,7 +17,6 @@
     import type { FilterCondition } from "$lib/components/filter/filter2";
     import { browser } from "$app/environment";
     import Flex from "$lib/components/layout/flex.svelte";
-    import TableCellSelect from "$lib/components/table2/TableCellSelect.svelte";
 
     export let data: PageData;
 
@@ -170,7 +169,7 @@
     >
 
         {#each lists as list}
-            <TableCellSelect bind:group={selected} value={list.id} />
+            <TableCell position="center"><input type="checkbox" bind:group={selected} value={list.id} /></TableCell>
             <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
             <TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>
             <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
