@@ -73,6 +73,7 @@ export const actions: Actions = {
             const form = await request.formData();
             form.set("consumable", String(form.has("consumable")));
             form.set("non_physical", String(form.has("non_physical")));
+            form.set("internal", String(form.has("internal")));
 
             await locals.pb.collection(Collections.Article).update<ArticleResponse>(params.id, form);
 

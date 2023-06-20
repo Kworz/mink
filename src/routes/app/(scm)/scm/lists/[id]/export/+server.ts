@@ -4,6 +4,7 @@ import type { RequestHandler } from "@sveltejs/kit";
 import xlsx, { type WorkSheetOptions } from "node-xlsx";
 import type { AssembliesBuylistsResponseExpanded } from "../../+page.server";
 import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
+import { env } from "$env/dynamic/public";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 
@@ -36,7 +37,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
                 listRelationArticle?.quantity ?? 0,
                 far.quantity,
                 far.quantity <= (listRelationArticle?.quantity ?? 0) ? "Oui" : "Non",
-                far.article.manufacturer ?? "",
+                (far.article.internal) ? env.PUBLIC_COMPANY_NAME : (far.article.manufacturer ?? ""),
                 far.article.expand?.supplier?.map(k => k.name).join(", ") ?? "",
                 far.article.reference ?? "",
                 far.article.price ?? 0

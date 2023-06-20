@@ -4,10 +4,11 @@
         "article_fabrication_quantity(article)": [{ quantity: number }],
         "article_order_quantity(article)": [{ quantity: number }],
         "article_store_quantity(article)": [{ quantity: number }],
-        "article_price(article)": [{ price: number}]
+        "article_price(article)": [{ price: number}],
+        "article_suppliers(article)": Array<{ supplier: SuppliersResponse }>
     }>;
 
-    export const articleResponseExpand = `article_fabrication_quantity(article),article_order_quantity(article),article_store_quantity(article),article_price(article)`;
+    export const articleResponseExpand = `article_fabrication_quantity(article),article_order_quantity(article),article_store_quantity(article),article_price(article),article_suppliers(article).supplier`;
 
 </script>
 
@@ -18,7 +19,7 @@
     
     import DetailLabel from "../DetailLabel.svelte";
     import Flex from "../layout/flex.svelte";
-    import type { ArticleResponse } from "$lib/DBTypes";
+    import type { ArticleResponse, SuppliersResponse } from "$lib/DBTypes";
     import { returnArticleUnit } from "./artictleUnits";
     import Price from "../formatters/Price.svelte";
 
@@ -48,7 +49,7 @@
 
 </script>
 
-<Flex items="center" class="min-w-[30em]">
+<Flex items="center" class="min-w-[10em] 2xl:min-w-[30em]">
 
     {#if displayThumb === true && article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file) && browser}
         <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{article.collectionName}/{article.id}/{article.pinned_file}?thumb=200x200" alt={article.pinned_file} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
@@ -60,7 +61,7 @@
 
     <div>
         <a href="/app/scm/articles/{article.id}" class="block">{article.name}</a>
-        {#if displayManufacturer}<span class="text-sm block">{article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
+        {#if displayManufacturer}<span class="text-sm block">{(article.internal) ? env.PUBLIC_COMPANY_NAME : article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
         {#if displayPrice}<span class="text-sm block"><DetailLabel><Price value={articlePrice} /></DetailLabel></span>{/if}
         {#if articleQuantity > 0 && displayStock === true}
             {@const shouldOrder = articleQuantity < (article.critical_quantity ?? 0)}

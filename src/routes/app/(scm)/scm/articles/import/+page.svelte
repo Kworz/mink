@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { env } from "$env/dynamic/private";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
@@ -53,7 +54,7 @@
                         <td>{article.quantity}</td>
                         <td>{article.reference}</td>
                         <td>{article.supplier}</td>
-                        <td>{article.manufacturer}</td>
+                        <td>{(article.internal) ? env.PUBLIC_COMPANY_NAME : article.manufacturer}</td>
                         <td>{article.price}</td>
                     </tr>
                 {/each}

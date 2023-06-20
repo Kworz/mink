@@ -9,6 +9,7 @@ export enum Collections {
 	ArticleOrderQuantity = "article_order_quantity",
 	ArticlePrice = "article_price",
 	ArticleStoreQuantity = "article_store_quantity",
+	ArticleSuppliers = "article_suppliers",
 	ArticleTags = "article_tags",
 	ArticleTagsRelations = "article_tags_relations",
 	Assemblies = "assemblies",
@@ -70,6 +71,7 @@ export type ArticleRecord = {
 	unit?: string
 	unit_quantity?: number
 	non_physical?: boolean
+	internal?: boolean
 }
 
 export type ArticleFabricationQuantityRecord<Tquantity = unknown> = {
@@ -99,6 +101,11 @@ export type ArticlePriceRecord<Tprice = unknown> = {
 export type ArticleStoreQuantityRecord<Tquantity = unknown> = {
 	article?: RecordIdString
 	quantity?: null | Tquantity
+}
+
+export type ArticleSuppliersRecord = {
+	article?: RecordIdString
+	supplier: RecordIdString
 }
 
 export type ArticleTagsRecord = {
@@ -134,6 +141,7 @@ export type AssembliesRelationsRecord = {
 	assembly_child?: RecordIdString
 	article_child?: RecordIdString
 	quantity: number
+	order?: number
 }
 
 export enum CrmCompanySizeOptions {
@@ -211,6 +219,7 @@ export type FabricationOrdersRecord = {
 
 export enum OrdersStateOptions {
 	"draft" = "draft",
+	"quotation" = "quotation",
 	"placed" = "placed",
 	"acknowledged" = "acknowledged",
 	"completed" = "completed",
@@ -294,6 +303,7 @@ export type ArticleMovementsResponse<Texpand = unknown> = Required<ArticleMoveme
 export type ArticleOrderQuantityResponse<Tquantity = unknown, Texpand = unknown> = Required<ArticleOrderQuantityRecord<Tquantity>> & BaseSystemFields<Texpand>
 export type ArticlePriceResponse<Tprice = unknown, Texpand = unknown> = Required<ArticlePriceRecord<Tprice>> & BaseSystemFields<Texpand>
 export type ArticleStoreQuantityResponse<Tquantity = unknown, Texpand = unknown> = Required<ArticleStoreQuantityRecord<Tquantity>> & BaseSystemFields<Texpand>
+export type ArticleSuppliersResponse<Texpand = unknown> = Required<ArticleSuppliersRecord> & BaseSystemFields<Texpand>
 export type ArticleTagsResponse = Required<ArticleTagsRecord> & BaseSystemFields
 export type ArticleTagsRelationsResponse<Texpand = unknown> = Required<ArticleTagsRelationsRecord> & BaseSystemFields<Texpand>
 export type AssembliesResponse = Required<AssembliesRecord> & BaseSystemFields
@@ -323,6 +333,7 @@ export type CollectionRecords = {
 	article_order_quantity: ArticleOrderQuantityRecord
 	article_price: ArticlePriceRecord
 	article_store_quantity: ArticleStoreQuantityRecord
+	article_suppliers: ArticleSuppliersRecord
 	article_tags: ArticleTagsRecord
 	article_tags_relations: ArticleTagsRelationsRecord
 	assemblies: AssembliesRecord
@@ -351,6 +362,7 @@ export type CollectionResponses = {
 	article_order_quantity: ArticleOrderQuantityResponse
 	article_price: ArticlePriceResponse
 	article_store_quantity: ArticleStoreQuantityResponse
+	article_suppliers: ArticleSuppliersResponse
 	article_tags: ArticleTagsResponse
 	article_tags_relations: ArticleTagsRelationsResponse
 	assemblies: AssembliesResponse

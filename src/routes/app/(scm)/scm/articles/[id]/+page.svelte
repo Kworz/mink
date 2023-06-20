@@ -26,6 +26,7 @@
     import Price from "$lib/components/formatters/Price.svelte";
     import { returnArticleUnit } from "$lib/components/article/artictleUnits";
     import Store from "$lib/components/store/Store.svelte";
+    import { env } from "$env/dynamic/public";
 
     export let data: PageData;
     export let form: ActionData;
@@ -71,7 +72,7 @@
                 </Flex>
             {/if}
 
-            <p>Fabricant: <DetailLabel>{data.article.manufacturer}</DetailLabel>.</p>
+            <p>Fabricant: <DetailLabel>{(data.article.internal) ? env.PUBLIC_COMPANY_NAME : data.article.manufacturer}</DetailLabel>.</p>
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
             <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
             {#if data.article.non_physical}<p class="text-amber-500 font-medium">Article non physique.</p>{/if}

@@ -22,6 +22,7 @@
     import Store from "$lib/components/store/Store.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import { returnArticleUnit } from "$lib/components/article/artictleUnits";
+    import { env } from "$env/dynamic/public";
     export let data: PageData;
 
     let filters: Array<FilterCondition> = [];
@@ -76,7 +77,6 @@
             { name: "name", default: true, type: "string" },
             { name: "reference", type: "string" },
             { name: "manufacturer", type: "string" },
-            { name: "supplier.name", type: "array" },
             { name: "critical_quantity", type: "number"},
             { name: "consumable", type: "boolean" }
         ]} />
@@ -90,7 +90,7 @@
             <TableTitle col="quantity" bind:activeSort>Stock</TableTitle>
             <TableTitle col="store.name" bind:activeSort>Emplacement</TableTitle>
             <TableTitle col="reference" bind:activeSort>Référence</TableTitle>
-            <TableTitle col="supplier" bind:activeSort colWidth="w-1/6">Fournisseur</TableTitle>
+            <TableTitle>Fournisseurs</TableTitle>
             <TableTitle col="manufacturer" bind:activeSort>Fabricant</TableTitle>
             <TableTitle col="price" bind:activeSort>Prix</TableTitle>
             <TableTitle>Prix stock</TableTitle>
@@ -105,15 +105,16 @@
                     </TableCell>
                     <TableCell>{article.consumable ? "Oui" : "Non"}</TableCell>
                     <TableCell>
+                        {@const quantity = article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0}
                         {#if article.critical_quantity}
                             <span
-                                class:text-red-500={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
-                                class:font-semibold={(article.quantity ?? 0) <= (article.critical_quantity ?? 0)}
+                                class:text-red-500={(quantity ?? 0) <= (article.critical_quantity ?? 0)}
+                                class:font-semibold={(quantity ?? 0) <= (article.critical_quantity ?? 0)}
                             >
-                                {returnArticleUnit(article.unit, article.unit_quantity, article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0)}
+                                {returnArticleUnit(article.unit, article.unit_quantity, quantity)}
                             </span>         
                         {:else}               
-                            {returnArticleUnit(article.unit, article.unit_quantity, article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0)}
+                            {returnArticleUnit(article.unit, article.unit_quantity, quantity)}
                         {/if}
                     </TableCell>
                     <TableCell>
@@ -124,16 +125,16 @@
                     <TableCell>{article.reference}</TableCell>
                     <TableCell>
                         <Flex gap={2} direction="col" items="start">
-                            {#if article.expand?.supplier !== undefined}
-                                {#each article.expand.supplier as supplier}
-                                    <Supplier {supplier} />
+                            {#if article.expand?.["article_suppliers(article)"] !== undefined}
+                                {#each article.expand?.["article_suppliers(article)"] as supplierRelation}
+                                    <Supplier supplier={supplierRelation.expand?.supplier} />
                                 {/each}
                             {:else}
                                 —
                             {/if}
                         </Flex>
                     </TableCell>
-                    <TableCell>{article.manufacturer}</TableCell>
+                    <TableCell>{(article.internal) ? env.PUBLIC_COMPANY_NAME : article.manufacturer}</TableCell>
                     <TableCell><Price value={article.expand?.["article_price(article)"]?.at(0)?.price ?? article.price} /></TableCell>
                     <TableCell><Price value={(article.expand?.["article_price(article)"]?.at(0)?.price ?? article.price) * (article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0)} /></TableCell>
                 </TableRow>
