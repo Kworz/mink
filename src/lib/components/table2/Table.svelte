@@ -6,15 +6,17 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import { fade } from "svelte/transition";
 
-    const dispatch = createEventDispatcher();
-
     export let headers: Array<"selectAll" | { label: string, colname?: string }> = [];
     export let activeSort: string | undefined = undefined;
     export let allSelected = false;
 
+    export let selectables: Array<string> = [];
+    export let selected: Array<string> = [];
+
     let parentContainer: HTMLDivElement;
 
-    $: dispatch("selectall", allSelected);
+    $: allSelected = selectables.length === selected.length;
+
     $: contentScrollable = parentContainer?.scrollWidth ?? 0 > parentContainer?.clientWidth ?? 1;
 
     $: shouldScrollLeft = (parentContainer?.scrollLeft ?? 0) > 0;
@@ -51,12 +53,14 @@
         {/if}
     </div>
     
-    
-    <div class="grid items-end" style="grid-template-columns: repeat({headers.length}, minmax(min-content, 1fr));">
+    <div 
+        class="grid items-end"
+        style={`grid-template-columns: ${headers.includes("selectAll") ? `4em repeat(${headers.length - 1}, minmax(min-content, 1fr));` : `repeat(${headers.length}, minmax(min-content, 1fr));`}`}
+    >
         {#each headers as header}
-            <div class="p-4 border-b-2 border-b-violet-500/75 text-left">
+            <div class="p-4 border-b-2 border-b-violet-500/75 {header === "selectAll" ? "text-center" : "text-left"}">
                 {#if header === "selectAll"}
-                    <input type="checkbox" bind:checked={allSelected} />
+                    <input type="checkbox" bind:checked={allSelected} on:click={() => selected = (allSelected) ? [] : selectables} class="self-center" />
                 {:else}
                     <Flex items="center" gap={1} >
                         <span class="font-semibold truncate">{header.label}</span>

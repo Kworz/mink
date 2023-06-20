@@ -8,8 +8,6 @@
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Table from "$lib/components/table2/Table.svelte";
     import TableCell from "$lib/components/table2/TableCell.svelte";
-    import TableHead from "$lib/components/table/TableHead.svelte";
-    import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { Collections, type AssembliesBuylistsRecord, type StoresRecord } from "$lib/DBTypes";
     import { PlusCircle } from "@steeze-ui/heroicons";
@@ -19,6 +17,7 @@
     import type { FilterCondition } from "$lib/components/filter/filter2";
     import { browser } from "$app/environment";
     import Flex from "$lib/components/layout/flex.svelte";
+    import TableCellSelect from "$lib/components/table2/TableCellSelect.svelte";
 
     export let data: PageData;
 
@@ -94,9 +93,7 @@
     }
 
     $: filter, activeSort, triggerRefresh();
-
     $: lists = data.lists.filter(list => !showClosedLists ? (list.closed === false) : true);
-    $: selectedAll = data.lists.length === selected.length;
 
 </script>
 
@@ -143,9 +140,12 @@
 <Wrapper class="mt-6">
 
     {#if selected.length > 0}
+        {@const firstList = data.lists.find(list => list.id === selected[0])}
         <Flex items="end" class="mb-6">
-            <Button on:click={() => window.open(`/app/scm/lists/print?lists=${selected.join(",")}`, '_blank')}>Imprimer</Button>
-            <Button on:click={() => goto(`/app/scm/lists/grid?ids=${selected.join(",")}`)}>Ouvrir la grille</Button>
+            {#if !selected.some(s => data.lists.find(l => l.id === s)?.assembly !== firstList?.assembly)}
+                <Button size="small" role="primary" on:click={() => goto(`/app/scm/lists/grid?ids=${selected.join(",")}`)}>Ouvrir la grille</Button>
+            {/if}
+            <Button size="small" role="secondary" on:click={() => window.open(`/app/scm/lists/print?lists=${selected.join(",")}`, '_blank')}>Imprimer</Button>
         </Flex>
     {/if}
 
@@ -156,44 +156,26 @@
         { name: "closed", type: "boolean" }
     ]} />
 
-    <Table headers={[
-        "selectAll",
-        { label: "List", colname: "name" },
-        { label: "Terminée", colname: "closed" },
-        { label: "Assemblage de base", colname: "assembly.name" },
-        { label: "Affaire", colname: "project.name" }]} 
-    bind:activeSort>
+    <Table 
+        headers={[
+            "selectAll",
+            { label: "Liste", colname: "name" },
+            { label: "Terminée", colname: "closed" },
+            { label: "Assemblage de base", colname: "assembly.name" },
+            { label: "Affaire", colname: "project.name" }
+        ]}
+        selectables={lists.map(l => l.id)}
+        bind:selected={selected}
+        bind:activeSort
+    >
 
-    {#each lists as list}
-        <TableCell><input type="checkbox" bind:group={selected} value={list.id} /></TableCell>
-        <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
-        <TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>
-        <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
-        <TableCell>{list.expand?.project?.name}</TableCell>
-    {/each}
+        {#each lists as list}
+            <TableCellSelect bind:group={selected} value={list.id} />
+            <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
+            <TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>
+            <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
+            <TableCell>{list.expand?.project?.name}</TableCell>
+        {/each}
 
     </Table>
-
-<!--     <Table embeded>
-        <svelte:fragment slot="head">
-            <TableHead><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.lists.map(k => k.id)}/></TableHead>
-            <TableHead col="name" bind:activeSort>Liste</TableHead>
-            {#if showClosedLists}<TableHead col="closed" bind:activeSort>Terminée</TableHead>{/if}
-            <TableHead col="assembly.name" bind:activeSort>Assemblage de base</TableHead>
-            <TableHead col="project.name" bind:activeSort>Affaire</TableHead>
-            
-        </svelte:fragment>
-    
-        <svelte:fragment slot="body">
-            {#each lists as list}
-                <TableRow>
-                    <TableCell><input type="checkbox" bind:group={selected} value={list.id} /></TableCell>
-                    <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
-                    {#if showClosedLists}<TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>{/if}
-                    <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
-                    <TableCell>{list.expand?.project?.name}</TableCell>
-                </TableRow>
-            {/each}
-        </svelte:fragment>
-    </Table> -->
 </Wrapper>
