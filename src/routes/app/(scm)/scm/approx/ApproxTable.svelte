@@ -36,7 +36,7 @@
                 <TableCell>{orderRow.quantity - (orderRow.quantity_received ?? 0)}</TableCell>
                 <TableCell>{orderRow.quantity_received}</TableCell>
                 <TableCell>
-                    <form action="?/receiveArticle" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
+                    <form action="?/receiveArticle" method="post" use:enhanceNoReset class="flex flex-col gap-4 items-end">
                         <input type="hidden" name="article" value={orderRow.expand?.article?.id} />
                         <input type="hidden" name="order_row" value={orderRow.id} />
 

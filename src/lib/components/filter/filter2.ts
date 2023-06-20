@@ -166,3 +166,14 @@ export function clientSideFilter(filters: Array<FilterCondition>, element: Recor
         }
     });
 }
+
+export function clientSideSort(sorting: string, elementA: Record<string, (string | number | boolean) | (string | boolean | number)[]>, elementB: Record<string, (string | number | boolean) | (string | boolean | number)[]>): number
+{
+
+    const reverse = sorting.startsWith("-");
+    const field = reverse ? sorting.substring(1) : sorting;
+
+    const comparison = elementB[field] - elementA[field];
+
+    return reverse ? comparison * -1 : comparison;
+}

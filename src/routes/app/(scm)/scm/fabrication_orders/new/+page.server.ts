@@ -5,7 +5,7 @@ import { Temporal } from "@js-temporal/polyfill";
 
 export const load = (async ({ locals }) => {
 
-    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponse>({ filter: "manufacturer ~ 'Metalizz'"});
+    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponse>({ filter: 'internal = "true"'});
     const users = await locals.pb.collection(Collections.Users).getFullList<UsersResponse>();
     const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
 

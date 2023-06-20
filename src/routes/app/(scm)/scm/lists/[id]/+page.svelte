@@ -125,7 +125,7 @@
 
 <Wrapper class="mt-6">
     <Filter2 bind:filter bind:filters availableFilters={[{name: "name", default: true, type: "string" }, { name: "quantity", type: "number" }, { name: "manufacturer", type: "string" }, { name: "reference", type: "string" }, { name: "supplier.name", type: "array" }, { name: "valid", type: "boolean" }, { name: "stock", type: "boolean" }]} />
-    {@const assemblyRelations = flatenRelations.filter((element) => clientSideFilter(filters, {...element.far.article, quantity: element.far.quantity, valid: (element.buyListRelation?.quantity ?? 0) >= element.far.quantity, stock: element.far.article.quantity > 0 }))}
+    {@const assemblyRelations = flatenRelations.filter((element) => clientSideFilter(filters, {...element.far.article, quantity: element.far.quantity, valid: (element.buyListRelation?.quantity ?? 0) >= element.far.quantity, stock: (element.far.article.expand?.["article_store_quantity(article)"].at(0)?.quantity ?? 0) > 0 }))}
     <Table embeded={true}>
         <svelte:fragment slot="head">
             <TableHead>Article ({assemblyRelations.length})</TableHead>

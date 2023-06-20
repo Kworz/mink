@@ -4,8 +4,6 @@ import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
 import type { PageServerLoad, Actions } from "./$types";
 import type { AssembliesBuylistsResponseExpanded } from "../+page.server";
 
-import { env } from "$env/dynamic/public";
-
 import { redirect } from "@sveltejs/kit";
 
 export const load = (async ({ locals, params }) => {
@@ -198,21 +196,16 @@ export const actions: Actions = {
         }
     },
 
-    generateFabOrders: async ({ locals, params, request }) => {
+    generateFabOrders: async ({ locals, params }) => {
 
         let generatedFabOrder = 0;
 
         try
         {
-            const internalSupplier = env.PUBLIC_INTERNAL_SUPPLIER as string | undefined;
-
-            if(internalSupplier === undefined)
-                throw "No internal supplier defined";
-
             const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
             const assemblyRows = await flattenAssembly(list.expand?.assembly, locals.pb);
 
-            for(const assemblyRow of assemblyRows.filter(k => k.article.supplier?.includes(internalSupplier)))
+            for(const assemblyRow of assemblyRows.filter(k => k.article.internal))
             {
                 const buyListRelation = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${assemblyRow.article.id}" && store = "${list.store}"` })).at(0);
                 const availableQuantity = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${assemblyRow.article.id}" && quantity > 0 && store.temporary = false`})).reduce((p, c) => p + c.quantity, 0);

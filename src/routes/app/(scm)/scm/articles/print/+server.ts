@@ -4,6 +4,7 @@ import type { ArticleResponseExpanded } from "../+page.server";
 
 import { LabelDocument } from "$lib/label/labelDocument";
 import type jsPDF from "jspdf";
+import { env } from "$env/dynamic/public";
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 
@@ -42,7 +43,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         else
             await label.addQRCode(article.id, 2, 2, 18);
 
-        label.printResizeText(article.manufacturer, 6, 31, 38.5, 8, { align: "center" });
+        label.printResizeText((article.internal) ? env.PUBLIC_COMPANY_NAME : article.manufacturer, 6, 31, 38.5, 8, { align: "center" });
         label.printResizeText(article.reference, 6, 31, 38.5, 16, { align: "center" });
         label.printResizeText(article.name, 8, 51, 28.5, 28, { align: "center" });
 

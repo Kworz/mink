@@ -1,4 +1,4 @@
-export const articleUnits: Record<units, [string, string, string]> = {
+export const articleUnits: Record<string, [string, string, string]> = {
     default: ["u", "Unité", "Unités"],
     kg: ["kg", "Kilogramme", "Kilogrammes"],
     g: ["g", "Gramme", "Grammes"],
@@ -11,11 +11,11 @@ export const articleUnits: Record<units, [string, string, string]> = {
     bg: ["B - # g", "Bouteille de # grammes", "Bouteilles de # grammes"],
 };
 
-type units = "default" | "kg" | "g" | "l" | "m" | "ml" | "bu" | "bl" | "bml" | "bg";
+//type units = "default" | "kg" | "g" | "l" | "m" | "ml" | "bu" | "bl" | "bml" | "bg";
 
-export const returnArticleUnit = (unit?: units | "", unit_qty?: number = 1, qty = 0, short = false) => {
+export const returnArticleUnit = (unit?: string, unit_qty = 1, qty = 0, short = false) => {
 
-    if(unit === undefined || unit === "")
+    if(unit === undefined || unit === "" || articleUnits[unit] === undefined)
         return `${qty} ${short ? articleUnits.default[0] : (qty > 0) ? articleUnits.default[2] : articleUnits.default[1]}`
 
     const unitUsed = (short === true) ? articleUnits[unit][0] : (qty > 1  ? articleUnits[unit][1] : articleUnits[unit][2]); 
