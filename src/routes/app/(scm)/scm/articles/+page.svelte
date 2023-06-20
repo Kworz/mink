@@ -23,6 +23,7 @@
     import Price from "$lib/components/formatters/Price.svelte";
     import { returnArticleUnit } from "$lib/components/article/artictleUnits";
     import { env } from "$env/dynamic/public";
+    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
     export let data: PageData;
 
     let filters: Array<FilterCondition> = [];
@@ -84,7 +85,7 @@
 
     <Table embeded={true}>
         <svelte:fragment slot="head">
-            <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)}/></TableTitle>
+            <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)} /></TableTitle>
             <TableTitle col="name" bind:activeSort>Article ({data.articleList.totalItems})</TableTitle>
             <TableTitle col="consumable" bind:activeSort>Consommable ?</TableTitle>
             <TableTitle col="quantity" bind:activeSort>Stock</TableTitle>
@@ -103,7 +104,9 @@
                     <TableCell>
                         <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayApprox />
                     </TableCell>
-                    <TableCell>{article.consumable ? "Oui" : "Non"}</TableCell>
+                    <TableCell>
+                        <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? "Oui" : "Non"}</RoundedLabel>
+                    </TableCell>
                     <TableCell>
                         {@const quantity = article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0}
                         {#if article.critical_quantity}
