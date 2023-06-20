@@ -29,6 +29,8 @@
 
 </script>
 
+<svelte:window on:resize={computeScrolls} />
+
 <div class="{$$props.class} relative" class:overflow-x-scroll={contentScrollable} bind:this={parentContainer} on:scroll={computeScrolls}>
 
     <div class="sticky top-0 right-0 left-0 bottom-0">
