@@ -2,7 +2,7 @@
     import { invalidateAll } from "$app/navigation";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
-    import { clientSideFilter, type FilterCondition } from "$lib/components/filter/filter2";
+    import type { FilterCondition } from "$lib/components/filter/filter2";
     import Filter2 from "$lib/components/filter/Filter2.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Table from "$lib/components/table2/Table.svelte";
@@ -14,6 +14,8 @@
     import Flex from "$lib/components/layout/flex.svelte";
     import Button from "$lib/components/Button.svelte";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
+    import TableFootCell from "$lib/components/table2/TableFootCell.svelte";
+    import Price from "$lib/components/formatters/Price.svelte";
     
     export let data: PageData;
     export let form: ActionData;
@@ -76,7 +78,7 @@
             {#each data.lists as list}
                 {@const buyListRelation = data.storeRelations.find((r) => r.store === list.store && r.article === assemblyRow.article.id)}
 
-                <TableCell>
+                <TableCell position="center">
                     <form action="/app/scm/lists/grid/?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
 
                         {#if form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article.id]}
@@ -122,5 +124,29 @@
                 </TableCell>
             {/each}
         {/each}
+
+        <TableFootCell />
+        <TableFootCell>Total (Restant / Total)</TableFootCell>
+
+        <TableFootCell>
+
+            <Price value={data.lists.reduce((pl, cl) => pl + data.flattenAssemblyReference.reduce((p, c) => p + ((c.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.article?.price ?? 0) * (c.quantity - (data.storeRelations.find(r => r.article === c.article.id && r.store == cl.store)?.quantity ?? 0))), 0), 0)}/>
+                /
+            <Price value={data.flattenAssemblyReference.reduce((p, c) => p + ((c.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.article?.price ?? 0)) * c.quantity, 0) * data.lists.length} />
+
+        </TableFootCell>
+
+        {#each data.lists as list}
+            <TableFootCell>
+
+                {@const buyListRelations = data.storeRelations.filter((r) => r.store === list.store)}
+
+                <Price value={data.flattenAssemblyReference.reduce((p, c) => p + ((c.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.article?.price ?? 0) * (c.quantity - (buyListRelations.find(r => r.article === c.article.id)?.quantity ?? 0))), 0)}/>
+                /
+                <Price value={data.flattenAssemblyReference.reduce((p, c) => p + ((c.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.article?.price ?? 0)) * c.quantity, 0)} />
+
+            </TableFootCell>
+        {/each}
+
     </Table>
 </Wrapper>
