@@ -15,6 +15,7 @@ export const load = (async ({ locals }) => {
 export const actions: Actions = {
     createStore: async ({ locals, request }) => {
         const form = await request.formData();
+        form.set("temporary", form.has("temporary") ? "true" : "false");
 
         try {
             await locals.pb.collection(Collections.Stores).create(form);
@@ -26,6 +27,8 @@ export const actions: Actions = {
     },
     editStore: async ({ locals, request }) => {
         const form = await request.formData();
+        form.set("temporary", form.has("temporary") ? "true" : "false");
+
         const id = form.get("id")?.toString();
 
         try {
@@ -37,20 +40,6 @@ export const actions: Actions = {
         catch(e)
         {
             return { editStore: { error: (e instanceof ClientResponseError) ? e.message : e }}
-        }
-    },
-    deleteStore: async ({ locals, request }) => {
-        const form = await request.formData();
-        const id = form.get("id")?.toString();
-
-        try {
-            if(!id)
-                throw "No id provided";
-            await locals.pb.collection(Collections.Stores).delete(id);
-        }
-        catch(e)
-        {
-            return { deleteStore: { error: (e instanceof ClientResponseError) ? e.message : e }}
         }
     }
 }

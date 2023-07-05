@@ -67,8 +67,10 @@
         
             {#if !createStore}<input type="hidden" name="id" value={editStore?.id} />{/if}
 
-            <FormInput name="name" label="Nom" value={editStore?.name} />
+            <FormInput name="name" label="Nom" labelMandatory value={editStore?.name} />
             <FormInput name="location" label="Emplacement" value={editStore?.location} />
+
+            <FormInput type="checkbox" name="temporary" label="Stock temporaire" checked={editStore?.temporary} />
 
             <Button role={createStore ? "success" : "warning"}>{createStore ? "Créer" : "Modifier"}</Button>
         
