@@ -34,6 +34,7 @@
     let exitButton: HTMLButtonElement | undefined = undefined;
 
     export let blur: ((value: string | string[] | number | boolean) => void) | undefined = undefined;
+    export let change: ((value: string | string[] | number | boolean) => void) | undefined = undefined;
 
     function typeAction(node: HTMLInputElement) {
         node.type = type;
@@ -49,6 +50,8 @@
 
     function onChange()
     {
+        if(change)
+            change(value);
         if(validateOnChange && exitButton)
             exitButton.click();
     }
