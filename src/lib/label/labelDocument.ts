@@ -1,4 +1,4 @@
-import jsPDF, { type TextOptionsLight } from "jspdf";
+import { jsPDF, type TextOptionsLight } from "jspdf";
 import qrcode from "qrcode";
 
 import { font } from "./noto-b64";
