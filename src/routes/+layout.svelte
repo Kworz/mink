@@ -1,4 +1,6 @@
 <script>
+    import LoadIndicator from "$lib/components/LoadIndicator.svelte";
+
 
     import "../app.postcss";
     import "@fontsource/inter";
@@ -14,5 +16,7 @@
     import "@fontsource/inter/900.css";
 
 </script>
+
+<LoadIndicator />
 
 <slot />
