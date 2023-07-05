@@ -10,6 +10,7 @@
     export let filters: FilterCondition[] = [];
     export let availableFilters: Array<Filter> = [];
 
+    let inputElement: HTMLInputElement | undefined = undefined;
     let inputInvalid = false;
     let tempFilter: string = "";
     let suggestions: string[] = [];
@@ -43,6 +44,7 @@
         if(e.key === "Enter")
         {
             convertFilter();
+            inputElement?.focus();
             e.preventDefault();
         }
         else if(e.key === "Tab" && suggestions[selectedSuggestion] !== undefined)
@@ -56,6 +58,7 @@
                 return;
             
             filters = [...filters.slice(0, -1)];
+            inputElement?.focus();
         }
         else if(e.key === "ArrowUp")
         {
@@ -77,7 +80,7 @@
 </script>
 
 <Flex direction="col" gap={2} class={$$props.class}>
-    <Input bind:value={tempFilter} placeholder={"Filtre"} on:keydown={inputKeyUp}>
+    <Input bind:value={tempFilter} placeholder={"Filtre"} on:keydown={inputKeyUp} bind:input={inputElement}>
         <svelte:fragment slot="before">
             {#if filters.filter(k => k.hidden === undefined).length > 0}
                 <Flex class="ml-2" gap={2}>
