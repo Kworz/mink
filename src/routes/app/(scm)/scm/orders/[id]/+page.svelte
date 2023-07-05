@@ -9,10 +9,8 @@
     import Grid from "$lib/components/layout/grid.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import TableHead from "$lib/components/table/TableHead.svelte";
-    import TableRow from "$lib/components/table/TableRow.svelte";
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { Collections, OrdersStateOptions } from "$lib/DBTypes";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
@@ -22,8 +20,9 @@
     import { env } from "$env/dynamic/public";
 
     import type { ActionData, PageData } from "./$types";
-    import OrderRow from "./OrderRow.svelte";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
+    import Date from "$lib/components/formatters/Date.svelte";
+    import { enhance } from "$app/forms";
 
     const states: Record<OrdersStateOptions, string> = {
         "draft": "Brouillon",
@@ -41,6 +40,8 @@
 
     let confirmDelete = false;
 
+    let selectedOrderRows: string[] = [];
+
     export let data: PageData;
     export let form: ActionData;
 
@@ -50,6 +51,43 @@
     
     $: if(form !== null) { invalidateAll(); selectedArticle = undefined; }
     $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 3500) };
+    $: if(batchDeleteConfirm) { setTimeout(() => batchDeleteConfirm = false, 3500) };
+
+    const batchEditProject = async (project: string) => {
+
+        console.log("test");
+        for(const order_row of selectedOrderRows)
+        {
+            await $page.data.pb.collection(Collections.OrdersRows).update(order_row, {
+                project
+            });
+        }
+        await invalidateAll();
+    }
+
+    const batchEditACKDate = async (date: string) => {
+        for(const order_row of selectedOrderRows)
+        {
+            await $page.data.pb.collection(Collections.OrdersRows).update(order_row, {
+                ack_date: date
+            });
+        }
+        await invalidateAll();
+    }
+
+    let batchDeleteConfirm = false;
+    const batchDelete = async () => {
+        if(!batchDeleteConfirm)
+        {
+            batchDeleteConfirm = true;
+            return;
+        }
+        for(const order_row of selectedOrderRows)
+        {
+            await $page.data.pb.collection(Collections.OrdersRows).delete(order_row);
+        }
+        await invalidateAll();
+    }
 
     const deleteOrder = async () => {
         if(confirmDelete === false)
@@ -58,13 +96,15 @@
             return;
         }
         
-        await $page.data.pb.collection(Collections.Orders).delete(data.order.id);
         const orderRows = await $page.data.pb.collection(Collections.OrdersRows).getFullList({ filter: `order = "${data.order.id}"`});
 
         for(const or of orderRows)
         {
             await $page.data.pb.collection(Collections.OrdersRows).delete(or.id);
         }
+
+        await $page.data.pb.collection(Collections.Orders).delete(data.order.id);
+
         goto("/app/scm/orders");
     }
 
@@ -117,63 +157,131 @@
 
 <Grid cols={2} gap={8} items="start" class="mt-8">
     <Wrapper>
-        <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
-            <svelte:fragment slot="body">
-                <TableRow>
-                    <TableCell><h3>{env.PUBLIC_COMPANY_NAME}</h3></TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell><p>{@html env.PUBLIC_COMPANY_ADDRESS.split(",").join(',</br>')}</p></TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>
-                        <DetailLabel>{data.order.expand?.issuer.email}</DetailLabel>
-                    </TableCell>
-                </TableRow>
-            </svelte:fragment>
-        </Table>
+        <h2>{env.PUBLIC_COMPANY_NAME}</h2>
+        <p class="my-2">{@html env.PUBLIC_COMPANY_ADDRESS.split(",").join(',</br>')}</p>
+        <DetailLabel>{data.order.expand?.issuer.email}</DetailLabel>
     </Wrapper>
 
     <Wrapper>
-        <h4>Fournisseur</h4>
-        <Table embeded={true} backgroundColor="bg-transparent" marginTop="">
-            <svelte:fragment slot="body">
-                <TableRow>
-                    <TableCell><h3>{data.order.expand?.supplier.name}</h3></TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell><p>{@html data.order.expand?.supplier.address?.split(",").join(',</br>')}</p></TableCell>
-                </TableRow>
-            </svelte:fragment>
-        </Table>
+        <p class="text-gray-500 text-sm">Fournisseur</p>
+        <h3>{data.order.expand?.supplier.name}</h3>
+        <p class="my-2">{@html data.order.expand?.supplier.address?.split(",").join(',</br>')}</p>
+        <DetailLabel>{data.order.expand?.supplier.contact_email}</DetailLabel>
     </Wrapper>
 </Grid>
 
-<Table marginTop="mt-8">
-    <svelte:fragment slot="head">
-        <TableHead>Affaire</TableHead>
-        <TableHead>Désignation</TableHead>
-        <TableHead>Référence</TableHead>
-        <TableHead>Quantité</TableHead>
-        <TableHead>Délai Souhaité</TableHead>
-        {#if data.order.state === OrdersStateOptions.acknowledged}
-            <TableHead>Délai A/R</TableHead>
-        {/if}
-        <TableHead>Prix A/R</TableHead>
-        <TableHead>Total</TableHead>
-        {#if data.order.state == OrdersStateOptions.draft}
-            <TableHead>Supprimer</TableHead>
-        {/if}
-    </svelte:fragment>
+{#if data.order.expand?.["orders_rows(order)"]}
+    <Wrapper class="mt-8">
+        <Table headers={[
+            "selectAll",
+            { label: "Affaire" },
+            { label: "Article" },
+            { label: "Référence" },
+            { label: "Quantité" },
+            { label: "Délai A/R" },
+            { label: "Prix A/R" },
+            { label: "Total" },
+            (data.order.state === OrdersStateOptions.draft) ? { label: "Supprimer" } : undefined
+            ]}
+            selectables={data.order.expand?.["orders_rows(order)"].map(k => k.id)}
+            bind:selected={selectedOrderRows}
+        >
+            {#if selectedOrderRows.length > 1}
+                <TableCell />
+                <TableCell>
+                    <FormInput type="select" name="project" change={(val) => void batchEditProject(val)}>
+                        <option value="">—</option>
+                        {#each data.projects as project}
+                            <option value={project.id}>{project.name}</option>
+                        {/each}
+                    </FormInput>
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell>
+                    {#if data.order.state === OrdersStateOptions.acknowledged}
+                        <FormInput type="date" name="ack_date" change={(val) => void batchEditACKDate(val)} />
 
-    <svelte:fragment slot="body">
-        {#if data.order.expand?.["orders_rows(order)"]}
+                    {/if}
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                {#if data.order.state === OrdersStateOptions.draft}
+                    <TableCell>
+                        <Button size="small" role="danger" on:click={batchDelete}>{batchDeleteConfirm ? "Confirmer" : "Supprimer"} ({selectedOrderRows.length})</Button>
+                    </TableCell>
+                {/if}
+            {/if}
+
             {#each data.order.expand?.["orders_rows(order)"] as order_row (order_row.id)}
-                <OrderRow bind:order={data.order} bind:orderRow={order_row} projects={data.projects} />
+                <TableCell>
+                    <input type="checkbox" bind:group={selectedOrderRows} value={order_row.id} />
+                </TableCell>
+                <TableCell>
+                    {#if data.order.state === OrdersStateOptions.draft}
+                        <form action="?/editOrderRow" method="post" use:enhanceNoReset>
+                            <input type="hidden" name="id" value={order_row.id} />
+                            <FormInput type="select" name="project" bind:value={order_row.project} validateOnChange={true}>
+                                <option value="">—</option>
+                                {#each data.projects as project}
+                                    <option value={project.id}>{project.name}</option>
+                                {/each}
+                            </FormInput>
+                        </form>
+                    {:else}
+                        {data.projects.find(p => p.id === order_row.project)?.name ?? "—"}
+                    {/if}
+                </TableCell>
+                <TableCell><a href="/app/scm/articles/{order_row.expand?.article.id}">{order_row.expand?.article.name}</a></TableCell>
+                <TableCell>{order_row.expand?.article.reference}</TableCell>
+                <TableCell>
+                    {#if data.order.state === OrdersStateOptions.draft}
+                        <form action="?/editOrderRow" method="post" use:enhanceNoReset>
+                            <input type="hidden" name="id" value={order_row.id} />
+                            <FormInput type="number" name="quantity" bind:value={order_row.quantity} validateOnChange={true} min={order_row.expand?.article?.order_quantity} step={order_row.expand?.article?.order_quantity}/>
+                        </form>
+                    {:else}
+                        {order_row.quantity}
+                    {/if}
+                </TableCell>
+                <TableCell>
+                    {#if data.order.state === OrdersStateOptions.acknowledged}
+                        <form action="?/editOrderRow" method="post" use:enhanceNoReset>
+                            <input type="hidden" name="id" value={order_row.id} />
+                            <FormInput type="date" name="ack_date" value={order_row.ack_date?.split(" ").at(0) ?? undefined} validateOnChange={true} />
+                        </form>
+                    {:else}
+                        <Date value={order_row.ack_date} />
+                    {/if}
+                </TableCell>
+                <TableCell>
+                    {#if data.order.state === OrdersStateOptions.acknowledged}
+                        <form action="?/editOrderRow" method="post" use:enhanceNoReset>
+                            <input type="hidden" name="id" value={order_row.id} />
+                            <FormInput type="number" name="ack_price" label={order_row.ack_price === 0 ? "Prix a valider" : undefined} value={order_row.ack_price || (order_row.expand?.article.price ?? 0)} validateOnChange={true} step={0.00001} min={0} />
+                        </form>
+                    {:else}
+                        <Price value={order_row.expand?.article.price ?? 0} />
+                    {/if}
+                </TableCell>
+                <TableCell><Price value={((order_row.ack_price || (order_row.expand?.article.price ?? 0)) * order_row.quantity)} /></TableCell>
+                {#if data.order.state === OrdersStateOptions.draft}
+                    <TableCell>
+                        {#if confirmDelete}
+                            <form action="?/deleteOrderRow" method="post" use:enhance>
+                                <input type="hidden" name="id" value={order_row.id} />
+                                <Button role="danger" size="small">Confirmer</Button>
+                            </form>
+                        {:else}
+                            <Button role="danger" size="small" on:click={() => confirmDelete = true}>Supprimer</Button>
+                        {/if}
+                    </TableCell>
+                {/if}
             {/each}
-        {/if}
-    </svelte:fragment>
-</Table>
+        </Table>
+    </Wrapper>
+{/if}
 
 {#if data.order.state === OrdersStateOptions.draft}
     <Wrapper class="mt-6">
@@ -191,35 +299,30 @@
     </Wrapper>
 {/if}
 
-<Table class="w-max ml-auto">
-    <svelte:fragment slot="body">
-        <TableRow>
-            <TableCell>Frais de livraison</TableCell>
-            <TableCell colspan={2}>
-                <form action="?/editOrder" method="post" use:enhanceNoReset>
-                    <FormInput label="Frais de livraison" name="delivery_fees" type="number" bind:value={data.order.delivery_fees} min={0} step={0.01} validateOnChange />
-                </form>
-            </TableCell>
-            <TableCell><Price value={data.order.delivery_fees} /></TableCell>
-        </TableRow>
-        <TableRow>
-            <TableCell>Total (HT)</TableCell>
-            <TableCell colspan={2}><Price value={htTotal} /></TableCell>
-        </TableRow>
-        <TableRow>
-            <TableCell>TVA</TableCell>
-            <TableCell>
-                <form action="?/editOrder" method="post" use:enhanceNoReset>
-                    <FormInput label="Taux de TVA" name="vat" type="number" bind:value={data.order.vat} min={0} max={100} step={0.1} validateOnChange />
-                </form>
-            </TableCell>
-            <TableCell><Price value={tvaSubtotal} /></TableCell>
-        </TableRow>
-    </svelte:fragment>
-    <svelte:fragment slot="foot">
-        <TableRow>
-            <TableCell>Total (TTC)</TableCell>
-            <TableCell colspan={2}><Price value={completeTotal} /></TableCell>
-        </TableRow>
-    </svelte:fragment>
-</Table>
+<Wrapper class="w-max ml-auto mt-8">
+    <Table cols={3}>
+    
+        <TableCell>Frais de livraison</TableCell>
+        <TableCell>
+            <form action="?/editOrder" method="post" use:enhanceNoReset>
+                <FormInput label="Frais de livraison" name="delivery_fees" type="number" bind:value={data.order.delivery_fees} min={0} step={0.01} validateOnChange />
+            </form>
+        </TableCell>
+        <TableCell><Price value={data.order.delivery_fees} /></TableCell>
+    
+        <TableCell>Total (HT)</TableCell>
+        <TableCell colspan={2}><Price value={htTotal} /></TableCell>
+    
+        <TableCell>TVA</TableCell>
+        <TableCell>
+            <form action="?/editOrder" method="post" use:enhanceNoReset>
+                <FormInput label="Taux de TVA" name="vat" type="number" bind:value={data.order.vat} min={0} max={100} step={0.1} validateOnChange />
+            </form>
+        </TableCell>
+        <TableCell><Price value={tvaSubtotal} /></TableCell>
+    
+        <TableCell>Total (TTC)</TableCell>
+        <TableCell colspan={2}><Price value={completeTotal} /></TableCell>
+    
+    </Table>
+</Wrapper>
