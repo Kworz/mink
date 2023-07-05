@@ -1,12 +1,14 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import Flex from "../layout/flex.svelte";
     import SortButton from "../table/SortButton.svelte";
     import { ArrowLeft, ArrowRight } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { fade } from "svelte/transition";
 
-    export let headers: Array<"selectAll" | { label: string, colname?: string }> = [];
+    type headerTypes = "selectAll" | { label: string, colname?: string };
+
+    export let cols: number | undefined = undefined;
+    export let headers: Array<headerTypes | undefined> | undefined = undefined;
     export let activeSort: string | undefined = undefined;
     export let allSelected = false;
 
@@ -14,6 +16,10 @@
     export let selected: Array<string> = [];
 
     let parentContainer: HTMLDivElement;
+
+    const filterUndefined = (value: any): value is headerTypes => value !== undefined;
+
+    $: columns = (headers === undefined) ? (cols ?? 1) : headers.filter(h => h !== undefined).length;
 
     $: allSelected = selectables.length === selected.length;
 
@@ -57,24 +63,26 @@
     
     <div 
         class="grid items-end"
-        style={`grid-template-columns: ${headers.includes("selectAll") ? `4em repeat(${headers.length - 1}, minmax(min-content, 1fr));` : `repeat(${headers.length}, minmax(min-content, 1fr));`}`}
+        style={`grid-template-columns: ${headers?.includes("selectAll") ? `4em repeat(${columns - 1}, minmax(min-content, 1fr));` : `repeat(${columns}, minmax(min-content, 1fr));`}`}
     >
-        {#each headers as header}
-            <div class="p-4 border-b-2 border-b-violet-500/75 {header === "selectAll" ? "text-center" : "text-left"}">
-                {#if header === "selectAll"}
-                    <input type="checkbox" bind:checked={allSelected} on:click={() => selected = (allSelected) ? [] : selectables} class="self-center" />
-                {:else}
-                    <Flex items="center" gap={1} >
-                        <span class="font-semibold truncate">{header.label}</span>
-                        {#if header.colname !== undefined}
-                            <SortButton direction="asc" active={header.colname === activeSort} on:click={() => activeSort = header.colname ?? ""} />
-                            <SortButton direction="desc" active={`-${header.colname}` === activeSort} on:click={() => activeSort = `-${header.colname}`} />
-                        {/if}
-                    </Flex>
-                {/if}
-            </div>
-        {/each}
-
+        {#if headers !== undefined}
+            {#each headers.filter(filterUndefined) as header}
+                <div class="p-4 border-b-2 border-b-violet-500/75 {header === "selectAll" ? "text-center" : "text-left"}">
+                    {#if header === "selectAll"}
+                        <input type="checkbox" bind:checked={allSelected} on:click={() => selected = (allSelected) ? [] : selectables} class="self-center" />
+                    {:else}
+                        <Flex items="center" gap={1} >
+                            <span class="font-semibold truncate">{header.label}</span>
+                            {#if header.colname !== undefined}
+                                <SortButton direction="asc" active={header.colname === activeSort} on:click={() => activeSort = header.colname ?? ""} />
+                                <SortButton direction="desc" active={`-${header.colname}` === activeSort} on:click={() => activeSort = `-${header.colname}`} />
+                            {/if}
+                        </Flex>
+                    {/if}
+                </div>
+            {/each}
+        {/if}
+        
         <slot />
     </div>
 </div>
