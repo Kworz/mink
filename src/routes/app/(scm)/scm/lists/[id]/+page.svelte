@@ -26,6 +26,7 @@
     import type { ActionData, PageData, Snapshot } from "./$types";
     import { Collections } from "$lib/DBTypes";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
+    import { onMount } from "svelte";
     
     export let data: PageData;
     export let form: ActionData;
@@ -35,6 +36,12 @@
 
     let createOrder = false;
     let editList = false;
+
+    onMount(async () => {
+        const unsub = await $page.data.pb.collection(Collections.StoresRelations).subscribe(data.list.store, () => invalidateAll());
+
+        return () => unsub();
+    })
 
     $: flatenRelations = data.flattenAssemblyResult.map((far) => {
         return {
