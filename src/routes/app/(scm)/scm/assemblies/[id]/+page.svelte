@@ -1,6 +1,6 @@
 <script lang="ts">
     import { browser } from "$app/environment";
-    import { invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import { setAssemblyContext } from "$lib/components/assemblies/assemblyContext";
     import AssemblyEditor from "$lib/components/assemblies/AssemblyEditor.svelte";
     import AssemblyFlat from "$lib/components/assemblies/AssemblyFlat.svelte";
@@ -13,12 +13,11 @@
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { DocumentCheck, WrenchScrewdriver } from "@steeze-ui/heroicons";
+    import { DocumentCheck, Trash, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import type { ActionData, PageData, Snapshot } from "./$types";
 
     import { env } from "$env/dynamic/public";
-    import { onMount } from "svelte";
-    import type { AssembliesResponse } from "$lib/DBTypes";
+    import { page } from "$app/stores";
 
     export let data: PageData;
     export let form: ActionData;
@@ -28,12 +27,29 @@
     let editAssembly = false;
     let editAssemblyDeleteThumbnail = false;
 
+    let confirmDelete = false;
+
     export const snapshot: Snapshot<"nested" | "flat"> = {
         capture: () => mode,
         restore: (value) => mode = value
     }
 
+    const deleteAssembly = () => {
+
+        if(!confirmDelete)
+        {
+            confirmDelete = true;
+            return false;
+        }
+
+        $page.data.pb.collection("assemblies").delete(data.assembly.id).then(() => {
+                goto("/app/scm/assemblies");
+            });
+
+    }
+
     $: if(form !== null) { invalidateAll(); editAssembly = false; editAssemblyDeleteThumbnail = false; };
+    $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 5000); };
 
 </script>
 
@@ -81,6 +97,7 @@
         <PillMenu>
             <PillMenuButton icon={DocumentCheck} click={() => { mode = (mode === "nested") ? "flat" : "nested" }}>{mode === "nested" ? "Vue applanie" : "Vue imbriquée"}</PillMenuButton>
             <PillMenuButton icon={WrenchScrewdriver} click={() => editAssembly = !editAssembly}>Modifier l'assemblage</PillMenuButton>
+            <PillMenuButton icon={Trash} click={deleteAssembly}>{confirmDelete ? "Confirmer" : "Supprimer l'assemblage"}</PillMenuButton>
         </PillMenu>
     </Wrapper>
 </Flex>
