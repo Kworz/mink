@@ -3,9 +3,9 @@
     import { page } from "$app/stores";
     import { Collections, type AssembliesRelationsRecord } from "$lib/DBTypes";
     import { onMount } from "svelte";
-    import type { ArticleResponseExpanded } from "../../../routes/app/articles/+page.server";
+    import type { ArticleResponseExpanded } from "$lib/components/article/ArticleRow.svelte";
     import ArticleFinder from "../article/ArticleFinder.svelte";
-    import ArticleRow, { articleResponseExpand } from "../article/ArticleRow.svelte";
+    import ArticleRow from "../article/ArticleRow.svelte";
     import Button from "../Button.svelte";
     import FormInput from "../FormInput.svelte";
     import Flex from "../layout/flex.svelte";
@@ -17,12 +17,11 @@
     import TableRow from "../table/TableRow.svelte";
     import Wrapper from "../Wrapper.svelte";
 
-    import { getAssemblyContext } from "./assemblyContext";
     import AssemblyPreview from "./AssemblyPreview.svelte";
     import type { AssembliesRelationsReponseExpanded } from "./AssemblyTree.svelte";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { ChevronDown, ChevronUp } from "@steeze-ui/heroicons";
-    const { selectedAssembly } = getAssemblyContext();
+    import { afterNavigate } from "$app/navigation";
 
     let relations : AssembliesRelationsReponseExpanded[] = [];
 
@@ -40,7 +39,7 @@
 
     const addArticle = async () => {
 
-        if($selectedAssembly === undefined)
+        if($page.params.id === undefined)
             return;
 
         if(addArticleSelected === undefined)
@@ -51,7 +50,7 @@
 
         const relation = {
 
-            parent: $selectedAssembly.id,
+            parent: $page.params.id,
             article_child: addArticleSelected.id,
             quantity: addArticleQuantity,
             order: (subArticlesRelations.at(-1)?.order ?? 0) -1
@@ -69,7 +68,7 @@
 
     const addSubAssembly = async () => {
 
-        if($selectedAssembly === undefined)
+        if($page.params.id === undefined)
             return;
         
         if(addSubAssemblySelected === undefined)
@@ -79,7 +78,7 @@
             return;
         
         const relation = {
-            parent: $selectedAssembly.id,
+            parent: $page.params.id,
             assembly_child: addSubAssemblySelected,
             quantity: addSubAssemblyQuantity
         } satisfies AssembliesRelationsRecord;
@@ -135,7 +134,7 @@
         }
 
         await $page.data.pb?.collection(Collections.AssembliesRelations).create({
-            parent: $selectedAssembly?.id,
+            parent: $page.params.id,
             assembly_child: new_asm.id,
             quantity: 1
         });
@@ -165,10 +164,7 @@
         await refreshData();
     }
 
-    let selectedArticles: string[] = [];
-    let selectedAssemblies: string[] = [];
-
-    onMount(async () => {
+    const refreshDataPageLoad = async () => {
         if(browser)
             await refreshData();
 
@@ -189,18 +185,29 @@
             }
             await refreshData();
         }
+    }
+
+    let selectedArticles: string[] = [];
+    let selectedAssemblies: string[] = [];
+
+    onMount(async () => {
+        await refreshDataPageLoad();
     });
 
-    const refreshData = async () => relations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent = "${$selectedAssembly.id}"`, expand: `assembly_child,article_child.supplier`, sort: "-order" }) ?? [];
+    afterNavigate(async () => {
+        await refreshDataPageLoad();
+    });
+
+    const refreshData = async () => relations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList<AssembliesRelationsReponseExpanded>({ filter: `parent = "${$page.params.id}"`, expand: `assembly_child,article_child.supplier`, sort: "-order" }) ?? [];
 
     $: subAssembliesRelations = relations.filter(r => r.assembly_child !== undefined && r.expand?.assembly_child !== undefined);
     $: subArticlesRelations = relations.filter(r => r.article_child !== undefined && r.expand?.article_child !== undefined);
 
-    $: $selectedAssembly, refreshData();
+    $: $page.params.id, refreshDataPageLoad();
 
 </script>
 
-{#if $selectedAssembly !== undefined}
+{#if $page.params.id !== undefined}
     <Grid cols={1} gap={6} items="center" class="w-full">
 
         {#if subAssembliesRelations.length > 0}
@@ -238,7 +245,7 @@
                                 </Flex>
                             </TableCell>
                             <TableCell>
-                                <AssemblyPreview assembly={subAssemblyRelation.expand.assembly_child} />
+                                <AssemblyPreview assembly={subAssemblyRelation.expand?.assembly_child} />
                             </TableCell>
                             <TableCell>
                                 <Flex items="center">

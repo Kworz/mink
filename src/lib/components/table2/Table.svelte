@@ -39,7 +39,7 @@
 
 <div class="{$$props.class} relative" class:overflow-x-scroll={contentScrollable} bind:this={parentContainer} on:scroll={computeScrolls}>
 
-    <div class="sticky top-0 right-0 left-0 bottom-0">
+    <div class="sticky top-0 right-0 left-0 bottom-0 z-50">
         {#if shouldScrollRight}
             <button 
                 in:fade
@@ -60,14 +60,16 @@
             </button>
         {/if}
     </div>
-    
+
     <div 
         class="grid items-end"
         style={`grid-template-columns: ${headers?.includes("selectAll") ? `4em repeat(${columns - 1}, minmax(min-content, 1fr));` : `repeat(${columns}, minmax(min-content, 1fr));`}`}
     >
         {#if headers !== undefined}
-            {#each headers.filter(filterUndefined) as header}
-                <div class="p-4 border-b-2 border-b-violet-500/75 {header === "selectAll" ? "text-center" : "text-left"}">
+            {#each headers.filter(filterUndefined) as header, i}
+                <div
+                    class="p-4 border-b-2 border-b-violet-500/75 {header === "selectAll" ? "text-center" : "text-left"}"
+                >
                     {#if header === "selectAll"}
                         <input type="checkbox" bind:checked={allSelected} on:click={() => selected = (allSelected) ? [] : selectables} class="self-center" />
                     {:else}
