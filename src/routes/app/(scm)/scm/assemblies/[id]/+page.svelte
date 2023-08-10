@@ -17,6 +17,8 @@
     import type { ActionData, PageData, Snapshot } from "./$types";
 
     import { env } from "$env/dynamic/public";
+    import { onMount } from "svelte";
+    import type { AssembliesResponse } from "$lib/DBTypes";
 
     export let data: PageData;
     export let form: ActionData;
@@ -25,8 +27,6 @@
 
     let editAssembly = false;
     let editAssemblyDeleteThumbnail = false;
-
-    setAssemblyContext(data.assembly);
 
     export const snapshot: Snapshot<"nested" | "flat"> = {
         capture: () => mode,
@@ -89,7 +89,7 @@
     <Flex gap={6} class="mt-6" items="start">
 
         <Wrapper class="w-fit shrink-0 hidden lg:block">
-            <AssemblyTree bind:assembly={data.assembly} />
+            <AssemblyTree assembly={data.assembly} />
         </Wrapper>
     
         <AssemblyEditor />
