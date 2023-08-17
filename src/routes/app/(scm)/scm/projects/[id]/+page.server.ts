@@ -15,8 +15,8 @@ export const load = (async ({ locals, params }) => {
     const buylistsStores = (await locals.pb.collection(Collections.AssembliesBuylists).getFullList<AssembliesBuylistsResponse>({ filter: `project = "${projectID}"` })).map(buylist => buylist.store);
 
     let filter = `${buylistsStores.map(bls => `store_in = "${bls}"`).join(" || ")}`;
-    filter += (filter.length > 0) ? " && " : "";
-    filter += `store_out != "" && store_in != "" && quantity_update > 0 && article.internal = "false"`;
+    filter = (filter.length > 0) ? `(${filter}) && ` : "";
+    filter += `store_out != "" && quantity_update > 0 && article.internal != true`;
 
     const stores_relations = buylistsStores.length > 0 ? (await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{ article: ArticleResponse, store_in: StoresResponse, store_out: StoresResponse}>>({ filter, expand: "article,store_in,store_out"})) : [];
     const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponse>({ expand: articleResponseExpand });
@@ -32,7 +32,7 @@ export const load = (async ({ locals, params }) => {
     }) as Array<ArticleMovementsResponse<{ article: ArticleResponseExpanded, store_in: StoresResponse, store_out: StoresResponse}>>;
 
 
-    const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `project = "${projectID}"`, expand: 'order,article' });
+    const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `project = "${projectID}" && quantity = quantity_received `, expand: 'order,article' });
     const fabricationOrders = await locals.pb.collection(Collections.FabricationOrders).getFullList<FabricationOrdersResponseExpanded>({ filter: `project = "${projectID}"`, expand: 'article,applicant,receiver'});
 
     return {
