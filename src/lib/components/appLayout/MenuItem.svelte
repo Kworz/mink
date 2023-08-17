@@ -4,6 +4,7 @@
     import type { IconSource } from "@steeze-ui/heroicons/types";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { getMenuContext } from "./menuContext";
+    import { fade } from "svelte/transition";
     
     export let icon: IconSource;
     export let href: string;
@@ -21,7 +22,7 @@
     >
         <Icon src={icon} class="h-4 w-4" />
         {#if !$isShrinked}
-            <span>{label}</span>
+            <span in:fade={{ duration: 200 }} out:fade={{ duration: 50 }}>{label}</span>
         {/if}
     </div>
 </a>
