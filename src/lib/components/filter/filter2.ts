@@ -86,6 +86,11 @@ export function predictField(value: string, availableFilters: Array<Filter>): st
         const operators = ((filterType !== undefined) ? reccomendedOperatorsForType[filterType] : ['=' , '~', '!=' , '>' , '<' , '>=', '<=', '!~']).filter(k => k.includes(parts[1]));
         return operators.length === 1 ? [] : operators;
     }
+    else if (part === 2)
+    {
+        const currentFilterType = availableFilters.find(k => k.name === parts[0])?.type;
+        return availableFilters.filter(k => k.type === currentFilterType && k.name != parts[0]).map(k => k.name);
+    }
     else
         return [];
 }
@@ -120,6 +125,15 @@ export function clientSideFilter(filters: Array<FilterCondition>, element: Recor
     return filters.every(filter => {
 
         let value: string | undefined = undefined;
+        let comparedValue: string | undefined = undefined;
+
+        if(Object.keys(element).includes(filter.value))
+        {
+            console.log("value is key", filter.value, element[filter.value]);
+            comparedValue = String(element[filter.value]);
+        }
+        else
+            comparedValue = filter.value;
 
         if(filter.field.split(".").length > 1)
         {
@@ -142,27 +156,27 @@ export function clientSideFilter(filters: Array<FilterCondition>, element: Recor
             value = String(element[filter.field])
         }
 
-        if(value === undefined)
+        if(value === undefined || comparedValue === undefined)
             return false;
         
         switch(filter.operator)
         {
             case "=":
-                return value === filter.value;
+                return value === comparedValue;
             case "!=":
-                return value !== filter.value;
+                return value !== comparedValue;
             case ">":
-                return value > filter.value;
+                return value > comparedValue;
             case "<":
-                return value < filter.value;
+                return value < comparedValue;
             case ">=":
-                return value >= filter.value;
+                return value >= comparedValue;
             case "<=":
-                return value <= filter.value;
+                return value <= comparedValue;
             case "~":
-                return Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(filter.value.toLowerCase())) > -1 : value.toLowerCase().includes(filter.value.toLowerCase());
+                return Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(comparedValue.toLowerCase())) > -1 : value.toLowerCase().includes(comparedValue.toLowerCase());
             case "!~":
-                return !(Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(filter.value.toLowerCase())) > -1 : value.toLowerCase().includes(filter.value.toLowerCase()));
+                return !(Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(comparedValue.toLowerCase())) > -1 : value.toLowerCase().includes(comparedValue.toLowerCase()));
         }
     });
 }
