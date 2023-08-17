@@ -8,9 +8,10 @@ import { redirect } from "@sveltejs/kit";
 
 export const load = (async ({ locals, params }) => {
 
-    const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project"});
+    const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
     const storeRelations = await locals.pb.collection(Collections.StoresRelations).getFullList({ filter: `store = "${list.store}"`});
 
+    const buyListReplacementRelations = await locals.pb.collection("assemblies_buylists_replacement_relation").getFullList({ filter: `buylist = "${list.id}"`, expand: "base_article,replacement_article" });
     const flattenAssemblyResult = await flattenAssembly(list.expand?.assembly, locals.pb);
 
     const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>({ filter: [...new Set(flattenAssemblyResult.map(k => k.article.supplier).flat())].map(k => `id = "${k}"`).join(" || ") });
@@ -19,7 +20,8 @@ export const load = (async ({ locals, params }) => {
         list: structuredClone(list),
         flattenAssemblyResult: structuredClone(flattenAssemblyResult),
         suppliers: structuredClone(suppliers),
-        storeRelations: structuredClone(storeRelations)
+        storeRelations: structuredClone(storeRelations),
+        buyListReplacementRelations: structuredClone(buyListReplacementRelations)
     }
 
 }) satisfies PageServerLoad;

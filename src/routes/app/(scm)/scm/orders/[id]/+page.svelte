@@ -23,6 +23,7 @@
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
     import Date from "$lib/components/formatters/Date.svelte";
     import { enhance } from "$app/forms";
+    import { onMount } from "svelte";
 
     const states: Record<OrdersStateOptions, string> = {
         "draft": "Brouillon",
@@ -130,6 +131,11 @@
             console.error(e);
         }
     }
+
+    onMount(() => {
+        const subscribefn = $page.data.pb.collection(Collections.Orders).subscribe(data.order.id, () => invalidateAll());
+        return subscribefn;
+    })
 
 </script>
 
