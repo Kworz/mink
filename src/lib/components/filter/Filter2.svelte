@@ -35,7 +35,12 @@
         const parts = tempFilter.split(" ");
         const part = parts.length - 1;
 
-        parts[part] = suggestions[index] + " ";
+        parts[part] = suggestions[index];
+
+        // Prevent adding a space in the last filter part
+        if(parts.length < 3)
+            parts[part] += " ";
+
         tempFilter = parts.join(" ");
     }
 

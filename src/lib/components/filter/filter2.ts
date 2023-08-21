@@ -88,8 +88,23 @@ export function predictField(value: string, availableFilters: Array<Filter>): st
     }
     else if (part === 2)
     {
+        const returnValues: Array<string> = [];
+
         const currentFilterType = availableFilters.find(k => k.name === parts[0])?.type;
-        return availableFilters.filter(k => k.type === currentFilterType && k.name != parts[0]).map(k => k.name);
+        returnValues.push(...availableFilters.filter(k => k.type === currentFilterType && k.name != parts[0]).map(k => k.name));
+
+        switch(currentFilterType)
+        {
+            case "boolean":
+            {
+                returnValues.push(...["true", "false"]);
+                break;
+            }
+
+            default: break;
+        }
+        
+        return returnValues;
     }
     else
         return [];
