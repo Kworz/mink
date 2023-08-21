@@ -179,7 +179,7 @@
 
                     <input type="hidden" name="article" value={assemblyRelation.far.article.id} />
                     <input type="hidden" name="buylist" value={data.list.id} />
-                    <FormInput name="quantity" type="number" step={assemblyRelation.far.article.unit === "" ? 1 : 0.1} value={assemblyRelation.buyListRelation?.quantity ?? 0} max={assemblyRelation.far.quantity} invalid={form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.error ?? (form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.success ?? undefined)} />
+                    <FormInput name="quantity" type="number" step={assemblyRelation.far.article.unit === "" ? 1 : 0.01} value={assemblyRelation.buyListRelation?.quantity ?? 0} max={assemblyRelation.far.quantity} invalid={form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.error ?? (form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.success ?? undefined)} />
                     <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
                 </form>
             </TableCell>
