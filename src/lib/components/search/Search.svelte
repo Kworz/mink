@@ -35,11 +35,12 @@
         };
     })
 
-    $: searchTerm, function() {
+    $: if(searchTerm !== "")
+    { 
         search(searchTerm, $page.data.pb).then((r) => {
             results = r;
         });
-    }();
+    };
 
 </script>
 
