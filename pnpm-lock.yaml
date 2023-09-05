@@ -73,9 +73,6 @@ devDependencies:
   eslint-plugin-svelte:
     specifier: ^2.33.0
     version: 2.33.0(eslint@8.48.0)(svelte@4.2.0)
-  eslint-plugin-svelte3:
-    specifier: ^4.0.0
-    version: 4.0.0(eslint@8.48.0)(svelte@4.2.0)
   jsqr:
     specifier: ^1.4.0
     version: 1.4.0
@@ -1477,16 +1474,6 @@ packages:
   /escape-string-regexp@4.0.0:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
-    dev: true
-
-  /eslint-plugin-svelte3@4.0.0(eslint@8.48.0)(svelte@4.2.0):
-    resolution: {integrity: sha512-OIx9lgaNzD02+MDFNLw0GEUbuovNcglg+wnd/UY0fbZmlQSz7GlQiQ1f+yX0XvC07XPcDOnFcichqI3xCwp71g==}
-    peerDependencies:
-      eslint: '>=8.0.0'
-      svelte: ^3.2.0
-    dependencies:
-      eslint: 8.48.0
-      svelte: 4.2.0
     dev: true
 
   /eslint-plugin-svelte@2.33.0(eslint@8.48.0)(svelte@4.2.0):

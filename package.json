@@ -30,7 +30,6 @@
     "dxf": "^5.1.0",
     "eslint": "^8.48.0",
     "eslint-plugin-svelte": "^2.33.0",
-    "eslint-plugin-svelte3": "^4.0.0",
     "jsqr": "^1.4.0",
     "node-xlsx": "^0.23.0",
     "pocketbase": "0.18.0",
