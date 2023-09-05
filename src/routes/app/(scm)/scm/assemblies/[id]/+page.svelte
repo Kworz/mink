@@ -13,11 +13,12 @@
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { DocumentCheck, Trash, WrenchScrewdriver } from "@steeze-ui/heroicons";
+    import { DocumentCheck, DocumentDuplicate, Trash, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import type { ActionData, PageData, Snapshot } from "./$types";
 
     import { env } from "$env/dynamic/public";
     import { page } from "$app/stores";
+    import { Collections } from "$lib/DBTypes";
 
     export let data: PageData;
     export let form: ActionData;
@@ -45,7 +46,25 @@
         $page.data.pb.collection("assemblies").delete(data.assembly.id).then(() => {
                 goto("/app/scm/assemblies");
             });
+    }
 
+    const copyAssembly = async () => {
+
+        const copiedAssembly = await $page.data.pb.collection(Collections.Assemblies).create({
+            id: undefined,
+            name: `${data.assembly.name} (copie)`,
+            description: data.assembly.description,
+            assembly_time: data.assembly.assembly_time
+        });
+
+        const baseAssemblyRelations = await $page.data.pb.collection(Collections.AssembliesRelations).getFullList({ filter: `parent = "${data.assembly.id}"`});
+
+        for(const baseAssemblyRelation of baseAssemblyRelations)
+        {
+            await $page.data.pb.collection(Collections.AssembliesRelations).create({...baseAssemblyRelation, parent: copiedAssembly.id, id: undefined });
+        }
+
+        goto(`/app/scm/assemblies/${copiedAssembly.id}`);
     }
 
     $: if(form !== null) { invalidateAll(); editAssembly = false; editAssemblyDeleteThumbnail = false; };
@@ -97,6 +116,7 @@
         <PillMenu>
             <PillMenuButton icon={DocumentCheck} click={() => { mode = (mode === "nested") ? "flat" : "nested" }}>{mode === "nested" ? "Vue applanie" : "Vue imbriquée"}</PillMenuButton>
             <PillMenuButton icon={WrenchScrewdriver} click={() => editAssembly = !editAssembly}>Modifier l'assemblage</PillMenuButton>
+            <PillMenuButton icon={DocumentDuplicate} click={() => void copyAssembly()}>Copier l'assemblage</PillMenuButton>
             <PillMenuButton icon={Trash} click={deleteAssembly}>{confirmDelete ? "Confirmer" : "Supprimer l'assemblage"}</PillMenuButton>
         </PillMenu>
     </Wrapper>
