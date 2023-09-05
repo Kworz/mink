@@ -11,3 +11,9 @@ node_modules
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+# Ignore config files
+postcss.config.cjs
+tailwind.config.cjs
+svelte.config.js
+vite.config.ts
