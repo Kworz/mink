@@ -1,10 +1,12 @@
 /// <reference types="@sveltejs/kit" />
+/// <reference types="lucia" />
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 // and what to do when importing types
 
 import type PocketBase, { BaseAuthStore } from "pocketbase";
+import type { PrismaClient } from "@prisma/client";
 
 declare global {
 	namespace App {
@@ -12,6 +14,8 @@ declare global {
 	
 		interface Locals {
 			pb: PocketBase
+			prisma: PrismaClient
+			auth: import('lucia').AuthRequest
 			user: BaseAuthStore["model"] | undefined
 		}
 	
@@ -22,5 +26,13 @@ declare global {
 	
 		// interface Platform {}
 	}
+	namespace Lucia {
+		type Auth = import("$lib/server/lucia").Auth;
+		type DatabaseUserAttributes = {
+			username: string;
+		};
+		type DatabaseSessionAttributes = {};
+	}
 }
 
+export {};

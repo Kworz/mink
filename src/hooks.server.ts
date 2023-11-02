@@ -1,14 +1,20 @@
 import type { Handle } from '@sveltejs/kit';
 import PocketBase from 'pocketbase';
+import { PrismaClient } from "@prisma/client";
 import { env } from "$env/dynamic/public";
+import { auth } from "$lib/server/lucia";
 
 export const handle = (async ({ event, resolve }) => {
 
-    event.locals.pb = new PocketBase(`http://${env.PUBLIC_POCKETBASE_ADDRESS}/`);
-    event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
+    event.locals.prisma = new PrismaClient();
+    await event.locals.prisma.$connect();
+
+    event.locals.auth = auth(event.locals.prisma).handleRequest(event);
+
+    const session = await event.locals.auth.validate();
     
-    if(event.locals.pb.authStore.isValid)
-        event.locals.user = structuredClone(event.locals.pb.authStore.model)
+    if(session)
+        event.locals.user = session.user;
     else
         event.locals.user = undefined;
 
@@ -19,8 +25,6 @@ export const handle = (async ({ event, resolve }) => {
     else
     {
         const response = await resolve(event);
-        response.headers.set('set-cookie', event.locals.pb.authStore.exportToCookie({ secure: false, httpOnly: false }));
-
         return response;
     }
 

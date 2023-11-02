@@ -4,7 +4,7 @@ import type { UserConfig } from 'vite';
 const config: UserConfig = {
 	plugins: [sveltekit()],
 	ssr:{
-		noExternal: ["@fontsource/inter", 'three', 'troika-three-text']
+		noExternal: ["@fontsource/inter", 'three']
 	},
 	server: {
 		hmr: {

@@ -47,7 +47,7 @@
     }
 
     $: filter, activeSort, itemsPage, triggerRefresh();  
-    $: selectedAll = data.articleList.items.length === selected.length;
+    $: selectedAll = data.articles.length === selected.length;
 
 </script>
 
@@ -85,8 +85,8 @@
 
     <Table embeded={true}>
         <svelte:fragment slot="head">
-            <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articleList.items.map(k => k.id)} /></TableTitle>
-            <TableTitle col="name" bind:activeSort>Article ({data.articleList.totalItems})</TableTitle>
+            <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articles.map(k => k.id)} /></TableTitle>
+            <TableTitle col="name" bind:activeSort>Article ({data.totalItems})</TableTitle>
             <TableTitle col="consumable" bind:activeSort>Consommable ?</TableTitle>
             <TableTitle col="quantity" bind:activeSort>Stock</TableTitle>
             <TableTitle col="store.name" bind:activeSort>Emplacement</TableTitle>
@@ -98,7 +98,7 @@
         </svelte:fragment>
     
         <svelte:fragment slot="body">
-            {#each data.articleList.items as article (article.id)}
+            {#each data.articles as article (article.id)}
                 <TableRow>
                     <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                     <TableCell>
@@ -145,5 +145,5 @@
         </svelte:fragment>
     </Table>
     
-    <TablePages totalPages={data.articleList.totalPages} bind:currentPage={itemsPage} />
+    <TablePages totalPages={data.totalItems % 50} bind:currentPage={itemsPage} />
 </Wrapper>

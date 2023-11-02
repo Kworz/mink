@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { navigating } from '$app/stores';
 	import { fly } from 'svelte/transition';
 
@@ -10,7 +11,7 @@
 	$: if($navigating == null) { isNavigating = false }
 </script>
 
-{#if isNavigating}
+{#if isNavigating && browser}
 	{#await delay() then}
 		<div
 			class="fixed top-0 left-0 right-0 z-50 h-[6px] bg-gradient-to-r from-indigo-500 to-fuchsia-500 via-orange-500 hue-rotate duration-300"

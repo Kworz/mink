@@ -36,6 +36,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Liste des Assemblages — Nomenclaturize</title>
+</svelte:head>
+
 <Wrapper>
     <h3>Liste des assemblages</h3>
 

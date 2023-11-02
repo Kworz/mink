@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String  @id @unique
+
+  email                  String  @default("")
+  username               String  @unique(map: "__pb_users_auth__username_idx")
+
+  avatar                 String? @default("")
+
+  updated                String  @default("")
+  created                String  @default("")
+
+  auth_session Session[]
+  key          Key[]
+
+  article_movements SCMArticleMovements[]
+}
+
+model Session {
+  id        String  @id @unique
+  user_id   String  
+  active_expires BigInt
+  idle_expires  BigInt
+  user User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+}
+
+model Key {
+  id              String  @id @unique
+  hashed_password String?
+  user_id         String
+  user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model SCMArticle {
+  id                String   @id
+  name              String?  @default("")
+  created           String   @default("")
+  reference         String?  @default("")
+  updated           String   @default("")
+  manufacturer      String?  @default("")
+  attached_files    String?  @default("")
+  pinned_file       String?  @default("")
+  quantity          Float?   @default(0)
+  supplier          String?  @default("")
+  order_quantity    Float?   @default(0)
+  store             String?  @default("")
+  critical_quantity Decimal? @default(0)
+  consumable        Boolean? @default(false)
+  unit              String?  @default("")
+  unit_quantity     Decimal? @default(0)
+  non_physical      Boolean? @default(false)
+  internal          Boolean? @default(false)
+
+  acticle_movement SCMArticleMovements[]
+  store_relations SCMStoresRelations[]
+
+}
+
+model SCMArticleMovements {
+
+  id                  String  @id @unique
+
+  article_id          String @default("")
+  article             SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
+
+  created             String  @default("")
+  quantity_update     Float?  @default(0)
+  reason              String? @default("")
+
+  user_id             String @default("")
+  user User           @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  store_in_id         String? @default("")
+  store_in            SCMStore? @relation("store_out", references: [id], fields: [store_in_id], onDelete: Cascade)
+
+  store_out_id        String? @default("")
+  store_out           SCMStore? @relation("store_in", references: [id], fields: [store_out_id], onDelete: Cascade)
+
+}
+
+model SCMStore {
+  id                  String @id @unique
+  location            String @default("")
+  name                String @default("")
+  updated             String @default("")
+  temporary           Boolean @default(false)
+
+  store_in_article_movements SCMArticleMovements[] @relation("store_in")
+  store_out_article_movements SCMArticleMovements[] @relation("store_out")
+
+  store_relations SCMStoresRelations[]
+}
+
+model SCMStoresRelations {
+  id              String   @id @unique
+
+  article_id      String  @default("")
+  article         SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
+
+  quantity        Float @default(0)
+
+  store_id        String  @default("")
+  store           SCMStore @relation(references: [id], fields: [store_id], onDelete: Cascade)
+}
+
+model SCMAssemblies {
+  id             String   @id @unique
+
+  created        String   @default("")
+  name           String?  @default("")
+  updated        String   @default("")
+  description    String?  @default("")
+  attached_files String?  @default("")
+  favorite       Boolean? @default(false)
+  pinned_file    String?  @default("")
+  assembly_time  Decimal? @default(0)
+  thumbnail      String?  @default("")
+
+}
+
+model SCMAssembliesBuylists {
+  assembly String?  @default("")
+  created  String   @default("")
+  id       String   @id
+  name     String?  @default("")
+  updated  String   @default("")
+  project  String?  @default("")
+  store    String?  @default("")
+  closed   Boolean? @default(false)
+
+  @@index([created], map: "_8511u98v8sq7w82_created_idx")
+}
+
+model assemblies_relations {
+  article_child  String?  @default("")
+  assembly_child String?  @default("")
+  created        String   @default("")
+  id             String   @id
+  parent         String?  @default("")
+  quantity       Decimal? @default(0)
+  updated        String   @default("")
+  order          Decimal? @default(0)
+
+  @@index([created], map: "_9fkqb7gwgcsubt7_created_idx")
+}
+
+model crm_company {
+  country String? @default("")
+  created String  @default("")
+  field   String? @default("")
+  id      String  @id
+  name    String? @unique(map: "idx_unique_uekhyfzz") @default("")
+  sector  String? @default("")
+  size    String? @default("")
+  type    String? @default("")
+  updated String  @default("")
+
+  @@index([created], map: "_hpcza1xtofbf32u_created_idx")
+}
+
+model crm_company_contact {
+  address      String? @default("")
+  company_role String? @default("")
+  created      String  @default("")
+  id           String  @id
+  name         String? @default("")
+  phone        String? @default("")
+  spoken_langs String? @default("")
+  updated      String  @default("")
+  company      String? @default("")
+  email        String? @default("")
+
+  @@index([created], map: "_s9sikvx18enu1n4_created_idx")
+}
+
+model crm_interest {
+  created     String  @default("")
+  description String? @default("")
+  id          String  @id
+  name        String? @default("")
+  updated     String  @default("")
+  color       String? @default("")
+
+  @@index([created], map: "_906o32s8n1x48c9_created_idx")
+}
+
+model crm_leads {
+  comment          String? @default("")
+  company          String? @default("")
+  company_contacts String? @default("")
+  created          String  @default("")
+  id               String  @id
+  origin           String? @default("")
+  state            String? @default("")
+  updated          String  @default("")
+
+  @@index([created], map: "_qqwhmu2ilwiapgl_created_idx")
+}
+
+model crm_leads_interests {
+  created  String   @default("")
+  id       String   @id
+  interest String?  @default("")
+  lead     String?  @default("")
+  order    Decimal? @default(0)
+  updated  String   @default("")
+
+  @@index([created], map: "_70sznq87hrb1cqt_created_idx")
+}
+
+model fabrication_orders {
+  applicant  String? @default("")
+  article    String? @default("")
+  created    String  @default("")
+  id         String  @id
+  project    String? @default("")
+  quantity   Float?  @default(0)
+  receiver   String? @default("")
+  updated    String  @default("")
+  start_date String? @default("")
+  end_date   String? @default("")
+  state      String? @default("")
+
+  @@index([created], map: "_is2ghc0l7l3dhs4_created_idx")
+}
+
+model orders {
+  created        String   @default("")
+  id             String   @id
+  issuer         String?  @default("")
+  supplier       String?  @default("")
+  updated        String   @default("")
+  state          String?  @default("")
+  name           String?  @default("")
+  attached_files String?  @default("")
+  vat            Decimal? @default(0)
+  delivery_fees  Decimal? @default(0)
+  sub_id         String?  @unique(map: "idx_unique_oixk8rv4") @default("")
+
+  @@index([created], map: "_15utj1m1vqg6oms_created_idx")
+}
+
+model orders_rows {
+  article           String? @default("")
+  created           String  @default("")
+  needed_date       String? @default("")
+  id                String  @id
+  order             String? @default("")
+  quantity          Float?  @default(0)
+  updated           String  @default("")
+  project           String? @default("")
+  quantity_received Float?  @default(0)
+  ack_date          String? @default("")
+  ack_price         Float?  @default(0)
+
+  @@index([created], map: "_koszbs3ev16yl63_created_idx")
+}
+
+model projects {
+  attached_users String?  @default("")
+  created        String   @default("")
+  end_date       String?  @default("")
+  id             String   @id
+  name           String?  @default("")
+  start_date     String?  @default("")
+  updated        String   @default("")
+  customer       String?  @default("")
+  closed         Boolean? @default(false)
+
+  @@index([created], map: "_8lgxrj1l7qlrrfg_created_idx")
+}
+
+model suppliers {
+  contact_email String?  @default("")
+  created       String   @default("")
+  id            String   @id
+  name          String?  @default("")
+  updated       String   @default("")
+  address       String?  @default("")
+  internal      Boolean? @default(false)
+  website       String?  @default("")
+  payment_rules String?  @default("")
+  thumbnail     String?  @default("")
+  payment_rule  String?  @default("")
+
+  @@index([created], map: "_ubelnirh91lohfy_created_idx")
+}

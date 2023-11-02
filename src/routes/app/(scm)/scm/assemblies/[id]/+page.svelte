@@ -72,6 +72,10 @@
 
 </script>
 
+<svelte:head>
+    <title>{data.assembly.name} - Assemblages</title>
+</svelte:head>
+
 <Flex gap={6} items="start">
 
     {#if data.assembly.thumbnail && browser}

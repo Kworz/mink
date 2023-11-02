@@ -7,6 +7,7 @@
     import { fade } from "svelte/transition";
 
     import type { ActionData } from "./$types";
+    import { page } from "$app/stores";
 
     export let form: ActionData;
 
@@ -21,14 +22,18 @@
         <h1>Connexion</h1>
         <p>Connectez vous pour utiliser Nomenclaturize.</p>
 
+        {#if $page.url.searchParams.has("registered")}
+            <p class="text-emerald-500 font-medium mt-3">Connectez vous avec votre compte crée précédemment</p>
+        {/if}
+
         {#if form?.error}
-            <p class="text-red-500 font-medium" in:fade out:fade>{form.error}</p>
+            <p class="text-red-500 font-medium mt-3" in:fade out:fade>{form.error}</p>
         {/if}
 
         <form method="post" use:enhanceNoReset>
             <Flex direction="col" class="mt-8">
 
-                <FormInput name="email" type="email" label="Email" labelMandatory invalid={form?.error !== undefined} />
+                <FormInput name="username" type="text" label="Nom d'utilisateur" labelMandatory invalid={form?.error !== undefined} />
                 <FormInput name="password" type="password" label="Mot de passe" labelMandatory invalid={form?.error !== undefined} />
 
                 <div class="h-[1px] mx-auto w-2/3 my-4 bg-violet-500/50"/>

@@ -9,6 +9,7 @@
     import StlFile from "./STLFile.svelte";
 
     import { env } from "$env/dynamic/public";
+    import { Canvas } from "@threlte/core";
 
     export let fileName: string;
     export let fancyFileName: string | undefined;
@@ -46,7 +47,9 @@
         {#if isImage}
             <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" alt={fileName} class="aspect-square object-cover h-full" />
         {:else if isStlFile}
-            <StlFile url="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" />
+            <Canvas>
+                <StlFile url="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" />
+            </Canvas>
         {:else if isPDFFile}
             <iframe src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{collectionName}/{collectionID}/{fileName}" height="100%" width="100%" title="PDF File"></iframe>
         {:else if isDXFFile}
