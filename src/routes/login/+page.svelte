@@ -40,7 +40,7 @@
 
                 <Grid cols={1}>
                     <Button>Connexion</Button>
-                    <a href="/auth/register">
+                    <a href="/register">
                         <Button class="w-full" role="tertiary" size="small">S'inscrire</Button>
                     </a>
                 </Grid>

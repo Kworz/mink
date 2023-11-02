@@ -1,7 +1,5 @@
 import type { Handle } from '@sveltejs/kit';
-import PocketBase from 'pocketbase';
 import { PrismaClient } from "@prisma/client";
-import { env } from "$env/dynamic/public";
 import { auth } from "$lib/server/lucia";
 
 export const handle = (async ({ event, resolve }) => {
@@ -20,7 +18,12 @@ export const handle = (async ({ event, resolve }) => {
 
     if(event.route.id?.startsWith("/app") && event.locals.user === undefined)
     {
-        return new Response(null, {status: 303, headers: { 'location': `/auth/login?target=${btoa(event.url.pathname)}` }});
+        const target = event.url.pathname === "/app" ? "" : `?target=${btoa(event.url.pathname)}`;
+        return new Response(null, {status: 303, headers: { 'location': `/login${target}` }});
+    }
+    else if((event.route.id?.startsWith("/login") || event.route.id?.startsWith("/register")) && event.locals.user !== undefined)
+    {
+        return new Response(null, {status: 303, headers: { 'location': `/app` }});
     }
     else
     {

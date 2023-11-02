@@ -1,7 +1,5 @@
-import { Collections, type UsersResponse } from "$lib/DBTypes";
 import { redirect, type Actions, fail } from "@sveltejs/kit";
 import { auth } from "$lib/server/lucia";
-import { prisma } from "@lucia-auth/adapter-prisma";
 
 export const actions: Actions = {
     default: async ({ request, locals }) => {
@@ -39,6 +37,6 @@ export const actions: Actions = {
             return fail(400, { error: ex || 'failed to create account' });
         }
 
-        throw redirect(303, "/auth/login?registered=true");
+        throw redirect(303, "/login?registered=true");
     }
 }

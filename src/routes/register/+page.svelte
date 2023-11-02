@@ -34,7 +34,7 @@
 
                 <Grid cols={1}>
                     <Button>S'inscrire</Button>
-                    <a href="/auth/login">
+                    <a href="/login">
                         <Button class="w-full" role="tertiary" size="small">Connexion</Button>
                     </a>
                 </Grid>
