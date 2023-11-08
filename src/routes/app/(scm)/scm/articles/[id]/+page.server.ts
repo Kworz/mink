@@ -2,6 +2,7 @@ import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
 import { Collections, type ArticleResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type ArticleTagsResponse, OrdersStateOptions, type StoresResponse, type StoresRelationsResponse } from "$lib/DBTypes";
 import { ClientResponseError } from "pocketbase";
+import type { SCMArticle } from "@prisma/client";
 
 export type ArticleTagsRelationsResponseExpanded = ArticleTagsRelationsResponse<{
     tag: ArticleTagsResponse
@@ -85,9 +86,10 @@ export const actions: Actions = {
         try
         {
             const form = await request.formData();
-            form.set("consumable", String(form.has("consumable")));
-            form.set("non_physical", String(form.has("non_physical")));
-            form.set("internal", String(form.has("internal")));
+
+            const order_quantity = Number(form.get("order_quantity")?.toString());
+            const critical_quantity = Number(form.get("critical_quantity")?.toString());
+            const unit_quantity = Number(form.get("unit_quantity")?.toString());
 
             await locals.prisma.sCMArticle.update({
                 where: {
@@ -99,15 +101,15 @@ export const actions: Actions = {
                     reference: form.get("reference")?.toString(),
                     brand: form.get("brand")?.toString(),
 
-                    consumable: form.get("consumable")?.toString() === "true",
-                    non_physical: form.get("non_physical")?.toString() === "true",
-                    internal: form.get("internal")?.toString() === "true",
+                    consumable: form.has("consumable"),
+                    non_physical: form.has("non_physical"),
+                    internal: form.has("internal"),
 
-                    order_quantity: Number(form.get("order_quantity")?.toString()),
-                    critical_quantity: Number(form.get("order_quantity_unit")?.toString()),
+                    order_quantity: order_quantity ? order_quantity : undefined,
+                    critical_quantity: critical_quantity ? critical_quantity : undefined,
 
                     unit: form.get("unit")?.toString(),
-                    unit_quantity: Number(form.get("unit_quantity")?.toString()),
+                    unit_quantity: unit_quantity ? unit_quantity : undefined
 
                 }
             });
@@ -123,22 +125,19 @@ export const actions: Actions = {
 
     copyArticle: async ({ params, locals }) => {
 
-        let newArticle = undefined;
+        let newID = undefined;
 
         try
         {
-            const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponse>(params.id);
+            const article = await locals.prisma.sCMArticle.findFirstOrThrow({ where: { id: params.id }});
 
-            const newArticleObject: Partial<ArticleResponse> = {
-                ...article,
-                id: undefined,
-                attached_files: undefined,
-                pinned_file: undefined,
-                name: article.name + " — Copie"
-            };
-            
-            newArticle = await locals.pb.collection(Collections.Article).create(newArticleObject);
+            article.name = article.name + " — Copie";
 
+            let { id } = await locals.prisma.sCMArticle.create({
+                data: {...article, id: undefined }
+            });
+
+            newID = id;
         }
         catch(ex)
         {
@@ -146,7 +145,7 @@ export const actions: Actions = {
             return { copy: { error: "Failed to copy article" }};
         }
 
-        throw redirect(303, "/app/scm/articles/" + newArticle.id);
+        throw redirect(303, "/app/scm/articles/" + newID);
     },
 
     addAttachedFile: async ({ locals, params, request }) => {
