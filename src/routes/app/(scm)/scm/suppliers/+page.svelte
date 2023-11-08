@@ -29,6 +29,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Nomenclaturize — Fournisseurs</title>
+</svelte:head>
+
 {#if editSupplier !== undefined || createSupplier}
 
     <MenuSide closable on:close={() => { editSupplier = undefined; createSupplier = false; }}>
