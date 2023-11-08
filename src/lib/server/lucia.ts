@@ -18,4 +18,4 @@ export const auth = (prismaClient: PrismaClient) => {
     });
 }
     
-export type Auth = typeof auth;
+export type Auth = ReturnType<typeof auth>;
