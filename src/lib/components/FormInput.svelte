@@ -81,7 +81,7 @@
             </select>
         {/if}
     {:else if type == "checkbox"}
-        <Flex items="center" gap={2} class="my-2">
+        <Flex items="center" gap={2} class="my-0.5">
             <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}/>
             <span>{label}</span>
         </Flex>
