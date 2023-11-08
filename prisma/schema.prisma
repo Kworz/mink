@@ -72,7 +72,7 @@ model SCMArticle {
 }
 
 model SCMArticleFile {
-  id                String   @id @default(uuid()) @unique
+  id                String @id @default(uuid()) @unique
 
   article_id        String
   article           SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
@@ -81,7 +81,7 @@ model SCMArticleFile {
 }
 
 model SCMSupplier {
-  id            String   @id @default(uuid()) @unique
+  id            String @id @default(uuid()) @unique
   
   name          String
   internal      Boolean @default(false)
@@ -100,29 +100,26 @@ model SCMSupplier {
 }
 
 model SCMArticleMovements {
+  id                  String  @id @default(uuid()) @unique
 
-  id                  String  @id @unique
-
-  article_id          String @default("")
+  article_id          String
   article             SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
 
-  created             String  @default("")
-  quantity_update     Float?  @default(0)
-  reason              String? @default("")
+  created             DateTime  @default(now())
+  quantity_update     Float  @default(0)
 
-  user_id             String @default("")
+  user_id             String
   user User           @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
-  store_in_id         String? @default("")
+  store_in_id         String?
   store_in            SCMStore? @relation("store_out", references: [id], fields: [store_in_id], onDelete: Cascade)
 
-  store_out_id        String? @default("")
+  store_out_id        String?
   store_out           SCMStore? @relation("store_in", references: [id], fields: [store_out_id], onDelete: Cascade)
-
 }
 
 model SCMStore {
-  id                  String @id @unique
+  id                  String @id @default(uuid()) @unique
   location            String @default("")
   name                String @default("")
   updated             String @default("")
@@ -148,7 +145,7 @@ model SCMStoreRelation {
 }
 
 model SCMAssembly {
-  id             String   @id @unique
+  id             String  @id @default(uuid()) @unique
 
   name           String
   description    String?
@@ -167,7 +164,7 @@ model SCMAssembly {
 
 model SCMAssemblyRelation {
 
-  id                  String   @id @unique
+  id                  String  @id @default(uuid()) @unique
 
   parent_id           String  @default("")
   parent              SCMAssembly @relation("assembly_relation_parent", references: [id], fields: [parent_id], onDelete: Cascade)
@@ -187,7 +184,7 @@ model SCMAssemblyRelation {
 
 model SCMAssemblyBuylists {
 
-  id            String   @id @unique
+  id            String  @id @default(uuid()) @unique
   name          String  @default("")
 
   assembly_id   String  @default("")
