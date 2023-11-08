@@ -14,7 +14,7 @@
     import Button from "$lib/components/Button.svelte";
     import { invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
-    import { Collection } from "pocketbase";
+    
     import Modal from "$lib/components/modal/Modal.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
 
@@ -40,6 +40,10 @@
     }
 
 </script>
+
+<svelte:head>
+    <title>Nomenclaturize — Stocks</title>
+</svelte:head>
 
 <Wrapper>
     <h3>Emplacements de stock</h3>
