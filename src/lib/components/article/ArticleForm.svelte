@@ -1,49 +1,28 @@
 <script lang="ts">
-    import { browser } from "$app/environment";
-    import { page } from "$app/stores";
-    import { Collections, type StoresResponse, type SuppliersResponse } from "$lib/DBTypes";
-    import { onMount } from "svelte";
     import FormInput from "../FormInput.svelte";
     import Grid from "../layout/grid.svelte";
     import { env } from "$env/dynamic/public";
-    import type { ArticleResponseExpanded } from "./ArticleRow.svelte";
+    import type { SCMArticle } from "@prisma/client";
 
-    export let article: Partial<ArticleResponseExpanded> = {
+    export let article: SCMArticle = {
         id: "",
+
         name: "",
         reference: "",
-        manufacturer: "",
-        quantity: 0,
-        price: 0,
+        brand: "",
+
         order_quantity: 0,
-        consumable: false,
         critical_quantity: 0,
+
+        internal: false,
+        consumable: false,
+        non_physical: false,
+
         unit: "",
         unit_quantity: 0,
-        supplier: [],
-        store: "",
-        non_physical: false,
-        internal: false,
-        attached_files: [],
-        pinned_file: "",
+        
+        thumbnail: null
     };
-
-    let suppliers: SuppliersResponse[] = [];
-    let stores: StoresResponse[] = [];
-
-    onMount(async () => {
-
-        if(!browser)
-            return;
-        try {
-            suppliers = await $page.data.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
-            stores = await $page.data.pb.collection(Collections.Stores).getFullList<StoresResponse>();          
-        }
-        catch(ex)
-        {
-            console.log(ex);
-        }
-    })
 
 </script>
 
@@ -65,7 +44,7 @@
 
             <FormInput name="reference" label="Référence" bind:value={article.reference} />
             {#if article.internal === false}
-                <FormInput name="manufacturer" label="Fabricant" bind:value={article.manufacturer} />
+                <FormInput name="brand" label="Fabricant" bind:value={article.brand} />
             {:else}
                 <p>Fabricant: {env.PUBLIC_COMPANY_NAME}</p>
             {/if}
@@ -77,7 +56,6 @@
         
                 <FormInput type="number" name="order_quantity" label="Quantité minimale de commande" bind:value={article.order_quantity} min={article?.unit === "" ? 1 : 0.01} step={article?.unit === "" ? 1 : 0.01} />
                 <FormInput type="number" name="critical_quantity" label="Quantité critique" bind:value={article.critical_quantity} step={article?.unit === "" ? 1 : 0.01} />
-                <FormInput type="number" name="price" label="Prix d'achat temporaire" bind:value={article.price} step={0.01} min={0} />
         
                 <FormInput type="checkbox" name="consumable" label="Consommable" bind:checked={article.consumable} />
             </section>

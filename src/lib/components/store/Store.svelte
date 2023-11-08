@@ -1,7 +1,8 @@
 <script lang="ts">
+    import type { SCMStore } from "@prisma/client";
 
-    import type { StoresResponse } from "$lib/DBTypes";
-    export let store: StoresResponse | undefined;
+
+    export let store: SCMStore | undefined;
 
 </script>
 

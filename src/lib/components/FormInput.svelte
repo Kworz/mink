@@ -10,7 +10,7 @@
     export let invalid = false;
     export let valid = false;
 
-    export let value: string[] | string | number = "";
+    export let value: string[] | string | number | null | undefined = "";
     export let checked: boolean | undefined = undefined;
 
     export let form: string | undefined = undefined;

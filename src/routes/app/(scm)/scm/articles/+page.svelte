@@ -92,13 +92,17 @@
             <TableTitle col="store.name" bind:activeSort>Emplacement</TableTitle>
             <TableTitle col="reference" bind:activeSort>Référence</TableTitle>
             <TableTitle>Fournisseurs</TableTitle>
-            <TableTitle col="manufacturer" bind:activeSort>Fabricant</TableTitle>
-            <TableTitle col="price" bind:activeSort>Prix</TableTitle>
-            <TableTitle>Prix stock</TableTitle>
+            <TableTitle col="brand" bind:activeSort>Marque</TableTitle>
+            <TableTitle col="price" bind:activeSort>PUMP</TableTitle>
+            <TableTitle>Total prix stock</TableTitle>
         </svelte:fragment>
     
         <svelte:fragment slot="body">
             {#each data.articles as article (article.id)}
+
+                {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)}
+                {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
+
                 <TableRow>
                     <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                     <TableCell>
@@ -108,22 +112,21 @@
                         <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? "Oui" : "Non"}</RoundedLabel>
                     </TableCell>
                     <TableCell>
-                        {@const quantity = article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0}
                         {#if article.critical_quantity}
                             <span
-                                class:text-red-500={(quantity ?? 0) <= (article.critical_quantity ?? 0)}
-                                class:font-semibold={(quantity ?? 0) <= (article.critical_quantity ?? 0)}
+                                class:text-red-500={stock_quantity <= article.critical_quantity}
+                                class:font-semibold={stock_quantity <= article.critical_quantity}
                             >
-                                {returnArticleUnit(article.unit, article.unit_quantity, quantity)}
+                                {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
                             </span>         
                         {:else}               
-                            {returnArticleUnit(article.unit, article.unit_quantity, quantity)}
+                            {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
                         {/if}
                     </TableCell>
                     <TableCell>
-                        {#if article.expand?.store !== undefined}
-                            <Store store={article.expand.store} />
-                        {/if}
+                        {#each article.store_relations.reduce((c, p) => [...c, p.store], new Array()) as store}
+                            <Store {store} />
+                        {/each}
                     </TableCell>
                     <TableCell>{article.reference}</TableCell>
                     <TableCell>
@@ -137,9 +140,10 @@
                             {/if}
                         </Flex>
                     </TableCell>
-                    <TableCell>{(article.internal) ? env.PUBLIC_COMPANY_NAME : article.manufacturer}</TableCell>
-                    <TableCell><Price value={article.expand?.["article_price(article)"]?.at(0)?.price ?? article.price} /></TableCell>
-                    <TableCell><Price value={(article.expand?.["article_price(article)"]?.at(0)?.price ?? article.price) * (article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0)} /></TableCell>
+                    <TableCell>{(article.internal) ? env.PUBLIC_COMPANY_NAME : article.brand}</TableCell>
+                    
+                    <TableCell><Price value={price} /></TableCell>
+                    <TableCell><Price value={price * stock_quantity} /></TableCell>
                 </TableRow>
             {/each}
         </svelte:fragment>

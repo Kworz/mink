@@ -1,7 +1,5 @@
-import { Collections } from "$lib/DBTypes";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { articleResponseExpand, type ArticleResponseExpanded } from "$lib/components/article/ArticleRow.svelte";
 
 export const load = (async ({ locals, url }) => {
 
@@ -15,6 +13,19 @@ export const load = (async ({ locals, url }) => {
             orderBy: { name: "asc" },
             skip: (page - 1) * 50,
             take: 50,
+            include: {
+                store_relations: {
+                    include: {
+                        store: true
+                    }
+                },
+                order_rows: {
+                    include: {
+                        order: true
+                    }
+                },
+                files: true
+            }
         });
 
         const totalItems = await locals.prisma.sCMArticle.count();

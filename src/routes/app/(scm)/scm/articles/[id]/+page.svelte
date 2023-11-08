@@ -2,6 +2,14 @@
     import { browser } from "$app/environment";
     import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
+    import { enhanceNoReset } from "$lib/enhanceNoReset";
+    import { returnArticleUnit } from "$lib/components/article/artictleUnits";
+    import { env } from "$env/dynamic/public";
+    import type { ActionData, PageData } from "./$types";
+
+    import { ArrowRight, Check, DocumentDuplicate, QrCode, Trash, Wrench } from "@steeze-ui/heroicons";
+    import { Icon } from "@steeze-ui/svelte-icon";
+
     import ArticleForm from "$lib/components/article/ArticleForm.svelte";
     import Button from "$lib/components/Button.svelte";
     import DetailLabel from "$lib/components/DetailLabel.svelte";
@@ -18,15 +26,9 @@
     import TableRow from "$lib/components/table/TableRow.svelte";
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
-    import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { ArrowLeft, ArrowRight, Check, DocumentDuplicate, PlusCircle, QrCode, Trash, Wrench } from "@steeze-ui/heroicons";
-    import { Icon } from "@steeze-ui/svelte-icon";
-    import type { ActionData, PageData } from "./$types";
-    import Grid from "$lib/components/layout/grid.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
-    import { returnArticleUnit } from "$lib/components/article/artictleUnits";
     import Store from "$lib/components/store/Store.svelte";
-    import { env } from "$env/dynamic/public";
+    import Grid from "$lib/components/layout/grid.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -34,22 +36,19 @@
     let editArticle = false;
     let showConfirmDelete = false;
 
-    let createTag = false;
-    let editTag: undefined | string = undefined;
-
-    let selectedFile: number = (data.article.attached_files === undefined) ? -1 : 0;
+    let selectedFile: "thumbnail" | number = "thumbnail";
 
     let articleStoreDirection: "inward" | "outward" | "moved" = "inward";
     
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(form !== null) { setTimeout(() => form = null, 3000); }
-    $: if(form?.editTag !== undefined) { editTag = undefined }
     $: if(showConfirmDelete === true) { setTimeout(() => showConfirmDelete = false, 3000); }
-    
-    $: articleQuantity = data.storeRelations.filter(sr => (sr.expand?.store?.temporary ?? true) === false).reduce((p, c) => p = p + (c.quantity ?? 0), 0);
-    $: exploitableStoreRelations = data.storeRelations.filter(k => (k.quantity ?? 0) > 0 && !k.expand?.store.temporary)
-    $: articlePreffedStores = data.storeRelations.filter(k => (k.quantity ?? 0) > 0).map(k => k.store);
-
+        
+    $: articleQuantity = data.article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
+    $: articlePrice = data.article.order_rows.filter(or => [""].includes(or.order.state)).reduce((p, c) => p = p + ((c.ack_price ?? 0) * c.received_quantity), 0) / articleQuantity;
+    $: exploitableStoreRelations = data.article.store_relations.filter(sr => !sr.store.temporary && sr.quantity > 0);
+    $: articlePreffedStores = data.article.store_relations.filter(sr => sr.quantity > 0).map(sr => sr.store_id);
+    $: suppliers = data.article.order_rows.reduce((p, c) => [...p, c.order.supplier], new Array());
 </script>
 
 <svelte:head>
@@ -63,37 +62,39 @@
             {#if form?.delete?.error !== undefined}<h4>{form.delete?.error}</h4>{/if}
             <h2 class="mb-2">{data.article.name}</h2>
             
-            {#if data.article.expand?.supplier !== undefined}
+            {#if suppliers.length > 0}
                 <h4>Fournisseurs:</h4>
                 <Flex items="center" class="mt-2 mb-4">
-                    {#each data.article.expand?.supplier as supplier}
+                    {#each suppliers as supplier}
                         <Supplier {supplier} />
                     {/each}
                 </Flex>
             {/if}
 
-            <p>Fabricant: <DetailLabel>{(data.article.internal) ? env.PUBLIC_COMPANY_NAME : data.article.manufacturer}</DetailLabel>.</p>
+            <p>Fabricant: <DetailLabel>{(data.article.internal) ? env.PUBLIC_COMPANY_NAME : data.article.brand}</DetailLabel>.</p>
+            
             <p>Référence: <DetailLabel>{data.article.reference}</DetailLabel>.</p>
-            <p>Prix unitaire: <DetailLabel>{(data.article.price !== 0) ? data.article.price : "—"} €</DetailLabel>.</p>
+            
             {#if data.article.non_physical}<p class="text-amber-500 font-medium">Article non physique.</p>{/if}
 
-            {#if data.orderRows.length > 0}
+            {#if data.article.order_rows.length > 0}
                 <div class="group">
-                    <p>Prix unitaire moyen pondéré: <DetailLabel><Price value={data.orderRows.reduce((p, c) => p = p + (c.ack_price ?? 0) * c.quantity, 0) / data.orderRows.reduce((p, c) => p = p + c.quantity, 0)} /></DetailLabel></p>
+                    <p>Prix unitaire moyen pondéré: <DetailLabel><Price value={articlePrice} /></DetailLabel></p>
                     <ol class="hidden group-hover:block">
-                        {#each data.orderRows as orderRow}
-                            <li><a href="/app/scm/orders/{orderRow.order}">{orderRow.quantity} x <Price value={orderRow.ack_price ?? 0} /></a></li>
+                        {#each data.article.order_rows as orderRow}
+                            <li><a href="/app/scm/orders/{orderRow.order}">{orderRow.received_quantity} x <Price value={orderRow.ack_price ?? 0} /></a></li>
                         {/each}
                     </ol>
                 </div>
             {/if}
+
             {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.order_quantity)}</DetailLabel>.</p>{/if}
+            
             <p>Quantité en stock: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, articleQuantity)}</DetailLabel>.</p>
 
             {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.critical_quantity)}</DetailLabel>.</p>{/if}
+            
             <p>Consommable: <DetailLabel>{data.article.consumable ? "Oui" : "Non"}</DetailLabel>.</p>
-
-            {#if data.article.expand?.store}<p>Emplacements ( à convertir ): <DetailLabel>{data.article.expand.store.location} / {data.article.expand.store.name}</DetailLabel></p>{/if}
 
             <PillMenu>
                 <PillMenuButton icon={Wrench} click={() => { editArticle = !editArticle; }}>Modifier l'article</PillMenuButton>
@@ -128,29 +129,46 @@
                         Annuler la modification
                     </Button>
                 </Flex>
-            </form> 
+            </form>
         {/if}
     </Wrapper>
 
-    <Wrapper class="h-96 shrink-0 aspect-square mx-auto relative p-0 overflow-hidden">
-        {#if data.article.attached_files?.[selectedFile] === undefined || selectedFile === -1}
-            <Flex justify="between" direction="col">
-                <h4>Ajouter un fichier</h4>
+    <Wrapper class="w-1/3 shrink-0 mx-auto relative p-0 overflow-hidden">
+        <h4 class="mb-2">Fichiers</h4>
+
+        <Grid cols={1} gap={2}>
+            <div class="p-2 ring-inset ring-2 ring-zinc-200 rounded-xl">
+                <h5 class="text-center p-1">Miniature</h5>
+
+                {#if data.article.thumbnail === null}
+                    <Flex justify="between" direction="col">
+                        <form action="?/modifyThumbnail" method="post" use:enhance>
+                            <Flex direction="row" justify="between">
+                                <FormInput type="file" name="attached_files" labelMandatory={true} />
+                                <Button>Ajouter une miniature</Button>
+                            </Flex>
+                        </form>
+                    </Flex>
+                {:else if data.article.attached_files[selectedFile] !== undefined}
+                    <File fileName={data.article.attached_files[selectedFile]} fancyFileName={data.article.reference} collectionName={data.article.collectionName} collectionID={data.article.id} isPinned={data.article.pinned_file === data.article.attached_files[selectedFile]} />
+                {/if}
+            </div>   
+            
+            {#each data.article.files as file}
+                <div class="p-2 ring-inset ring-2 ring-zinc-200 rounded-xl">
+                    {file}
+                </div>    
+            {/each}
+
+            <div class="p-2 ring-inset ring-2 ring-zinc-200 rounded-xl">
                 <form action="?/addAttachedFile" method="post" use:enhance>
-                    <Flex direction="col" items="start">
-                        <FormInput type="file" name="attached_files" label="Fichier a ajouter" labelMandatory={true}  />
+                    <Flex direction="row" justify="between">
+                        <FormInput type="file" name="attached_files" labelMandatory={true}  />
                         <Button>Ajouter le fichier</Button>
                     </Flex>
                 </form>
-            </Flex>
-        {:else if data.article.attached_files[selectedFile] !== undefined}
-            <File fileName={data.article.attached_files[selectedFile]} fancyFileName={data.article.reference} collectionName={data.article.collectionName} collectionID={data.article.id} isPinned={data.article.pinned_file === data.article.attached_files[selectedFile]} />
-        {/if}
-
-        <Flex items="center" justify="between" class="absolute bottom-4 left-4 right-4">
-            <RoundButton icon={ArrowLeft} on:click={() => selectedFile = selectedFile <= -1 ? -1 : selectedFile - 1} />
-            <RoundButton icon={ArrowRight} on:click={() => selectedFile = selectedFile >= (data.article.attached_files?.length ?? -1) ? (data.article.attached_files?.length ?? -1) : selectedFile + 1} />
-        </Flex>
+            </div> 
+        </Grid>
     </Wrapper>
 </div>
 
@@ -159,13 +177,9 @@
     <Wrapper class="mt-6">
         <h4 class="mb-2">Sortie / Entrée de stock</h4>
 
-        {#if form?.updateStock?.error}
-            <p class="my-2 text-red-500">{form.updateStock.error}</p>
-        {/if}
+        {#if form?.updateStock?.error}<p class="my-2 text-red-500">{form.updateStock.error}</p>{/if}
 
-        {#if form?.updateStock?.success}
-            <p class="my-2 text-emerald-500">{form.updateStock.success}</p>
-        {/if}
+        {#if form?.updateStock?.success}<p class="my-2 text-emerald-500">{form.updateStock.success}</p>{/if}
 
         <form action="?/updateStock" method="post" use:enhance class="flex flex-col md:flex-row gap-4 md:items-end">
 
@@ -182,7 +196,7 @@
                 <FormInput type="select" name="store_out" label="Stock de provenance" labelMandatory value={""}>
                     <option value={""}>—</option>
 
-                    {#each data.stores.filter(k => !k.temporary && articlePreffedStores.includes(k.id)) as store}
+                    {#each data.stores.filter(k => articlePreffedStores.includes(k.id)) as store}
                         <option value={store.id}>{store.name} / {store.location}</option>
                     {/each}
                 </FormInput>
@@ -197,7 +211,7 @@
                     <option value={""}>—</option>
 
                     <optgroup label="Article déja présent">
-                        {#each data.stores.filter(k => !k.temporary && articlePreffedStores.includes(k.id)) as store}
+                        {#each data.stores.filter(k => articlePreffedStores.includes(k.id)) as store}
                             <option value={store.id}>
                                 {store.name} / {store.location}
                             </option>
@@ -205,7 +219,7 @@
                     </optgroup>
 
                     <optgroup label="Article non présent">
-                        {#each data.stores.filter(k => !k.temporary && !articlePreffedStores.includes(k.id)) as store}
+                        {#each data.stores.filter(k => !articlePreffedStores.includes(k.id)) as store}
                             <option value={store.id}>
                                 {store.name} / {store.location}
                             </option>
@@ -218,137 +232,53 @@
         </form>
     </Wrapper>
 
-    <Grid gap={6} cols={data.articleMovements.length > 0 ? 2 : 1} items="start" class="mt-6">
-
-        <Flex direction="col" gap={6}>
-            {#if exploitableStoreRelations.length > 0}
-                <Table marginTop="">
-                    <svelte:fragment slot="head">
-                        <TableHead>Emplacement</TableHead>
-                        <TableHead>Quantité</TableHead>
-                    </svelte:fragment>
-                    <svelte:fragment slot="body">
-                        {#each exploitableStoreRelations as storeRelation}
-                            <TableRow>
-                                <TableCell><Store store={storeRelation.expand?.store} /></TableCell>
-                                <TableCell>{storeRelation.quantity}</TableCell>
-                            </TableRow>
-                        {/each}
-                    </svelte:fragment>
-                </Table>
-            {/if}
-
-            {#if data.articleMovements.length > 0}
-                <Table marginTop="">
-                    <svelte:fragment slot="head">
-                        <TableHead>Δ Quantité</TableHead>
-                        <TableHead>Utilisateur</TableHead>
-                        <TableHead>Déplacement</TableHead>
-                        <TableHead class="hidden md:table-cell">Date</TableHead>
-                    </svelte:fragment>
-
-                    <svelte:fragment slot="body">
-                        {#each data.articleMovements as movement}
-                            <TableRow>
-                                <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
-                                <TableCell>
-                                    {#if movement.expand?.user !== undefined}
-                                        <User user={movement.expand.user} />
-                                    {:else}
-                                        —
-                                    {/if}
-                                </TableCell>
-                                <TableCell>
-                                    <Flex items="center" gap={2}>
-                                        <span>{movement.expand?.store_out?.name ?? "Inconnu"}</span>
-                                        <Icon src={ArrowRight} class="h-4 w-4 inline-block text-violet-500" />
-                                        <span>{movement.expand?.store_in?.name ?? "Inconnu"}</span>
-                                    </Flex>
-                                </TableCell>
-                                <TableCell class="hidden md:table-cell">{movement.created}</TableCell>
-                            </TableRow>
-                        {/each}
-                    </svelte:fragment>
-                </Table>
-            {/if}
-        </Flex>
-
-        <Wrapper>
-            <h4>Tags article</h4>
-
-            <PillMenu>
-                <PillMenuButton icon={PlusCircle} click={() => createTag = !createTag}>Créer un tag</PillMenuButton>
-            </PillMenu>
-
-            <Table marginTop="" embeded>
+    <Flex direction="col" gap={6} class="mt-6">
+        {#if exploitableStoreRelations.length > 0}
+            <Table marginTop="">
                 <svelte:fragment slot="head">
-                    <TableHead>Tag</TableHead>
-                    <TableHead>Valeur</TableHead>
+                    <TableHead>Emplacement</TableHead>
+                    <TableHead>Quantité</TableHead>
                 </svelte:fragment>
-
                 <svelte:fragment slot="body">
-                    {#each data.articleTags as tag}
-                        {#if tag.id === editTag}
-                            <TableRow>
-                                <TableCell>
-                                    {tag.expand?.tag.name}
-                                </TableCell>
-                                <TableCell>
-                                    <form action="?/editTag" method="post" use:enhance>
-                                        <Flex items="end" gap={6}>
-                                            <FormInput type="text" name="value" label="Valeur" labelMandatory value={tag.value} />
-                                            <input type="hidden" name="id" value={tag.id} />
-                                            <Button role="success">Valider</Button>
-                                        </Flex>
-                                    </form>
-                                </TableCell>
-                            </TableRow>
-                        {:else}
-                            <TableRow>
-                                <TableCell>{tag.expand?.tag.name}</TableCell>
-                                <TableCell>
-                                    {tag.value}
-                                    <button on:click={() => editTag = tag.id}><Icon src={Wrench} class="h-4 w-4 ml-2 text-orange-500" /></button>
-                                </TableCell>
-                            </TableRow>
-                        {/if}
-                    {:else}
+                    {#each exploitableStoreRelations as storeRelation}
                         <TableRow>
-                            <TableCell colspan={2}>Aucun tag</TableCell>
+                            <TableCell><Store store={storeRelation.store} /></TableCell>
+                            <TableCell>{storeRelation.quantity}</TableCell>
                         </TableRow>
                     {/each}
                 </svelte:fragment>
             </Table>
+        {/if}
 
-            <section class="mt-6">
-                {#if data.tags.length > 0 && !createTag}
-                    <h5>Ajouter un tag</h5>
-                    {#if form?.addTag?.error}<p class="text-red-500">{form?.addTag?.error}</p>{/if}
-                    <form action="?/addTag" method="post" use:enhance class="mt-2">
-                        <Flex items="end" gap={6}>
-                            <FormInput type="select" name="tag" label="Tag" labelMandatory>
-                                {#each data.tags as tag}
-                                    <option value={tag.id}>{tag.name}</option>
-                                {/each}
-                            </FormInput>
-                            <FormInput type="text" name="value" label="Valeur" labelMandatory />
-                            <Button>Ajouter le tag</Button>
-                        </Flex>
-                    </form>
-                {/if}
-                {#if data.tags.length === 0 || createTag}
-                    <h5>Créer un tag</h5>
-                    {#if form?.createTag?.error}<p class="text-red-500">{form?.createTag?.error}</p>{/if}
-                    <form action="?/createTag" method="post" use:enhance class="mt-2">
-                        <Flex items="end" gap={6}>
-                            <FormInput type="text" name="name" label="Nom du tag" labelMandatory />
-                            <Button>Créer le tag</Button>
-                        </Flex>
-                    </form>
-                {/if}
-            </section>
-            
-        </Wrapper>
-    </Grid>
+        {#if data.article.acticle_movements.length > 0}
+            <Table marginTop="">
+                <svelte:fragment slot="head">
+                    <TableHead>Δ Quantité</TableHead>
+                    <TableHead>Utilisateur</TableHead>
+                    <TableHead>Déplacement</TableHead>
+                    <TableHead class="hidden md:table-cell">Date</TableHead>
+                </svelte:fragment>
+
+                <svelte:fragment slot="body">
+                    {#each data.article.acticle_movements as movement}
+                        <TableRow>
+                            <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
+                            <TableCell>
+                                <User user={movement.user} />
+                            </TableCell>
+                            <TableCell>
+                                <Flex items="center" gap={2}>
+                                    <span>{movement.store_out?.name ?? "Inconnu"}</span>
+                                    <Icon src={ArrowRight} class="h-4 w-4 inline-block text-violet-500" />
+                                    <span>{movement.store_in?.name ?? "Inconnu"}</span>
+                                </Flex>
+                            </TableCell>
+                            <TableCell class="hidden md:table-cell">{movement.created}</TableCell>
+                        </TableRow>
+                    {/each}
+                </svelte:fragment>
+            </Table>
+        {/if}
+    </Flex>
 
 {/if}

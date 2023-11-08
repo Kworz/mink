@@ -1,9 +1,7 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
 import { Collections, type ArticleResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type ArticleTagsResponse, OrdersStateOptions, type StoresResponse, type StoresRelationsResponse } from "$lib/DBTypes";
-import type { ArticleResponseExpanded } from "../+page.server";
 import { ClientResponseError } from "pocketbase";
-import type { OrderRowsResponseExpanded } from "../../approx/+page.server";
 
 export type ArticleTagsRelationsResponseExpanded = ArticleTagsRelationsResponse<{
     tag: ArticleTagsResponse
@@ -15,23 +13,45 @@ export const load = (async ({ params, locals }) => {
     {
         const articleID = params.id;
 
-        const article = await locals.pb.collection(Collections.Article).getOne<ArticleResponseExpanded>(articleID, { expand: "supplier,store,stores_relations(article).store" });
-        const orderRows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `article="${articleID}"`, expand: "order.supplier" });
-        const articleMovements = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse<{ "user": UsersResponse, "store_in": StoresResponse, "store_out": StoresResponse }>>(undefined, { filter: `article="${articleID}"`, sort: "-created", expand: "user,store_in,store_out" });
-        const articleTags = await locals.pb.collection(Collections.ArticleTagsRelations).getFullList<ArticleTagsRelationsResponseExpanded>({ filter: `article="${articleID}"`, expand: "tag" });
-        const tags = await locals.pb.collection(Collections.ArticleTags).getFullList<ArticleTagsResponse>();
+        const article = await locals.prisma.sCMArticle.findFirstOrThrow({ 
+            where: {
+                id: articleID
+            },
+            include: {
+                acticle_movements: {
+                    include: {
+                        user: true,
+                        store_in: true,
+                        store_out: true
+                    }
+                },
+                store_relations: {
+                    include: {
+                        store: true
+                    }
+                },
+                order_rows: {
+                    include: {
+                        order: {
+                            include: {
+                                supplier: true
+                            }
+                        }
+                    }
+                },
+                files: true
+            }
+        });
 
-        const storeRelations = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse<{ store: StoresResponse }>>({ filter: `article = "${articleID}"` , expand: "store"})
-        const stores = await locals.pb.collection(Collections.Stores).getFullList<StoresResponse>();
+        const stores = await locals.prisma.sCMStore.findMany({
+            where: {
+                temporary: false
+            }
+        });
 
         return {
-            article: structuredClone(article),
-            articleMovements: structuredClone(articleMovements),
-            orderRows: structuredClone(orderRows.filter(row => [OrdersStateOptions.completed, OrdersStateOptions.placed, OrdersStateOptions.acknowledged].includes(row.expand?.order?.state))),
-            articleTags: structuredClone(articleTags),
-            tags: structuredClone(tags),
-            storeRelations: structuredClone(storeRelations),
-            stores: structuredClone(stores)
+            article,
+            stores
         }
     }
     catch(ex) 
@@ -47,14 +67,11 @@ export const actions: Actions = {
     deleteArticle: async ({ params, locals }) => {
         try
         {
-            const relations = await locals.pb.collection(Collections.ArticleMovements).getFullList<ArticleMovementsResponse>({ filter: `article = "${params.id}"` });
-            
-            for(const relation of relations)
-            {
-                await locals.pb.collection(Collections.ArticleMovements).delete(relation.id);
-            }
-
-            await locals.pb.collection("article").delete(params.id);
+            await locals.prisma.sCMArticle.delete({
+                where: {
+                    id: params.id
+                }
+            });
         }
         catch(ex)
         {
@@ -67,15 +84,33 @@ export const actions: Actions = {
     editArticle: async ({ params, request, locals }) => {
         try
         {
-            if(locals.user?.id === undefined)
-                throw "user not authed";
-            
             const form = await request.formData();
             form.set("consumable", String(form.has("consumable")));
             form.set("non_physical", String(form.has("non_physical")));
             form.set("internal", String(form.has("internal")));
 
-            await locals.pb.collection(Collections.Article).update<ArticleResponse>(params.id, form);
+            await locals.prisma.sCMArticle.update({
+                where: {
+                    id: params.id
+                },
+                data: {
+
+                    name: form.get("name")?.toString(),
+                    reference: form.get("reference")?.toString(),
+                    brand: form.get("brand")?.toString(),
+
+                    consumable: form.get("consumable")?.toString() === "true",
+                    non_physical: form.get("non_physical")?.toString() === "true",
+                    internal: form.get("internal")?.toString() === "true",
+
+                    order_quantity: Number(form.get("order_quantity")?.toString()),
+                    critical_quantity: Number(form.get("order_quantity_unit")?.toString()),
+
+                    unit: form.get("unit")?.toString(),
+                    unit_quantity: Number(form.get("unit_quantity")?.toString()),
+
+                }
+            });
 
             return { edit: { success: "Updated object successfully" }};
         }

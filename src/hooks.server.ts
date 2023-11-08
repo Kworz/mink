@@ -1,12 +1,10 @@
 import type { Handle } from '@sveltejs/kit';
-import { PrismaClient } from "@prisma/client";
 import { auth } from "$lib/server/lucia";
+import { prisma } from "$lib/server/prisma";
 
 export const handle = (async ({ event, resolve }) => {
 
-    event.locals.prisma = new PrismaClient();
-    await event.locals.prisma.$connect();
-
+    event.locals.prisma = prisma;
     event.locals.auth = auth(event.locals.prisma).handleRequest(event);
 
     const session = await event.locals.auth.validate();

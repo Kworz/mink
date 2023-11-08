@@ -10,18 +10,20 @@ datasource db {
 model User {
   id                     String  @id @unique
 
-  email                  String  @default("")
-  username               String  @unique(map: "__pb_users_auth__username_idx")
+  email                  String  @unique
+  username               String  @unique
 
-  avatar                 String? @default("")
+  avatar                 String?
 
-  updated                String  @default("")
-  created                String  @default("")
+  updated                DateTime @updatedAt
+  created                DateTime @default(now())
 
   auth_session Session[]
   key          Key[]
 
   article_movements SCMArticleMovements[]
+  attached_projects SCMProjetAttachedUser[]
+  orders SCMOrder[]
 }
 
 model Session {
@@ -42,27 +44,58 @@ model Key {
 }
 
 model SCMArticle {
-  id                String   @id
-  name              String?  @default("")
-  created           String   @default("")
-  reference         String?  @default("")
-  updated           String   @default("")
-  manufacturer      String?  @default("")
-  attached_files    String?  @default("")
-  pinned_file       String?  @default("")
-  quantity          Float?   @default(0)
-  supplier          String?  @default("")
-  order_quantity    Float?   @default(0)
-  store             String?  @default("")
-  critical_quantity Decimal? @default(0)
-  consumable        Boolean? @default(false)
-  unit              String?  @default("")
-  unit_quantity     Decimal? @default(0)
-  non_physical      Boolean? @default(false)
-  internal          Boolean? @default(false)
+  id                String   @id @default(uuid()) @unique
 
-  acticle_movement SCMArticleMovements[]
-  store_relations SCMStoresRelations[]
+  name              String?
+  brand             String?
+  reference         String?
+
+  order_quantity    Float   @default(0)
+  critical_quantity Int @default(0)
+
+  consumable        Boolean @default(false)
+  non_physical      Boolean @default(false)
+  internal          Boolean @default(false)
+
+  unit              String?
+  unit_quantity     Int?
+
+  thumbnail         String?
+
+  acticle_movements SCMArticleMovements[]
+  store_relations SCMStoreRelation[]
+  article_assembly_relations SCMAssemblyRelation[]
+  order_rows SCMOrderRows[]
+
+  files SCMArticleFile[]
+
+}
+
+model SCMArticleFile {
+  id                String   @id @default(uuid()) @unique
+
+  article_id        String
+  article           SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
+
+  file              String
+}
+
+model SCMSupplier {
+  id            String   @id @default(uuid()) @unique
+  
+  name          String
+  internal      Boolean @default(false)
+  logo          String?
+
+  email         String?
+  phone         String?
+  website       String?
+
+  address       String?
+
+  payment_rule  String?
+
+  orders        SCMOrder[]
 
 }
 
@@ -98,11 +131,11 @@ model SCMStore {
   store_in_article_movements SCMArticleMovements[] @relation("store_in")
   store_out_article_movements SCMArticleMovements[] @relation("store_out")
 
-  store_relations SCMStoresRelations[]
+  store_relations SCMStoreRelation[]
 }
 
-model SCMStoresRelations {
-  id              String   @id @unique
+model SCMStoreRelation {
+  id              String   @id @default(uuid()) @unique
 
   article_id      String  @default("")
   article         SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
@@ -111,50 +144,157 @@ model SCMStoresRelations {
 
   store_id        String  @default("")
   store           SCMStore @relation(references: [id], fields: [store_id], onDelete: Cascade)
+
 }
 
-model SCMAssemblies {
+model SCMAssembly {
   id             String   @id @unique
 
-  created        String   @default("")
-  name           String?  @default("")
-  updated        String   @default("")
-  description    String?  @default("")
-  attached_files String?  @default("")
-  favorite       Boolean? @default(false)
-  pinned_file    String?  @default("")
-  assembly_time  Decimal? @default(0)
-  thumbnail      String?  @default("")
+  name           String
+  description    String?
+  assembly_time  Float @default(0)
+  thumbnail      String?
+
+  created        DateTime   @default(now())
+  updated        DateTime   @updatedAt
+
+  buylists       SCMAssemblyBuylists[]
+
+  assembly_relation_parent SCMAssemblyRelation[] @relation("assembly_relation_parent")
+  assembly_relations SCMAssemblyRelation[] @relation("assembly_relation_children")
 
 }
 
-model SCMAssembliesBuylists {
-  assembly String?  @default("")
-  created  String   @default("")
-  id       String   @id
-  name     String?  @default("")
-  updated  String   @default("")
-  project  String?  @default("")
-  store    String?  @default("")
-  closed   Boolean? @default(false)
+model SCMAssemblyRelation {
 
-  @@index([created], map: "_8511u98v8sq7w82_created_idx")
+  id                  String   @id @unique
+
+  parent_id           String  @default("")
+  parent              SCMAssembly @relation("assembly_relation_parent", references: [id], fields: [parent_id], onDelete: Cascade)
+
+  article_child_id    String?  @default("")
+  article_child       SCMArticle? @relation(references: [id], fields: [article_child_id], onDelete: Cascade)
+
+  assembly_child_id   String?  @default("")
+  assembly_child      SCMAssembly? @relation("assembly_relation_children", references: [id], fields: [assembly_child_id], onDelete: Cascade)
+
+  created             DateTime @default(now())
+  quantity            Float @default(0)
+  updated             DateTime @updatedAt  
+  order               Int @default(0)
+
 }
 
-model assemblies_relations {
-  article_child  String?  @default("")
-  assembly_child String?  @default("")
-  created        String   @default("")
-  id             String   @id
-  parent         String?  @default("")
-  quantity       Decimal? @default(0)
-  updated        String   @default("")
-  order          Decimal? @default(0)
+model SCMAssemblyBuylists {
 
-  @@index([created], map: "_9fkqb7gwgcsubt7_created_idx")
+  id            String   @id @unique
+  name          String  @default("")
+
+  assembly_id   String  @default("")
+  assembly      SCMAssembly @relation(references: [id], fields: [assembly_id], onDelete: Cascade)
+
+  project_id    String?  @default("")
+  project       SCMProject? @relation(references: [id], fields: [project_id], onDelete: Cascade)
+  
+  store_id      String  @default("")
+
+  created       DateTime   @default(now())
+  closed        Boolean @default(false)
+
 }
 
-model crm_company {
+model SCMProject {
+  id                  String   @id @default(uuid()) @unique
+  name                String?  @default("")
+
+  created             DateTime @default(now())
+  end_date            DateTime?
+  start_date          DateTime?
+
+  customer            String?
+  closed              Boolean @default(false)
+
+  assembly_buylists   SCMAssemblyBuylists[]
+  attached_users      SCMProjetAttachedUser[]
+  order_rows          SCMOrderRows[]
+
+}
+
+model SCMProjetAttachedUser {
+
+  id                  String   @id @default(uuid()) @unique
+
+  role                String?
+
+  project_id          String
+  project             SCMProject @relation(references: [id], fields: [project_id], onDelete: Cascade)
+
+  user_id             String
+  user                User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+}
+
+model SCMOrder {
+  id                  String   @id @default(uuid()) @unique
+
+  created             DateTime @default(now())
+  updated             DateTime @updatedAt
+
+  issuer_id           String
+  issuer              User @relation(references: [id], fields: [issuer_id], onDelete: Cascade)
+
+  supplier_id         String
+  supplier            SCMSupplier @relation(references: [id], fields: [supplier_id], onDelete: Cascade)
+
+  state               String @default("draft")
+  name                String
+
+  vat                 Decimal @default(0)
+  delivery_fees       Decimal @default(0)
+
+  order_rows          SCMOrderRows[]
+}
+
+model SCMOrderRows {
+  id                  String   @id @default(uuid()) @unique
+
+  created             DateTime @default(now()) 
+  updated             DateTime @updatedAt
+
+  order_id            String
+  order               SCMOrder @relation(references: [id], fields: [order_id], onDelete: Cascade)
+  
+  project_id          String?
+  project             SCMProject? @relation(references: [id], fields: [project_id], onDelete: Cascade)
+
+  article_id          String
+  article             SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
+
+  needed_date         DateTime?
+  needed_quantity     Float  @default(0)
+
+  ack_date            DateTime?
+  ack_price           Float?  @default(0)
+
+  received_quantity   Float  @default(0)
+}
+
+model SCMFabricationOrders {
+  id                  String   @id @default(uuid()) @unique
+
+  applicant  String? @default("")
+  article    String? @default("")
+  created    String  @default("")
+  project    String? @default("")
+  quantity   Float?  @default(0)
+  receiver   String? @default("")
+  updated    String  @default("")
+  start_date String? @default("")
+  end_date   String? @default("")
+  state      String? @default("")
+}
+
+model CRMCompany {
   country String? @default("")
   created String  @default("")
   field   String? @default("")
@@ -216,82 +356,4 @@ model crm_leads_interests {
   updated  String   @default("")
 
   @@index([created], map: "_70sznq87hrb1cqt_created_idx")
-}
-
-model fabrication_orders {
-  applicant  String? @default("")
-  article    String? @default("")
-  created    String  @default("")
-  id         String  @id
-  project    String? @default("")
-  quantity   Float?  @default(0)
-  receiver   String? @default("")
-  updated    String  @default("")
-  start_date String? @default("")
-  end_date   String? @default("")
-  state      String? @default("")
-
-  @@index([created], map: "_is2ghc0l7l3dhs4_created_idx")
-}
-
-model orders {
-  created        String   @default("")
-  id             String   @id
-  issuer         String?  @default("")
-  supplier       String?  @default("")
-  updated        String   @default("")
-  state          String?  @default("")
-  name           String?  @default("")
-  attached_files String?  @default("")
-  vat            Decimal? @default(0)
-  delivery_fees  Decimal? @default(0)
-  sub_id         String?  @unique(map: "idx_unique_oixk8rv4") @default("")
-
-  @@index([created], map: "_15utj1m1vqg6oms_created_idx")
-}
-
-model orders_rows {
-  article           String? @default("")
-  created           String  @default("")
-  needed_date       String? @default("")
-  id                String  @id
-  order             String? @default("")
-  quantity          Float?  @default(0)
-  updated           String  @default("")
-  project           String? @default("")
-  quantity_received Float?  @default(0)
-  ack_date          String? @default("")
-  ack_price         Float?  @default(0)
-
-  @@index([created], map: "_koszbs3ev16yl63_created_idx")
-}
-
-model projects {
-  attached_users String?  @default("")
-  created        String   @default("")
-  end_date       String?  @default("")
-  id             String   @id
-  name           String?  @default("")
-  start_date     String?  @default("")
-  updated        String   @default("")
-  customer       String?  @default("")
-  closed         Boolean? @default(false)
-
-  @@index([created], map: "_8lgxrj1l7qlrrfg_created_idx")
-}
-
-model suppliers {
-  contact_email String?  @default("")
-  created       String   @default("")
-  id            String   @id
-  name          String?  @default("")
-  updated       String   @default("")
-  address       String?  @default("")
-  internal      Boolean? @default(false)
-  website       String?  @default("")
-  payment_rules String?  @default("")
-  thumbnail     String?  @default("")
-  payment_rule  String?  @default("")
-
-  @@index([created], map: "_ubelnirh91lohfy_created_idx")
 }

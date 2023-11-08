@@ -24,8 +24,24 @@
     import Price from "../formatters/Price.svelte";
 
     import { env } from "$env/dynamic/public";
+    import type { Prisma } from "@prisma/client";
 
-    export let article: ArticleResponseExpanded;
+    type SCMArticleWithIncludes = Prisma.SCMArticleGetPayload<{
+        include: {
+            store_relations: {
+                include: {
+                    store: true
+                }
+            },
+            order_rows: {
+                include: {
+                    order: true
+                }
+            }
+        }
+    }>;
+
+    export let article: SCMArticleWithIncludes;
 
     /** Wether the stock should be displayed or not */
     export let displayStock = false;
@@ -42,17 +58,17 @@
     /** Wether the manufacturer and reference are displayed */
     export let displayManufacturer = true;
 
-    $: articleQuantity = article.expand?.["article_store_quantity(article)"]?.at(0)?.quantity ?? 0;
-    $: approxQuantity = article.expand?.["article_order_quantity(article)"]?.at(0)?.quantity ?? 0;
-    $: fabricationQuantity = article.expand?.["article_fabrication_quantity(article)"]?.at(0)?.quantity ?? 0;
-    $: articlePrice = article.expand?.["article_price(article)"]?.at(0)?.price ?? article.price ?? 0;
+    $: articleQuantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
+    $: approxQuantity = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).reduce((p, c) => p = p + (c.needed_quantity - c.received_quantity), 0);
+    $: articlePrice = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).filter(or => or.ack_price !== null).reduce((p, c) => p = p + (c.ack_price as number) * c.received_quantity, 0);
+    $: fabricationQuantity = 0;
 
 </script>
 
 <Flex items="center" class="min-w-[10em] 2xl:min-w-[30em]">
 
-    {#if displayThumb === true && article.pinned_file !== undefined && article.attached_files?.includes(article.pinned_file) && browser}
-        <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{article.collectionName}/{article.id}/{article.pinned_file}?thumb=200x200" alt={article.pinned_file} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
+    {#if displayThumb === true && article.thumbnail && browser}
+        <img src={article.thumbnail} alt={`Miniature ${article.name}`} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
     {:else}
         <div class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50">
             <Icon src={VideoCameraSlash} class="h-10 w-10 m-5 text-red-500" />
@@ -61,7 +77,7 @@
 
     <div>
         <a href="/app/scm/articles/{article.id}" class="block">{article.name}</a>
-        {#if displayManufacturer}<span class="text-sm block">{(article.internal) ? env.PUBLIC_COMPANY_NAME : article.manufacturer}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
+        {#if displayManufacturer}<span class="text-sm block">{(article.internal) ? env.PUBLIC_COMPANY_NAME : article.brand}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
         {#if displayPrice}<span class="text-sm block"><DetailLabel><Price value={articlePrice} /></DetailLabel></span>{/if}
         {#if articleQuantity > 0 && displayStock === true}
             {@const shouldOrder = articleQuantity < (article.critical_quantity ?? 0)}
