@@ -1,12 +1,7 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type ArticleResponse, type ArticleMovementsResponse, type ArticleMovementsRecord, type UsersResponse, type ArticleTagsResponse, OrdersStateOptions, type StoresResponse, type StoresRelationsResponse } from "$lib/DBTypes";
-import { ClientResponseError } from "pocketbase";
-import type { SCMArticle } from "@prisma/client";
-
-export type ArticleTagsRelationsResponseExpanded = ArticleTagsRelationsResponse<{
-    tag: ArticleTagsResponse
-}>;
+import { Collections, type ArticleTagsResponse, type StoresRelationsResponse } from "$lib/DBTypes";
+import { deleteFile, saveFile } from "$lib/server/files";
 
 export const load = (async ({ params, locals }) => {
 
@@ -76,7 +71,7 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            return { delete: { error: "Failed to delete item" }};
+            return { delete: { error: "scm.article.delete.error" }};
         }
 
         throw redirect(303, "/app/scm/articles");
@@ -90,6 +85,9 @@ export const actions: Actions = {
             const order_quantity = Number(form.get("order_quantity")?.toString());
             const critical_quantity = Number(form.get("critical_quantity")?.toString());
             const unit_quantity = Number(form.get("unit_quantity")?.toString());
+
+            //TODO: This might require a zod validation before being sent to the database
+            //TODO: This needs proper field types
 
             await locals.prisma.sCMArticle.update({
                 where: {
@@ -134,7 +132,7 @@ export const actions: Actions = {
             article.name = article.name + " — Copie";
 
             let { id } = await locals.prisma.sCMArticle.create({
-                data: {...article, id: undefined }
+                data: {...article, id: undefined, thumbnail: undefined }
             });
 
             newID = id;
@@ -146,6 +144,32 @@ export const actions: Actions = {
         }
 
         throw redirect(303, "/app/scm/articles/" + newID);
+    },
+
+    editThumbnail: async ({ locals, params, request }) => {
+
+        const form = await request.formData();
+
+        try
+        {
+            const { thumbnail } = await locals.prisma.sCMArticle.findFirstOrThrow({ where: { id: params.id }});
+
+            if(thumbnail !== null)
+                await deleteFile(thumbnail);
+
+            if(!form.has("thumbnail"))
+                return { editThumbnail: { success: "scm.article.thumbnail.delete_success" } };
+
+            const path = await saveFile("scm/articles/thumbnails", form.get("thumbnail") as Blob);
+            await locals.prisma.sCMArticle.update({ where: { id: params.id }, data: { thumbnail: path }});
+
+            return { editThumbnail: { success: "scm.article.thumbnail.update_success" } };
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return { editThumbnail: { error: "scm.article.thumbnail.error" } };
+        }
     },
 
     addAttachedFile: async ({ locals, params, request }) => {
@@ -207,8 +231,8 @@ export const actions: Actions = {
 
         try
         {
-            if(locals.user?.id === undefined)
-                throw "user not authed";
+            if(locals.session === null)
+                throw "app.user.error.no_auth";
 
             const direction = form.get("direction")?.toString();
 
@@ -217,146 +241,93 @@ export const actions: Actions = {
 
             const quantityDelta = Number(form.get("quantity_update")?.toString());
 
-            const storeIn = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${params.id}" && store = "${storeInID}"` })).at(0);
-            const storeOut = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${params.id}" && store = "${storeOutID}"` })).at(0);
+            const storeIn = await locals.prisma.sCMStoreRelation.findFirst({ where: { article_id: params.id, store_id: storeInID }});
+            const storeOut = await locals.prisma.sCMStoreRelation.findFirst({ where: { article_id: params.id, store_id: storeOutID }});
 
             if(direction === "outward" && storeOutID === undefined)
-                throw "L'emplacement de provenance n'est pas défini";
+                throw "scm.article.movement.error.store_out_not_defined"; //"L'emplacement de provenance n'est pas défini";
 
             if(direction === "inward" && storeInID === undefined)
-                throw "L'emplacement de destination n'est pas défini";
+                throw "scm.article.movement.error.store_in_not_defined"; //"L'emplacement de destination n'est pas défini";
 
             if(direction === "moved" && (storeInID === undefined || storeOutID === undefined))
-                throw "L'emplacement de provenance ou de destination n'est pas défini";
+                throw "scm.article.movement.error.stores_undefined"; //"L'emplacement de provenance ou de destination n'est pas défini";
 
             if(direction === "inward")
             {
-                if(storeIn === undefined)
+                if(storeIn === null)
+                {
                     await locals.pb.collection(Collections.StoresRelations).create<StoresRelationsResponse>({ article: params.id, store: storeInID, quantity: quantityDelta });
+                    await locals.prisma.sCMStoreRelation.create({ data: { article_id: params.id, store_id: storeInID, quantity: quantityDelta }});
+                }
                 else
-                    await locals.pb.collection(Collections.StoresRelations).update<StoresRelationsResponse>(storeIn.id, { "quantity+": quantityDelta });
+                {
+                    await locals.prisma.sCMStoreRelation.update({ where: { id: storeIn.id }, data: { quantity: { increment: quantityDelta }}});
+                }
 
-                await locals.pb.collection(Collections.ArticleMovements).create(
-                    {
-                        article: params.id,
-                        user: locals.user.id,
+                await locals.prisma.sCMArticleMovements.create({
+                    data: {
+                        article_id: params.id,
+                        user_id: locals.session.user.userId,
                         quantity_update: quantityDelta,
-                        store_in: storeInID,
-                        store_out: storeOutID,
-                    } satisfies ArticleMovementsRecord
-                );
+                        store_in_id: storeInID,
+                        store_out_id: storeOutID
+                    }
+                });
             }
             else if (direction === "outward")
             {
-                if(storeOut === undefined)
-                    throw "L'article n'est pas présent dans l'emplacement de provenance";
+                if(storeOut === null)
+                    throw "scm.article.movement.error.store_missing_item"; //"L'article n'est pas présent dans l'emplacement de provenance";
                 
-                if((storeOut.quantity ?? 0) < quantityDelta)
-                    throw "La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
+                if(storeOut.quantity < quantityDelta)
+                    throw "scm.article.movement.error.store_not_enough_items"; //"La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
                 
-                await locals.pb.collection(Collections.StoresRelations).update<StoresRelationsResponse>(storeOut.id, { "quantity-": quantityDelta });
-                await locals.pb.collection(Collections.ArticleMovements).create(
-                    {
-                        article: params.id,
-                        user: locals.user.id,
+                await locals.prisma.sCMStoreRelation.update({ where: { id: storeOut.id }, data: { quantity: { decrement: quantityDelta }}});
+                await locals.prisma.sCMArticleMovements.create({
+                    data: {
+                        article_id: params.id,
+                        user_id: locals.session.user.userId,
                         quantity_update: quantityDelta,
-                        store_in: storeInID,
-                        store_out: storeOutID,
-                    } satisfies ArticleMovementsRecord
-                );
+                        store_in_id: storeInID,
+                        store_out_id: storeOutID
+                    }
+                });
             }
             else if (direction === "moved")
             {
-                if(storeOut === undefined)
-                    throw "L'article n'est pas présent dans l'emplacement de provenance";
+                if(storeOut === null)
+                    throw "scm.article.movement.error.store_missing_item"; //"L'article n'est pas présent dans l'emplacement de provenance";
                 
                 if(storeInID === storeOutID)
-                    throw "L'emplacement de provenance et de destination sont identiques";
+                    throw "scm.article.movement.error.same_stores"; //"L'emplacement de provenance et de destination sont identiques";
 
-                if((storeOut.quantity ?? 0) < quantityDelta)
-                    throw "La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
+                if(storeOut.quantity < quantityDelta)
+                    throw "scm.article.movement.error.out_store_not_enough_items"; //"La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
 
-                if(storeIn === undefined)
-                    await locals.pb.collection(Collections.StoresRelations).create<StoresRelationsResponse>({ article: params.id, store: storeInID, quantity: quantityDelta });
+                if(storeIn === null)
+                    await locals.prisma.sCMStoreRelation.create({ data: { article_id: params.id, store_id: storeInID, quantity: quantityDelta }});
                 else
-                    await locals.pb.collection(Collections.StoresRelations).update<StoresRelationsResponse>(storeIn.id, { "quantity+": quantityDelta });
+                    await locals.prisma.sCMStoreRelation.update({ where: { id: storeIn.id }, data: { quantity: { increment: quantityDelta }}});
 
-                await locals.pb.collection(Collections.StoresRelations).update<StoresRelationsResponse>(storeOut.id, { "quantity-": quantityDelta });
+                await locals.prisma.sCMStoreRelation.update({ where: { id: storeOut.id }, data: { quantity: { decrement: quantityDelta }}});
 
-                await locals.pb.collection(Collections.ArticleMovements).create(
-                    {
-                        article: params.id,
-                        user: locals.user.id,
+                await locals.prisma.sCMArticleMovements.create({
+                    data: {
+                        article_id: params.id,
+                        user_id: locals.session.user.userId,
                         quantity_update: quantityDelta,
-                        store_in: storeInID,
-                        store_out: storeOutID,
-                    } satisfies ArticleMovementsRecord
-                );
+                        store_in_id: storeInID,
+                        store_out_id: storeOutID
+                    }
+                });
             }
 
-            return { updateStock: { success: "Stock mis à jour" }};
+            return { updateStock: { success: "scm.article.movement.success" }};
         }
         catch(ex)
         {
-            if(ex instanceof ClientResponseError)
-            {
-                return { updateStock: { error: ex.message }};
-            }
-
-            return { updateStock: { error: ex }};
-        }
-    },
-
-    createTag: async ({ locals, request }) => {
-
-        const form = await request.formData();
-
-        try
-        {
-            await locals.pb.collection(Collections.ArticleTags).create(form);
-        }
-        catch(ex)
-        {
-            if(ex instanceof ClientResponseError)
-                return { createTag: { error: ex.message }};
-
-            return { createTag: { error: ex }};
-        }
-    },
-
-    addTag: async ({ locals, params, request }) => {
-        const form = await request.formData();
-
-        try
-        {
-            await locals.pb.collection(Collections.ArticleTagsRelations).create({ article: params.id, tag: form.get("tag")?.toString(), value: form.get("value")?.toString() });
-        }
-        catch(ex)
-        {
-            if(ex instanceof ClientResponseError)
-                return { addTag: { error: ex.message }};
-
-            return { addTag: { error: ex }};
-        }
-    },
-
-    editTag: async ({ locals, request }) => {
-        const form = await request.formData();
-
-        const id = form.get("id")?.toString();
-
-        try
-        {
-            if(id === undefined)
-                throw "id not found";
-            
-            await locals.pb.collection(Collections.ArticleTagsRelations).update(id, form);
-            
-            return { editTag: { success: true }};
-        }
-        catch(ex)
-        {
-            return { editTag: { error: (ex instanceof ClientResponseError) ? ex.message : ex}};
+            return { updateStock: { error: String(ex) }};
         }
     }
 }
