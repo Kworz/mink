@@ -4,6 +4,7 @@ node_modules
 /build
 /data
 /package
+/static/uploads
 .env
 .env.*
 !.env.example
