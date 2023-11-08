@@ -7,26 +7,31 @@
 
 import type PocketBase, { BaseAuthStore } from "pocketbase";
 import type { PrismaClient } from "@prisma/client";
+import type { Auth } from "$lib/server/lucia";
 
 declare global {
+
 	namespace App {
 		// interface Error {}
 	
 		interface Locals {
 			pb: PocketBase
 			prisma: PrismaClient
-			auth: import('lucia').AuthRequest
-			user: BaseAuthStore["model"] | undefined
+
+			lucia: import("lucia").AuthRequest
+			session: Awaited<ReturnType<typeof import("lucia").AuthRequest.prototype.validate>>
 		}
 	
 		interface PageData {
-			user: BaseAuthStore["model"] | undefined,
+			session: Awaited<ReturnType<typeof import("lucia").AuthRequest.prototype.validate>>,
 			pb: PocketBase
 		}
 	
 		// interface Platform {}
 	}
-	namespace Lucia {
+
+	namespace Lucia
+	{
 		type Auth = import("$lib/server/lucia").Auth;
 		type DatabaseUserAttributes = {
 			username: string;
