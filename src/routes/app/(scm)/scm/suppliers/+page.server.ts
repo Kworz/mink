@@ -1,12 +1,10 @@
-import { Collections, type SuppliersResponse } from "$lib/DBTypes";
+import type { SCMSupplier } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load = (async ({ locals }) => {
-
-    const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
-
+    const suppliers = await locals.prisma.sCMSupplier.findMany();
     return {
-        suppliers: structuredClone(suppliers)
+        suppliers
     }
 
 }) satisfies PageServerLoad;
@@ -18,54 +16,70 @@ export const actions: Actions = {
             const form = await request.formData();
             form.set("internal", String(form.has("internal")));
 
-            const supplierID = form.get("id");
+            const supplierID = form.get("id")?.toString();
 
             if(supplierID === null)
                 throw "could not find supplier ID";
 
-            if((form.get("thumbnail") as (Blob | null))?.size === 0)
-                form.delete("thumbnail");
+            if((form.get("logo") as (Blob | null))?.size === 0)
+                form.delete("logo");
 
-            await locals.pb.collection(Collections.Suppliers).update(supplierID.toString(), form);
+            await locals.prisma.sCMSupplier.update({
+                where: { id: supplierID },
+                data: {
+                    ...(Object.fromEntries(form) as unknown as SCMSupplier),
+                    internal: form.has("internal") && form.get("internal") === "true"
+                }
+            })
 
             return {
-                edit: { success: "Updated supplier" }
+                edit: { success: "scm.supplier.update.success" }
             };
         }
         catch(ex)
         {
             console.log(ex);
             return {
-                edit: { error: ex }
+                edit: { error: "scm.supplier.update.error" }
             }
         }
     },
     createSupplier: async ({ locals, request }) => {
         try {
             const form = await request.formData();
-            form.set("internal", String(form.has("internal")));
 
-            await locals.pb.collection(Collections.Suppliers).create(form);
-            return { create: { success: "Created successfully" }};
+            if((form.get("logo") as (File | null))?.size === 0)
+                form.delete("logo");
+
+            await locals.prisma.sCMSupplier.create({
+                data: {
+                    ...(Object.fromEntries(form) as unknown as SCMSupplier),
+                    internal: form.has("internal") && form.get("internal") === "true"
+                }
+            })
+
+            return { create: { success: "scm.supplier.create.success" }};
         }
         catch(ex)
         {
             console.log(ex);
-            return { create: { error: ex }};
+            return { create: { error: "scm.supplier.create.error" }};
         }
     },
     deleteSupplier: async ({ locals, request }) => {
 
         try {
             const form = await request.formData();
-            const deleteID = form.get("id");
+            const deleteID = form.get("id")?.toString();
 
             if(deleteID === null)
-                throw "could not find supplier ID";
+                throw "scm.supplier.delete.error.no_id_given";
 
-            await locals.pb.collection(Collections.Suppliers).delete(deleteID.toString());
+            await locals.prisma.sCMSupplier.delete({
+                where: { id: deleteID }
+            })
 
-            return { delete: { success: "Deleted successfully" }};
+            return { delete: { success: "scm.supplier.delete.success" }};
 
         }
         catch(ex)

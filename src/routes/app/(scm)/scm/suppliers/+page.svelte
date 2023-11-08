@@ -10,20 +10,19 @@
     import TableHead from "$lib/components/table/TableHead.svelte";
     import TableRow from "$lib/components/table/TableRow.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
-    import type { SuppliersResponse } from "$lib/DBTypes";
     import { Home } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
 
-    import { env } from "$env/dynamic/public";
+    import type { SCMSupplier } from "@prisma/client";
 
     export let data: PageData;
     export let form: ActionData;
 
-    let editSupplier: SuppliersResponse | undefined;
-    let createSupplier = false;
+    let editSupplier: SCMSupplier | undefined = undefined;
     let deleteConfirm: string | undefined = undefined;
+    let createSupplier = false;
 
     $: if(form !== undefined && browser) { editSupplier = undefined; createSupplier = false; invalidateAll(); };
     $: if(deleteConfirm !== undefined) { setTimeout(() => deleteConfirm = undefined, 5000); }
@@ -42,13 +41,13 @@
 
             <Flex direction="col">
 
-                {#if (editSupplier?.thumbnail ?? "") !== "" && browser}
+                {#if (editSupplier?.logo ?? "") !== "" && browser}
                     <Flex items="center" gap={2}>
-                        <img src={`http://${env.PUBLIC_POCKETBASE_ADDRESS}/api/files/${editSupplier?.collectionName}/${editSupplier?.id}/${editSupplier?.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
-                        <Button size="small" role="danger" on:click={() => { editSupplier.thumbnail = "" }}>Supprimer l'image</Button>
+                        <img src={editSupplier?.logo} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
+                        <Button size="small" role="danger" on:click={() => { editSupplier.logo = "" }}>Supprimer l'image</Button>
                     </Flex>
                 {:else}
-                    <FormInput type="file" name="thumbnail" label="Logo fournisseur" backgroundColor="bg-white" />
+                    <FormInput type="file" name="logo" label="Logo fournisseur" backgroundColor="bg-white" />
                 {/if}
 
                 <FormInput name="name" label="Nom du fournisseur" labelMandatory={true} value={editSupplier?.name ?? ""}  backgroundColor="bg-white"/>
@@ -58,7 +57,7 @@
                 </Flex>
                 <FormInput name="website" label="Site web" value={editSupplier?.website ?? ""} />
                 <FormInput name="address" label="Adresse" value={editSupplier?.address ?? ""} />
-                <FormInput type="email" name="contact_email" label="Email de contact" value={editSupplier?.contact_email ?? ""}/>
+                <FormInput type="email" name="email" label="Email de contact" value={editSupplier?.email ?? ""}/>
 
                 <FormInput type="select" name="payment_rule" value={editSupplier?.payment_rule ?? ""} label="Conditions de paiement" >
                     <option value={undefined}>—</option>
@@ -106,8 +105,8 @@
                                 <Icon src={Home} class="h-4 w-4" />
                             {/if}
                             <a href={supplier.website ?? "#"}>
-                                {#if supplier.thumbnail !== "" && browser}
-                                    <img src={`http://${env.PUBLIC_POCKETBASE_ADDRESS}/api/files/${supplier.collectionName}/${supplier.id}/${supplier.thumbnail}`} class="h-8 inline-block mr-4 rounded-md" />
+                                {#if supplier.logo !== null}
+                                    <img src={supplier.logo} alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
                                 {/if}
                                 <span>
                                     {supplier.name}
@@ -116,7 +115,7 @@
                         </Flex>
                     </TableCell>
                     <TableCell>{supplier.address}</TableCell>
-                    <TableCell><a href="mailto:{supplier.contact_email}">{supplier.contact_email}</a></TableCell>
+                    <TableCell><a href="mailto:{supplier.email}">{supplier.email}</a></TableCell>
                     <TableCell>
                         <Flex>
                             {#if deleteConfirm === supplier.id}
