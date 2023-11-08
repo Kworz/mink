@@ -4,7 +4,6 @@
     import { CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Truck, DocumentChartBar, QueueList, QrCode, PuzzlePiece, ChevronLeft, ArchiveBox } from "@steeze-ui/heroicons";
     import Menu from "$lib/components/appLayout/Menu.svelte";
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
-    import TopBar from "$lib/components/appLayout/TopBar.svelte";
     import MenuSeparator from "$lib/components/appLayout/MenuSeparator.svelte";
     import MenuCloseButton from "$lib/components/appLayout/MenuCloseButton.svelte";
 
@@ -35,11 +34,8 @@
 
     </Menu>
 
-    <div class="grow overflow-x-hidden overflow-y-scroll">
-        <TopBar />
-        <div class="w-full p-6" id="main_content">
-            <slot />
-        </div>
+    <div class="grow overflow-x-hidden overflow-y-scroll p-6" id="main_content">
+        <slot />
     </div>
 
     <div class="h-screen" id="side_menu" />
