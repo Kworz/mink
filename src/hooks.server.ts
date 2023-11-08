@@ -5,21 +5,15 @@ import { prisma } from "$lib/server/prisma";
 export const handle = (async ({ event, resolve }) => {
 
     event.locals.prisma = prisma;
-    event.locals.auth = auth(event.locals.prisma).handleRequest(event);
-
-    const session = await event.locals.auth.validate();
+    event.locals.lucia = auth(event.locals.prisma).handleRequest(event);
+    event.locals.session = await event.locals.lucia.validate();
     
-    if(session)
-        event.locals.user = session.user;
-    else
-        event.locals.user = undefined;
-
-    if(event.route.id?.startsWith("/app") && event.locals.user === undefined)
+    if(event.route.id?.startsWith("/app") && event.locals.session === null)
     {
         const target = event.url.pathname === "/app" ? "" : `?target=${btoa(event.url.pathname)}`;
         return new Response(null, {status: 303, headers: { 'location': `/login${target}` }});
     }
-    else if((event.route.id?.startsWith("/login") || event.route.id?.startsWith("/register")) && event.locals.user !== undefined)
+    else if((event.route.id?.startsWith("/login") || event.route.id?.startsWith("/register")) && event.locals.session !== null)
     {
         return new Response(null, {status: 303, headers: { 'location': `/app` }});
     }
