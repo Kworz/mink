@@ -4,7 +4,9 @@
     import { User } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
 
-    export let user: UserDB;
+    //export let user: UserDB;
+
+    let user = {};
 </script>
 
 <a href="/app/users/{user.id}" class="inline-flex shrink-0 flex-row items-center gap-3 p-1 pr-4 rounded-full bg-zinc-700 dark:bg-white text-white dark:text-zinc-700 hover:text-violet-400">
