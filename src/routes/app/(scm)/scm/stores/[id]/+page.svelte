@@ -2,7 +2,7 @@
     import Wrapper from "$lib/components/Wrapper.svelte";
     import TableCell from "$lib/components/table2/TableCell.svelte";
     import Table from "$lib/components/table2/Table.svelte";
-import type { PageData } from "./$types";
+    import type { PageData } from "./$types";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import TablePages from "$lib/components/table/TablePages.svelte";
     import { page } from "$app/stores";
@@ -31,6 +31,10 @@ import type { PageData } from "./$types";
 
 </script>
 
+<svelte:head>
+    <title>Stocks — {data.store.name} / {data.store.location}</title>
+</svelte:head>
+
 <Wrapper>
     <h3>Stock: {data.store.name}</h3>
     <p>Emplacement: {data.store.location}</p>
@@ -39,12 +43,12 @@ import type { PageData } from "./$types";
 
 <Wrapper class="mt-6">
 
-    <TablePages totalPages={data.storeRelations.totalPages} bind:currentPage={itemsPage} />
+    <!--<TablePages totalPages={data.storeRelations.totalPages} bind:currentPage={itemsPage} />-->
 
     <Table headers={[{ label: "Article", colname: "article.name" }, { label: "Quantité", colname: "quantity" }]} bind:activeSort>
-        {#each data.storeRelations.items as relation}
+        {#each data.store.store_relations as relation}
             <TableCell>
-                <ArticleRow article={relation.expand.article} />
+                <ArticleRow article={relation.article} />
             </TableCell>
             <TableCell>{relation.quantity}</TableCell>
         {/each}
