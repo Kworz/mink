@@ -124,6 +124,7 @@
         <Wrapper>
             <PillMenu>
                 <PillMenuButton icon={WrenchScrewdriver} click={() => editArticle = !editArticle}>Modifier l'article</PillMenuButton>
+                <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print?articles=${data.article.id}`, "_blank")}>Imprimer le QR Code</PillMenuButton>
                 <form action="?/copyArticle" method="post" use:enhanceNoReset><PillMenuButton icon={DocumentDuplicate}>Copier l'article</PillMenuButton></form>
                 <PillMenuButton icon={Trash} click={() => deleteArticle = true}>Supprimer l'article</PillMenuButton>
             </PillMenu>
