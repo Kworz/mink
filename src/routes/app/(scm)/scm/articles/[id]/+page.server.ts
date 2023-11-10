@@ -33,7 +33,8 @@ export const load = (async ({ params, locals }) => {
                                 supplier: true
                             }
                         }
-                    }
+                    },
+                    where: { order: { state: { notIn: ["closed", "cancelled", "quotation"] }}}
                 },
                 files: true
             }

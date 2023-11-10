@@ -43,7 +43,7 @@
     $: if(form !== null) { setTimeout(() => form = null, 3000); }
         
     $: articleQuantity = data.article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
-    $: articlePrice = data.article.order_rows.filter(or => [""].includes(or.order.state)).reduce((p, c) => p = p + ((c.ack_price ?? 0) * c.received_quantity), 0) / articleQuantity;
+    $: articlePrice = data.article.order_rows.flatMap(or => new Array(or.needed_quantity).fill(or.ack_price ?? 0)).reduce((p, c) => p = p + c, 0) / data.article.order_rows.reduce((p, c) => p = p + c.needed_quantity, 0);
     $: exploitableStoreRelations = data.article.store_relations.filter(sr => !sr.store.temporary && sr.quantity > 0);
     $: articlePreffedStores = data.article.store_relations.filter(sr => sr.quantity > 0).map(sr => sr.store_id);
     $: suppliers = data.article.order_rows.reduce((p, c) => [...p, c.order.supplier], new Array());
@@ -150,7 +150,7 @@
                     <p>Prix unitaire moyen pondéré: <DetailLabel><Price value={articlePrice} /></DetailLabel></p>
                     <ol class="hidden group-hover:block">
                         {#each data.article.order_rows as orderRow}
-                            <li><a href="/app/scm/orders/{orderRow.order}">{orderRow.received_quantity} x <Price value={orderRow.ack_price ?? 0} /></a></li>
+                            <li><a href="/app/scm/orders/{orderRow.order_id}">{orderRow.needed_quantity} x <Price value={orderRow.ack_price ?? 0} /></a></li>
                         {/each}
                     </ol>
                 </div>
