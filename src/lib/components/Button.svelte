@@ -4,6 +4,7 @@
     export let role: "primary" | "secondary" | "tertiary" | "danger" | "warning" | "success" = "primary";
 
     export let form: string | undefined = undefined;
+    export let preventSend = false;
     
     const sizes: Record<typeof size, string> = {
         "base": "border-2 py-2 px-4 font-bold",
@@ -23,6 +24,6 @@
 
 </script>
 
-<button {form} class="hover:text-white text-zinc-800 dark:text-white duration-100 rounded-md {sizes[size]} {roles[role]} {$$props.class}" on:click>
+<button {form} type={preventSend ? "button" : "submit"} class="hover:text-white text-zinc-800 dark:text-white duration-100 rounded-md {sizes[size]} {roles[role]} {$$props.class}" on:click>
     <slot />
 </button>
