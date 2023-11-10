@@ -1,12 +1,14 @@
 import type { Handle } from '@sveltejs/kit';
 import { auth } from "$lib/server/lucia";
 import { prisma } from "$lib/server/prisma";
+import { getSettings } from '$lib/server/settings';
 
 export const handle = (async ({ event, resolve }) => {
 
     event.locals.prisma = prisma;
     event.locals.lucia = auth(event.locals.prisma).handleRequest(event);
     event.locals.session = await event.locals.lucia.validate();
+    event.locals.appSettings = getSettings(await event.locals.prisma.appSettings.findMany());
     
     if(event.route.id?.startsWith("/app") && event.locals.session === null)
     {

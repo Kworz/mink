@@ -43,6 +43,11 @@ model Key {
   @@index([user_id])
 }
 
+model AppSettings {
+  key             String  @id @unique
+  value           String
+}
+
 model SCMArticle {
   id                String   @id @default(uuid()) @unique
 
@@ -233,6 +238,7 @@ model SCMProjetAttachedUser {
 
 model SCMOrder {
   id                  String   @id @default(uuid()) @unique
+  sub_id              String   @unique
 
   created             DateTime @default(now())
   updated             DateTime @updatedAt
@@ -246,8 +252,8 @@ model SCMOrder {
   state               String @default("draft")
   name                String
 
-  vat                 Decimal @default(0)
-  delivery_fees       Decimal @default(0)
+  vat                 Float @default(0)
+  delivery_fees       Float @default(0)
 
   order_rows          SCMOrderRows[]
 }

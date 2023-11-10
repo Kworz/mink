@@ -128,8 +128,8 @@
 
 <Grid cols={2} gap={8} items="start" class="mt-8">
     <Wrapper>
-        <h2>{env.PUBLIC_COMPANY_NAME}</h2>
-        <p class="my-2">{@html env.PUBLIC_COMPANY_ADDRESS.split(",").join(',</br>')}</p>
+        <h2>{$page.data.appSettings.appCompanyName}</h2>
+        <p class="my-2">{@html $page.data.appSettings.appCompanyAddress.split(",").join(',</br>')}</p>
         <DetailLabel>{data.order.issuer.email}</DetailLabel>
     </Wrapper>
 

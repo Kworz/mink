@@ -3,7 +3,7 @@ import { redirect } from "@sveltejs/kit";
 
 export const load = (async ({ locals }) => {
 
-    const logged = locals.user !== undefined;
+    const logged = locals.session !== null;
     throw logged ? redirect(303, "/app/") : redirect(303, "/login");
 
 }) satisfies PageServerLoad;

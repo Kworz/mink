@@ -2,7 +2,6 @@ import { redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
 import { ClientResponseError } from "pocketbase";
-
 import type { SCMOrder } from "@prisma/client";
 
 export const load = (async ({ locals }) => {
@@ -39,7 +38,12 @@ export const actions: Actions = {
             form.set("sub_id", subId);
             form.set("issuer_id", locals.session?.user.userId);
 
-            createdOrder = await locals.prisma.sCMOrder.create({ data: Object.fromEntries(form.entries()) as unknown as SCMOrder });
+            createdOrder = await locals.prisma.sCMOrder.create({
+                data: {
+                    ...Object.fromEntries(form.entries()) as unknown as SCMOrder, 
+                    vat: locals.appSettings.appCompanyDefaultVat
+                }
+            });
         }
         catch(ex)
         {
