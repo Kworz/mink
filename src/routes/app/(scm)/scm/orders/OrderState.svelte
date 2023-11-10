@@ -1,12 +1,15 @@
 <script lang="ts">
 
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
-    import type { OrdersStateOptions } from "$lib/DBTypes";
     import { ArchiveBoxXMark, Check, DocumentMagnifyingGlass, DocumentText, Envelope, EnvelopeOpen } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    export let state: OrdersStateOptions;
+    
+    type OrderStateOptions = "draft" | "quotation" | "placed" | "acknowledged" | "cancelled" | "completed"
 
-    let icons: Record<OrdersStateOptions, typeof DocumentText> = {
+    export let state: OrderStateOptions;
+
+
+    let icons: Record<OrderStateOptions, typeof DocumentText> = {
         "draft": DocumentText,
         "quotation": DocumentMagnifyingGlass,
         "placed": Envelope,
@@ -15,7 +18,7 @@
         "completed": Check
     };
 
-    let names: Record<OrdersStateOptions, string> = {
+    let names: Record<OrderStateOptions, string> = {
         "draft": "Brouillon",
         "quotation": "Demande de devis",
         "placed": "Commandé",

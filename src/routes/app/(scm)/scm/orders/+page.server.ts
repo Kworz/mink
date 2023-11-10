@@ -1,30 +1,18 @@
-import { Collections, type ArticleResponse, type OrdersResponse, type OrdersRowsResponse, type ProjectsResponse, type UsersResponse, type SuppliersResponse } from "$lib/DBTypes";
 import { redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
 import { ClientResponseError } from "pocketbase";
 
-import { env } from "$env/dynamic/public";
-
-export type OrdersResponseExpanded = OrdersResponse<{
-    issuer: UsersResponse,
-    project: ProjectsResponse,
-    'orders_rows(order)': Array<OrdersRowsResponse<{
-        article: ArticleResponse
-    }>>,
-    'orders_total_price(order_ref)': [{ gross_price: number, net_price: number }],
-    supplier: SuppliersResponse
-}>;
+import type { SCMOrder } from "@prisma/client";
 
 export const load = (async ({ locals }) => {
 
-    const orders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ expand: "issuer,orders_rows(order).article,supplier,orders_total_price(order_ref)", sort: "-created"});
+    const orders = await locals.prisma.sCMOrder.findMany({ include: { order_rows: true, supplier: true, issuer: true }});
+    const suppliers = await locals.prisma.sCMSupplier.findMany();
     
-    const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>();
-
     return {
-        orders: structuredClone(orders),
-        suppliers: structuredClone(suppliers)
+        orders: orders,
+        suppliers
     };
 
 }) satisfies PageServerLoad;
@@ -32,24 +20,26 @@ export const load = (async ({ locals }) => {
 export const actions: Actions = {
     createOrder: async ({ request, locals }) => {
 
-        let createdOrder: OrdersResponse | undefined = undefined;
+        let createdOrder: SCMOrder | undefined = undefined;
 
         try
         {
-            const creationDate = new Date();
+            if(locals.session === null)
+                throw "app.user.error.no_auth";
 
-            const currentDayOrders = await locals.pb.collection(Collections.Orders).getFullList<OrdersResponseExpanded>({ filter: `created ~ "${creationDate.toISOString().split("T").at(0)}"`, sort: "-created" });
-            const subId = `${currentDayOrders.length+1}-${creationDate.toISOString().split("T").at(0)?.replaceAll("-", "")}`;
+            const creationDate = new Date().toISOString().split("T")[0];
+
+            const nextDay = new Date(creationDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+
+            const currentDayLastOrder = await locals.prisma.sCMOrder.findMany({ where: { created: { gte: new Date(creationDate), lt: nextDay }}, orderBy: { created: "desc" }});
+            const subId = `${currentDayLastOrder.length+1}-${creationDate?.replaceAll("-", "")}`;
             
             const form = await request.formData();
+            form.set("sub_id", subId);
+            form.set("issuer_id", locals.session?.user.userId);
 
-            form.set("sub_id", subId)
-
-            form.set("state", "draft");
-            form.set("issuer", locals.user!.id);
-            form.set("vat", env.PUBLIC_DEFAULT_VAT);
-
-            createdOrder = await locals.pb.collection(Collections.Orders).create<OrdersResponse>(form);
+            createdOrder = await locals.prisma.sCMOrder.create({ data: Object.fromEntries(form.entries()) as unknown as SCMOrder });
         }
         catch(ex)
         {

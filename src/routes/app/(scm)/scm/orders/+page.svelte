@@ -1,16 +1,24 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+    import { OrdersStateOptions } from "$lib/DBTypes";
+    import { PlusCircle } from "@steeze-ui/heroicons";
+    import type { PageData } from "./$types";
 
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
-    import { OrdersStateOptions } from "$lib/DBTypes";
-    import { PlusCircle } from "@steeze-ui/heroicons";
-    import type { PageData } from "./$types";
-    import OrderTable from "./OrderTable.svelte";
+    import Wrapper from "$lib/components/Wrapper.svelte";    
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Supplier from "$lib/components/supplier/Supplier.svelte";
+    import Price from "$lib/components/formatters/Price.svelte";
+    import OrderState from "./OrderState.svelte";
+    import User from "$lib/components/user/User.svelte";
+    import Wrapper2 from "$lib/components/Wrapper2.svelte";
+    import Modal from "$lib/components/modal/Modal.svelte";
+
     export let data: PageData;
 
     let showCompletedOrders = false;
@@ -51,18 +59,36 @@
 </Wrapper>
 
 {#if createOrder}
-    <Wrapper class="mt-6">
-        <form action="?/createOrder" method="post" use:enhance class="flex gap-6 items-end">
-            <FormInput name="name" label="Numéro de commande" labelMandatory={true} />
-            <FormInput type="select" name="supplier" label="Fournisseur" labelMandatory={true}>
+    <Modal title="Créer une nouvelle commande" on:close={() => createOrder = false }>
+        <form action="?/createOrder" method="post" use:enhance class="grid grid-cols-1 gap-4">
+            <FormInput name="name" label="Nom de commande" labelMandatory={true} />
+            <FormInput type="select" name="supplier_id" label="Fournisseur" labelMandatory={true}>
                 {#each data.suppliers as supplier}
                     <option value={supplier.id}>{supplier.name}</option>
                 {/each}
             </FormInput>
             <Button>Créer la commande</Button>
         </form>
-    </Wrapper>
+    </Modal>
 {/if}
 
-<OrderTable bind:orders />
-    
+<Wrapper class="mt-6">
+    <Table headers={[{label: "Numéro de commande"}, {label: "Fournisseur"}, {label: "Montant (HT)"}, {label: "Montant (TTC)"}, {label: "État"}, {label: "Demandeur"}]}>
+        
+        {#each orders as order}
+            <TableCell>
+                <a href="/app/scm/orders/{order.id}">
+                    <Flex direction="col" gap={1}>
+                        <span>{order.name}</span>
+                        <span class="text-sm text-zinc-500">{order.sub_id}</span>
+                    </Flex>
+                </a>
+            </TableCell>
+            <TableCell><Supplier supplier={order.supplier} /></TableCell>
+            <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.gross_price ?? 0} /></TableCell>
+            <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.net_price ?? 0} /></TableCell>
+            <TableCell><OrderState state={order.state} /></TableCell>
+            <TableCell><User user={order.issuer} /></TableCell>
+        {/each}
+    </Table>
+</Wrapper>
