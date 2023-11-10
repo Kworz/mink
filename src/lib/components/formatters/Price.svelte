@@ -1,8 +1,8 @@
 <script lang="ts">
-    export let value: number | undefined;
+    export let value: number | null | undefined;
 </script>
 
-{#if value === 0 || value === undefined}
+{#if value === 0 || value === undefined || value === null}
     — €
 {:else}
     {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value)}

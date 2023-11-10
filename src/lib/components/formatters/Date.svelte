@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Temporal } from "@js-temporal/polyfill";
 
-    export let date: string | undefined;
+    export let date: Date | string | undefined;
 
     export let format: "long" | "medium" | "short" = "short";
     export let colorDate = false;
