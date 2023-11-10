@@ -1,31 +1,4 @@
 <script lang="ts" context="module">
-
-    export type ArticleResponseExpanded = ArticleResponse<{
-        "article_fabrication_quantity(article)": [{ quantity: number }],
-        "article_order_quantity(article)": [{ quantity: number }],
-        "article_store_quantity(article)": [{ quantity: number }],
-        "article_price(article)": [{ price: number}],
-        "article_suppliers(article)": Array<{ supplier: SuppliersResponse }>
-    }>;
-
-    export const articleResponseExpand = `article_fabrication_quantity(article),article_order_quantity(article),article_store_quantity(article),article_price(article),article_suppliers(article).supplier`;
-
-</script>
-
-<script lang="ts">
-    import { browser } from "$app/environment";
-    import { VideoCameraSlash } from "@steeze-ui/heroicons";
-    import { Icon } from "@steeze-ui/svelte-icon";
-    
-    import DetailLabel from "../DetailLabel.svelte";
-    import Flex from "../layout/flex.svelte";
-    import type { ArticleResponse, SuppliersResponse } from "$lib/DBTypes";
-    import { returnArticleUnit } from "./artictleUnits";
-    import Price from "../formatters/Price.svelte";
-
-    import { env } from "$env/dynamic/public";
-    import type { Prisma } from "@prisma/client";
-
     type SCMArticleWithIncludes = Prisma.SCMArticleGetPayload<{
         include: {
             store_relations: {
@@ -40,6 +13,20 @@
             }
         }
     }>;
+</script>
+
+<script lang="ts">
+    import { browser } from "$app/environment";
+    import { VideoCameraSlash } from "@steeze-ui/heroicons";
+    import { Icon } from "@steeze-ui/svelte-icon";
+    
+    import DetailLabel from "../DetailLabel.svelte";
+    import Flex from "../layout/flex.svelte";
+    import { returnArticleUnit } from "./artictleUnits";
+    import Price from "../formatters/Price.svelte";
+
+    import { env } from "$env/dynamic/public";
+    import type { Prisma } from "@prisma/client";
 
     export let article: SCMArticleWithIncludes;
 
