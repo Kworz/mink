@@ -1,8 +1,7 @@
 <script lang="ts">
     import FormInput from "../FormInput.svelte";
-    import Grid from "../layout/grid.svelte";
-    import { env } from "$env/dynamic/public";
     import type { SCMArticle } from "@prisma/client";
+    import { page } from "$app/stores";
 
     export let article: SCMArticle = {
         id: "",
@@ -40,7 +39,7 @@
         {#if article.internal === false}
             <FormInput name="brand" label="Fabricant" bind:value={article.brand} />
         {:else}
-            <p>Fabricant: {env.PUBLIC_COMPANY_NAME}</p>
+            <p>Fabricant: {$page.data.appSettings.appCompanyName}</p>
         {/if}
 
         <h3 class="mb-2 mt-3">Informations d'achat</h3>

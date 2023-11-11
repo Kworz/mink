@@ -13,7 +13,9 @@ export const articleUnits: Record<string, [string, string, string]> = {
 
 //type units = "default" | "kg" | "g" | "l" | "m" | "ml" | "bu" | "bl" | "bml" | "bg";
 
-export const returnArticleUnit = (unit?: string | null, unit_qty = 1, qty = 0, short = false) => {
+export const returnArticleUnit = (unit?: string | null, unit_qty?: number | null, qty = 0, short = false) => {
+
+    unit_qty = unit_qty ?? 1;
 
     if(unit === undefined || unit === null || unit === "" || articleUnits[unit] === undefined)
         return `${qty} ${short ? articleUnits.default[0] : (qty > 0) ? articleUnits.default[2] : articleUnits.default[1]}`
