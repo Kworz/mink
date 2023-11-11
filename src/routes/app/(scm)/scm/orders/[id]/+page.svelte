@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { goto, invalidate, invalidateAll } from "$app/navigation";
+    import { invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
     import ArticleFinder from "$lib/components/article/ArticleFinder.svelte";
     import Button from "$lib/components/Button.svelte";
@@ -12,11 +12,9 @@
     import Table from "$lib/components/table2/Table.svelte";
     import TableCell from "$lib/components/table2/TableCell.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
-    import { Collections, OrdersStateOptions } from "$lib/DBTypes";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { Printer, Trash } from "@steeze-ui/heroicons";
-
-    import { env } from "$env/dynamic/public";
+    import { type OrderStateOptions, OrderStateOptionsValues } from "../OrderState.svelte";
 
     import type { ActionData, PageData } from "./$types";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
@@ -25,16 +23,16 @@
     import type { SCMArticle } from "@prisma/client";
     import Modal from "$lib/components/modal/Modal.svelte";
 
-    const states: Record<OrdersStateOptions, string> = {
+    const states: Record<OrderStateOptions, string> = {
         "draft": "Brouillon",
         "quotation": "Demande de devis",
-        "placed": "Commandé",
+        "ordered": "Commandé",
         "acknowledged": "AR réceptionné",
         "completed": "Terminée",
         "cancelled": "Annulée"
     }
 
-    const statesKeys = Object.keys(states) as Array<OrdersStateOptions>;
+    const statesKeys = Object.keys(states) as Array<OrderStateOptions>;
 
     let selectedArticle: SCMArticle | undefined = undefined;
     let selectedArticleQuantity = 0;
@@ -152,7 +150,7 @@
             { label: "Délai A/R" },
             { label: "Prix A/R" },
             { label: "Total" },
-            (data.order.state === OrdersStateOptions.draft) ? { label: "Supprimer" } : undefined
+            (data.order.state === OrderStateOptionsValues.draft) ? { label: "Supprimer" } : undefined
             ]}
             selectables={data.order.order_rows.map(or => or.id)}
             bind:selected={selectedOrderRows}
@@ -171,14 +169,14 @@
                 <TableCell></TableCell>
                 <TableCell></TableCell>
                 <TableCell>
-                    {#if data.order.state === OrdersStateOptions.acknowledged}
+                    {#if data.order.state === OrderStateOptionsValues.acknowledged}
                         <FormInput type="date" name="ack_date" change={(val) => void batchEditACKDate(val)} />
 
                     {/if}
                 </TableCell>
                 <TableCell></TableCell>
                 <TableCell></TableCell>
-                {#if data.order.state === OrdersStateOptions.draft}
+                {#if data.order.state === OrderStateOptionsValues.draft}
                     <TableCell>
                         <Button size="small" role="danger" on:click={batchDelete}>{batchDeleteConfirm ? "Confirmer" : "Supprimer"} ({selectedOrderRows.length})</Button>
                     </TableCell>
@@ -190,7 +188,7 @@
                     <input type="checkbox" bind:group={selectedOrderRows} value={order_row.id} />
                 </TableCell>
                 <TableCell>
-                    {#if data.order.state === OrdersStateOptions.draft}
+                    {#if data.order.state === OrderStateOptionsValues.draft}
                         <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                             <input type="hidden" name="id" value={order_row.id} />
                             <FormInput type="select" name="project" bind:value={order_row.project_id} validateOnChange={true}>
@@ -207,7 +205,7 @@
                 <TableCell><a href="/app/scm/articles/{order_row.article.id}">{order_row.article.name}</a></TableCell>
                 <TableCell>{order_row.article.reference}</TableCell>
                 <TableCell>
-                    {#if data.order.state === OrdersStateOptions.draft}
+                    {#if data.order.state === OrderStateOptionsValues.draft}
                         <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                             <input type="hidden" name="id" value={order_row.id} />
                             <FormInput type="number" name="needed_quantity" bind:value={order_row.needed_quantity} validateOnChange={true} min={order_row.article.order_quantity} step={order_row.article.order_quantity}/>
@@ -217,7 +215,7 @@
                     {/if}
                 </TableCell>
                 <TableCell>
-                    {#if data.order.state === OrdersStateOptions.acknowledged}
+                    {#if data.order.state === OrderStateOptionsValues.acknowledged}
                         <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                             <input type="hidden" name="id" value={order_row.id} />
                             <FormInput type="date" name="ack_date" value={order_row.ack_date?.toISOString().split("T").at(0) ?? undefined} validateOnChange={true} />
@@ -227,7 +225,7 @@
                     {/if}
                 </TableCell>
                 <TableCell>
-                    {#if data.order.state === OrdersStateOptions.acknowledged}
+                    {#if data.order.state === OrderStateOptionsValues.acknowledged}
                         <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                             <input type="hidden" name="id" value={order_row.id} />
                             <FormInput type="number" name="ack_price" label={order_row.ack_price === 0 ? "Prix a valider" : undefined} value={order_row.ack_price} validateOnChange={true} step={0.00001} min={0} />
@@ -237,7 +235,7 @@
                     {/if}
                 </TableCell>
                 <TableCell><Price value={(order_row.ack_price ?? 0) * order_row.needed_quantity} /></TableCell>
-                {#if data.order.state === OrdersStateOptions.draft}
+                {#if data.order.state === OrderStateOptionsValues.draft}
                     <TableCell>
                         {#if confirmDelete}
                             <form action="?/deleteOrderRow" method="post" use:enhance>
@@ -254,7 +252,7 @@
     </Wrapper>
 {/if}
 
-{#if data.order.state === OrdersStateOptions.draft}
+{#if data.order.state === OrderStateOptionsValues.draft}
     <Wrapper class="mt-6">
         <h3 class="mb-3">Ajouter un article a la commande</h3>
         <form action="?/createOrderRow" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">

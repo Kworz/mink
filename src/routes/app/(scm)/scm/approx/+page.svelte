@@ -2,26 +2,17 @@
     import { browser } from "$app/environment";
     import { invalidateAll } from "$app/navigation";
     import Date from "$lib/components/formatters/Date.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
-    import { Temporal } from "@js-temporal/polyfill";
     import type { ActionData, PageData } from "./$types";
-    import ApproxTable from "./ApproxTable.svelte";
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
+    import FormInput from "$lib/components/FormInput.svelte";
+    import { enhanceNoReset } from "$lib/enhanceNoReset";
+    import Button from "$lib/components/Button.svelte";
 
     export let data: PageData;
     export let form: ActionData;
-
-    let splitView: "supplier" | "ack_date" = "supplier";
-
-    $: suppliers = [... new Set(data.order_rows.map(k => k.expand?.order.supplier))];
-    $: dates = [... new Set(data.order_rows.map(k => k.ack_date))];
-
-    $: suppliersSplittedRows = suppliers.map(k => { return { supplier: k, rows: data.order_rows.filter(j => j.expand?.order.expand?.supplier.id === k)}});
-    $: datesSplittedRows = dates.map(k => { return { date: k, rows: data.order_rows.filter(j => j.ack_date === k)}}).sort((a, b) => {
-        if(a.date === "") return -1;
-        if(b.date === "") return 1;
-        return Temporal.PlainDate.compare(Temporal.Instant.from(a.date).toZonedDateTimeISO('UTC').toPlainDate(), Temporal.Instant.from(b.date).toZonedDateTimeISO('UTC').toPlainDate())
-    });
 
     $: if(form !== undefined && browser) { invalidateAll(); }
 
@@ -34,31 +25,43 @@
 <Wrapper>
     <h2>Approvisionement</h2>
     <p>Articles en attente de réception.</p>
-
-    <Flex gap={2}>
-        <input type="radio" bind:group={splitView} value="supplier" />
-        <span>Tri par fournisseur</span>
-    </Flex>
-    
-    <Flex gap={2}>
-        <input type="radio" bind:group={splitView} value="ack_date" />
-        <span>Tri par date d'arrivée</span>
-    </Flex>
 </Wrapper>
 
-{#if splitView === "supplier"}
-    {#each suppliersSplittedRows as orderRows}
-        <Wrapper class="mt-6">
-            <h3>{data.suppliers.find(k => k.id === orderRows.supplier)?.name ?? "Fournisseur introuvable"}</h3>
-            <ApproxTable orderRows={orderRows.rows} stores={data.stores} />
-        </Wrapper>
-    {/each}
-{:else}
-    {#each datesSplittedRows as orderRows}
-        <Wrapper class="mt-6">
-            <h3><Date date={orderRows.date} format="long" colorDate={true}/></h3>
-            <ApproxTable orderRows={orderRows.rows} stores={data.stores} />
-        </Wrapper>
-    {/each}
-{/if}
-
+<Wrapper class="mt-6">
+    <Table headers={[
+        {label: "Article"},
+        {label: "Date d'arrivée"},
+        {label: "Commande"},
+        {label: "Quantité en attente"},
+        {label: "Quantité reçue"},
+        {label: "Réception"},
+    ]}>
+    
+        {#each data.order_rows as orderRow}
+            <TableCell>
+                <ArticleRow article={orderRow.article} displayStock={true} />
+            </TableCell>
+            <TableCell><Date date={orderRow.ack_date?.toISOString()} colorDate={true} /></TableCell>
+            <TableCell><a href="/app/scm/orders/{orderRow.order_id}">{orderRow.order.name}</a></TableCell>
+            <TableCell>{orderRow.needed_quantity - (orderRow.received_quantity)}</TableCell>
+            <TableCell>{orderRow.received_quantity}</TableCell>
+            <TableCell>
+                <form action="?/receiveArticle" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
+                    <input type="hidden" name="article" value={orderRow.article_id} />
+                    <input type="hidden" name="order_row" value={orderRow.id} />
+    
+                    <FormInput name="received_quantity" type="number" min={0} max={orderRow.needed_quantity - orderRow.received_quantity} value={0} step={orderRow.expand?.article?.unit !== "u" ? 0.1 : 1} label="Quantité recue" labelMandatory={true} backgroundColor="bg-white" />
+                    
+                    <FormInput name="store_in" type="select" value="" labelMandatory label="Stock de destination">
+                        <option value=''>—</option>
+                        {#each data.stores as store}
+                            <option value={store.id}>{store.name} / {store.location}</option>
+                        {/each}
+                    </FormInput>
+                    <Button>Valider</Button>
+                </form>
+            </TableCell>
+        {/each}
+        
+    </Table>
+</Wrapper>

@@ -137,15 +137,16 @@ model SCMStore {
 }
 
 model SCMStoreRelation {
-  id              String   @id @default(uuid()) @unique
 
-  article_id      String  @default("")
+  article_id      String
   article         SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
 
   quantity        Float @default(0)
 
-  store_id        String  @default("")
+  store_id        String
   store           SCMStore @relation(references: [id], fields: [store_id], onDelete: Cascade)
+
+  @@id([article_id, store_id]) // unique index based on article_id and store_id
 
 }
 
