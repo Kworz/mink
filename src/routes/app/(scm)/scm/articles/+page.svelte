@@ -22,9 +22,15 @@
     import Store from "$lib/components/store/Store.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import { returnArticleUnit } from "$lib/components/article/artictleUnits";
-    import { env } from "$env/dynamic/public";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
+    import Modal from "$lib/components/modal/Modal.svelte";
+    import ArticleForm from "$lib/components/article/ArticleForm.svelte";
+    import Button from "$lib/components/Button.svelte";
+    import { enhance } from "$app/forms";
+
     export let data: PageData;
+
+    let createArticle = false;
 
     let filters: Array<FilterCondition> = [];
     let filter: string = $page.url.searchParams.get("filter") ?? "";
@@ -55,6 +61,18 @@
     <title>Nomenclaturize — Articles</title>
 </svelte:head>
 
+{#if createArticle}
+    <Modal title="Créer un article">
+        <form action="?/create" method="POST" use:enhance>
+            <ArticleForm />
+            <div class="flex flex-row gap-6 mt-4">
+                <Button size="small">Créer</Button>
+                <Button size="small" preventSend role="tertiary" click={() => createArticle = false}>Annuler</Button>
+            </div>
+        </form>
+    </Modal>
+{/if}
+
 <Wrapper class="mb-6">
 
     <h2>Articles</h2>
@@ -65,7 +83,7 @@
 <Wrapper class="relative">
     
     <PillMenu>
-        <PillMenuButton icon={PlusCircle} href="/app/scm/articles/new">Créer un article</PillMenuButton>
+        <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>Créer un article</PillMenuButton>
         <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">Importer des articles</PillMenuButton>
         <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
         {#if selected.length > 0}
@@ -131,16 +149,15 @@
                     <TableCell>{article.reference}</TableCell>
                     <TableCell>
                         <Flex gap={2} direction="col" items="start">
-                            {#if article.expand?.["article_suppliers(article)"] !== undefined}
-                                {#each article.expand?.["article_suppliers(article)"] as supplierRelation}
-                                    <Supplier supplier={supplierRelation.expand?.supplier} />
-                                {/each}
+                            {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.includes(p) ? c : [...c, p], new Array())}
+                            {#each suppliers as supplier}
+                                <Supplier {supplier} />
                             {:else}
                                 —
-                            {/if}
+                            {/each}
                         </Flex>
                     </TableCell>
-                    <TableCell>{(article.internal) ? env.PUBLIC_COMPANY_NAME : article.brand}</TableCell>
+                    <TableCell>{(article.internal) ? $page.data.settings.appCompanyName : article.brand}</TableCell>
                     
                     <TableCell><Price value={price} /></TableCell>
                     <TableCell><Price value={price * stock_quantity} /></TableCell>
@@ -149,5 +166,5 @@
         </svelte:fragment>
     </Table>
     
-    <TablePages totalPages={data.totalItems % 50} bind:currentPage={itemsPage} />
+    <TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={itemsPage} />
 </Wrapper>

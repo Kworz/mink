@@ -1,5 +1,5 @@
-import { error } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
+import { error, fail, redirect } from "@sveltejs/kit";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load = (async ({ locals, url }) => {
 
@@ -21,7 +21,11 @@ export const load = (async ({ locals, url }) => {
                 },
                 order_rows: {
                     include: {
-                        order: true
+                        order: {
+                            include: {
+                                supplier: true
+                            }
+                        }
                     }
                 },
                 files: true
@@ -42,3 +46,35 @@ export const load = (async ({ locals, url }) => {
     }
 
 }) satisfies PageServerLoad;
+
+export const actions: Actions = {
+    create: async ({ request, locals }) =>
+    {
+        const form = await request.formData();
+
+        let createdArticle = undefined;
+        
+        try
+        {
+            createdArticle = await locals.prisma.sCMArticle.create({
+                data: {
+                    ...Object.fromEntries(form),
+                    name: form.get("name")?.toString() as string,
+
+                    consumable: form.has("consumable"),
+                    non_physical: form.has("non_physical"),
+
+                    order_quantity: Number(form.get("order_quantity")),
+                    critical_quantity: Number(form.get("critical_quantity")),
+                }
+            });
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return fail(400, { create: { error: "scm.article.create.error.generic" }})
+        }
+
+        throw redirect(303, `/app/scm/articles/${createdArticle.id}`);
+    }
+};
