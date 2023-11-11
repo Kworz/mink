@@ -1,11 +1,15 @@
 <script lang="ts">
     
     import Flex from "$lib/components/layout/flex.svelte";
-    import { CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Truck, DocumentChartBar, QueueList, QrCode, PuzzlePiece, ChevronLeft, ArchiveBox } from "@steeze-ui/heroicons";
+    import { CircleStack, DocumentText, ClipboardDocumentCheck, Wrench, Truck, DocumentChartBar, QueueList, QrCode, PuzzlePiece, ChevronLeft, ArchiveBox } from "@steeze-ui/heroicons";
     import Menu from "$lib/components/appLayout/Menu.svelte";
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
     import MenuSeparator from "$lib/components/appLayout/MenuSeparator.svelte";
     import MenuCloseButton from "$lib/components/appLayout/MenuCloseButton.svelte";
+    
+    import type { LayoutData } from "./$types";
+
+    export let data: LayoutData;
 
 </script>
 
@@ -21,7 +25,7 @@
         <MenuItem icon={CircleStack} href="/app/scm/articles" label="Base articles" />
         <MenuItem icon={Truck} href="/app/scm/suppliers" label="Fournisseurs" />
         <MenuItem icon={ArchiveBox} href="/app/scm/stores" label="Stocks" />
-        <MenuItem icon={QueueList} href="/app/scm/approx" label="Approvisionements" />
+        <MenuItem icon={QueueList} href="/app/scm/approx" label="Approvisionements" dotNumber={data.approx_count} />
 
         <MenuSeparator>Nomenclatures</MenuSeparator>
         <MenuItem icon={ClipboardDocumentCheck} href="/app/scm/lists" label="Listes d'achats" />
