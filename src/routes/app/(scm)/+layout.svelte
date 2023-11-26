@@ -15,9 +15,6 @@
 <Flex gap={0} class="h-screen w-screen overflow-hidden">
     <Menu>
         <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
-        
-        <MenuSeparator>Outils</MenuSeparator>
-        <MenuItem icon={QrCode} href="/app/scanner" label="Scanner QRCode" />
 
         <MenuSeparator>Articles</MenuSeparator>
         <MenuItem icon={CircleStack} href="/app/scm/articles" label="Base articles" />

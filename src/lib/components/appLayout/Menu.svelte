@@ -12,6 +12,8 @@
     </Flex>
 
     <Flex direction="col" gap={2}>
+
+        <div class="h-[1px] bg-zinc-600 dark:bg-zinc-200 w-2/3 mx-auto" />
         
         <MenuItem icon={Wrench} href="/app/settings" label="Réglages" />
         <MenuUser user={$page.data.session?.user} />
