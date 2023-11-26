@@ -81,7 +81,7 @@
     {/if}
 </PillMenu>
 
-<Filter2 class="my-8" bind:filter bind:filters availableFilters={[
+<Filter2 class="my-6" bind:filter bind:filters availableFilters={[
     { name: "name", default: true, type: "string" },
     { name: "reference", type: "string" },
     { name: "manufacturer", type: "string" },
