@@ -12,7 +12,14 @@ export const auth = (prismaClient: PrismaClient) => {
     
         getUserAttributes: (data) => {
             return {
-                username: data.username
+                id: data.id,
+                username: data.username,
+                email: data.email,
+                
+                avatar: data.avatar,
+
+                created: data.created,
+                updated: data.updated
             }
         }
     });

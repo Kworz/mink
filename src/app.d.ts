@@ -39,6 +39,9 @@ declare global {
 		type DatabaseUserAttributes = {
 			username: string;
 			email: string;
+			avatar: string | null;
+			created: Date;
+			updated: Date;
 		};
 		type DatabaseSessionAttributes = {};
 	}

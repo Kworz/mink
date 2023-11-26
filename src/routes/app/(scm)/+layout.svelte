@@ -5,7 +5,6 @@
     import Menu from "$lib/components/appLayout/Menu.svelte";
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
     import MenuSeparator from "$lib/components/appLayout/MenuSeparator.svelte";
-    import MenuCloseButton from "$lib/components/appLayout/MenuCloseButton.svelte";
     
     import type { LayoutData } from "./$types";
 
@@ -16,7 +15,6 @@
 <Flex gap={0} class="h-screen w-screen overflow-hidden">
     <Menu>
         <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
-        <MenuCloseButton />
         
         <MenuSeparator>Outils</MenuSeparator>
         <MenuItem icon={QrCode} href="/app/scanner" label="Scanner QRCode" />

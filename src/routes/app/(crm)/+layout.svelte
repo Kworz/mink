@@ -6,14 +6,12 @@
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
     import TopBar from "$lib/components/appLayout/TopBar.svelte";
     import MenuSeparator from "$lib/components/appLayout/MenuSeparator.svelte";
-    import MenuCloseButton from "$lib/components/appLayout/MenuCloseButton.svelte";
 
 </script>
 
 <Flex gap={0} class="h-screen w-screen overflow-hidden">
     <Menu>
         <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
-        <MenuCloseButton />
 
         <MenuSeparator></MenuSeparator>
         <MenuItem icon={ListBullet} href="/app/crm/leads" label="Leads" />

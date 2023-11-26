@@ -1,12 +1,10 @@
 <script lang="ts">
     
     import Flex from "$lib/components/layout/flex.svelte";
-    import { CircleStack, Calendar, DocumentText, ClipboardDocumentCheck, Wrench, Truck, DocumentChartBar, QueueList, QrCode, PuzzlePiece, ChevronLeft, UserCircle, Users } from "@steeze-ui/heroicons";
+    import { CircleStack, ChevronLeft, UserCircle, Users } from "@steeze-ui/heroicons";
     import Menu from "$lib/components/appLayout/Menu.svelte";
     import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
-    import TopBar from "$lib/components/appLayout/TopBar.svelte";
     import MenuSeparator from "$lib/components/appLayout/MenuSeparator.svelte";
-    import MenuCloseButton from "$lib/components/appLayout/MenuCloseButton.svelte";
     import { page } from "$app/stores";
 
 </script>
@@ -16,21 +14,18 @@
         {#if $page.route.id !== "/app/(base)"}
             <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
         {/if}
-        <MenuCloseButton />
 
         <MenuSeparator>Outils</MenuSeparator>
-        <MenuItem icon={CircleStack} href="/app/scm/" label="SCM - Gestion logistique" />
-        <MenuItem icon={UserCircle} href="/app/crm/" label="CRM" />
+        <MenuItem icon={CircleStack} href="/app/scm/" label="Gestion logistique (SCM)" />
+        <MenuItem icon={UserCircle} href="/app/crm/" label="Gestion base clients (CRM)" />
 
         <MenuSeparator>Gestion</MenuSeparator>
         <MenuItem icon={Users} href="/app/users" label="Utilisateurs" />
 
-        <MenuSeparator>Réglages</MenuSeparator>
-        <MenuItem icon={Wrench} href="/app/settings" label="Réglages" />
     </Menu>
 
     <div class="grow overflow-x-hidden overflow-y-scroll">
-        <div class="w-full p-6">
+        <div class="w-full p-4 pl-2">
             <slot />
         </div>
     </div>
