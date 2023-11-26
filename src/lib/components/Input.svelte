@@ -9,7 +9,7 @@
 </script>
 
 <div 
-    class="border bg-gray-200 dark:bg-zinc-700 dark:border-zinc-800/50 rounded-md flex flex-row gap-2 items-center duration-100 relative {$$props.class} focus-within:ring-2 ring-violet-500/75 duration-150"
+    class="ring-1 bg-zinc-800 ring-zinc-400/25 rounded-md flex flex-row gap-2 items-center duration-100 relative {$$props.class} focus-within:ring-2 ring-violet-500/75 duration-150"
     class:ring-2={invalid}
     class:ring-red-500={invalid}
 >

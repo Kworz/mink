@@ -24,6 +24,6 @@
 
 </script>
 
-<button {form} type={preventSend ? "button" : "submit"} class="hover:text-white text-zinc-800 dark:text-white duration-100 rounded-md {sizes[size]} {roles[role]} {$$props.class}" on:click>
+<button {form} type={preventSend ? "button" : "submit"} class="text-white duration-100 rounded-md {sizes[size]} {roles[role]} {$$props.class}" on:click>
     <slot />
 </button>

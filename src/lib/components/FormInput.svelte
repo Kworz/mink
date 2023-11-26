@@ -27,7 +27,7 @@
     export let backColors = "bg-gray-200 dark:bg-zinc-700";
     export let parentClass: string | undefined = undefined;
     
-    const baseStyle = "border dark:border-zinc-800/50 rounded-md p-2 transition-all duration-250"
+    const baseStyle = ""
 
     $: validateButton = validateOnBlur || validateOnChange;
 
@@ -94,3 +94,11 @@
     {/if}
     
 </Flex>
+
+<style lang="postcss">
+
+    input, select {
+        @apply ring-1 ring-zinc-400/25 bg-zinc-800 rounded-md p-2 transition-all;
+    }
+
+</style>
