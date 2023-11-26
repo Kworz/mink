@@ -33,7 +33,7 @@
 
     </Menu>
 
-    <div class="grow overflow-x-hidden overflow-y-scroll p-6" id="main_content">
+    <div class="relative grow overflow-x-hidden overflow-y-scroll p-10 pl-6" id="main_content">
         <slot />
     </div>
 

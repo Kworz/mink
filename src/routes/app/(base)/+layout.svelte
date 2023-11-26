@@ -16,7 +16,7 @@
         {/if}
 
         <MenuSeparator class={$page.route.id === "/app/(base)" ? "mt-0" : ""}>Modules</MenuSeparator>
-        <MenuItem icon={CircleStack} href="/app/scm/" label="Gestion logistique (SCM)" />
+        <MenuItem icon={CircleStack} href="/app/scm/articles" label="Gestion logistique (SCM)" />
         <MenuItem icon={UserCircle} href="/app/crm/" label="Gestion base clients (CRM)" />
 
         <MenuSeparator>Outils</MenuSeparator>
@@ -24,11 +24,10 @@
 
         <MenuSeparator>Gestion</MenuSeparator>
         <MenuItem icon={Users} href="/app/users" label="Utilisateurs" />
-
     </Menu>
 
     <div class="grow overflow-x-hidden overflow-y-scroll">
-        <div class="w-full p-10 pl-6">
+        <div class="relative w-full p-10 pl-6">
             <slot />
         </div>
     </div>

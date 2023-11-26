@@ -3,30 +3,27 @@
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import TableTitle from "$lib/components/table/TableHead.svelte";
-    import TableRow from "$lib/components/table/TableRow.svelte";
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
 
     import { page } from "$app/stores";
 
-    import type { PageData, Snapshot } from "./$types";
     import { browser } from "$app/environment";
-    import Filter2 from "$lib/components/filter/Filter2.svelte";
-    import type { FilterCondition } from "$lib/components/filter/filter2";
-    import Wrapper from "$lib/components/Wrapper.svelte";
-    import TablePages from "$lib/components/table/TablePages.svelte";
+    import { enhance } from "$app/forms";
+    import Button from "$lib/components/Button.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
-    import Store from "$lib/components/store/Store.svelte";
-    import Price from "$lib/components/formatters/Price.svelte";
-    import { returnArticleUnit } from "$lib/components/article/artictleUnits";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
-    import Modal from "$lib/components/modal/Modal.svelte";
     import ArticleForm from "$lib/components/article/ArticleForm.svelte";
-    import Button from "$lib/components/Button.svelte";
-    import { enhance } from "$app/forms";
+    import { returnArticleUnit } from "$lib/components/article/artictleUnits";
+    import Filter2 from "$lib/components/filter/Filter2.svelte";
+    import type { FilterCondition } from "$lib/components/filter/filter2";
+    import Price from "$lib/components/formatters/Price.svelte";
+    import Modal from "$lib/components/modal/Modal.svelte";
+    import Store from "$lib/components/store/Store.svelte";
+    import TablePages from "$lib/components/table/TablePages.svelte";
+    import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
+    import type { PageData, Snapshot } from "./$types";
 
     export let data: PageData;
 
@@ -53,7 +50,6 @@
     }
 
     $: filter, activeSort, itemsPage, triggerRefresh();  
-    $: selectedAll = data.articles.length === selected.length;
 
 </script>
 
@@ -73,98 +69,85 @@
     </Modal>
 {/if}
 
-<Wrapper class="mb-6">
+<h1>Articles</h1>
+<p>Liste des articles disponible dans la base.</p>
 
-    <h2>Articles</h2>
-    <p>Liste des articles disponible dans la base.</p>
+<PillMenu>
+    <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>Créer un article</PillMenuButton>
+    <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">Importer des articles</PillMenuButton>
+    <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
+    {#if selected.length > 0}
+        <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>Imprimer les étiquettes</PillMenuButton>
+    {/if}
+</PillMenu>
 
-</Wrapper>
+<Filter2 class="my-8" bind:filter bind:filters availableFilters={[
+    { name: "name", default: true, type: "string" },
+    { name: "reference", type: "string" },
+    { name: "manufacturer", type: "string" },
+    { name: "critical_quantity", type: "number"},
+    { name: "consumable", type: "boolean" }
+]} />
 
-<Wrapper class="relative">
-    
-    <PillMenu>
-        <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>Créer un article</PillMenuButton>
-        <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">Importer des articles</PillMenuButton>
-        <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
-        {#if selected.length > 0}
-            <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>Imprimer les étiquettes</PillMenuButton>
-        {/if}
-    </PillMenu>
+<Table headers={[
+    "selectAll", 
+    { label: `Article (${data.totalItems})` }, 
+    { label: "Consommable" }, 
+    { label: "Stock" }, 
+    { label: "Emplacements" }, 
+    { label: "Référence" }, 
+    { label: "Marque" },    
+    { label: "Fournisseurs" }, 
+    { label: "PUMP" }, 
+    { label: "Total prix stock"}]}
+    selectables={data.articles.map(a => a.id)}
+    bind:selected={selected}
+>
+    {#each data.articles as article (article.id)}
 
-    <div class="w-2/3">
-        <Filter2 bind:filter bind:filters availableFilters={[
-            { name: "name", default: true, type: "string" },
-            { name: "reference", type: "string" },
-            { name: "manufacturer", type: "string" },
-            { name: "critical_quantity", type: "number"},
-            { name: "consumable", type: "boolean" }
-        ]} />
-    </div>
+        {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)}
+        {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
 
-    <Table embeded={true}>
-        <svelte:fragment slot="head">
-            <TableTitle colWidth="w-8"><input type="checkbox" checked={selectedAll} on:click={() => selected = selectedAll ? [] : data.articles.map(k => k.id)} /></TableTitle>
-            <TableTitle col="name" bind:activeSort>Article ({data.totalItems})</TableTitle>
-            <TableTitle col="consumable" bind:activeSort>Consommable ?</TableTitle>
-            <TableTitle col="quantity" bind:activeSort>Stock</TableTitle>
-            <TableTitle col="store.name" bind:activeSort>Emplacement</TableTitle>
-            <TableTitle col="reference" bind:activeSort>Référence</TableTitle>
-            <TableTitle>Fournisseurs</TableTitle>
-            <TableTitle col="brand" bind:activeSort>Marque</TableTitle>
-            <TableTitle col="price" bind:activeSort>PUMP</TableTitle>
-            <TableTitle>Total prix stock</TableTitle>
-        </svelte:fragment>
-    
-        <svelte:fragment slot="body">
-            {#each data.articles as article (article.id)}
+            <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
+            <TableCell>
+                <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayApprox />
+            </TableCell>
+            <TableCell>
+                <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? "Oui" : "Non"}</RoundedLabel>
+            </TableCell>
+            <TableCell>
+                {#if article.critical_quantity}
+                    <span
+                        class:text-red-500={stock_quantity <= article.critical_quantity}
+                        class:font-semibold={stock_quantity <= article.critical_quantity}
+                    >
+                        {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
+                    </span>         
+                {:else}               
+                    {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
+                {/if}
+            </TableCell>
+            <TableCell>
+                {#each article.store_relations.reduce((c, p) => [...c, p.store], new Array()) as store}
+                    <Store {store} />
+                {/each}
+            </TableCell>
+            <TableCell>{article.reference}</TableCell>
+            <TableCell>
+                <Flex gap={2} direction="col" items="start">
+                    {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.includes(p) ? c : [...c, p], new Array())}
+                    {#each suppliers as supplier}
+                        <Supplier {supplier} />
+                    {:else}
+                        —
+                    {/each}
+                </Flex>
+            </TableCell>
+            <TableCell>{(article.internal) ? $page.data.settings.appCompanyName : article.brand}</TableCell>
+            
+            <TableCell><Price value={price} /></TableCell>
+            <TableCell><Price value={price * stock_quantity} /></TableCell>
+    {/each}
+</Table>
 
-                {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)}
-                {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
-
-                <TableRow>
-                    <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
-                    <TableCell>
-                        <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayApprox />
-                    </TableCell>
-                    <TableCell>
-                        <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? "Oui" : "Non"}</RoundedLabel>
-                    </TableCell>
-                    <TableCell>
-                        {#if article.critical_quantity}
-                            <span
-                                class:text-red-500={stock_quantity <= article.critical_quantity}
-                                class:font-semibold={stock_quantity <= article.critical_quantity}
-                            >
-                                {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
-                            </span>         
-                        {:else}               
-                            {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
-                        {/if}
-                    </TableCell>
-                    <TableCell>
-                        {#each article.store_relations.reduce((c, p) => [...c, p.store], new Array()) as store}
-                            <Store {store} />
-                        {/each}
-                    </TableCell>
-                    <TableCell>{article.reference}</TableCell>
-                    <TableCell>
-                        <Flex gap={2} direction="col" items="start">
-                            {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.includes(p) ? c : [...c, p], new Array())}
-                            {#each suppliers as supplier}
-                                <Supplier {supplier} />
-                            {:else}
-                                —
-                            {/each}
-                        </Flex>
-                    </TableCell>
-                    <TableCell>{(article.internal) ? $page.data.settings.appCompanyName : article.brand}</TableCell>
-                    
-                    <TableCell><Price value={price} /></TableCell>
-                    <TableCell><Price value={price * stock_quantity} /></TableCell>
-                </TableRow>
-            {/each}
-        </svelte:fragment>
-    </Table>
-    
-    <TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={itemsPage} />
-</Wrapper>
+<TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={itemsPage} />
