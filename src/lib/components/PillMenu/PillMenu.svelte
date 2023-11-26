@@ -8,9 +8,9 @@
 
 </script>
 
-<div class="absolute top-4 right-4">
+<div class="absolute top-10 right-10">
     <div class="relative z-50 flex flex-col items-end gap-2" use:clickOutside on:click_outside={() => { if($open === true) { $open = false } }}>
-        <RoundButton icon={EllipsisHorizontal} on:click={() => $open = !$open}/>
+        <RoundButton icon={EllipsisHorizontal} on:click={() => $open = !$open}>actions</RoundButton>
         {#if $open}
             <div class="bg-gray-200 dark:bg-zinc-700 rounded-md p-4 flex flex-col items-start gap-3 w-max" in:scale={{ duration: 100 }} out:scale={{ duration:100 }}>
                 <slot />

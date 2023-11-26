@@ -37,7 +37,7 @@
 
 <svelte:window on:resize={computeScrolls} />
 
-<div class="{$$props.class} relative" class:overflow-x-scroll={contentScrollable} bind:this={parentContainer} on:scroll={computeScrolls}>
+<div class="{$$props.class} bg-zinc-800 ring-1 ring-zinc-400/25 rounded-md relative" class:overflow-x-scroll={contentScrollable} bind:this={parentContainer} on:scroll={computeScrolls}>
 
     <div class="sticky top-0 right-0 left-0 bottom-0 z-50">
         {#if shouldScrollRight}
@@ -68,7 +68,7 @@
         {#if headers !== undefined}
             {#each headers.filter(filterUndefined) as header, i}
                 <div
-                    class="p-4 border-b-2 border-b-violet-500/75 {header === "selectAll" ? "text-center" : "text-left"}"
+                    class="p-4 border-b-2 border-b-zinc-600/75 {header === "selectAll" ? "text-center" : "text-left"}"
                 >
                     {#if header === "selectAll"}
                         <input type="checkbox" bind:checked={allSelected} on:click={() => selected = (allSelected) ? [] : selectables} class="self-center" />

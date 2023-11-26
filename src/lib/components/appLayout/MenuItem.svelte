@@ -17,7 +17,7 @@
 
 <a {href}>
     <div 
-        class="flex gap-2 rounded-md relative group-hover:px-4 p-2 items-center duration-200 font-medium base group-hover:base-hover"
+        class="flex gap-2 rounded-md relative group-hover:px-4 p-2 items-center duration-200 font-medium"
         class:active={active}
         class:inactive={!active}
     >
@@ -31,14 +31,6 @@
 </a>
 
 <style lang="postcss">
-
-    .base {
-        @apply bg-zinc-600 text-white;
-    }
-
-    .base-hover { 
-        @apply bg-transparent text-inherit;
-    }
 
     .active {
         @apply bg-violet-500 hover:bg-violet-500/90 text-white;
