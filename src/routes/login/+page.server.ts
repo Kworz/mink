@@ -30,7 +30,7 @@ export const actions: Actions = {
 				attributes: {}
 			});
 
-			locals.auth.setSession(session); // set session cookie
+            locals.lucia.setSession(session); // set session cookie
 
         }
         catch(ex)
