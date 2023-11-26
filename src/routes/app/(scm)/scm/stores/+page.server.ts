@@ -49,5 +49,23 @@ export const actions: Actions = {
         {
             return { editStore: { error: "scm.store.update.error" }}
         }
+    },
+    deleteStore: async ({ locals, request }) => {
+        const form = await request.formData();
+        const id = form.get("id")?.toString();
+
+        try {
+            if(!id)
+                throw "scm.store.delete.error";
+            
+            await locals.prisma.sCMStore.delete({
+                where: { id }
+            });
+            return { deleteStore: { success: "scm.store.delete.success" }};
+        }
+        catch(e)
+        {
+            return { deleteStore: { error: "scm.store.delete.error" }}
+        }
     }
 }

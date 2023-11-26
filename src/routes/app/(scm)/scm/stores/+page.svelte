@@ -17,17 +17,23 @@
     
     import Modal from "$lib/components/modal/Modal.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
+    import type { SCMStore } from "@prisma/client";
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
 
     export let data: PageData;
     export let form: ActionData;
 
     let createStore = false;
-    let editStore: StoresResponse | undefined = undefined;
-    let deleteStoreConfirm: StoresResponse | undefined = undefined;
+    let editStore: SCMStore | undefined = undefined;
+    let deleteStoreConfirm: SCMStore | undefined = undefined;
 
     $: if(form !== null) { invalidateAll(); createStore = false; editStore = undefined; }
 
-    const deleteStore = async (store: StoresResponse) => {
+    const deleteStore = async (store: SCMStore | undefined) => {
+
+        if(store === undefined)
+            return;
 
         if(deleteStoreConfirm?.id === store.id)
         {
@@ -45,14 +51,12 @@
     <title>Nomenclaturize — Stocks</title>
 </svelte:head>
 
-<Wrapper>
-    <h3>Emplacements de stock</h3>
-    <p>Liste des emplacements de stocks</p>
+<h1>Emplacements de stock</h1>
+<p>Liste des emplacements de stocks</p>
 
-    <PillMenu>
-        <PillMenuButton click={() => createStore = !createStore} icon={PlusCircle}>Créer une liste</PillMenuButton>
-    </PillMenu>
-</Wrapper>
+<PillMenu>
+    <PillMenuButton click={() => createStore = !createStore} icon={PlusCircle}>Créer une liste</PillMenuButton>
+</PillMenu>
 
 {#if deleteStoreConfirm}
     <Modal title="Supprimer {deleteStoreConfirm.name} ?" on:close={() => deleteStoreConfirm = undefined}>
@@ -82,23 +86,25 @@
     </MenuSide>
 {/if}
 
-<HomeMenuGrid>
+<Table headers={[{ label: "Nom de l'emplacement" }, { label: "Localisation" }, { label: "Actions" }]} class="mt-6">
+
     {#each data.stores as store}
-        <a href="/app/scm/stores/{store.id}" class="relative">
-            <Wrapper>
-                <div class="absolute top-4 right-4 flex flex-row gap-2">
-                    <button class="h-5 w-5 text-orange-500" on:click|preventDefault={() => editStore = store}>
-                        <Icon src={Wrench} />
-                    </button>
-
-                    <button class="h-5 w-5 text-red-500" on:click|preventDefault={() => deleteStore(store)}>
-                        <Icon src={Trash} />
-                    </button>
-
-                </div>
-                <h3>{store.name}</h3>
-                <p class="text-sm text-zinc-500">{store.location}</p>
-            </Wrapper>
-        </a>
+        <TableCell><a href="/app/scm/stores/{store.id}">{store.name}</a></TableCell>
+        <TableCell>{store.location}</TableCell>
+        <TableCell>
+            <div class="flex flex-row gap-4 items-center">
+                <Button role="warning" size="small" on:click={() => editStore = store}>
+                    Modifier
+                </Button>
+                <form action="?/deleteStore" method="post" use:enhance>
+                    <input type="hidden" name="id" value={store.id} />
+                    {#if deleteStoreConfirm?.id === store.id}
+                        <Button role="danger" size="small">Confirmer</Button>
+                    {:else}
+                        <Button role="danger" size="small" preventSend on:click={() => deleteStoreConfirm = store}>Supprimer</Button>
+                    {/if}
+                </form>
+            </div>
+        </TableCell>
     {/each}
-</HomeMenuGrid>
+</Table>
