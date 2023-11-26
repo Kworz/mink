@@ -22,46 +22,41 @@
     <title>Nomenclaturize - Approvisionement</title>
 </svelte:head>
 
-<Wrapper>
-    <h2>Approvisionement</h2>
-    <p>Articles en attente de réception.</p>
-</Wrapper>
+<h1>Approvisionement</h1>
+<p>Articles en attente de réception.</p>
 
-<Wrapper class="mt-6">
-    <Table headers={[
-        {label: "Article"},
-        {label: "Date d'arrivée"},
-        {label: "Commande"},
-        {label: "Quantité en attente"},
-        {label: "Quantité reçue"},
-        {label: "Réception"},
-    ]}>
-    
-        {#each data.order_rows as orderRow}
-            <TableCell>
-                <ArticleRow article={orderRow.article} displayStock={true} />
-            </TableCell>
-            <TableCell><Date date={orderRow.ack_date?.toISOString()} colorDate={true} /></TableCell>
-            <TableCell><a href="/app/scm/orders/{orderRow.order_id}">{orderRow.order.name}</a></TableCell>
-            <TableCell>{orderRow.needed_quantity - (orderRow.received_quantity)}</TableCell>
-            <TableCell>{orderRow.received_quantity}</TableCell>
-            <TableCell>
-                <form action="?/receiveArticle" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
-                    <input type="hidden" name="article" value={orderRow.article_id} />
-                    <input type="hidden" name="order_row" value={orderRow.id} />
-    
-                    <FormInput name="received_quantity" type="number" min={0} max={orderRow.needed_quantity - orderRow.received_quantity} value={0} step={orderRow.expand?.article?.unit !== "u" ? 0.1 : 1} label="Quantité recue" labelMandatory={true} backgroundColor="bg-white" />
-                    
-                    <FormInput name="store_in" type="select" value="" labelMandatory label="Stock de destination">
-                        <option value=''>—</option>
-                        {#each data.stores as store}
-                            <option value={store.id}>{store.name} / {store.location}</option>
-                        {/each}
-                    </FormInput>
-                    <Button>Valider</Button>
-                </form>
-            </TableCell>
-        {/each}
-        
-    </Table>
-</Wrapper>
+<Table class="mt-6" headers={[
+    {label: "Article"},
+    {label: "Date d'arrivée"},
+    {label: "Commande"},
+    {label: "Quantité en attente"},
+    {label: "Quantité reçue"},
+    {label: "Réception"},
+]}>
+
+    {#each data.order_rows as orderRow}
+        <TableCell>
+            <ArticleRow article={orderRow.article} displayStock={true} />
+        </TableCell>
+        <TableCell><Date date={orderRow.ack_date?.toISOString()} colorDate={true} /></TableCell>
+        <TableCell><a href="/app/scm/orders/{orderRow.order_id}">{orderRow.order.name}</a></TableCell>
+        <TableCell>{orderRow.needed_quantity - (orderRow.received_quantity)}</TableCell>
+        <TableCell>{orderRow.received_quantity}</TableCell>
+        <TableCell>
+            <form action="?/receiveArticle" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
+                <input type="hidden" name="article" value={orderRow.article_id} />
+                <input type="hidden" name="order_row" value={orderRow.id} />
+
+                <FormInput name="received_quantity" type="number" min={0} max={orderRow.needed_quantity - orderRow.received_quantity} value={0} step={orderRow.expand?.article?.unit !== "u" ? 0.1 : 1} label="Quantité recue" labelMandatory={true} backgroundColor="bg-white" />
+                
+                <FormInput name="store_in" type="select" value="" labelMandatory label="Stock de destination">
+                    <option value=''>—</option>
+                    {#each data.stores as store}
+                        <option value={store.id}>{store.name} / {store.location}</option>
+                    {/each}
+                </FormInput>
+                <Button>Valider</Button>
+            </form>
+        </TableCell>
+    {/each}
+</Table>
