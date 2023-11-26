@@ -62,7 +62,7 @@
 
 <Flex gap={1} direction="col" class={parentClass}>
     {#if label && type !== "checkbox"}
-        <span class="text-zinc-700 dark:text-white text-sm leading-4">
+        <span class="text-white text-sm leading-4 w-max pl-0.5 pr-1">
             {label}
             {#if labelMandatory}
                 <span class="text-red-500">*</span>
