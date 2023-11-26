@@ -17,7 +17,7 @@
 
 <a {href}>
     <div 
-        class="flex gap-2 rounded-md relative group-hover:px-4 p-2 items-center duration-200 font-medium"
+        class="flex gap-2 rounded-md relative group-hover:px-4 p-2 items-center align-middle duration-200 font-medium"
         class:active={active}
         class:inactive={!active}
     >
@@ -25,7 +25,7 @@
         <span in:fade={{ duration: 200 }} out:fade={{ duration: 50 }} class="group-hover:inline-block hidden">{label}</span>
         
         {#if dotNumber > 0}
-            <div in:fade={{ duration: 200 }} out:fade={{ duration: 50 }} class="absolute bg-red-500 text-[0.5em] text-white rounded-full px-1.5 py-0.5 top-0 right-0 translate-x-1/2 -translate-y-1/2">{dotNumber}</div>
+            <div in:fade={{ duration: 200 }} out:fade={{ duration: 50 }} class="absolute group-hover:relative group-hover:translate-x-0 group-hover:translate-y-0 bg-red-500 text-[0.5em] text-white rounded-full px-1.5 py-0.5 top-0 right-0 translate-x-1/2 -translate-y-1/2">{dotNumber}</div>
         {/if}
     </div>
 </a>
