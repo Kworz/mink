@@ -26,6 +26,15 @@ model User {
   orders SCMOrder[]
 }
 
+model UserInvitation {
+
+  id                     String  @id @unique @default(uuid())
+  email                  String  @unique
+
+  created                DateTime @default(now())
+  
+}
+
 model Session {
   id        String  @id @unique
   user_id   String  
