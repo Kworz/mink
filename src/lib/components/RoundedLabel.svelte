@@ -20,6 +20,6 @@
 
 </script>
 
-<span class="{sizes[size]} {roles[role]} rounded-full whitespace-nowrap font-semibold {$$props.class}">
+<span class="{sizes[size]} {roles[role]} rounded-full whitespace-nowrap font-semibold inline-block {$$props.class}">
     <slot />
 </span>

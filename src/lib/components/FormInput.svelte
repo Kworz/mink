@@ -90,7 +90,7 @@
     {/if}
 
     {#if validateButton}
-        <button class="invisible" bind:this={exitButton}></button>
+        <button class="hidden" bind:this={exitButton}></button>
     {/if}
     
 </Flex>
