@@ -1,12 +1,11 @@
 <script lang="ts">
     import type { SCMStore } from "@prisma/client";
 
-
     export let store: SCMStore | undefined;
 
 </script>
 
-<span class="bg-white hover:bg-white/90 dark:bg-zinc-700 dark:hover:bg-zinc-700/80 duration-100 py-1 px-2 rounded-full border dark:border-zinc-800/50 text-xs">
+<span class="bg-zinc-900 hover:bg-zinc-900/80 ring-1 ring-zinc-400/25 duration-100 py-1 px-2 rounded-full text-xs w-max">
     {#if store === undefined}
         Inconnu
     {:else}
