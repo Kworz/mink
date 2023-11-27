@@ -96,8 +96,8 @@
     { label: "Stock" }, 
     { label: "Emplacements" }, 
     { label: "Référence" }, 
-    { label: "Marque" },    
     { label: "Fournisseurs" }, 
+    { label: "Marque" },    
     { label: "PUMP" }, 
     { label: "Total prix stock"}]}
     selectables={data.articles.map(a => a.id)}
