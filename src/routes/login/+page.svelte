@@ -17,13 +17,13 @@
 
 <Flex class="h-screen w-screen" items="center" justify="center">
 
-    <div class="bg-white dark:bg-zinc-800 min-w-[33%] p-6 rounded-lg border border-violet-500/15 shadow-xl">
+    <div class="bg-zinc-800 min-w-[33%] p-6 rounded-lg ring-1 ring-zinc-400/25 shadow-xl">
 
         <h1>Connexion</h1>
         <p>Connectez vous pour utiliser Nomenclaturize.</p>
 
         {#if $page.url.searchParams.has("registered")}
-            <p class="text-emerald-500 font-medium mt-3">Connectez vous avec votre compte crée précédemment</p>
+            <p class="text-emerald-500 font-medium mt-3">Connectez vous avec votre compte crée précédemment.</p>
         {/if}
 
         {#if form?.error}
@@ -36,7 +36,7 @@
                 <FormInput name="username" type="text" label="Nom d'utilisateur" labelMandatory invalid={form?.error !== undefined} />
                 <FormInput name="password" type="password" label="Mot de passe" labelMandatory invalid={form?.error !== undefined} />
 
-                <div class="h-[1px] mx-auto w-2/3 my-4 bg-violet-500/50"/>
+                <div class="h-[1px] mx-auto w-2/3 my-4 bg-zinc-400/50"/>
 
                 <Grid cols={1}>
                     <Button>Connexion</Button>

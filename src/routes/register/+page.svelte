@@ -12,7 +12,7 @@
 
 <Flex class="h-screen w-screen" items="center" justify="center">
 
-    <div class="bg-white dark:bg-zinc-800 min-w-[33%] p-6 rounded-lg border border-violet-500/15 shadow-xl">
+    <div class="bg-zinc-800 min-w-[33%] p-6 rounded-lg ring-1 ring-zinc-400/25 shadow-xl">
 
         <h1>S'inscrire</h1>
         <p>Inscrivez vous sur Nomenclaturize.</p>
@@ -30,7 +30,7 @@
                 <FormInput name="password" type="password" label="Mot de passe" labelMandatory={true} />
                 <FormInput name="passwordConfirm" type="password" label="Confirmer le mot de passe" labelMandatory={true} />
 
-                <div class="h-[1px] mx-auto w-2/3 my-4 bg-violet-500/50"/>
+                <div class="h-[1px] mx-auto w-2/3 my-4 bg-zinc-400/50"/>
 
                 <Grid cols={1}>
                     <Button>S'inscrire</Button>
