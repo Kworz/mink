@@ -1,10 +1,8 @@
 <script lang="ts">
-    import Wrapper from "$lib/components/Wrapper.svelte";
     import TableCell from "$lib/components/table2/TableCell.svelte";
     import Table from "$lib/components/table2/Table.svelte";
     import type { PageData } from "./$types";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import TablePages from "$lib/components/table/TablePages.svelte";
     import { page } from "$app/stores";
     import type { FilterCondition } from "$lib/components/filter/filter2";
     import { browser } from "$app/environment";
@@ -35,23 +33,15 @@
     <title>Stocks — {data.store.name} / {data.store.location}</title>
 </svelte:head>
 
-<Wrapper>
-    <h3>Stock: {data.store.name}</h3>
-    <p>Emplacement: {data.store.location}</p>
-    <p>Stock temporaire: {data.store.temporary}</p>
-</Wrapper>
+<h1>Stock: {data.store.name}</h1>
+<p>Emplacement: {data.store.location}</p>
+<p>Stock temporaire: {data.store.temporary}</p>
 
-<Wrapper class="mt-6">
-
-    <!--<TablePages totalPages={data.storeRelations.totalPages} bind:currentPage={itemsPage} />-->
-
-    <Table headers={[{ label: "Article", colname: "article.name" }, { label: "Quantité", colname: "quantity" }]} bind:activeSort>
-        {#each data.store.store_relations as relation}
-            <TableCell>
-                <ArticleRow article={relation.article} />
-            </TableCell>
-            <TableCell>{relation.quantity}</TableCell>
-        {/each}
-    </Table>
-
-</Wrapper>
+<Table headers={[{ label: "Article", colname: "article.name" }, { label: "Quantité", colname: "quantity" }]} bind:activeSort class="mt-6">
+    {#each data.store.store_relations as relation}
+        <TableCell>
+            <ArticleRow article={relation.article} />
+        </TableCell>
+        <TableCell>{relation.quantity}</TableCell>
+    {/each}
+</Table>

@@ -8,15 +8,13 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";    
+    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte"; 
     import Table from "$lib/components/table2/Table.svelte";
     import TableCell from "$lib/components/table2/TableCell.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import OrderState from "./OrderState.svelte";
     import User from "$lib/components/user/User.svelte";
-    import Wrapper2 from "$lib/components/Wrapper2.svelte";
     import Modal from "$lib/components/modal/Modal.svelte";
 
     export let data: PageData;
@@ -70,7 +68,7 @@
             <a href="/app/scm/orders/{order.id}">
                 <Flex direction="col" gap={1}>
                     <span>{order.name}</span>
-                    <span class="text-sm text-zinc-500">{order.sub_id}</span>
+                    <span class="text-sm text-zinc-200">{order.sub_id}</span>
                 </Flex>
             </a>
         </TableCell>
