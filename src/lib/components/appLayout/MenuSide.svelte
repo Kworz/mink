@@ -24,7 +24,7 @@
 </script>
 
 <Portal target="#side_menu">
-    <div class="m-4 h-[calc(100vh-2rem)] rounded-xl shrink-0 bg-white dark:bg-zinc-800 shadow-2xl duration-300 p-4 w-max">
+    <div class="m-4 h-[calc(100vh-2rem)] rounded-xl shrink-0 bg-zinc-800 shadow-2xl duration-300 p-4 w-max">
 
         {#if closable}
             <button on:click={() => { dispatch('close'); }} class="py-1.5 px-3 bg-gray-100 hover:bg-gray-200 duration-200 rounded-md">

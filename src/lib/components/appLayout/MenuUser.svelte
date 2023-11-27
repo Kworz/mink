@@ -18,9 +18,9 @@
             <Icon src={UserIcon} class="h-4 w-4 text-white" />
         {/if}
         
-        <span in:fade={{ duration: 200 }} out:fade={{ duration: 50 }} class="group-hover:inline-block hidden text-white">{user?.username}</span>
+        <span in:fade={{ duration: 200 }} out:fade={{ duration: 50 }} class="group-hover:inline-block hidden text-white mr-2">{user?.username}</span>
 
-        <a href="/logout" data-sveltekit-preload-data={false} class="absolute right-0 top-0 bottom-0 items-center justify-center text-xs text-red-500 hover:text-red-600/50 group-hover:flex hidden">
+        <a href="/logout" data-sveltekit-preload-data={false} class="items-center justify-center text-xs text-red-500 hover:text-red-600/50 group-hover:flex hidden">
             Déconnexion
             <Icon src={ArrowRightOnRectangle} class="h-4 w-4 ml-1 inline-block" />
         </a>
