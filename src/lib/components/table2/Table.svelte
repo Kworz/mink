@@ -21,7 +21,7 @@
 
     $: columns = (headers === undefined) ? (cols ?? 1) : headers.filter(h => h !== undefined).length;
 
-    $: allSelected = selectables.length === selected.length;
+    $: allSelected = (selectables.length === selected.length) && selectables.length !== 0;
 
     $: contentScrollable = parentContainer?.scrollWidth ?? 0 > parentContainer?.clientWidth ?? 1;
 
