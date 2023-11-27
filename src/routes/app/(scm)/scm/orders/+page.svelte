@@ -1,7 +1,7 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import { OrdersStateOptions } from "$lib/DBTypes";
-    import { PlusCircle } from "@steeze-ui/heroicons";
+    import { DocumentCheck, PlusCircle } from "@steeze-ui/heroicons";
     import type { PageData } from "./$types";
 
     import Button from "$lib/components/Button.svelte";
@@ -40,24 +40,6 @@
 
 </script>
 
-<Wrapper>
-    <h2>Commandes</h2>
-
-    <PillMenu>
-        <PillMenuButton icon={PlusCircle} click={() => createOrder = !createOrder }>Créer une commande</PillMenuButton>
-    </PillMenu>
-    
-    <Flex items="center" gap={2}>
-        <input type="checkbox" bind:checked={showCompletedOrders}/>
-        <span>Afficher les commandes terminées</span>
-    </Flex>
-
-    <Flex items="center" gap={2}>
-        <input type="checkbox" bind:checked={showCancelledOrders}/>
-        <span>Afficher les commandes annulées</span>
-    </Flex>
-</Wrapper>
-
 {#if createOrder}
     <Modal title="Créer une nouvelle commande" on:close={() => createOrder = false }>
         <form action="?/createOrder" method="post" use:enhance class="grid grid-cols-1 gap-4">
@@ -72,23 +54,30 @@
     </Modal>
 {/if}
 
-<Wrapper class="mt-6">
-    <Table headers={[{label: "Numéro de commande"}, {label: "Fournisseur"}, {label: "Montant (HT)"}, {label: "Montant (TTC)"}, {label: "État"}, {label: "Demandeur"}]}>
+<h1>Commandes</h1>
+<p>Commandes en cours.</p>
+
+<PillMenu>
+    <PillMenuButton icon={PlusCircle} click={() => createOrder = !createOrder }>Créer une commande</PillMenuButton>
+    <PillMenuButton icon={DocumentFragment} click={() => { showCancelledOrders = !showCancelledOrders; return true; }}>{showCancelledOrders ? "Masquer" : "Afficher"} les commandes annulées</PillMenuButton>
+    <PillMenuButton icon={DocumentCheck} click={() => { showCompletedOrders = !showCompletedOrders; return true; }}>{showCompletedOrders ? "Masquer" : "Afficher"} les commandes terminées</PillMenuButton>
+</PillMenu>
+
+<Table headers={[{label: "Numéro de commande"}, {label: "Fournisseur"}, {label: "Montant (HT)"}, {label: "Montant (TTC)"}, {label: "État"}, {label: "Demandeur"}]} class="mt-6">
         
-        {#each orders as order}
-            <TableCell>
-                <a href="/app/scm/orders/{order.id}">
-                    <Flex direction="col" gap={1}>
-                        <span>{order.name}</span>
-                        <span class="text-sm text-zinc-500">{order.sub_id}</span>
-                    </Flex>
-                </a>
-            </TableCell>
-            <TableCell><Supplier supplier={order.supplier} /></TableCell>
-            <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.gross_price ?? 0} /></TableCell>
-            <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.net_price ?? 0} /></TableCell>
-            <TableCell><OrderState state={order.state} /></TableCell>
-            <TableCell><User user={order.issuer} /></TableCell>
-        {/each}
-    </Table>
-</Wrapper>
+    {#each orders as order}
+        <TableCell>
+            <a href="/app/scm/orders/{order.id}">
+                <Flex direction="col" gap={1}>
+                    <span>{order.name}</span>
+                    <span class="text-sm text-zinc-500">{order.sub_id}</span>
+                </Flex>
+            </a>
+        </TableCell>
+        <TableCell><Supplier supplier={order.supplier} /></TableCell>
+        <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.gross_price ?? 0} /></TableCell>
+        <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.net_price ?? 0} /></TableCell>
+        <TableCell><OrderState state={order.state} /></TableCell>
+        <TableCell><User user={order.issuer} /></TableCell>
+    {/each}
+</Table>
