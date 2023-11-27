@@ -29,5 +29,5 @@ export function clickOutside(node: HTMLElement) {
       destroy() {
         document.removeEventListener('click', handleClick, true);
       }
-      }
+    }
   }

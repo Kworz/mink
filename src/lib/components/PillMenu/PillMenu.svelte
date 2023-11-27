@@ -6,9 +6,15 @@
 
     const { open } = setPillMenuContext();
 
+    export let message: string | undefined = undefined;
+
 </script>
 
-<div class="absolute top-10 right-10">
+<div class="absolute top-10 right-10 flex flex-row items-center gap-4">
+    {#if message}
+        <span class="inline-block text-sm text-zinc-200"><slot name="message" /></span>
+    {/if}
+
     <div class="relative z-50 flex flex-col items-end gap-2" use:clickOutside on:click_outside={() => { if($open === true) { $open = false } }}>
         <RoundButton icon={EllipsisHorizontal} on:click={() => $open = !$open}>actions</RoundButton>
         {#if $open}
