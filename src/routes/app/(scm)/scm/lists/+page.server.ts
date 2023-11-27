@@ -1,20 +1,86 @@
-import { Collections, type AssembliesBuylistsResponse, type ProjectsResponse, type AssembliesResponse } from '$lib/DBTypes';
+import { fail, redirect } from '@sveltejs/kit';
+import type { Actions } from './$types';
 import type { PageServerLoad } from './$types';
-
-export type AssembliesBuylistsResponseExpanded = AssembliesBuylistsResponse<{
-    project: ProjectsResponse,
-    assembly: AssembliesResponse
-}>
+import type { SCMAssemblyBuylists } from '@prisma/client';
 
 export const load = (async ({ locals, url }) => {
 
     const filter = url.searchParams.get("filter") || "";
     const sort = url.searchParams.get("sort") || "assembly.name";
 
-    const lists = await locals.pb.collection(Collections.AssembliesBuylists).getFullList({ expand: "project,assembly", filter, sort });
+    const lists = await locals.prisma.sCMAssemblyBuylists.findMany({ include: { project: true, assembly: true }});
+
+    const assemblies = await locals.prisma.sCMAssembly.findMany();
+    const projects = await locals.prisma.sCMProject.findMany();
 
     return {
-        lists: structuredClone(lists)
+        lists,
+        assemblies,
+        projects
     }
 
 }) satisfies PageServerLoad;
+
+export const actions = {
+
+    createBuyList: async ({ locals, request }) => {
+
+        let createdList: SCMAssemblyBuylists | SCMAssemblyBuylists[] = [];
+
+        const form = await request.formData();
+
+        try {
+
+            const name = form.get("name")?.toString();
+            const assembly_id = form.get("assembly_id")?.toString();
+            const project_id = form.get("project_id")?.toString();
+
+            const listAmountStr = form.get("list_amount")?.toString();
+            const listAmount = Number(listAmountStr);
+
+            if(!name || !assembly_id || !project_id || !listAmountStr) {
+                throw new Error("Missing required fields");
+            }
+
+            if(isNaN(listAmount))
+            {
+                createdList = await locals.prisma.sCMAssemblyBuylists.create({
+                    data: {
+                        name,
+                        assembly_id,
+                        project_id
+                    }
+                });
+            }
+            else
+            {
+                createdList = [];
+                for(let i = 0; i < listAmount; i++)
+                {
+                    const list = await locals.prisma.sCMAssemblyBuylists.create({
+                        data: {
+                            name: `${name} ${i + 1}`,
+                            assembly_id,
+                            project_id
+                        }
+                    });
+                    createdList.push(list);
+                }
+            }
+        }
+        catch(ex)
+        {
+            return fail(400, { createLists: { error: "Failed to create lists" }});
+        }
+
+        if(createdList instanceof Array)
+        {
+            throw redirect(302, `/app/scm/lists/grid/?ids=${createdList.map(k => k.id).join(",")}`);
+        }
+        else
+        {
+            throw redirect(302, `/app/scm/lists/${createdList.id}`)
+        }
+    }
+
+} satisfies Actions;
