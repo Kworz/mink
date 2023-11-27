@@ -6,10 +6,10 @@ export const load = (async ({ locals, params }) => {
     const { id } = params;
 
     try {
-        const user = await locals.pb.collection(Collections.Users).getOne<UsersResponse>(id);
+        const user = await locals.prisma.user.findUnique({ where: { id }});
 
         return {
-            user: structuredClone(user)
+            user
         }
     }
     catch(ex)
