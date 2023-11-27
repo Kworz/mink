@@ -2,7 +2,7 @@
     import { page } from "$app/stores";
     import type { User } from "@prisma/client";
 
-    import { User as UserIcon } from "@steeze-ui/heroicons";
+    import { ArrowRightOnRectangle, User as UserIcon } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { fade } from "svelte/transition";
 
@@ -21,5 +21,10 @@
         {/if}
         
         <span in:fade={{ duration: 200 }} out:fade={{ duration: 50 }} class="group-hover:inline-block hidden text-white">{user?.username}</span>
+
+        <a href="/logout" class="absolute right-0 top-0 bottom-0 items-center justify-center text-xs text-red-500 hover:text-red-600/50 group-hover:flex hidden">
+            Déconnexion
+            <Icon src={ArrowRightOnRectangle} class="h-4 w-4 ml-1 inline-block" />
+        </a>
     </div>
 </a>
