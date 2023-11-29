@@ -26,6 +26,6 @@ Copy the content f the build folder onto a server with NodeJS 18 installed.
 
 Install dependencies and run the production server using
 
-`bash
+```bash
 npm run build
-`
+```
