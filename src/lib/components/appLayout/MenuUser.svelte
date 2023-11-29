@@ -20,7 +20,7 @@
         
         <span in:fade={{ duration: 200 }} out:fade={{ duration: 50 }} class="group-hover:inline-block hidden text-white mr-2">{user?.username}</span>
 
-        <a href="/logout" data-sveltekit-preload-data={false} class="items-center justify-center text-xs text-red-500 hover:text-red-600/50 group-hover:flex hidden">
+        <a href="/logout" data-sveltekit-preload-data="off" class="items-center justify-center text-xs text-red-500 hover:text-red-600/50 group-hover:flex hidden">
             Déconnexion
             <Icon src={ArrowRightOnRectangle} class="h-4 w-4 ml-1 inline-block" />
         </a>
