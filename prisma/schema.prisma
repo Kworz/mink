@@ -78,8 +78,9 @@ model SCMArticle {
 
   acticle_movements SCMArticleMovements[]
   store_relations SCMStoreRelation[]
-  article_assembly_relations SCMAssemblyRelation[]
   order_rows SCMOrderRows[]
+
+  article_assembly_relations SCMAssemblyRelationArticle[]
 
   files SCMArticleFile[]
 
@@ -172,29 +173,42 @@ model SCMAssembly {
 
   buylists       SCMAssemblyBuylists[]
 
-  assembly_relation_parent SCMAssemblyRelation[] @relation("assembly_relation_parent")
-  assembly_relations SCMAssemblyRelation[] @relation("assembly_relation_children")
+  article_childrens SCMAssemblyRelationArticle[] @relation("assembly_relation_parent_of_articles")
+  assembly_childrens SCMAssemblyRelationSubAssembly[] @relation("assembly_relation_parent_of_subassembly")
 
+  parent_assemblies SCMAssemblyRelationSubAssembly[] @relation("assembly_relation_children_subassembly")
 }
 
-model SCMAssemblyRelation {
+model SCMAssemblyRelationSubAssembly {
 
   id                  String  @id @default(uuid()) @unique
 
-  parent_id           String  @default("")
-  parent              SCMAssembly @relation("assembly_relation_parent", references: [id], fields: [parent_id], onDelete: Cascade)
+  parent_id           String
+  parent              SCMAssembly @relation("assembly_relation_parent_of_subassembly", references: [id], fields: [parent_id], onDelete: Cascade)
 
-  article_child_id    String?  @default("")
-  article_child       SCMArticle? @relation(references: [id], fields: [article_child_id], onDelete: Cascade)
-
-  assembly_child_id   String?  @default("")
-  assembly_child      SCMAssembly? @relation("assembly_relation_children", references: [id], fields: [assembly_child_id], onDelete: Cascade)
+  assembly_child_id   String
+  assembly_child      SCMAssembly @relation("assembly_relation_children_subassembly", references: [id], fields: [assembly_child_id], onDelete: Cascade)
 
   created             DateTime @default(now())
   quantity            Float @default(0)
-  updated             DateTime @updatedAt  
+  updated             DateTime @updatedAt 
   order               Int @default(0)
+}
 
+model SCMAssemblyRelationArticle {
+
+  id                  String  @id @default(uuid()) @unique
+
+  parent_id           String
+  parent              SCMAssembly @relation("assembly_relation_parent_of_articles", references: [id], fields: [parent_id], onDelete: Cascade)
+
+  article_child_id    String
+  article_child       SCMArticle @relation(references: [id], fields: [article_child_id], onDelete: Cascade)
+
+  created             DateTime @default(now())
+  quantity            Float @default(0)
+  updated             DateTime @updatedAt 
+  order               Int @default(0)
 }
 
 model SCMAssemblyBuylists {

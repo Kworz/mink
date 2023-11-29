@@ -7,12 +7,10 @@ export const load = (async ({ locals, url }) => {
 
     const filter = url.searchParams.get("filter") || "";
 
-    const assemblies = await locals.pb.collection(Collections.Assemblies).getFullList<AssembliesResponse>({ sort: '-favorite,name', filter });
-    const assembliesRelations = await locals.pb.collection(Collections.AssembliesRelations).getFullList();
+    const assemblies = await locals.prisma.sCMAssembly.findMany();
 
     return {
-        assemblies: structuredClone(assemblies),
-        assembliesRelations: structuredClone(assembliesRelations),
+        assemblies,
     }
 
 }) satisfies PageServerLoad;
@@ -20,17 +18,27 @@ export const load = (async ({ locals, url }) => {
 export const actions: Actions = {
     createAssembly: async ({ locals, request }) => {
         const form = await request.formData();
-        
+
         let createAssemblyID = "";
 
-        try
-        {
-           const {id} = await locals.pb.collection(Collections.Assemblies).create(form);
-           createAssemblyID = id;
+        try {
+
+            const name = form.get("name")?.toString();
+
+            if (!name) {
+                throw new Error("Name is required");
+            }
+
+            const { id } = await locals.prisma.sCMAssembly.create({
+                data: {
+                    name
+                }
+            });
+
+            createAssemblyID = id;
         }
-        catch(ex)
-        {
-            return { createAssembly: { error: (ex instanceof ClientResponseError ? ex.message : ex) }};
+        catch (ex) {
+            return { createAssembly: { error: (ex instanceof ClientResponseError ? ex.message : ex) } };
         }
 
         throw redirect(303, `/app/scm/assemblies/${createAssemblyID}`);

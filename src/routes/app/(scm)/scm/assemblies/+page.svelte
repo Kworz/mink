@@ -15,6 +15,7 @@
     import { enhance } from "$app/forms";
 
     import { env } from "$env/dynamic/public";
+    import Modal from "$lib/components/modal/Modal.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -23,9 +24,6 @@
     let filter = "";
 
     let createAssembly = false;
-
-    let createAssemblyName = "";
-    let createAssemblyDesc = "";
 
     const triggerResfresh = () => {
         if(browser)
@@ -40,26 +38,25 @@
     <title>Liste des Assemblages — Nomenclaturize</title>
 </svelte:head>
 
-<Wrapper>
-    <h3>Liste des assemblages</h3>
-
-    <Filter2 bind:filter bind:filters availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }, { name: "favorite", type: "boolean" }]} class="mt-6" />
-
-    <PillMenu>
-        <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>Créer un assemblage</PillMenuButton>
-    </PillMenu>
-
-    {#if createAssembly}
-        <h4 class="mt-6 mb-2">Créer un assemblage</h4>
+{#if createAssembly}
+    <Modal on:close={() => createAssembly = false} title="Créer un assemblage">
         {#if form?.createAssembly?.error}<p class="text-red-500">{form?.createAssembly?.error}</p>{/if}
-        <form action="?/createAssembly" method="post" use:enhance class="flex flex-col md:flex-row gap-4 items-end">
-            <FormInput name="name" label="Nom" labelMandatory bind:value={createAssemblyName} />
-            <FormInput name="description" label="Description" labelMandatory bind:value={createAssemblyDesc} parentClass="grow" />
+
+        <form action="?/createAssembly" method="post" use:enhance class="flex flex-col gap-4">
+            <FormInput name="name" label="Nom" labelMandatory />
+            <FormInput name="description" label="Description" labelMandatory parentClass="grow" />
             <Button role="primary">Créer</Button>
         </form>
-    {/if}
+    </Modal>
+{/if}
 
-</Wrapper>
+<h1>Liste des assemblages</h1>
+
+<PillMenu>
+    <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>Créer un assemblage</PillMenuButton>
+</PillMenu>
+
+<Filter2 bind:filter bind:filters availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }, { name: "favorite", type: "boolean" }]} class="mt-6" />
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:cols-4 gap-4 mt-6">
     {#each data.assemblies as assembly}
@@ -68,17 +65,17 @@
             <a href="/app/scm/assemblies/{assembly.id}">
                 <Flex items="center">
                 
-                    {#if assembly.thumbnail !== "" && browser}
-                        <img src="http://{env.PUBLIC_POCKETBASE_ADDRESS}/api/files/{assembly.collectionName}/{assembly.id}/{assembly.thumbnail}?thumb=200x200" alt={assembly.thumbnail} class="aspect-square object-cover h-24 duration-100 rounded-md border border-zinc-500/50" />
+                    {#if assembly.thumbnail !== null}
+                        <img src={assembly.thumbnail} alt="Miniature {assembly.name}" class="aspect-square object-cover h-24 duration-100 rounded-md ring-1 ring-zinc-400/25" />
                     {:else}
                         <div class="aspect-square object-cover rounded-md border h-24 border-zinc-500/50">
-                            <Icon src={VideoCameraSlash} class="h-full w-5 m-auto text-red-500" />
+                            <Icon src={VideoCameraSlash} class="h-full w-8 m-auto text-red-500" />
                         </div>
                     {/if}
 
                     <div>
                         <p>
-                            {#if assembly.favorite}<Icon src={Star} theme="solid" class="h-4 w-4 mb-1 mr-0.25 text-violet-500 inline" />{/if}
+                            {#if 1 == 2}<Icon src={Star} theme="solid" class="h-4 w-4 mb-1 mr-0.25 text-violet-500 inline" />{/if}
                             {assembly.name}
                         </p>
                         <p class="text-zinc-500 text-base font-normal">{assembly.description}</p>
@@ -86,5 +83,7 @@
                 </Flex>
             </a>    
         </Wrapper>
+    {:else}
+        <h3 class="text-orange-500">Aucun assemblage créé</h3>
     {/each}
 </div>
