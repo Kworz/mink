@@ -16,7 +16,6 @@ declare global {
 		// interface Error {}
 	
 		interface Locals {
-			pb: PocketBase
 			prisma: PrismaClient
 
 			lucia: import("lucia").AuthRequest
@@ -26,7 +25,6 @@ declare global {
 	
 		interface PageData {
 			session: Awaited<ReturnType<typeof import("lucia").AuthRequest.prototype.validate>>,
-			pb: PocketBase
 			appSettings: AppSettings
 		}
 	
