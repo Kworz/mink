@@ -2,20 +2,21 @@
     import { createEventDispatcher } from "svelte";
 
     import type { FilterCondition } from "$lib/components/filter/filter2";
+    import type { SCMArticleWithIncludes } from "./article";
+    
     import Filter2 from "../filter/Filter2.svelte";
-
     import Button from "../Button.svelte";
     import Flex from "../layout/flex.svelte";
     import ArticleRow from "./ArticleRow.svelte";
-    import type { SCMArticle } from "@prisma/client";
 
     const dispatch = createEventDispatcher();
 
     let filter = "";
     
-    export let articles: Array<SCMArticle>;
+    export let articles: SCMArticleWithIncludes[];
+    export let selectedArticle: SCMArticleWithIncludes | undefined = undefined;
+
     export let filters: Array<FilterCondition> = [];
-    export let selectedArticle: SCMArticle | undefined = undefined;
     export let formFieldName: string | undefined = undefined;
 
     $: dispatch("refreshArticles", filter);
@@ -38,10 +39,10 @@
         ]} />
     {:else}
         <div class="aspect-[8] text-left rounded-md p-4 ring-1 ring-inset ring-zinc-400/25">
-            <ArticleRow bind:article={selectedArticle} />
+            <ArticleRow bind:article={selectedArticle} /> 
         </div>
         {#if formFieldName !== undefined} <input type="hidden" name={formFieldName} bind:value={selectedArticle.id} /> {/if}
-        <Button size="small" role="danger" on:click={() => selectedArticle = undefined}>Déselectionner</Button>
+        <Button size="small" role="danger" preventSend on:click={() => selectedArticle = undefined}>Déselectionner</Button>
     {/if}
 </Flex>
 

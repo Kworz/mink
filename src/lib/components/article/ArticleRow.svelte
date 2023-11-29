@@ -1,20 +1,3 @@
-<script lang="ts" context="module">
-    type SCMArticleWithIncludes = Prisma.SCMArticleGetPayload<{
-        include: {
-            store_relations: {
-                include: {
-                    store: true
-                }
-            },
-            order_rows: {
-                include: {
-                    order: true
-                }
-            }
-        }
-    }>;
-</script>
-
 <script lang="ts">
     import { browser } from "$app/environment";
     import { VideoCameraSlash } from "@steeze-ui/heroicons";
@@ -25,8 +8,8 @@
     import { returnArticleUnit } from "./artictleUnits";
     import Price from "../formatters/Price.svelte";
 
-    import type { Prisma } from "@prisma/client";
     import { page } from "$app/stores";
+    import type { SCMArticleWithIncludes } from "./article";
 
     export let article: SCMArticleWithIncludes;
 
