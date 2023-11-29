@@ -72,7 +72,7 @@
 <h1>Articles</h1>
 <p>Liste des articles disponible dans la base.</p>
 
-<PillMenu>
+<PillMenu message={selected.length > 0 ? `${selected.length} articles sélectionnés` : undefined}>
     <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>Créer un article</PillMenuButton>
     <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">Importer des articles</PillMenuButton>
     <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
@@ -108,7 +108,7 @@
         {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)}
         {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
 
-            <TableCell><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
+            <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
             <TableCell>
                 <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayApprox />
             </TableCell>

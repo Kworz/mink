@@ -2,6 +2,7 @@ import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
 import { Collections, type ArticleTagsResponse, type StoresRelationsResponse } from "$lib/DBTypes";
 import { deleteFile, saveFile } from "$lib/server/files";
+import { articleIncludeQuery } from "$lib/components/article/article";
 
 export const load = (async ({ params, locals }) => {
 
@@ -10,41 +11,11 @@ export const load = (async ({ params, locals }) => {
         const articleID = params.id;
 
         const article = await locals.prisma.sCMArticle.findFirstOrThrow({ 
-            where: {
-                id: articleID
-            },
-            include: {
-                acticle_movements: {
-                    include: {
-                        user: true,
-                        store_in: true,
-                        store_out: true
-                    }
-                },
-                store_relations: {
-                    include: {
-                        store: true
-                    }
-                },
-                order_rows: {
-                    include: {
-                        order: {
-                            include: {
-                                supplier: true
-                            }
-                        }
-                    },
-                    where: { order: { state: { notIn: ["closed", "cancelled", "quotation"] }}}
-                },
-                files: true
-            }
+            where: { id: articleID },
+            include: articleIncludeQuery
         });
 
-        const stores = await locals.prisma.sCMStore.findMany({
-            where: {
-                temporary: false
-            }
-        });
+        const stores = await locals.prisma.sCMStore.findMany({ where: { temporary: false }});
 
         return {
             article,

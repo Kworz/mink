@@ -1,5 +1,6 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
+import { articleIncludeQuery } from "$lib/components/article/article";
 
 export const load = (async ({ locals, url }) => {
 
@@ -13,23 +14,7 @@ export const load = (async ({ locals, url }) => {
             orderBy: { name: "asc" },
             skip: (page - 1) * 50,
             take: 50,
-            include: {
-                store_relations: {
-                    include: {
-                        store: true
-                    }
-                },
-                order_rows: {
-                    include: {
-                        order: {
-                            include: {
-                                supplier: true
-                            }
-                        }
-                    }
-                },
-                files: true
-            }
+            include: articleIncludeQuery
         });
 
         const totalItems = await locals.prisma.sCMArticle.count();
