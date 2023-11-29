@@ -4,7 +4,7 @@
 
 </script>
 
-<div class="p-4 border-t border-t-violet-500 font-semibold flex flex-col h-full justify-around transition-all duration-300 {itemsPosition[position]}">
+<div class="p-4 border-t border-t-violet-500 font-semibold flex flex-col h-full justify-around transition-all duration-300 {itemsPosition[position]} {$$props.class || ''}">
     <slot />
 </div>
 
