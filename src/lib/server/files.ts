@@ -8,8 +8,11 @@ import { existsSync, mkdirSync } from "fs";
  * @param file file to save
  * @returns final relative path of the file
  */
-export async function saveFile(path: string, file: Blob): Promise<string>
+export async function saveFile(path: string, file: Blob): Promise<string | undefined>
 {
+    if(file.size === 0)
+        return undefined;
+
     const fileExtension = file.name.split(".").pop();
     
     if(fileExtension === undefined)
