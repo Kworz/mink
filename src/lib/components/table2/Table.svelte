@@ -66,7 +66,7 @@
         style={`grid-template-columns: ${headers?.includes("selectAll") ? `4em repeat(${columns - 1}, minmax(min-content, 1fr));` : `repeat(${columns}, minmax(min-content, 1fr));`}`}
     >
         {#if headers !== undefined}
-            {#each headers.filter(filterUndefined) as header, i}
+            {#each headers.filter(filterUndefined) as header}
                 <div
                     class="p-4 border-b-2 border-b-zinc-600/75 {header === "selectAll" ? "text-center" : "text-left"}"
                 >
@@ -76,8 +76,8 @@
                         <Flex items="center" gap={1} >
                             <span class="font-semibold truncate">{header.label}</span>
                             {#if header.colname !== undefined}
-                                <SortButton direction="asc" active={header.colname === activeSort} on:click={() => activeSort = header.colname ?? ""} />
-                                <SortButton direction="desc" active={`-${header.colname}` === activeSort} on:click={() => activeSort = `-${header.colname}`} />
+                                <SortButton direction="asc" active={header.colname === activeSort} on:click={() => { if(header !== "selectAll" && header.colname !== undefined) { activeSort = header.colname}}} />
+                                <SortButton direction="desc" active={`-${header.colname}` === activeSort} on:click={() => { if(header !== "selectAll" && header.colname !== undefined) { activeSort = `-${header.colname}`}}} />
                             {/if}
                         </Flex>
                     {/if}
