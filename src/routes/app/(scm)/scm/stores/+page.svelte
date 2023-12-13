@@ -1,25 +1,20 @@
 <script lang="ts">
-    import HomeMenuGrid from "$lib/components/HomeMenuGrid.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
-    import { PlusCircle, Trash, Wrench } from "@steeze-ui/heroicons";
+    import { ExclamationTriangle, PlusCircle } from "@steeze-ui/heroicons";
 
     import type { ActionData, PageData } from "./$types";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import { Icon } from "@steeze-ui/svelte-icon";
-    import { Collections, type StoresResponse } from "$lib/DBTypes";
     import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
     import { enhance } from "$app/forms";
     import FormInput from "$lib/components/FormInput.svelte";
     import Button from "$lib/components/Button.svelte";
     import { invalidateAll } from "$app/navigation";
-    import { page } from "$app/stores";
     
     import Modal from "$lib/components/modal/Modal.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
     import type { SCMStore } from "@prisma/client";
     import Table from "$lib/components/table2/Table.svelte";
     import TableCell from "$lib/components/table2/TableCell.svelte";
+    import { Icon } from "@steeze-ui/svelte-icon";
 
     export let data: PageData;
     export let form: ActionData;
@@ -29,21 +24,6 @@
     let deleteStoreConfirm: SCMStore | undefined = undefined;
 
     $: if(form !== null) { invalidateAll(); createStore = false; editStore = undefined; }
-
-    const deleteStore = async (store: SCMStore | undefined) => {
-
-        if(store === undefined)
-            return;
-
-        if(deleteStoreConfirm?.id === store.id)
-        {
-            await $page.data.pb.collection(Collections.Stores).delete(store.id);
-            deleteStoreConfirm = undefined;
-            invalidateAll();
-        }
-        else
-            deleteStoreConfirm = store;
-    }
 
 </script>
 
@@ -60,12 +40,18 @@
 
 {#if deleteStoreConfirm}
     <Modal title="Supprimer {deleteStoreConfirm.name} ?" on:close={() => deleteStoreConfirm = undefined}>
-        <p>Confirmez la suppréssion de {deleteStoreConfirm.name}</p>
         
-        <Flex class="mt-4">
-            <Button role="danger" size="small" on:click={() => deleteStore(deleteStoreConfirm)}>Supprimer</Button>
-            <Button role="tertiary" size="small" on:click={() => deleteStoreConfirm = undefined}>Annuler</Button>
-        </Flex>
+        <p class="text-orange-500 font-semibold">
+            <Icon src={ExclamationTriangle} class="w-6 inline"/>
+            La supression d'un Stock entraine la disparition des éléments associés à ce stock.
+        </p>
+
+        <p class="mt-2">Confirmez la suppréssion de {deleteStoreConfirm.name} ?</p>
+
+        <form slot="form" action="?/deleteStore" method="post" use:enhance>
+            <Button role="danger" size="small">Supprimer</Button>
+            <Button role="tertiary" size="small" on:click={() => deleteStoreConfirm = undefined} preventSend>Annuler</Button>
+        </form>
     </Modal>
 {/if}
 
