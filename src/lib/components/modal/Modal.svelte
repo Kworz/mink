@@ -26,7 +26,7 @@
                 <div class="mt-3 mb-4 h-[1px] w-full bg-zinc-400/25" />
             {/if}
 
-            <div class="grow overflow-y-scroll">
+            <div class="grow overflow-y-scroll px-[1px]">
                 <slot />
             </div>
 
