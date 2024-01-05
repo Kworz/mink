@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { QuestionMarkCircle } from "@steeze-ui/heroicons";
-    import type { IconSource } from "@steeze-ui/heroicons/types";
+    import { QuestionMarkCircle, type IconSource } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import Wrapper from "./Wrapper.svelte";
     import Flex from "./layout/flex.svelte";
@@ -9,7 +8,6 @@
     export let description: string = "";
     export let href: string = "#";
     export let icon: IconSource = QuestionMarkCircle;
-
 </script>
 
 <a {href}>
