@@ -1,5 +1,4 @@
-import { Collections, type ArticleResponse } from "$lib/DBTypes";
-import { articleResponseExpand, type ArticleResponseExpanded } from "$lib/components/article/ArticleRow.svelte";
+import { articleIncludeQuery } from "$lib/components/article/article";
 import type { RequestHandler } from "@sveltejs/kit";
 
 import xlsx from "node-xlsx";
@@ -8,7 +7,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
     try
     {        
-        const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponseExpanded>({ expand: articleResponseExpand });
+        const articles = await locals.prisma.sCMArticle.findMany({ include:  articleIncludeQuery });
 
         const excel: (string | number)[][] = [];
 
@@ -29,13 +28,13 @@ export const GET: RequestHandler = async ({ locals }) => {
         {
             excel.push([
                 article.id,
-                article.name,
-                article.manufacturer ?? "",
-                article.expand?.["article_suppliers(article)"]?.map(k => k.supplier).join(", ") ?? "",
-                article.expand?.["article_store_quantity(article)"]?.[0].quantity ?? 0,
-                article.reference ?? "",
-                article.expand?.["article_price(article)"]?.[0].price ?? article.price ?? 0,
-                (article.expand?.["article_store_quantity(article)"]?.[0].quantity ?? 0) * (article.expand?.["article_price(article)"]?.[0].price ?? article.price ?? 0)
+                article.name || "",
+                article.brand || "",
+                "No supplier exported",
+                article.store_relations.filter(sr => sr.store.temporary === false).reduce((p, c) => p + c.quantity, 0),
+                article.reference || "",
+                "Article PUMP not computed",
+                "Article total price not computed"
             ]);
         }
 
