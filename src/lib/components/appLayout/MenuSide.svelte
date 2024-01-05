@@ -31,7 +31,7 @@
     <div class="m-4 h-[calc(100vh-2rem)] rounded-xl shrink-0 bg-zinc-800 shadow-2xl duration-300 p-4 w-max">
 
         {#if closable}
-            <button on:click={() => dispatch('close')} class="py-1.5 px-3 bg-gray-100 hover:bg-gray-200 duration-200 rounded-md">
+            <button on:click={() => dispatch('close')} class="py-1.5 px-3 w-full bg-zinc-700 hover:bg-zinc-700/75 ring-1 ring-zinc-600/50 duration-200 rounded-md">
                 <span class="text-red-500">
                     <Icon src={XMark} class="h-4 w-4 inline-block" />
                     Fermer le menu
