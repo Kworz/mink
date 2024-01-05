@@ -6,22 +6,27 @@ export const load = (async ({ locals, url }) => {
 
     try
     {
-        const sort = url.searchParams.get("sort") ?? "name";
-        const filter = url.searchParams.get("filter") ?? "";
+        const sort = url.searchParams.get("sort");
+        const filter = url.searchParams.get("filter");
         const page = Number(url.searchParams.get("page")) || 1;
 
         const articles = await locals.prisma.sCMArticle.findMany({
-            orderBy: { name: "asc" },
+            orderBy: (sort !== null) ? JSON.parse(atob(sort)) : undefined,
+            where: (filter !== null) ? JSON.parse(atob(filter)) : undefined,
             skip: (page - 1) * 50,
             take: 50,
-            include: articleIncludeQuery
+            include: articleIncludeQuery,
         });
 
         const totalItems = await locals.prisma.sCMArticle.count();
                 
         return {
             articles: articles,
-            totalItems: totalItems
+            totalItems: totalItems,
+
+            sort: sort ?? "",
+            filter: filter ?? "",
+            page
         };
     }
     catch(ex)

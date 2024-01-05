@@ -6,52 +6,145 @@ export type Filter = {
 
 export type FilterCondition = {
     field: string;
-    operator: '=' | '!=' | '>' | '<' | '>=' | '<=' | '~' | '!~';
-    value: string;
-    hidden?: boolean
+    hidden?: boolean;
+} & (FilterConditionBoolean | FilterConditionString | FilterConditionNumber | FilterConditionArray);
+
+type FilterConditionBoolean = {
+    operator: 'equals' | 'not';
+    value: boolean;
 }
 
-export function convertFilterCondition(value: string, availableFilters: Array<Filter>): FilterCondition
+type FilterConditionNumber = {
+    operator: 'gt' | 'lt' | 'gte' | 'lte' | 'not' | 'equals';
+    value: number;
+}
+
+type FilterConditionString = {
+    operator: 'contains' | 'not' | 'equals';
+    value: string;
+}
+
+type FilterConditionArray = {
+    operator: 'in' | 'notIn';
+    value: string[];
+}
+
+function convertUnknownValue(value: string): string | number | boolean
+{
+    if(value === "true")
+        return true;
+    else if(value === "false")
+        return false;
+    else if(!isNaN(Number(value)))
+        return Number(value);
+    else
+        return value;
+}
+
+function validateFilterOperator<T extends FilterCondition>(filterValue: T["value"], operator: T["operator"]): boolean
+{
+    if(typeof filterValue === "string")
+        return ["contains", "not", "equals"].includes(operator);
+    else if(typeof filterValue === "number")
+        return ["gt", "lt", "gte", "lte", "not", "equals"].includes(operator);
+    else if(typeof filterValue === "boolean")
+        return ["not", "equals"].includes(operator);
+    else
+        return false;
+}
+/**
+ * Append a new text filter to the filter
+ * @param filterQuery Text based syntax filter `field operator value`
+ * @param filter filter already present
+ * @param availableFilters avaialble filters we can rely on
+ * @returns The modified filter
+ */
+export function appendFilter(filterQuery: string, filter: PrismaFilter, availableFilters: Array<Filter>): PrismaFilter
+{
+    if(filterQuery.length === 0)
+        throw "Filter length too small";
+
+    const defaultFilter = availableFilters.find(k => k.default === true);
+    const regexMatches = filterQuery.match(/([\w|.]*) (\w*) (.*)/);
+
+    if(regexMatches === null) /// Only a text is given
+    {
+        if(defaultFilter === undefined)
+            throw "No default filter found";
+
+        const filterValue = defaultFilter.type === "string" ? filterQuery : convertUnknownValue(filterQuery);
+
+        if(filter[defaultFilter.name])
+            filter[defaultFilter.name] = { ...filter[defaultFilter.name] as Object, [(typeof filterValue === "string") ? "contains" : "equals"]: filterValue } as PrismaFilter;
+        else
+            filter[defaultFilter.name] = { [defaultFilter.type === "string" ? "contains" : "equals"]: filterValue };
+
+    }
+    else if(regexMatches.length === 4) /// Enough parts to create a filter
+    {
+        const field = regexMatches[1];
+        const isFilterString = availableFilters.find(k => k.name === field)?.type === "string";
+
+        const filterValue = isFilterString ? regexMatches[3] : convertUnknownValue(regexMatches[3]);
+        const operator = regexMatches[2] as FilterCondition["operator"];
+
+        if(validateFilterOperator(filterValue, operator))
+            if(filter[field] === undefined)
+                filter[field] = { [operator]: filterValue };
+            else
+                filter[field] = { ...filter[field] as Object, [operator]: filterValue } as PrismaFilter;
+        else
+            throw "Invalid filter operator";
+    }
+    else
+        throw "no default filter found";
+
+    return filter;
+}
+
+export function convertFilterCondition(value:  string , availableFilters: Array<Filter>): FilterCondition
 {
     if(value.length === 0)
         throw "Filter length too small";
 
     const defaultFilter = availableFilters.find(k => k.default === true);
-    const regexMatches = value.match(/([\w|.]*) (=|!=|>|<|>=|<=|~|!~) (.*)/);
+    const regexMatches = value.match(/([\w|.]*) (\w*) (.*)/);
 
     if(regexMatches === null)
-        if(value.length > 0 && defaultFilter !== undefined)
-        {
-            return { field: defaultFilter.name, value, operator: "~" };
-        }
+    {
+        if(defaultFilter === undefined)
+            throw "No default filter found";
+
+        const filterValue = defaultFilter.type === "string" ? value : convertUnknownValue(value);
+
+        if(typeof filterValue === "string")
+            return { field: defaultFilter.name, value: filterValue, operator: "contains" };
+        else if(typeof filterValue === "number")
+            return { field: defaultFilter.name, value: filterValue, operator: "equals" };
+        else if(typeof filterValue === "boolean")
+            return { field: defaultFilter.name, value: filterValue, operator: "equals" };
         else
-            throw "Invalid filter"
-
-    if(regexMatches.length !== 4)
-        throw "Invalid filter parts length"
-
-    const field = regexMatches[1];
-    const operator = regexMatches[2] as FilterCondition["operator"];
-    const value2 = regexMatches[3];
-
-    const filterName = validateFilterField(availableFilters, field);
-
-    return {
-        field: filterName,
-        operator: operator,
-        value: value2
+            throw "Invalid filter value"
     }
-}
+    else if(regexMatches.length === 4)
+    {
+        const field = regexMatches[1];
+        const isFilterString = availableFilters.find(k => k.name === field)?.type === "string";
 
-function validateFilterField(availableFilters: Array<Filter>, possibleField: string): string {
+        const filterValue = isFilterString ? regexMatches[3] : convertUnknownValue(regexMatches[3]);
+        const operator = regexMatches[2] as FilterCondition["operator"];
 
-    const possibleFilter = availableFilters.find(k => k.name.includes(possibleField));
-
-    if(possibleFilter === undefined)
-        throw `${possibleField} is not a possible filter`;
-
-    return possibleFilter.name;
-
+        if(typeof filterValue === "string" && validateFilterOperator(filterValue, operator))
+            return { field, value: filterValue, operator: operator as FilterConditionString["operator"] };
+        else if(typeof filterValue === "number" && validateFilterOperator(filterValue, operator))
+            return { field, value: filterValue, operator: operator as FilterConditionNumber["operator"] };
+        else if(typeof filterValue === "boolean" && validateFilterOperator(filterValue, operator))
+            return { field, value: filterValue, operator: operator as FilterConditionBoolean["operator"] };
+        else
+            throw "Invalid filter value"
+    }
+    else
+        throw "no default filter found";
 }
 
 /**
@@ -76,14 +169,14 @@ export function predictField(value: string, availableFilters: Array<Filter>): st
     else if (part === 1)
     {
         const filterType = availableFilters.find(k => k.name === parts[0])?.type;
-        const reccomendedOperatorsForType: Record<Filter["type"], string[]> = {
-            "array": ["~", "!~"],
-            "string": ["=", "!=", "~", "!~"],
-            "number": ["=", "!=", ">", "<", ">=", "<="],
-            "boolean": ["=", "!="]
+        const reccomendedOperatorsForType: Record<Exclude<Filter["type"], undefined>, string[]> = {
+            "array": ["in", "notIn"],
+            "string": ["equals", "not", "contains"],
+            "number": ["equals", "not", "gt", "lt", "lte", "gte"],
+            "boolean": ["equals", "not"]
         };
 
-        const operators = ((filterType !== undefined) ? reccomendedOperatorsForType[filterType] : ['=' , '~', '!=' , '>' , '<' , '>=', '<=', '!~']).filter(k => k.includes(parts[1]));
+        const operators = ((filterType !== undefined) ? reccomendedOperatorsForType[filterType] : ['equals', 'not', 'gt', 'lt', 'gte', 'lte', 'in', 'notIn', 'contains']).filter(k => k.includes(parts[1]));
         return operators.length === 1 ? [] : operators;
     }
     else if (part === 2)
@@ -110,99 +203,58 @@ export function predictField(value: string, availableFilters: Array<Filter>): st
         return [];
 }
 
-function convertFilterValue(value: string): string {
+export type PrismaFilter = {
+    [x: string]: PrismaFilter | string | number | boolean | string[] | undefined
+}
 
-    if(value === "true" || value === "false")
-        return value;
+export function converToPrismaFilter(filters: Array<FilterCondition>): string
+{
+    if(filters.length === 0)
+        return "";
+
+    const finalFilter: PrismaFilter = {};
+
+    // loop through filters
+    // append to final filter
+    // merge keys with . on parent keys to create nested objects
+
+    for(const filter of filters)
+    {
+        const parts = filter.field.split(".");
+
+        if(parts.length === 1)
+        {
+            if(finalFilter[filter.field] === undefined)
+            {
+                finalFilter[filter.field] = {
+                    [filter.operator]: filter.value
+                }
+            }
+        }
+        else
+        {
+            if(finalFilter[parts[0]] === undefined)
+                finalFilter[parts[0]] = {};
+
+            // generate nested object when filter parts is more than 1
+            let nestedObject = finalFilter[parts[0]];
+
+            if(nestedObject instanceof Object && !(nestedObject instanceof Array))
+            {
+                for(let i = 1; i < parts.length - 1; i++)
+                {
+                    if(nestedObject[parts[i]] === undefined)
+                        nestedObject[parts[i]] = {}
     
-    return `"${value}"`;
-}
-
-export function convertToPocketbaseFilter(filters: Array<FilterCondition>): string
-{
-    // Gather unique fields
-    const fields = [...new Set(filters.map(k => k.field))];
-
-    // Recudes fields to be grouped in filter group to prenvent data leaking
-    const mappedFilters = fields.map(fieldName => `(${filters.filter(filter => filter.field === fieldName).map(filter => `${filter.field} ${filter.operator} ${convertFilterValue(filter.value)}`).join(" && ")})`);
-
-    return encodeURIComponent(mappedFilters.join(" && "));
-}
-
-/**
- * Pocketbase like filter to be executed on client side
- * @param filters filters to apply
- * @param element element to filter
- * @returns is item valid to filter or not
- */
-export function clientSideFilter(filters: Array<FilterCondition>, element: Record<string, (string | number | boolean) | (string | boolean | number)[]>): boolean
-{
-    return filters.every(filter => {
-
-        let value: string | undefined = undefined;
-        let comparedValue: string | undefined = undefined;
-
-        if(Object.keys(element).includes(filter.value))
-        {
-            console.log("value is key", filter.value, element[filter.value]);
-            comparedValue = String(element[filter.value]);
-        }
-        else
-            comparedValue = filter.value;
-
-        if(filter.field.split(".").length > 1)
-        {
-            const parts = filter.field.split(".");
-
-            if(element.expand[parts[0]] === undefined)
-                return false;
-
-            if(Array.isArray(element.expand[parts[0]]))
-            {
-                value = element.expand[parts[0]].map(k => String(k[parts[1]]));
-            }
-            else
-            {
-                value = String(element.expand[parts[0]][parts[1]])
+                    nestedObject = nestedObject[parts[i]];
+                }
+    
+                nestedObject[parts[parts.length - 1]] = {
+                    [filter.operator]: filter.value
+                }
             }
         }
-        else
-        {
-            value = String(element[filter.field])
-        }
+    }
 
-        if(value === undefined || comparedValue === undefined)
-            return false;
-        
-        switch(filter.operator)
-        {
-            case "=":
-                return value === comparedValue;
-            case "!=":
-                return value !== comparedValue;
-            case ">":
-                return value > comparedValue;
-            case "<":
-                return value < comparedValue;
-            case ">=":
-                return value >= comparedValue;
-            case "<=":
-                return value <= comparedValue;
-            case "~":
-                return Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(comparedValue.toLowerCase())) > -1 : value.toLowerCase().includes(comparedValue.toLowerCase());
-            case "!~":
-                return !(Array.isArray(value) ? value.findIndex(k => k.toLowerCase().includes(comparedValue.toLowerCase())) > -1 : value.toLowerCase().includes(comparedValue.toLowerCase()));
-        }
-    });
-}
-
-export function clientSideSort(sorting: string, elementA: Record<string, (string | number | boolean) | (string | boolean | number)[]>, elementB: Record<string, (string | number | boolean) | (string | boolean | number)[]>): number
-{
-
-    const reverse = sorting.startsWith("-");
-    const field = reverse ? sorting.substring(1) : sorting;
-
-    const comparison = elementB[field] - elementA[field];
-
-    return reverse ? comparison * -1 : comparison;
+    return JSON.stringify(finalFilter);
 }

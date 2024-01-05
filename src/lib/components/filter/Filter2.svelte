@@ -1,14 +1,26 @@
 <script lang="ts">
     import { Check } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { convertFilterCondition, convertToPocketbaseFilter, predictField, type Filter, type FilterCondition } from "./filter2";
+    import { convertFilterCondition, predictField, type Filter, type FilterCondition, converToPrismaFilter, type PrismaFilter, appendFilter } from "./filter2";
     import FilterLabel from "./FilterLabel.svelte";
     import Input from "../Input.svelte";
     import Flex from "../layout/flex.svelte";
+    import { createEventDispatcher } from "svelte";
     
-    export let filter: string = "";
-    export let filters: FilterCondition[] = [];
+    /// — INPUT DATA
+
+    /** Filters available to the user, this enables predictive entries */
     export let availableFilters: Array<Filter> = [];
+
+    /// — OUTPUT DATA
+
+    /** Base 64 Encoded & Stringified JSON filter */
+    export let filter: PrismaFilter = {};
+
+    /** Raw Filters defined by the user */
+    export let filters: FilterCondition[] = [];
+
+    const dispatch = createEventDispatcher<{ filter: string }>();
 
     let inputElement: HTMLInputElement | undefined = undefined;
     let inputInvalid = false;
@@ -17,9 +29,11 @@
     let selectedSuggestion = 0;
 
     const convertFilter = () => {
+
         try
         {
             const fc = convertFilterCondition(tempFilter, availableFilters);
+            filter = appendFilter(tempFilter, filter, availableFilters);
             filters = [...filters, fc];
             tempFilter = "";
         }
@@ -77,20 +91,30 @@
         }
     }
 
-    $: filter = convertToPocketbaseFilter(filters);
+    $: filters, dispatch("filter", btoa(converToPrismaFilter(filters)));
     $: if(inputInvalid) { setTimeout(() => inputInvalid = false, 2500);}
 
     $: suggestions = predictField(tempFilter, availableFilters), selectedSuggestion = 0;
-
 </script>
+
+{JSON.stringify(filter, undefined, 4)}
 
 <Flex direction="col" gap={2} class={$$props.class}>
     <Input bind:value={tempFilter} placeholder={"Filtre"} on:keydown={inputKeyUp} bind:input={inputElement}>
         <svelte:fragment slot="before">
+            {#each Object.keys(filter) as f}
+                {#if filter[f] instanceof Object && !(filter[f] instanceof Array)}
+                    {#each Object.keys(filter[f]) as subkeys}
+                        {subkeys}
+                    {/each}
+                {:else}
+                    <span>{f} {filter[f]}</span>
+                {/if}
+            {/each}
             {#if filters.filter(k => k.hidden === undefined).length > 0}
                 <Flex class="ml-2" gap={2}>
                     {#each filters.filter(k => k.hidden !== true) as filter, index}
-                        <FilterLabel bind:filter on:click={() => filters = filters.filter((k, i) => i !== index)} />
+                        <FilterLabel bind:filter on:click={() => { filters.splice(index, 1); filters = filters; }} />
                     {/each}
                 </Flex>
             {/if}
@@ -102,7 +126,7 @@
         </Flex>
 
         {#if suggestions.length > 0}
-            <div class="absolute z-50 top-[calc(100%+1rem)] bg-gray-200 dark:bg-zinc-700 p-3 drop-shadow-xl flex flex-col gap-2 border dark:border-zinc-800/50 rounded-md text-sm">
+            <div class="absolute z-50 top-[calc(100%+1rem)] bg-zinc-700 p-3 drop-shadow-xl flex flex-col gap-2 border border-zinc-800/50 rounded-md text-sm">
                 {#each suggestions as sg, index}
                     <button 
                         class:text-blue-500={selectedSuggestion === index}
