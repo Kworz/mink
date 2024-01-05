@@ -1,12 +1,31 @@
 <script lang="ts">
-    import { ChevronDown, ChevronUp } from "@steeze-ui/heroicons";
+    import { Bars2, ChevronDown, ChevronUp } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
+    import { createEventDispatcher } from "svelte";
 
-    export let direction: "asc" | "desc" = "asc";
-    export let active = false;
+    export let colname: string;
+
+    let direction: "none" | "asc" | "desc" = "none";
+
+    const dispatch = createEventDispatcher<{
+        sort: { colname: string, direction: "none" | "asc" | "desc" },
+    }>();
+
+    const sort = () => {
+
+        if(direction === "none")
+            direction = "asc";
+        else if(direction === "asc")
+            direction = "desc";
+        else
+            direction = "none";
+
+        dispatch("sort", { colname, direction });
+
+    }
 
 </script>
 
-<button on:click>
-    <Icon src={direction === "asc" ? ChevronUp : ChevronDown} class="h-4 w-4 font-bold {active ? "text-violet-500 dark:text-violet-400" : "text-zinc-800 dark:text-white"}" theme="solid" />
+<button on:click={sort} class="ml-auto">
+    <Icon src={direction !== "none" ? ((direction === "asc") ? ChevronUp : ChevronDown) : Bars2} class="h-4 w-4 font-bold text-violet-400" theme="solid" />
 </button>

@@ -3,23 +3,43 @@
     import SortButton from "../table/SortButton.svelte";
     import { ArrowLeft, ArrowRight } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
+    import { createEventDispatcher } from "svelte";
     import { fade } from "svelte/transition";
+    import { convertTableSortToPrismaSort, type TableSort } from "./tableSort";
 
     type headerTypes = "selectAll" | { label: string, colname?: string };
 
-    export let cols: number | undefined = undefined;
-    export let headers: Array<headerTypes | undefined> | undefined = undefined;
-    export let activeSort: string | undefined = undefined;
+    /// - INPUT DATA
+
+    /** Headers used on this table */
+    export let headers: Array<headerTypes | undefined> = [];
+
+    /// - OUTPUT DATA
+
+    /** Active sorting JSON Stringified & Base 64 Encoded */
+    export let sort: string = "";
+
+    /** Active sorts defined by the user */
+    export let sorts: Array<TableSort> = [];
+
+    /** Are all fields selected ? */
     export let allSelected = false;
 
+    /** Selectable elements */
     export let selectables: Array<string> = [];
+    
+    /** Selected elements */
     export let selected: Array<string> = [];
+
+    const dispatch = createEventDispatcher<{ sort: string }>();
 
     let parentContainer: HTMLDivElement;
 
     const filterUndefined = (value: any): value is headerTypes => value !== undefined;
 
-    $: columns = (headers === undefined) ? (cols ?? 1) : headers.filter(h => h !== undefined).length;
+    $: sort = btoa(JSON.stringify(sorts)), dispatch("sort", convertTableSortToPrismaSort(sorts));
+
+    $: columns = headers.filter(h => h !== undefined).length;
 
     $: allSelected = (selectables.length === selected.length) && selectables.length !== 0;
 
@@ -73,11 +93,17 @@
                     {#if header === "selectAll"}
                         <input type="checkbox" bind:checked={allSelected} on:click={() => selected = (allSelected) ? [] : selectables} class="self-center" />
                     {:else}
-                        <Flex items="center" gap={1} >
+                        <Flex items="center" gap={1}>
                             <span class="font-semibold truncate">{header.label}</span>
                             {#if header.colname !== undefined}
-                                <SortButton direction="asc" active={header.colname === activeSort} on:click={() => { if(header !== "selectAll" && header.colname !== undefined) { activeSort = header.colname}}} />
-                                <SortButton direction="desc" active={`-${header.colname}` === activeSort} on:click={() => { if(header !== "selectAll" && header.colname !== undefined) { activeSort = `-${header.colname}`}}} />
+                                <SortButton colname={header.colname} on:sort={(e) => {
+                                    sorts = sorts.filter(s => s.name !== e.detail.colname);
+
+                                    if(e.detail.direction === "none")
+                                        return;
+                                    
+                                    sorts = [...sorts, { name: e.detail.colname, direction: e.detail.direction }];
+                                }} />
                             {/if}
                         </Flex>
                     {/if}
