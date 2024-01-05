@@ -2,13 +2,11 @@
     import { goto, invalidateAll } from "$app/navigation";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
-    import { Plus, PlusCircle } from "@steeze-ui/heroicons";
+    import { PlusCircle } from "@steeze-ui/heroicons";
     import type { ActionData, PageData, Snapshot } from "./$types";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableHead from "$lib/components/table/TableHead.svelte";
-    import TableRow from "$lib/components/table/TableRow.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
     import InterestLabel from "../interests/InterestLabel.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import CompanyContact from "../companies/CompanyContact.svelte";
@@ -64,45 +62,31 @@
         { name: "origin" }
     ]} />
 
-    <Table embeded>
-        <svelte:fragment slot="head">
-            <TableHead>Société</TableHead>
-            <TableHead>Statut</TableHead>
-            <TableHead>Contact</TableHead>
-            <TableHead>Intérets</TableHead>
-            <TableHead>Origine</TableHead>
-            <TableHead>Commentaire</TableHead>
-        </svelte:fragment>
-
-        <svelte:fragment slot="body">
-
-            {#each data.leads.items as lead}
-                <TableRow>
-                    <TableCell>
-                        <h5>{lead.expand?.company.name}</h5>
-                        <span class="text-sm text-zinc-500 block">{[lead.expand?.company.field, lead.expand?.company.sector, lead.expand?.company.type].filter(l => l != "").join(" / ")}</span>
-                        <span class="text-sm text-zinc-500 block">Pays: {lead.expand?.company.country}</span>                    
-                    </TableCell>
-                    <TableCell>{lead.state || "—"}</TableCell>
-                    <TableCell>
-                        <Flex gap={2} items="center" wrap="wrap">
-                            {#each lead.expand?.company_contacts ?? [] as contact}
-                                <CompanyContact {contact} />
-                            {/each}
-                        </Flex>
-                    </TableCell>
-                    <TableCell>
-                        <Flex gap={2} items="center" wrap="wrap">
-                            {#each lead.expand?.["crm_leads_interests(lead)"] ?? [] as interest}
-                                <InterestLabel interest={interest.expand?.interest} />
-                            {/each}
-                        </Flex>
-                    </TableCell>
-                    <TableCell>{lead.origin}</TableCell>
-                    <TableCell>{lead.comment}</TableCell>
-                </TableRow>
-            {/each}
-        </svelte:fragment>
+    <Table embeded headers={[{ label: "Société" }, { label: "Statut" }, { label: "Contact" }, { label: "Intérets" }, { label: "Origines" }, { label: "Commentaire" }]}>
+        {#each data.leads.items as lead}
+            <TableCell>
+                <h5>{lead.expand?.company.name}</h5>
+                <span class="text-sm text-zinc-500 block">{[lead.expand?.company.field, lead.expand?.company.sector, lead.expand?.company.type].filter(l => l != "").join(" / ")}</span>
+                <span class="text-sm text-zinc-500 block">Pays: {lead.expand?.company.country}</span>                    
+            </TableCell>
+            <TableCell>{lead.state || "—"}</TableCell>
+            <TableCell>
+                <Flex gap={2} items="center" wrap="wrap">
+                    {#each lead.expand?.company_contacts ?? [] as contact}
+                        <CompanyContact {contact} />
+                    {/each}
+                </Flex>
+            </TableCell>
+            <TableCell>
+                <Flex gap={2} items="center" wrap="wrap">
+                    {#each lead.expand?.["crm_leads_interests(lead)"] ?? [] as interest}
+                        <InterestLabel interest={interest.expand?.interest} />
+                    {/each}
+                </Flex>
+            </TableCell>
+            <TableCell>{lead.origin}</TableCell>
+            <TableCell>{lead.comment}</TableCell>
+        {/each}
     </Table>
 
     <TablePages totalPages={data.leads.totalPages} bind:currentPage={itemsPage} />
