@@ -7,7 +7,7 @@
     import { env } from "$env/dynamic/public";
     import type { ActionData, PageData } from "./$types";
 
-    import { ArrowRight, Check, DocumentDuplicate, PlusCircle, QrCode, Trash, Wrench, WrenchScrewdriver } from "@steeze-ui/heroicons";
+    import { ArrowRight, DocumentDuplicate, PlusCircle, QrCode, Trash, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
 
     import Button from "$lib/components/Button.svelte";
@@ -16,10 +16,8 @@
     import Flex from "$lib/components/layout/flex.svelte";
     import RoundButton from "$lib/components/RoundButton.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import TableHead from "$lib/components/table/TableHead.svelte";
-    import TableRow from "$lib/components/table/TableRow.svelte";
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
     import User from "$lib/components/user/User.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
@@ -63,7 +61,7 @@
 {/if}
 
 {#if deleteArticle}
-    <Modal title="Confimer" close={() => deleteArticle = false}>
+    <Modal title="Confimer" on:close={() => deleteArticle = false}>
         <p>Souhaitez vous supprimer l'article <strong>{data.article.name}</strong> ?</p>
 
         <div class="flex flex-row gap-4 mt-3">            
@@ -76,7 +74,7 @@
 {/if}
 
 {#if deleteThumbnail}
-    <Modal title="Confirmer" close={() => deleteThumbnail = false}>
+    <Modal title="Confirmer" on:close={() => deleteThumbnail = false}>
     
         <p>Souhaitez vous supprimer la miniature ?</p>
 
@@ -91,33 +89,32 @@
 
 <div class="flex flex-row items-start gap-6 mb-6">
     <div class="w-1/5 flex flex-col gap-6">
-        <div class="aspect-square rounded-lg overflow-clip relative">
+        <Wrapper class="aspect-square relative flex flex-col justify-center">
             {#if data.article.thumbnail !== null}
                 <RoundButton icon={Trash} class="absolute top-4 right-4" on:click={() => deleteThumbnail = true }/>
                 <img src={data.article.thumbnail} alt="Miniature" class="aspect-square object-cover"/>
             {:else}
-                <div class="bg-white p-24 rounded-lg">
-                    <Icon src={PlusCircle} class="hover:scale-95 duration-100" />
-                    <p class="text-center font-bold text-lg">Pas de miniature</p>
-                    <p class="text-center">Glisser un fichier</p>
-                </div>
-            {/if}
-        </div>
+                <Icon src={PlusCircle} class="hover:scale-95 h-24 duration-100" />
+                <p class="text-center font-bold text-lg">Pas de miniature</p>
+                <p class="text-center">Glisser un fichier</p>
+        {/if}
+        </Wrapper>
 
         <h3 class="text-center">Fichiers additionels</h3>
 
         {#each data.article.files as file}
-            <div class="bg-white p-3 rounded-md">{file}</div>
+            <div class="bg-zinc-800 p-3 rounded-md">{file}</div>
         {/each}
 
-        <div class="bg-white p-3 rounded-xl">
+        <Wrapper>
             <form action="?/addAttachedFile" method="post" use:enhance>
                 <Flex direction="col" justify="between">
                     <FormInput type="file" name="attached_files" labelMandatory={true}  />
                     <Button>Ajouter le fichier</Button>
                 </Flex>
             </form>
-        </div> 
+        </Wrapper>
+
     </div>
 
     <div class="grow">
@@ -225,49 +222,30 @@
 
             <Flex direction="col" gap={6} class="mt-6">
                 {#if exploitableStoreRelations.length > 0}
-                    <Table marginTop="">
-                        <svelte:fragment slot="head">
-                            <TableHead>Emplacement</TableHead>
-                            <TableHead>Quantité</TableHead>
-                        </svelte:fragment>
-                        <svelte:fragment slot="body">
-                            {#each exploitableStoreRelations as storeRelation}
-                                <TableRow>
-                                    <TableCell><Store store={storeRelation.store} /></TableCell>
-                                    <TableCell>{storeRelation.quantity}</TableCell>
-                                </TableRow>
-                            {/each}
-                        </svelte:fragment>
+                    <Table headers={[{ label: "Emplacement" }, { label: "Quantité" }]}>
+                        {#each exploitableStoreRelations as storeRelation}
+                            <TableCell><Store store={storeRelation.store} /></TableCell>
+                            <TableCell>{storeRelation.quantity}</TableCell>
+                        {/each}
                     </Table>
                 {/if}
 
                 {#if data.article.acticle_movements.length > 0}
-                    <Table marginTop="">
-                        <svelte:fragment slot="head">
-                            <TableHead>Δ Quantité</TableHead>
-                            <TableHead>Utilisateur</TableHead>
-                            <TableHead>Déplacement</TableHead>
-                            <TableHead class="hidden md:table-cell">Date</TableHead>
-                        </svelte:fragment>
-
-                        <svelte:fragment slot="body">
+                    <Table headers={[{ label: "𝚫 Quantité" }, { label: "Utilisateur" }, { label: "Déplacement" }, { label: "Date" }]}>
                             {#each data.article.acticle_movements as movement}
-                                <TableRow>
-                                    <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
-                                    <TableCell>
-                                        <User user={movement.user} />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Flex items="center" gap={2}>
-                                            <span>{movement.store_out?.name ?? "Inconnu"}</span>
-                                            <Icon src={ArrowRight} class="h-4 w-4 inline-block text-violet-500" />
-                                            <span>{movement.store_in?.name ?? "Inconnu"}</span>
-                                        </Flex>
-                                    </TableCell>
-                                    <TableCell class="hidden md:table-cell">{movement.created}</TableCell>
-                                </TableRow>
+                                <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
+                                <TableCell>
+                                    <User user={movement.user} />
+                                </TableCell>
+                                <TableCell>
+                                    <Flex items="center" gap={2}>
+                                        <span>{movement.store_out?.name ?? "Inconnu"}</span>
+                                        <Icon src={ArrowRight} class="h-4 w-4 inline-block text-violet-500" />
+                                        <span>{movement.store_in?.name ?? "Inconnu"}</span>
+                                    </Flex>
+                                </TableCell>
+                                <TableCell>{movement.created}</TableCell>
                             {/each}
-                        </svelte:fragment>
                     </Table>
                 {/if}
             </Flex>
