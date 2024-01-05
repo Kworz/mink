@@ -5,8 +5,8 @@
     import type { FilterCondition } from "$lib/components/filter/filter2";
     import Filter2 from "$lib/components/filter/Filter2.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
 
@@ -14,7 +14,7 @@
     import Flex from "$lib/components/layout/flex.svelte";
     import Button from "$lib/components/Button.svelte";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
-    import TableFootCell from "$lib/components/table2/TableFootCell.svelte";
+    import TableFootCell from "$lib/components/table/TableFootCell.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import { onMount } from "svelte";
     import { page } from "$app/stores";

@@ -2,8 +2,8 @@
 
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import User from "$lib/components/user/User.svelte";
     import { PlusCircle } from "@steeze-ui/heroicons";
 

@@ -9,8 +9,8 @@
     import Grid from "$lib/components/layout/grid.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { Printer, Trash } from "@steeze-ui/heroicons";

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import TableCell from "$lib/components/table2/TableCell.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
     import type { PageData } from "./$types";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import { page } from "$app/stores";
@@ -37,7 +37,7 @@
 <p>Emplacement: {data.store.location}</p>
 <p>Stock temporaire: {data.store.temporary}</p>
 
-<Table headers={[{ label: "Article", colname: "article.name" }, { label: "Quantité", colname: "quantity" }]} bind:activeSort class="mt-6">
+<Table headers={[{ label: "Article", colname: "article.name" }, { label: "Quantité", colname: "quantity" }]} bind:sorts={activeSort} class="mt-6">
     {#each data.store.store_relations as relation}
         <TableCell>
             <ArticleRow article={relation.article} />

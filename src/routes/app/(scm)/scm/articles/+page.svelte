@@ -3,8 +3,8 @@
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
 
     import { page } from "$app/stores";
 
@@ -30,26 +30,23 @@
     let createArticle = false;
 
     let filters: Array<FilterCondition> = [];
-    let filter: string = $page.url.searchParams.get("filter") ?? "";
-
     let selected: Array<string> = [];
-
-    let activeSort = $page.url.searchParams.get("sort") ?? "name";
-    let itemsPage = Number($page.url.searchParams.get("page")) ?? 1;
 
     export const snapshot: Snapshot<Array<FilterCondition>> = {
         capture: () => filters,
         restore: (value) => filters = value
-    }
+    };
 
-    const triggerRefresh = () => {
-        if(browser) {
-            goto(`/app/scm/articles?sort=${activeSort}&page=${itemsPage}&filter=${filter}`, { noScroll: true });
-            selected = [];
-        }
-    }
+    const editQueryParams = (query: { filter?: string, sort?: string, page?: number }) => {
 
-    $: filter, activeSort, itemsPage, triggerRefresh();  
+        const params = new URLSearchParams();
+
+        //params.set("filter", query.filter ?? data.filter);
+        params.set("sort", query.sort ?? data.sort);
+        params.set("page", query.page?.toString() ?? data.page.toString());
+
+        goto(`?${params.toString()}`, { noScroll: true });
+    }
 
 </script>
 
@@ -81,17 +78,18 @@
     {/if}
 </PillMenu>
 
-<Filter2 class="my-6" bind:filter bind:filters availableFilters={[
+<Filter2 class="my-6" bind:filters availableFilters={[
     { name: "name", default: true, type: "string" },
     { name: "reference", type: "string" },
     { name: "manufacturer", type: "string" },
     { name: "critical_quantity", type: "number"},
-    { name: "consumable", type: "boolean" }
-]} />
+    { name: "consumable", type: "boolean" }]}
+    on:filter={(e) => editQueryParams({ filter: e.detail })}
+/>
 
 <Table headers={[
     "selectAll", 
-    { label: `Article (${data.totalItems})` }, 
+    { label: `Article (${data.totalItems})`, colname: "name" }, 
     { label: "Consommable" }, 
     { label: "Stock" }, 
     { label: "Emplacements" }, 
@@ -102,6 +100,8 @@
     { label: "Total prix stock"}]}
     selectables={data.articles.map(a => a.id)}
     bind:selected={selected}
+    bind:sort={data.sort}
+    on:sort={(e) => editQueryParams({ sort: e.detail })}
 >
     {#each data.articles as article (article.id)}
 
@@ -150,4 +150,4 @@
     {/each}
 </Table>
 
-<TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={itemsPage} />
+<TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={data.page} on:change={(e) => editQueryParams({ page: e.detail })} />

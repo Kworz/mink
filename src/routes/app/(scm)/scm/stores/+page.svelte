@@ -12,8 +12,8 @@
     
     import Modal from "$lib/components/modal/Modal.svelte";
     import type { SCMStore } from "@prisma/client";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import { Icon } from "@steeze-ui/svelte-icon";
 
     export let data: PageData;

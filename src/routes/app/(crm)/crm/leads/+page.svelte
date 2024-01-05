@@ -5,8 +5,8 @@
     import { PlusCircle } from "@steeze-ui/heroicons";
     import type { ActionData, PageData, Snapshot } from "./$types";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import InterestLabel from "../interests/InterestLabel.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import CompanyContact from "../companies/CompanyContact.svelte";

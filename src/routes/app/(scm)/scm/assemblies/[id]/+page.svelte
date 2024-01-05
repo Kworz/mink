@@ -15,11 +15,11 @@
     
     import type { ActionData, PageData } from "./$types";
     import Grid from "$lib/components/layout/grid.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import { Icon } from "@steeze-ui/svelte-icon";
     import ArticleFinder from "$lib/components/article/ArticleFinder.svelte";
-    import TableFootCell from "$lib/components/table2/TableFootCell.svelte";
+    import TableFootCell from "$lib/components/table/TableFootCell.svelte";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import type { SCMArticleWithIncludes } from "$lib/components/article/article";
     import type { SCMAssemblyRelationArticle, SCMAssemblyRelationSubAssembly } from "@prisma/client";

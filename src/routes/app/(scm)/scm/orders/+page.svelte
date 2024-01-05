@@ -9,8 +9,8 @@
     import Flex from "$lib/components/layout/flex.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte"; 
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import Supplier from "$lib/components/supplier/Supplier.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import OrderState from "./OrderState.svelte";

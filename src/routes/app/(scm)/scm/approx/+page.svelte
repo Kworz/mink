@@ -4,8 +4,8 @@
     import Date from "$lib/components/formatters/Date.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import type { ActionData, PageData } from "./$types";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";

@@ -12,9 +12,9 @@
     import Price from "$lib/components/formatters/Price.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Store from "$lib/components/store/Store.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
-    import TableFootCell from "$lib/components/table2/TableFootCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
+    import TableFootCell from "$lib/components/table/TableFootCell.svelte";
     import User from "$lib/components/user/User.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { Temporal } from "@js-temporal/polyfill";

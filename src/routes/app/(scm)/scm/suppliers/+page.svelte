@@ -8,8 +8,8 @@
     import FormInput from "$lib/components/FormInput.svelte";
     import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Table from "$lib/components/table2/Table.svelte";
-    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import { Home, PlusCircle } from "@steeze-ui/heroicons";
