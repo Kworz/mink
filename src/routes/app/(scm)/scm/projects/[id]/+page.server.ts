@@ -9,7 +9,9 @@ export const load = (async ({ locals, params }) => {
 
     const projectID = params.id;
 
-    const project = await locals.pb.collection(Collections.Projects).getOne<ProjectsResponse>(projectID);
+    const project = await locals.prisma.sCMProject.findUniqueOrThrow({ where: { id: projectID } });
+
+    /*
 
     // Fetch all buylist stores and map the article movement to the project
     const buylistsStores = (await locals.pb.collection(Collections.AssembliesBuylists).getFullList<AssembliesBuylistsResponse>({ filter: `project = "${projectID}"` })).map(buylist => buylist.store);
@@ -35,11 +37,13 @@ export const load = (async ({ locals, params }) => {
     const order_rows = await locals.pb.collection(Collections.OrdersRows).getFullList<OrderRowsResponseExpanded>({ filter: `project = "${projectID}" && quantity = quantity_received `, expand: 'order,article' });
     const fabricationOrders = await locals.pb.collection(Collections.FabricationOrders).getFullList<FabricationOrdersResponseExpanded>({ filter: `project = "${projectID}"`, expand: 'article,applicant,receiver'});
 
+    */
+   
     return {
-        project: structuredClone(project),
-        order_rows: structuredClone(order_rows),
-        fabricationOrders: structuredClone(fabricationOrders),
-        stores_relations: structuredClone(stores_relationsMapped),
+        project,
+        order_rows: [],
+        fabricationOrders: [],
+        stores_relations: [],
     }
 
 }) satisfies PageServerLoad;
