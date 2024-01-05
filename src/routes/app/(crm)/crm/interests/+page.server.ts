@@ -7,7 +7,7 @@ export const load = (async ({ locals }) => {
 
     try
     {
-        const interests = await locals.pb.collection(Collections.CrmInterest).getFullList<CrmInterestResponse>();
+        const interests = await locals.prisma.crm_interest.findMany();
 
         return { interests: structuredClone(interests) };
     }
@@ -18,6 +18,7 @@ export const load = (async ({ locals }) => {
 
 }) satisfies PageServerLoad;
 
+// TODO: Convert to Prisma
 
 export const actions: Actions = {
     createInterest: async ({ locals, request }) => {

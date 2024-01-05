@@ -1,24 +1,20 @@
 <script lang="ts">
+    import { enhance } from "$app/forms";
+    import { invalidateAll } from "$app/navigation";
+    import Button from "$lib/components/Button.svelte";
+    import FormInput from "$lib/components/FormInput.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableHead from "$lib/components/table/TableHead.svelte";
-    import { PlusCircle, Wrench } from "@steeze-ui/heroicons";
-    import type { ActionData, PageData } from "./$types";
-    import { invalidateAll } from "$app/navigation";
-    import TableRow from "$lib/components/table/TableRow.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
     import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
-    import { enhance } from "$app/forms";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Button from "$lib/components/Button.svelte";
-    import type { CrmInterestResponse } from "$lib/DBTypes";
-    import { Icon } from "@steeze-ui/svelte-icon";
+    import Table from "$lib/components/table2/Table.svelte";
+    import TableCell from "$lib/components/table2/TableCell.svelte";
+    import type { crm_interest } from "@prisma/client";
+    import { PlusCircle } from "@steeze-ui/heroicons";
+    import type { ActionData, PageData } from "./$types";
     import InterestLabel from "./InterestLabel.svelte";
 
     let createInterest = false;
-    let editInterest: CrmInterestResponse | undefined = undefined;
+    let editInterest: crm_interest | undefined = undefined;
     let deleteInterestConfirm: string | undefined = undefined;
 
     export let data: PageData;
@@ -77,44 +73,35 @@
     </MenuSide>
 {/if}
 
-<Wrapper>
+<PillMenu>
+    <PillMenuButton icon={PlusCircle} click={() => createInterest = !createInterest}>Créer un intéret</PillMenuButton>
+</PillMenu>
 
-    <h3>Intérets</h3>
-    <p>Liste des intérets que peuvent porter les prospects.</p>
+<h1>CRM: Intérets</h1>
+<p class="mb-6">Liste des intérets que peuvent porter les prospects.</p>
 
-    <PillMenu>
-        <PillMenuButton icon={PlusCircle} click={() => createInterest = !createInterest}>Créer un intéret</PillMenuButton>
-    </PillMenu>
-
-</Wrapper>
-
-<Table>
-    <svelte:fragment slot="head">
-        <TableHead>Intéret ({data.interests.length})</TableHead>
-        <TableHead>Description</TableHead>
-        <TableHead><Icon src={Wrench} class="h-4 w-4 text-zinc-500"/></TableHead>
-    </svelte:fragment>
-
-    <svelte:fragment slot="body">
-
+{#if data.interests.length == 0}
+    <p class="text-orange-500">
+        Aucun intéret n'a été créé pour le moment.<br>
+        Ajoutez un intéret en cliquant en haut à droite.
+    </p>
+{:else}
+    <Table headers={[{ label: "Intéret" }, { label: "Description" }, { label: "Actions" }]}>
         {#each data.interests as interest}
-            <TableRow>
-                <TableCell><InterestLabel {interest} /></TableCell>
-                <TableCell>{interest.description}</TableCell>
-                <TableCell>
-                    <Button size="small" role="warning" on:click={() => editInterest = interest} class="mr-2">Modifier</Button>
+            <TableCell><InterestLabel {interest} /></TableCell>
+            <TableCell>{interest.description}</TableCell>
+            <TableCell>
+                <Button size="small" role="warning" on:click={() => editInterest = interest} class="mr-2">Modifier</Button>
 
-                    {#if deleteInterestConfirm == interest.id}
-                        <form action="?/deleteInterest" method="post" use:enhance class="inline">
-                            <input type="hidden" name="id" value={interest.id} />
-                            <Button size="small" role="danger">Confirmer</Button>
-                        </form>
-                    {:else}
-                        <Button size="small" on:click={() => deleteInterestConfirm = interest.id } role="danger">Supprimer</Button>
-                    {/if}
-                    
-                </TableCell>
-            </TableRow>
+                {#if deleteInterestConfirm == interest.id}
+                    <form action="?/deleteInterest" method="post" use:enhance class="inline">
+                        <input type="hidden" name="id" value={interest.id} />
+                        <Button size="small" role="danger">Confirmer</Button>
+                    </form>
+                {:else}
+                    <Button size="small" on:click={() => deleteInterestConfirm = interest.id } role="danger">Supprimer</Button>
+                {/if}
+            </TableCell>
         {/each}
-    </svelte:fragment>
-</Table>
+    </Table>
+{/if}
