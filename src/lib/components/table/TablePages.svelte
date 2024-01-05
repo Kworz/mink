@@ -1,9 +1,12 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import Button from "../Button.svelte";
     import Flex from "../layout/flex.svelte";
 
     export let totalPages: number;
     export let currentPage: number;
+
+    const dispatch = createEventDispatcher<{ change: number }>();
 
 </script>
 
@@ -17,7 +20,7 @@
                 class="aspect-square w-8"
                 size="tiny"
                 role={(roleMinus || rolePlus) ? "primary" : "tertiary"}
-                on:click={() => currentPage = (number+1)}
+                on:click={() => { currentPage = (number+1); dispatch("change", currentPage); }}
             >{number + 1}</Button>
         {/each}
     </Flex>

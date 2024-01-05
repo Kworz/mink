@@ -1,5 +1,12 @@
 <script lang="ts">
-    export let colspan: number | undefined = undefined;
+    import { itemsPosition, type FlexItemPosition } from "../layout/flexTypes";
+    import { colSpans, type colSpan } from "../layout/gridTypes";
+    export let position: FlexItemPosition = "start";
+
+    export let colspan: colSpan = 1;
+
 </script>
 
-<td class="p-4 {$$props.class}" {colspan}><slot /></td>
+<div class="p-4 border-b-zinc-500/25 border-b-[1px] flex flex-col h-full justify-around transition-all duration-300 {itemsPosition[position]} {colSpans[colspan]} {$$props.class}">
+    <slot />
+</div>
