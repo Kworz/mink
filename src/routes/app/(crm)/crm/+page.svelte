@@ -4,6 +4,9 @@
     import { ListBullet, Sparkles, UserGroup } from "@steeze-ui/heroicons";
 </script>
 
+<h1>Customer Relations Manager</h1>
+<p class="mb-6">Gestionaire de relations client.</p>
+
 <HomeMenuGrid>
 
     <HomeMenuItem icon={ListBullet} href="/app/crm/leads" title="Leads" />
