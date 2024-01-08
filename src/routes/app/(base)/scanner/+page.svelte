@@ -2,7 +2,7 @@
     import { onDestroy, onMount } from "svelte";
     import jsQR, { type QRCode } from "jsqr";
     import { goto } from "$app/navigation";
-    import { parseQRCodeData } from "$lib/components/qrcode/qrcode";
+    import { parseQRCodeData } from "$lib/qrcode/qrcode";
 
     let videoSource: HTMLVideoElement;
     let canvas: HTMLCanvasElement;
@@ -66,5 +66,8 @@
 
 <svelte:head><title>Article — Scan</title></svelte:head>
 
-<video bind:this={videoSource} class=" rounded-md border border-zinc-500/50" on:play={() => requestAnimationFrame(analyzeFrame)} />
+<video bind:this={videoSource} class="rounded-md border border-zinc-500/50" on:play={() => requestAnimationFrame(analyzeFrame)}>
+    <track kind="captions" />
+</video>
+
 <canvas bind:this={canvas} class="hidden"/>

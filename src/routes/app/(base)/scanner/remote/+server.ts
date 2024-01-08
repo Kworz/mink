@@ -1,4 +1,4 @@
-import { parseQRCodeData } from "$lib/components/qrcode/qrcode";
+import { parseQRCodeData } from "$lib/qrcode/qrcode";
 import type { RequestHandler } from "./$types";
 
 export const GET = (({ url }) => {
