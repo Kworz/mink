@@ -1,25 +1,25 @@
-import { Collections, type ArticleMovementsRecord, type StoresResponse, type UsersResponse, type FabricationOrdersResponse } from "$lib/DBTypes";
-import { redirect } from "@sveltejs/kit";
-import type { FabricationOrdersResponseExpanded } from "../+page.server";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
+import { articleIncludeQuery } from "$lib/components/article/article";
 
 export const load = (async ({ params, locals }) => {
 
-    const fabricationOrder = await locals.pb.collection(Collections.FabricationOrders).getOne<FabricationOrdersResponseExpanded>(params.id, { expand: "article,applicant,receiver" });
-    const users = await locals.pb.collection(Collections.Users).getFullList<UsersResponse>();
+    const fabricationOrder = await locals.prisma.scm_fabrication_order.findUnique({ where: { id: params.id }, include: { askedBy: true, receiver: true, article: { include: articleIncludeQuery }}});
+    const users = await locals.prisma.user.findMany();
 
-    return {
-        fabricationOrder: structuredClone(fabricationOrder),
-        users: structuredClone(users)
+    return { 
+        fabricationOrder,
+        users
     };
 
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
     deleteFabOrder: async ({ params, locals }) => {
+
         try
         {
-            await locals.pb.collection(Collections.FabricationOrders).delete(params.id);
+            await locals.prisma.scm_fabrication_order.delete({ where: { id: params.id }});
         }
         catch(ex)
         {
@@ -32,7 +32,7 @@ export const actions: Actions = {
         try
         {
             const form = await request.formData();
-            await locals.pb.collection(Collections.FabricationOrders).update(params.id, form);
+            await locals.prisma.scm_fabrication_order.update({ where: { id: params.id }, data: form });
         }
         catch(ex)
         {
@@ -44,31 +44,23 @@ export const actions: Actions = {
     completeFabOrder: async ({ params, locals, request }) => {
 
         const form = await request.formData();
-        const store_in = form.get("store_in")?.toString();
+        const storeIn = form.get("store_in")?.toString();
 
         try
         {
-            if(store_in === undefined)
-                return { completeFabOrder: { stores: structuredClone(await locals.pb.collection(Collections.Stores).getFullList<StoresResponse>()) }};
+            if(storeIn === undefined) return fail(400, { completeFabOrder: { error: "Missing store_in", stores: await locals.prisma.scm_store.findMany({ where: { temporary: false }}) }});
 
-            const fabOrder = await locals.pb.collection(Collections.FabricationOrders).update<FabricationOrdersResponse>(params.id, { state: "completed" });
-            
-            await locals.pb.collection(Collections.ArticleMovements).create({
+            await locals.prisma.scm_fabrication_oder_state_change.create({ data: { fabrication_order_id: params.id, state: "completed", user_id: locals.session!.user.id }});
+            const fabricationOrder = await locals.prisma.scm_fabrication_order.update({ where: { id: params.id }, data: { state: "completed" }});
 
-                article: fabOrder.article,
-                store_in,
-                store_out: "",
-                quantity_update: fabOrder.quantity,
-                user: locals.user.id
+            await locals.prisma.scm_article_movements.create({ data: { 
+                article_id: fabricationOrder.article_id, 
+                store_in_id: storeIn, 
+                quantity_update: fabricationOrder.quantity, 
+                user_id: locals.session!.user.id }
+            });
 
-            } satisfies ArticleMovementsRecord);
-
-            const storeRelations = await locals.pb.collection(Collections.StoresRelations).getFullList({ filter: `store = "${store_in}" && article = "${fabOrder.article}"` });
-
-            if(storeRelations.length === 0)
-                await locals.pb.collection(Collections.StoresRelations).create({ store: store_in, article: fabOrder.article, quantity: fabOrder.quantity });
-            else
-                await locals.pb.collection(Collections.StoresRelations).update(storeRelations[0].id, { "quantity+": fabOrder.quantity });
+            await locals.prisma.scm_store_relation.upsert({ where: { article_id_store_id: { article_id: fabricationOrder.article_id, store_id: storeIn }}, create: { article_id: fabricationOrder.article_id, store_id: storeIn, quantity: fabricationOrder.quantity }, update: { quantity: { increment: fabricationOrder.quantity }}});
 
         }
         catch(ex)

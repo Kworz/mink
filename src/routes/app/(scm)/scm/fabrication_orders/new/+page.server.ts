@@ -1,41 +1,40 @@
-import { type ArticleResponse, Collections, type UsersResponse, type FabricationOrdersResponse, type ProjectsResponse } from "$lib/DBTypes";
-import { redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { Temporal } from "@js-temporal/polyfill";
+import { fail, redirect } from "@sveltejs/kit";
+import { articleIncludeQuery } from "$lib/components/article/article";
 
 export const load = (async ({ locals }) => {
 
-    const articles = await locals.pb.collection(Collections.Article).getFullList<ArticleResponse>({ filter: 'internal = "true"'});
-    const users = await locals.pb.collection(Collections.Users).getFullList<UsersResponse>();
-    const projects = await locals.pb.collection(Collections.Projects).getFullList<ProjectsResponse>();
+    const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery });
+    const users = await locals.prisma.user.findMany();
+    const projects = await locals.prisma.pr_project.findMany();
 
     return {
-        articles: structuredClone(articles),
-        users: structuredClone(users),
-        projects: structuredClone(projects)
-    }
+        articles,
+        users,
+        projects
+    };
 
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
     default: async ({ request, locals }) => {
 
-        let newFabricationOrder: FabricationOrdersResponse | undefined = undefined;
+        const form = await request.formData();
 
-        try {
-            const form = await request.formData();
-            form.set("start_date", Temporal.Now.plainDateISO().toString());
-            form.set("applicant", locals.user?.id ?? "");
-            form.set("state", "asked");
+        // TODO: Check for missing data
 
-            newFabricationOrder = await locals.pb.collection(Collections.FabricationOrders).create(form);
-        }
-        catch(ex)
-        {
-            console.log(ex)
-            return { error: "Failed to create Fabrication order" };
-        }
+        const fabricationOrder = await locals.prisma.scm_fabrication_orders.create({
+            data: {
+                askedBy_id: locals.session!.user.id,
+                receiver_id: form.get("receiver_id")?.toString() ?? "",
+                state: 'asked',
+                article_id: form.get("article_id")?.toString() ?? "",
+                quantity: parseInt(form.get("quantity")?.toString() ?? "0"),
+            }
+        });
 
-        throw redirect(303, `/app/scm/fabrication_orders/${newFabricationOrder?.id}`);
+        if(fabricationOrder === undefined) return fail(400, { error: "Failed to create Fabrication order" });
+
+        return redirect(303, `/app/scm/fabrication_orders/${fabricationOrder.id}`);
     }
 }
