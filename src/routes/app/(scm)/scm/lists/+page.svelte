@@ -1,23 +1,21 @@
 <script lang="ts">
+    import { browser } from "$app/environment";
+    import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
-    import AssemblyPreview from "$lib/components/assemblies/AssemblyPreview.svelte";
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
+    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
+    import AssemblyPreview from "$lib/components/assemblies/AssemblyPreview.svelte";
+    import Filter2 from "$lib/components/filter/Filter2.svelte";
+    import type { FilterCondition } from "$lib/components/filter/filter2";
+    import Modal from "$lib/components/modal/Modal.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";
-    import { Collections, type AssembliesBuylistsRecord, type StoresRecord } from "$lib/DBTypes";
     import { PlusCircle, Printer, Squares2x2 } from "@steeze-ui/heroicons";
     import type { PageData, Snapshot } from "./$types";
-    import Filter2 from "$lib/components/filter/Filter2.svelte";
-    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
-    import type { FilterCondition } from "$lib/components/filter/filter2";
-    import { browser } from "$app/environment";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import Modal from "$lib/components/modal/Modal.svelte";
-    import { enhance } from "$app/forms";
 
     export let data: PageData;
 
@@ -108,7 +106,6 @@
     ]}
     selectables={lists.map(l => l.id)}
     bind:selected={selected}
-    bind:sorts={activeSort}
     class="mt-6"
 >
 
@@ -116,8 +113,8 @@
         <TableCell position="center"><input type="checkbox" bind:group={selected} value={list.id} /></TableCell>
         <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
         <TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>
-        <TableCell><AssemblyPreview assembly={list.expand?.assembly} /></TableCell>
-        <TableCell>{list.expand?.project?.name}</TableCell>
+        <TableCell><AssemblyPreview assembly={list.assembly} /></TableCell>
+        <TableCell>{list.project?.name}</TableCell>
     {/each}
 
 </Table>

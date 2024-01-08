@@ -18,7 +18,6 @@
     import Price from "$lib/components/formatters/Price.svelte";
     import { onMount } from "svelte";
     import { page } from "$app/stores";
-    import { Collections } from "$lib/DBTypes";
     
     export let data: PageData;
     export let form: ActionData;
@@ -34,12 +33,6 @@
         capture: () => filters,
         restore: (value) => { filters = value; }
     }
-
-    onMount(async () => {
-        const unsub = await $page.data.pb.collection(Collections.StoresRelations).subscribe("*", () => invalidateAll());
-
-        return () => unsub();
-    })
 
     $: allSelected = selected.length === data.flattenAssemblyReference.length;
 

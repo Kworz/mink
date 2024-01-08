@@ -1,46 +1,44 @@
-import { Collections, type StoresRelationsResponse } from "$lib/DBTypes";
 import type { RequestHandler } from "@sveltejs/kit";
 
 import xlsx, { type WorkSheetOptions } from "node-xlsx";
-import type { AssembliesBuylistsResponseExpanded } from "../../+page.server";
-import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
-import { env } from "$env/dynamic/public";
+import { flatAssembly } from "$lib/components/assemblies/flattenAssembly";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 
     try
     {   
         if(params.id === undefined)
-            throw "Missing list id";
+            return new Response("Missing list ID", { status: 400 });
 
-        const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
-        const listItems = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `store = "${list.store}"`});
+        const list = await locals.prisma.scm_assembly_buylist.findUnique({ where: { id: params.id }, include: { assembly: true, project: true }});
 
-        if(list.expand?.assembly === undefined)
-            throw "Unable to load assembly";
+        if(list === null)
+            return new Response("List not found", { status: 404 });
 
-        const flattenAssemblyResult = await flattenAssembly(list.expand?.assembly, locals.pb);
+        const listStoreRelations = await locals.prisma.scm_store_relation.findMany({ where: { store_id: list.store_id }, include: { article: true }});
+
+        const flatAssemblyRows = await flatAssembly(list.assembly_id, locals.prisma);
 
         const excel: (string | number)[][] = [];
 
         excel.push(["Liste", sanitizeString(list.name)]);
-        excel.push(["Nomenclature de base", list.expand?.assembly.name]);
+        excel.push(["Nomenclature de base", list.assembly.name]);
         excel.push([]);
         excel.push(["Désignation", "Quantitée présente", "Quantité requise", "Quantité a commander", "Validé ?", "Fabriquant", "Fournisseur", "Référence", "Prix"])
 
-        for(const far of flattenAssemblyResult)
+        for(const far of flatAssemblyRows)
         {
-            const listRelationArticle = listItems.find(k => k.article === far.article.id);
+            const listRelationArticle = listStoreRelations.find(k => k.article_id === far.article_child_id);
 
             excel.push([
-                far.article.name,
+                far.article_child.name ?? "",
                 listRelationArticle?.quantity ?? 0,
                 far.quantity,
                 far.quantity <= (listRelationArticle?.quantity ?? 0) ? "Oui" : "Non",
-                (far.article.internal) ? env.PUBLIC_COMPANY_NAME : (far.article.manufacturer ?? ""),
-                far.article.expand?.supplier?.map(k => k.name).join(", ") ?? "",
-                far.article.reference ?? "",
-                far.article.price ?? 0
+                far.article_child.internal ? locals.appSettings.appCompanyName : (far.article_child.brand ?? ""),
+                "Suppliers are empty for now",
+                far.article_child.reference ?? "",
+                "Article prices are empty for now"
             ]);
         }
 
@@ -64,7 +62,6 @@ export const GET: RequestHandler = async ({ params, locals }) => {
             status: 500,
         });
     }
-
 }
 
 function sanitizeString(str: string){
