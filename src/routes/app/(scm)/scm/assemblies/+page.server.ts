@@ -15,31 +15,23 @@ export const load = (async ({ locals, url }) => {
 
 export const actions: Actions = {
     createAssembly: async ({ locals, request }) => {
-        const form = await request.formData();
 
-        let createAssemblyID = "";
+        const form = await request.formData();
+        const name = form.get("name")?.toString();
 
         try {
-
-            const name = form.get("name")?.toString();
-
-            if (!name) {
-                throw new Error("Name is required");
-            }
+            
+            if(!name) throw 'scm.assembly.create.error.name.null';
 
             const { id } = await locals.prisma.scm_assembly.create({
-                data: {
-                    name
-                }
+                data: { name }
             });
 
-            createAssemblyID = id;
+            return redirect(303, `/app/scm/assemblies/${id}`);
         }
-        catch (ex) {
-            
-            return fail(500, { createAssembly: { error: String(ex) }});
+        catch (ex)
+        {    
+            return fail(500, { createAssembly: { name, error: String(ex) }});
         }
-
-        throw redirect(303, `/app/scm/assemblies/${createAssemblyID}`);
     }
 }
