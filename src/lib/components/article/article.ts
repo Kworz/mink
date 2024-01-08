@@ -21,7 +21,7 @@ export const articleIncludeQuery = {
                 }
             }
         },
-        where: { order: { state: { notIn: ["closed", "cancelled", "quotation"] }}}
+        where: { order: { state: { in: ["completed", "acknowledged"] }}}
     },
     files: true
 } satisfies Prisma.scm_articleInclude;
