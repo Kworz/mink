@@ -1,4 +1,4 @@
-import { flatAssembly } from "$lib/components/assemblies/flattenAssembly";
+import { flatAssembly } from "$lib/components/derived/assemblies/flattenAssembly";
 import type { PageServerLoad } from "./$types";
 
 import { redirect } from "@sveltejs/kit";

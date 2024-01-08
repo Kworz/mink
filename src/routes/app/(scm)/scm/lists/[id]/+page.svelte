@@ -1,23 +1,20 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import AssemblyPreview from "$lib/components/assemblies/AssemblyPreview.svelte";
-    import Button from "$lib/components/Button.svelte";
-    import DetailLabel from "$lib/components/DetailLabel.svelte";
-    import { type FilterCondition } from "$lib/components/filter/filter2";
-    import Price from "$lib/components/formatters/Price.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
+    import { type FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Button from "$lib/components/generics/Button.svelte";
+    import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
+    import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
+    import Price from "$lib/components/generics/formatters/Price.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { Check, DocumentChartBar, DocumentPlus, QrCode, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-
-    import MenuSide from "$lib/components/menu/MenuSide.svelte";
-    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
     import type { ActionData, PageData, Snapshot } from "./$types";
     
     export let data: PageData;

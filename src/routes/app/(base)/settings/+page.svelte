@@ -1,5 +1,5 @@
 <script lang="ts">
-    import FormInput from "$lib/components/FormInput.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
 
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import type { ActionData, PageData } from "./$types";

@@ -1,7 +1,7 @@
 <script>
     import { enhance } from "$app/forms";
-    import Button from "$lib/components/Button.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
 
 </script>
 <h4>Mise en place de votre société</h4>

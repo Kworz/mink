@@ -1,8 +1,8 @@
 <script lang="ts">
     import { QuestionMarkCircle, type IconSource } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import Wrapper from "./Wrapper.svelte";
-    import Flex from "./layout/flex.svelte";
+    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
 
     export let title: string;
     export let description: string = "";

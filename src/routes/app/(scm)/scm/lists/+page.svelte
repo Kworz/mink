@@ -3,17 +3,17 @@
     import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
-    import Button from "$lib/components/Button.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
-    import AssemblyPreview from "$lib/components/assemblies/AssemblyPreview.svelte";
-    import Filter2 from "$lib/components/filter/Filter2.svelte";
-    import type { FilterCondition } from "$lib/components/filter/filter2";
-    import Modal from "$lib/components/modal/Modal.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
+    import AssemblyPreview from "$lib/components/derived/assemblies/AssemblyPreview.svelte";
+    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Button from "$lib/components/generics/Button.svelte";
+    import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { PlusCircle, Printer, Squares2x2 } from "@steeze-ui/heroicons";
     import type { PageData, Snapshot } from "./$types";
 

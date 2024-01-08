@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Button from "$lib/components/Button.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import Grid from "$lib/components/layout/grid.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
+    import Grid from "$lib/components/generics/layout/grid.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { fade } from "svelte/transition";
 

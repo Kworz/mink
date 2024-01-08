@@ -1,7 +1,7 @@
 import type { RequestHandler } from "@sveltejs/kit";
 
 import xlsx, { type WorkSheetOptions } from "node-xlsx";
-import { flatAssembly } from "$lib/components/assemblies/flattenAssembly";
+import { flatAssembly } from "$lib/components/derived/assemblies/flattenAssembly";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 

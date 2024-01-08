@@ -1,10 +1,10 @@
 <script lang="ts">
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
     import type { PageData } from "./$types";
-    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
     import { page } from "$app/stores";
-    import type { FilterCondition } from "$lib/components/filter/filter2";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
     import { browser } from "$app/environment";
     import { goto } from "$app/navigation";
 

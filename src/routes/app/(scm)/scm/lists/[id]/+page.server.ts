@@ -1,8 +1,8 @@
 import type { PageServerLoad, Actions } from "./$types";
 
 import { fail, redirect } from "@sveltejs/kit";
-import { articleIncludeQuery } from "$lib/components/article/article";
-import { flatAssembly } from "$lib/components/assemblies/flattenAssembly";
+import { articleIncludeQuery } from "$lib/components/derived/article/article";
+import { flatAssembly } from "$lib/components/derived/assemblies/flattenAssembly";
 
 export const load = (async ({ locals, params }) => {
 

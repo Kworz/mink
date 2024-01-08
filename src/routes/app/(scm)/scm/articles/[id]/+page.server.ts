@@ -1,4 +1,4 @@
-import { articleIncludeQuery } from "$lib/components/article/article";
+import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import { deleteFile, saveFile } from "$lib/server/files";
 import { redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";

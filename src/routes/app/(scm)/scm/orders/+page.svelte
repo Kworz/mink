@@ -3,18 +3,18 @@
     import { DocumentCheck, PlusCircle } from "@steeze-ui/heroicons";
     import type { PageData } from "./$types";
 
-    import Button from "$lib/components/Button.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte"; 
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import Supplier from "$lib/components/supplier/Supplier.svelte";
-    import Price from "$lib/components/formatters/Price.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte"; 
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import Supplier from "$lib/components/derived/supplier/Supplier.svelte";
+    import Price from "$lib/components/generics/formatters/Price.svelte";
     import OrderState from "./OrderState.svelte";
-    import User from "$lib/components/user/User.svelte";
-    import Modal from "$lib/components/modal/Modal.svelte";
+    import User from "$lib/components/derived/user/User.svelte";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
 
     export let data: PageData;
 

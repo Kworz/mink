@@ -1,21 +1,21 @@
 <script lang="ts">
     import { invalidateAll } from "$app/navigation";
-    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import DetailLabel from "$lib/components/DetailLabel.svelte";
-    import type { FilterCondition } from "$lib/components/filter/filter2";
-    import Filter2 from "$lib/components/filter/Filter2.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
+    import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
 
     import type { ActionData, PageData, Snapshot } from "./$types";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import Button from "$lib/components/Button.svelte";
-    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
-    import TableFootCell from "$lib/components/table/TableFootCell.svelte";
-    import Price from "$lib/components/formatters/Price.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
+    import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
+    import Price from "$lib/components/generics/formatters/Price.svelte";
     import { onMount } from "svelte";
     import { page } from "$app/stores";
     

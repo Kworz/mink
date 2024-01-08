@@ -15,7 +15,7 @@
 
 <script lang="ts">
 
-    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
+    import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
     import { ArchiveBoxXMark, Check, DocumentMagnifyingGlass, DocumentText, Envelope, EnvelopeOpen } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     

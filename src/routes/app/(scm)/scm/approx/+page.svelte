@@ -1,15 +1,14 @@
 <script lang="ts">
     import { browser } from "$app/environment";
     import { invalidateAll } from "$app/navigation";
-    import Date from "$lib/components/formatters/Date.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
-    import type { ActionData, PageData } from "./$types";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import Date from "$lib/components/generics/formatters/Date.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import Button from "$lib/components/Button.svelte";
+    import type { ActionData, PageData } from "./$types";
 
     export let data: PageData;
     export let form: ActionData;
@@ -34,7 +33,7 @@
     {label: "Réception"},
 ]}>
 
-    {#each data.order_rows as orderRow}
+    {#each data.orderRows as orderRow}
         <TableCell>
             <ArticleRow article={orderRow.article} displayStock={true} />
         </TableCell>

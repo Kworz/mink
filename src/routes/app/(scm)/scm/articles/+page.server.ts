@@ -1,6 +1,6 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { articleIncludeQuery } from "$lib/components/article/article";
+import { articleIncludeQuery } from "$lib/components/derived/article/article";
 
 export const load = (async ({ locals, url }) => {
 

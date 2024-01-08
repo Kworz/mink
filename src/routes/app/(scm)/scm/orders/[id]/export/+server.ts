@@ -1,4 +1,4 @@
-import { articleIncludeQuery } from "$lib/components/article/article";
+import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import { LabelDocument } from "$lib/label/labelDocument";
 import type jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";

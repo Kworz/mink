@@ -1,6 +1,6 @@
 import { fail, redirect } from "@sveltejs/kit";
 import { deleteFile, saveFile } from "$lib/server/files";
-import { articleIncludeQuery } from "$lib/components/article/article";
+import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import type { scm_assembly } from "@prisma/client";
 import type { PageServerLoad, Actions } from "./$types";
 import type { SCMAssemblyTree } from "$lib/components/assemblies/assemblyTree";

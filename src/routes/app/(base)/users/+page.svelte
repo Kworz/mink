@@ -1,18 +1,18 @@
 <script lang="ts">
 
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
+    import { enhance } from "$app/forms";
+    import { invalidateAll } from "$app/navigation";
+    import Button from "$lib/components/generics/Button.svelte";
+    import Date from "$lib/components/generics/formatters/Date.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import { Envelope, UserPlus } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
-    import MenuSide from "$lib/components/menu/MenuSide.svelte";
-    import { invalidateAll } from "$app/navigation";
-    import { enhance } from "$app/forms";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Button from "$lib/components/Button.svelte";
-    import Modal from "$lib/components/modal/Modal.svelte";
-    import Date from "$lib/components/formatters/Date.svelte";
 
     let createUser = false;
     let showInvitations = false;

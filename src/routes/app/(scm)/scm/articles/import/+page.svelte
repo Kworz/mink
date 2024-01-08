@@ -1,9 +1,9 @@
 <script lang="ts">
-    import Button from "$lib/components/Button.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
 
     let file: File | undefined = undefined;
     let columns: (string | null)[] = [];

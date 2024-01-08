@@ -1,10 +1,10 @@
 <script lang="ts">
-    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import User from "$lib/components/user/User.svelte";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import User from "$lib/components/derived/user/User.svelte";
     import { Eye, EyeSlash, PlusCircle } from "@steeze-ui/heroicons";
     
     import type { PageData } from "./$types";

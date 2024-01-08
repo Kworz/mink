@@ -1,21 +1,21 @@
 <script lang="ts">
     import { browser } from "$app/environment";
     import { goto } from "$app/navigation";
-    import Button from "$lib/components/Button.svelte";
-    import type { FilterCondition } from "$lib/components/filter/filter2";
-    import Filter2 from "$lib/components/filter/Filter2.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import { PlusCircle, PuzzlePiece, Star, VideoCameraSlash } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import { enhance } from "$app/forms";
 
     import { env } from "$env/dynamic/public";
-    import Modal from "$lib/components/modal/Modal.svelte";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
 
     export let data: PageData;
     export let form: ActionData;

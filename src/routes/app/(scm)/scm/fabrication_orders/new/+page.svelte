@@ -1,9 +1,9 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import Button from "$lib/components/Button.svelte";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
-    import ArticleFinder from "$lib/components/article/ArticleFinder.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
+    import ArticleFinder from "$lib/components/derived/article/ArticleFinder.svelte";
     import type { ArticleResponseExpanded } from "../../articles/+page.server";
 
     import type { PageData } from "./$types";

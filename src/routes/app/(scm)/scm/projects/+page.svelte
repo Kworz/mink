@@ -1,18 +1,18 @@
 <script lang="ts">
 
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import User from "$lib/components/user/User.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import User from "$lib/components/derived/user/User.svelte";
     import { PlusCircle } from "@steeze-ui/heroicons";
 
     import type { ActionData, PageData } from "./$types";
-    import FormInput from "$lib/components/FormInput.svelte";
-    import Button from "$lib/components/Button.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
     import { enhance } from "$app/forms";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import MenuSide from "$lib/components/menu/MenuSide.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import { goto } from "$app/navigation";
     import { browser } from "$app/environment";
 

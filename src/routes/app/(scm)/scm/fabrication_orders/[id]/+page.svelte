@@ -1,17 +1,17 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
 
-    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import Button from "$lib/components/Button.svelte";
-    import DetailLabel from "$lib/components/DetailLabel.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import RoundedLabel from "$lib/components/RoundedLabel.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
+    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import { Trash, Wrench } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
-    import FormInput from "$lib/components/FormInput.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
 
     export let data: PageData;
     export let form: ActionData;

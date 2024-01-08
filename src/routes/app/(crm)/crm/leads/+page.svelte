@@ -1,21 +1,21 @@
 <script lang="ts">
-    import { goto, invalidateAll } from "$app/navigation";
-    import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import Wrapper from "$lib/components/Wrapper.svelte";
-    import { PlusCircle } from "@steeze-ui/heroicons";
-    import type { ActionData, PageData, Snapshot } from "./$types";
-    import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-    import InterestLabel from "../interests/InterestLabel.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import CompanyContact from "../companies/CompanyContact.svelte";
-    import Filter2 from "$lib/components/filter/Filter2.svelte";
-    import type { FilterCondition } from "$lib/components/filter/filter2";
-    import { page } from "$app/stores";
     import { browser } from "$app/environment";
-    import TablePages from "$lib/components/table/TablePages.svelte";
-    import DetailLabel from "$lib/components/DetailLabel.svelte";
+    import { goto, invalidateAll } from "$app/navigation";
+    import { page } from "$app/stores";
+    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
+    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
+    import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
+    import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import TablePages from "$lib/components/generics/table/TablePages.svelte";
+    import { PlusCircle } from "@steeze-ui/heroicons";
+    import CompanyContact from "../companies/CompanyContact.svelte";
+    import InterestLabel from "../interests/InterestLabel.svelte";
+    import type { ActionData, PageData, Snapshot } from "./$types";
 
     export let data: PageData;
     export let form: ActionData;

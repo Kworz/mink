@@ -1,5 +1,5 @@
 <script>
-    import Button from "$lib/components/Button.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
 </script>
 
 <h3>Installation terminée!</h3>

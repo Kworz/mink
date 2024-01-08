@@ -1,4 +1,4 @@
-import { articleIncludeQuery } from "$lib/components/article/article";
+import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import type { RequestHandler } from "@sveltejs/kit";
 
 import xlsx from "node-xlsx";
