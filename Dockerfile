@@ -29,8 +29,10 @@ WORKDIR /mink
 COPY --from=builder /mink/build build/
 COPY --from=builder /mink/node_modules node_modules/
 COPY package.json .
+COPY entrypoint.sh .
 
 #Final params
-EXPOSE 80
+EXPOSE 3000
 ENV NODE_ENV=production
-CMD [ "node", "build" ]
+ENV DATABASE_URL="postgres://postgres:postgres@localhost:5432/mink"
+CMD [ "entrypoint.sh" ]
