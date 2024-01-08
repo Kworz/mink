@@ -5,7 +5,6 @@
 // for information about these interfaces
 // and what to do when importing types
 
-import type PocketBase, { BaseAuthStore } from "pocketbase";
 import type { PrismaClient } from "@prisma/client";
 import type { Auth } from "$lib/server/lucia";
 import type { AppSettings } from "$lib/server/settings";
