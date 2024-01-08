@@ -1,4 +1,6 @@
+import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
+import { crm_company_size } from "@prisma/client";
 
 export const load = (async ({ locals, url }) => {
 
@@ -6,92 +8,69 @@ export const load = (async ({ locals, url }) => {
     const filter = url.searchParams.get("filter") ?? "";
     const page = Number(url.searchParams.get("page")) ?? 1;
 
-    try
-    {
-        const companies = await locals.prisma.cRMCompany.findMany();
-        return { companies };
-    }
-    catch(ex)
-    {
-        console.error(ex);
-        return { error: String(ex) };
-    }
+    const companies = await locals.prisma.crm_company.findMany({ include: { contacts: true }});
+    
+    return { companies };
 
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
 
-    createCompany: async ({ locals, request }) => {
+    upsertCompany: async ({ locals, request }) => {
 
         const form = await request.formData();
 
-        try
-        {
-            await locals.prisma.cRMCompany.create({ data: {
-                
-            }});
+        const id = form.get("id")?.toString();
+        const name = form.get("name")?.toString();
 
-            await locals.pb.collection(Collections.CrmCompany).create(form);
-            return { createCompany: { success: "Successfully created company" }};
-        }
-        catch(ex)
-        {
-            return { createCompany: { error: ex instanceof ClientResponseError ? ex.message : ex }};
-        }
+        if(name === undefined)
+            return fail(400, { createCompany: { error: "Missing company name" }});
+
+        const size = form.get("size")?.toString();
+
+        if(size === undefined || !(crm_company_size[size as (keyof typeof crm_company_size)] === undefined))
+            return fail(400, { createCompany: { error: "Invalid company size" }});
+
+        const sector = form.get("sector")?.toString();
+        const type = form.get("type")?.toString();
+        const country = form.get("country")?.toString();
+
+        const company = await locals.prisma.crm_company.upsert({
+            where: { id },
+            update: { name, sector, type, size: (size as keyof typeof crm_company_size), country },
+            create: { name, sector, type, size: (size as keyof typeof crm_company_size), country }
+        });
+
+        if(company === undefined)
+            return fail(400, { createCompany: { error: "Failed to create/update company" }});
     },
 
-    editCompany: async ({ locals, request }) => {
+    upsertContact: async ({ locals, request }) => {
 
         const form = await request.formData();
 
-        try
-        {
-            const id = form.get("id");
+        const id = form.get("id")?.toString();
+        const companyId = form.get("companyId")?.toString();
+        const name = form.get("name")?.toString();
 
-            if(!id)
-                throw "Missing company id";
+        if(name === undefined)
+            return fail(400, { createContact: { error: "Missing contact name" }});
 
-            await locals.pb.collection(Collections.CrmCompany).update(id.toString(), form);
-            return { editCompany: { success: "Successfully updated company" }};
-        }
-        catch(ex)
-        {
-            return { editCompany: { error: ex instanceof ClientResponseError ? ex.message : ex }};
-        }
-    },
+        if(companyId === undefined)
+            return fail(400, { createContact: { error: "Missing company id" }});
 
-    createContact: async ({ locals, request }) => {
-            
-            const form = await request.formData();
-    
-            try
-            {
-                await locals.pb.collection(Collections.CrmCompanyContact).create(form);
-                return { createContact: { success: "Successfully created contact" }};
-            }
-            catch(ex)
-            {
-                return { createContact: { error: ex instanceof ClientResponseError ? ex.message : ex }};
-            }
-    },
+        const email = form.get("email")?.toString();
+        const phone = form.get("phone")?.toString();
+        const position = form.get("position")?.toString();
 
-    editContact: async ({ locals, request }) => {
-            
-        const form = await request.formData();
+        const contact = await locals.prisma.crm_company_contact.upsert({
+            where: { id },
+            update: { name, email, phone, position, company_id: companyId },
+            create: { name, email, phone, position, company_id: companyId }
+        });
 
-        try
-        {
-            const id = form.get("id");
+        if(contact === undefined)
+            return fail(400, { createContact: { error: "Failed to create/update contact" }});
 
-            if(!id)
-                throw "Missing contact id";
-
-            await locals.pb.collection(Collections.CrmCompanyContact).update(id.toString(), form);
-            return { editContact: { success: "Successfully updated contact" }};
-        }
-        catch(ex)
-        {
-            return { editContact: { error: ex instanceof ClientResponseError ? ex.message : ex }};
-        }
     }
 }
