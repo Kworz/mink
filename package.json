@@ -1,5 +1,5 @@
 {
-  "name": "nomenclaturize2",
+  "name": "mink",
   "version": "0.0.1",
   "private": true,
   "engines": {
@@ -12,8 +12,7 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "eslint .",
-    "types": "pocketbase-typegen --db ./pb_data/data.db --out ./src/lib/DBTypes.ts"
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@lucia-auth/adapter-prisma": "^3.0.2",
@@ -33,8 +32,6 @@
     "jsqr": "^1.4.0",
     "lucia": "^2.7.6",
     "node-xlsx": "^0.23.0",
-    "pocketbase": "0.20.1",
-    "pocketbase-typegen": "^1.2.1",
     "postcss": "^8.4.32",
     "postcss-load-config": "^5.0.2",
     "prisma": "^5.7.1",
@@ -59,6 +56,7 @@
     "@sveltejs/vite-plugin-svelte": "^3.0.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.1",
-    "qrcode": "^1.5.3"
+    "qrcode": "^1.5.3",
+    "zod": "^3.22.4"
   }
 }
