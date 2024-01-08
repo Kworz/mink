@@ -18,12 +18,17 @@ model User {
   updated                DateTime @updatedAt
   created                DateTime @default(now())
 
-  auth_session Session[]
-  key          Key[]
+  auth_session           Session[]
+  key                    Key[]
 
-  article_movements SCMArticleMovements[]
-  attached_projects SCMProjetAttachedUser[]
-  orders SCMOrder[]
+  article_movements      scm_article_movements[]
+  attached_projects      pr_project_attached_user[]
+  orders                 scm_order[]
+
+  fabrication_orders_asked            scm_fabrication_orders[] @relation("fabrication_order_asked")
+  fabrication_orders_received         scm_fabrication_orders[] @relation("fabrication_order_received")
+  fabrication_orders_state_changes    scm_fabrication_oder_state_change[]
+
 }
 
 model UserInvitation {
@@ -57,14 +62,14 @@ model AppSettings {
   value           String
 }
 
-model SCMArticle {
+model scm_article {
   id                String   @id @default(uuid()) @unique
 
   name              String?
   brand             String?
   reference         String?
 
-  order_quantity    Float   @default(0)
+  order_quantity    Float @default(0)
   critical_quantity Int @default(0)
 
   consumable        Boolean @default(false)
@@ -76,26 +81,26 @@ model SCMArticle {
 
   thumbnail         String?
 
-  acticle_movements SCMArticleMovements[]
-  store_relations SCMStoreRelation[]
-  order_rows SCMOrderRows[]
+  acticle_movements           scm_article_movements[]
+  store_relations             scm_store_relation[]
+  order_rows                  scm_order_rows[]
 
-  article_assembly_relations SCMAssemblyRelationArticle[]
+  article_assembly_relations  scm_assembly_relation_article[]
 
-  files SCMArticleFile[]
+  files                       scm_article_file[]
 
 }
 
-model SCMArticleFile {
+model scm_article_file {
   id                String @id @default(uuid()) @unique
 
   article_id        String
-  article           SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
+  article           scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
 
   file              String
 }
 
-model SCMSupplier {
+model scm_supplier {
   id            String @id @default(uuid()) @unique
   
   name          String
@@ -110,15 +115,15 @@ model SCMSupplier {
 
   payment_rule  String?
 
-  orders        SCMOrder[]
+  orders        scm_order[]
 
 }
 
-model SCMArticleMovements {
+model scm_article_movements {
   id                  String  @id @default(uuid()) @unique
 
   article_id          String
-  article             SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
+  article             scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
 
   created             DateTime  @default(now())
   quantity_update     Float  @default(0)
@@ -127,40 +132,40 @@ model SCMArticleMovements {
   user User           @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   store_in_id         String?
-  store_in            SCMStore? @relation("store_out", references: [id], fields: [store_in_id], onDelete: Cascade)
+  store_in            scm_store? @relation("store_out", references: [id], fields: [store_in_id], onDelete: Cascade)
 
   store_out_id        String?
-  store_out           SCMStore? @relation("store_in", references: [id], fields: [store_out_id], onDelete: Cascade)
+  store_out           scm_store? @relation("store_in", references: [id], fields: [store_out_id], onDelete: Cascade)
 }
 
-model SCMStore {
+model scm_store {
   id                  String @id @default(uuid()) @unique
   location            String @default("")
   name                String @default("")
   updated             String @default("")
   temporary           Boolean @default(false)
 
-  store_in_article_movements SCMArticleMovements[] @relation("store_in")
-  store_out_article_movements SCMArticleMovements[] @relation("store_out")
+  store_in_article_movements    scm_article_movements[] @relation("store_in")
+  store_out_article_movements   scm_article_movements[] @relation("store_out")
 
-  store_relations SCMStoreRelation[]
+  store_relations               scm_store_relation[]
 }
 
-model SCMStoreRelation {
+model scm_store_relation {
 
   article_id      String
-  article         SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
+  article         scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
 
   quantity        Float @default(0)
 
   store_id        String
-  store           SCMStore @relation(references: [id], fields: [store_id], onDelete: Cascade)
+  store           scm_store @relation(references: [id], fields: [store_id], onDelete: Cascade)
 
   @@id([article_id, store_id]) // unique index based on article_id and store_id
 
 }
 
-model SCMAssembly {
+model scm_assembly {
   id             String  @id @default(uuid()) @unique
 
   name           String
@@ -171,23 +176,23 @@ model SCMAssembly {
   created        DateTime   @default(now())
   updated        DateTime   @updatedAt
 
-  buylists       SCMAssemblyBuylists[]
+  buylists       scm_assembly_buylist[]
 
-  article_childrens SCMAssemblyRelationArticle[] @relation("assembly_relation_parent_of_articles")
-  assembly_childrens SCMAssemblyRelationSubAssembly[] @relation("assembly_relation_parent_of_subassembly")
+  article_childrens     scm_assembly_relation_article[] @relation("assembly_relation_parent_of_articles")
+  assembly_childrens    scm_assembly_relation_sub_assembly[] @relation("assembly_relation_parent_of_subassembly")
 
-  parent_assemblies SCMAssemblyRelationSubAssembly[] @relation("assembly_relation_children_subassembly")
+  parent_assemblies     scm_assembly_relation_sub_assembly[] @relation("assembly_relation_children_subassembly")
 }
 
-model SCMAssemblyRelationSubAssembly {
+model scm_assembly_relation_sub_assembly {
 
   id                  String  @id @default(uuid()) @unique
 
   parent_id           String
-  parent              SCMAssembly @relation("assembly_relation_parent_of_subassembly", references: [id], fields: [parent_id], onDelete: Cascade)
+  parent              scm_assembly @relation("assembly_relation_parent_of_subassembly", references: [id], fields: [parent_id], onDelete: Cascade)
 
   assembly_child_id   String
-  assembly_child      SCMAssembly @relation("assembly_relation_children_subassembly", references: [id], fields: [assembly_child_id], onDelete: Cascade)
+  assembly_child      scm_assembly @relation("assembly_relation_children_subassembly", references: [id], fields: [assembly_child_id], onDelete: Cascade)
 
   created             DateTime @default(now())
   quantity            Float @default(0)
@@ -195,15 +200,15 @@ model SCMAssemblyRelationSubAssembly {
   order               Int @default(0)
 }
 
-model SCMAssemblyRelationArticle {
+model scm_assembly_relation_article {
 
   id                  String  @id @default(uuid()) @unique
 
   parent_id           String
-  parent              SCMAssembly @relation("assembly_relation_parent_of_articles", references: [id], fields: [parent_id], onDelete: Cascade)
+  parent              scm_assembly @relation("assembly_relation_parent_of_articles", references: [id], fields: [parent_id], onDelete: Cascade)
 
   article_child_id    String
-  article_child       SCMArticle @relation(references: [id], fields: [article_child_id], onDelete: Cascade)
+  article_child       scm_article @relation(references: [id], fields: [article_child_id], onDelete: Cascade)
 
   created             DateTime @default(now())
   quantity            Float @default(0)
@@ -211,16 +216,16 @@ model SCMAssemblyRelationArticle {
   order               Int @default(0)
 }
 
-model SCMAssemblyBuylists {
+model scm_assembly_buylist {
 
   id            String  @id @default(uuid()) @unique
   name          String  @default("")
 
   assembly_id   String  @default("")
-  assembly      SCMAssembly @relation(references: [id], fields: [assembly_id], onDelete: Cascade)
+  assembly      scm_assembly @relation(references: [id], fields: [assembly_id], onDelete: Cascade)
 
   project_id    String?  @default("")
-  project       SCMProject? @relation(references: [id], fields: [project_id], onDelete: Cascade)
+  project       pr_project? @relation(references: [id], fields: [project_id], onDelete: Cascade)
   
   store_id      String  @default("")
 
@@ -229,38 +234,8 @@ model SCMAssemblyBuylists {
 
 }
 
-model SCMProject {
-  id                  String   @id @default(uuid()) @unique
-  name                String?  @default("")
+model scm_order {
 
-  created             DateTime @default(now())
-  end_date            DateTime?
-  start_date          DateTime?
-
-  customer            String?
-  closed              Boolean @default(false)
-
-  assembly_buylists   SCMAssemblyBuylists[]
-  attached_users      SCMProjetAttachedUser[]
-  order_rows          SCMOrderRows[]
-
-}
-
-model SCMProjetAttachedUser {
-
-  id                  String   @id @default(uuid()) @unique
-
-  role                String?
-
-  project_id          String
-  project             SCMProject @relation(references: [id], fields: [project_id], onDelete: Cascade)
-
-  user_id             String
-  user                User @relation(references: [id], fields: [user_id], onDelete: Cascade)
-
-}
-
-model SCMOrder {
   id                  String   @id @default(uuid()) @unique
   sub_id              String   @unique
 
@@ -271,7 +246,7 @@ model SCMOrder {
   issuer              User @relation(references: [id], fields: [issuer_id], onDelete: Cascade)
 
   supplier_id         String
-  supplier            SCMSupplier @relation(references: [id], fields: [supplier_id], onDelete: Cascade)
+  supplier            scm_supplier @relation(references: [id], fields: [supplier_id], onDelete: Cascade)
 
   state               String @default("draft")
   name                String
@@ -279,23 +254,24 @@ model SCMOrder {
   vat                 Float @default(0)
   delivery_fees       Float @default(0)
 
-  order_rows          SCMOrderRows[]
+  order_rows          scm_order_rows[]
 }
 
-model SCMOrderRows {
+model scm_order_rows {
+
   id                  String   @id @default(uuid()) @unique
 
   created             DateTime @default(now()) 
   updated             DateTime @updatedAt
 
   order_id            String
-  order               SCMOrder @relation(references: [id], fields: [order_id], onDelete: Cascade)
+  order               scm_order @relation(references: [id], fields: [order_id], onDelete: Cascade)
   
   project_id          String?
-  project             SCMProject? @relation(references: [id], fields: [project_id], onDelete: Cascade)
+  project             pr_project? @relation(references: [id], fields: [project_id], onDelete: Cascade)
 
   article_id          String
-  article             SCMArticle @relation(references: [id], fields: [article_id], onDelete: Cascade)
+  article             scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
 
   needed_date         DateTime?
   needed_quantity     Float  @default(0)
@@ -306,81 +282,178 @@ model SCMOrderRows {
   received_quantity   Float  @default(0)
 }
 
-model SCMFabricationOrders {
-  id                  String   @id @default(uuid()) @unique
+model scm_fabrication_orders {
 
-  applicant  String? @default("")
-  article    String? @default("")
-  created    String  @default("")
-  project    String? @default("")
-  quantity   Float?  @default(0)
-  receiver   String? @default("")
-  updated    String  @default("")
-  start_date String? @default("")
-  end_date   String? @default("")
-  state      String? @default("")
+  id                  String @id @default(uuid()) @unique
+
+  askedBy_id          String
+  askedBy             User @relation("fabrication_order_asked", references: [id], fields: [askedBy_id], onDelete: Cascade)
+  
+  receiver_id         String?
+  receiver            User? @relation("fabrication_order_received", references: [id], fields: [receiver_id], onDelete: Cascade)
+
+  article             String? @default("")
+  project             String? @default("")
+  quantity            Float?  @default(0)
+  state               String? @default("")
+
+  start_date          DateTime?
+  end_date            DateTime?
+
+  created             DateTime? @default(now())
+  updated             DateTime? @updatedAt
+
+  state_changes       scm_fabrication_oder_state_change[]
+
 }
 
-model CRMCompany {
-  country String? @default("")
-  created String  @default("")
-  field   String? @default("")
-  id      String  @id
-  name    String? @unique(map: "idx_unique_uekhyfzz") @default("")
-  sector  String? @default("")
-  size    String? @default("")
-  type    String? @default("")
-  updated String  @default("")
+model scm_fabrication_oder_state_change {
 
-  @@index([created], map: "_hpcza1xtofbf32u_created_idx")
+  id                    String @id @default(uuid()) @unique
+
+  fabrication_order_id  String
+  fabrication_order     scm_fabrication_orders @relation(references: [id], fields: [fabrication_order_id], onDelete: Cascade)
+
+  state                 String
+  comment               String?
+  date                  DateTime @default(now())
+  
+  user_id               String @default("")
+  user                  User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+}
+
+model crm_company {
+
+  id      String  @id @default(uuid()) @unique
+
+  name    String
+  type    String?
+  sector  String?
+  country String?
+  field   String?
+  size    String?
+  
+  created DateTime? @default(now())
+  updated DateTime? @updatedAt
+
+  contacts crm_company_contact[]
+  leads crm_leads[]
+
 }
 
 model crm_company_contact {
-  address      String? @default("")
-  company_role String? @default("")
-  created      String  @default("")
-  id           String  @id
-  name         String? @default("")
-  phone        String? @default("")
-  spoken_langs String? @default("")
-  updated      String  @default("")
-  company      String? @default("")
-  email        String? @default("")
 
-  @@index([created], map: "_s9sikvx18enu1n4_created_idx")
+  id           String  @id @default(uuid()) @unique
+  
+  name         String
+  company_role String?
+  address      String?
+  phone        String?
+  spoken_langs String?
+  email        String?
+
+  company_id   String
+  company      crm_company @relation(references: [id], fields: [company_id], onDelete: Cascade)      
+
+  created       DateTime? @default(now())
+  updated       DateTime? @updatedAt
+
+  attached_leads crm_leads_contacts[]
+
 }
 
 model crm_interest {
-  created     String  @default("")
-  description String? @default("")
-  id          String  @id
-  name        String? @default("")
-  updated     String  @default("")
-  color       String? @default("")
 
-  @@index([created], map: "_906o32s8n1x48c9_created_idx")
+  id                  String  @id @default(uuid()) @unique
+
+  name                String
+  description         String?
+  color               String?
+
+  created             DateTime @default(now())
+  updated             DateTime @updatedAt
+
+  leads crm_leads_interests[]
+
 }
 
 model crm_leads {
-  comment          String? @default("")
-  company          String? @default("")
-  company_contacts String? @default("")
-  created          String  @default("")
-  id               String  @id
-  origin           String? @default("")
-  state            String? @default("")
-  updated          String  @default("")
 
-  @@index([created], map: "_qqwhmu2ilwiapgl_created_idx")
+  id               String  @id @default(uuid()) @unique
+
+  comment          String?
+  origin           String?
+  state            String?
+
+  company_id       String
+  company          crm_company @relation(references: [id], fields: [company_id], onDelete: Cascade)
+
+  created          DateTime @default(now())
+  updated          DateTime @updatedAt
+
+  contacts crm_leads_contacts[]
+  interests crm_leads_interests[]
+
+}
+
+model crm_leads_contacts {
+
+  id               String  @id @default(uuid()) @unique
+
+  lead_id          String
+  lead             crm_leads @relation(references: [id], fields: [lead_id], onDelete: Cascade)
+
+  contact_id       String
+  contact          crm_company_contact @relation(references: [id], fields: [contact_id], onDelete: Cascade)
+
 }
 
 model crm_leads_interests {
-  created  String   @default("")
-  id       String   @id
-  interest String?  @default("")
-  lead     String?  @default("")
-  order    Decimal? @default(0)
-  updated  String   @default("")
 
-  @@index([created], map: "_70sznq87hrb1cqt_created_idx")
+  id              String   @id @default(uuid()) @unique
+
+  order           Decimal? @default(0)
+
+  interest_id     String
+  interest        crm_interest @relation(references: [id], fields: [interest_id], onDelete: Cascade)
+
+  lead_id         String
+  lead            crm_leads @relation(references: [id], fields: [lead_id], onDelete: Cascade)
+
+  created         DateTime @default(now())
+  updated         DateTime @updatedAt
+
+}
+
+model pr_project {
+  id                  String   @id @default(uuid()) @unique
+  name                String?  @default("")
+
+  created             DateTime @default(now())
+  end_date            DateTime?
+  start_date          DateTime?
+
+  customer            String?
+  closed              Boolean @default(false)
+
+  assembly_buylists   scm_assembly_buylist[]
+  order_rows          scm_order_rows[]
+  
+  attached_users      pr_project_attached_user[]
+
+}
+
+model pr_project_attached_user {
+
+  id                  String   @id @default(uuid()) @unique
+
+  role                String?
+
+  project_id          String
+  project             pr_project @relation(references: [id], fields: [project_id], onDelete: Cascade)
+
+  user_id             String
+  user                User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
 }
