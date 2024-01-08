@@ -4,24 +4,40 @@ import { flattenAssembly } from "$lib/components/assemblies/assemblyFlatener";
 import type { PageServerLoad, Actions } from "./$types";
 import type { AssembliesBuylistsResponseExpanded } from "../+page.server";
 
-import { redirect } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
+import { articleIncludeQuery } from "$lib/components/article/article";
+import type { scm_assembly_relation_article } from "@prisma/client";
+
+// TODO: test this
+async function flatAssembly(assembly_id: string, prisma: App.Locals["prisma"]): Promise<Array<scm_assembly_relation_article>> {
+
+    const articleRelations = await prisma.scm_assembly_relation_article.findMany({ where: { parent_id: assembly_id }});
+    const subassembliesRelations = await prisma.scm_assembly_relation_sub_assembly.findMany({ where: { parent_id: assembly_id }});
+
+    return [...articleRelations, (await Promise.all(subassembliesRelations.map(k => flatAssembly(k.assembly_child_id, prisma)))).flat()].flat();
+
+}
 
 export const load = (async ({ locals, params }) => {
 
-    const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
-    const storeRelations = await locals.pb.collection(Collections.StoresRelations).getFullList({ filter: `store = "${list.store}"`});
+    const list = await locals.prisma.scm_assembly_buylist.findUnique({ where: { id: params.id }, include: { assembly: true, project: true }});
+    if(list === null) return redirect(303, "/app/scm/lists");
 
-    const buyListReplacementRelations = await locals.pb.collection("assemblies_buylists_replacement_relation").getFullList({ filter: `buylist = "${list.id}"`, expand: "base_article,replacement_article" });
-    const flattenAssemblyResult = await flattenAssembly(list.expand?.assembly, locals.pb);
+    const storeRelations = await locals.prisma.scm_store_relation.findMany({ where: { store_id: list.store_id }, include: { article: { include: articleIncludeQuery }}});
+    const flattenAssemblyResult = flatAssembly(list.assembly_id, locals.prisma);
 
-    const suppliers = await locals.pb.collection(Collections.Suppliers).getFullList<SuppliersResponse>({ filter: [...new Set(flattenAssemblyResult.map(k => k.article.supplier).flat())].map(k => `id = "${k}"`).join(" || ") });
+    /// - Secondary data
+
+    const assemblies = await locals.prisma.scm_assembly.findMany({});
+    const projects = await locals.prisma.pr_project.findMany({});
 
     return {
-        list: structuredClone(list),
-        flattenAssemblyResult: structuredClone(flattenAssemblyResult),
-        suppliers: structuredClone(suppliers),
-        storeRelations: structuredClone(storeRelations),
-        buyListReplacementRelations: structuredClone(buyListReplacementRelations)
+        list,
+        flattenAssemblyResult,
+        storeRelations,
+
+        assemblies,
+        projects
     }
 
 }) satisfies PageServerLoad;
@@ -30,16 +46,40 @@ export const actions: Actions = {
 
     buyListRelationEdit: async ({ locals, request, params }) => {
 
+        const list = await locals.prisma.scm_assembly_buylist.findUnique({ where: { id: params.id }});
+
+        if(!list) return fail(404, { buyListRelationEdit: { error: "List not found" }});
+
+        /// — Form parsing
         const form = await request.formData();
-        const articleID = form.get("article")?.toString();
+        const articleId = form.get("article")?.toString();
         const quantity = Number(form.get("quantity")?.toString());
         const buylist = form.get("buylist")?.toString();
         let storeToUse = form.get('store')?.toString();
 
+        if(articleId === undefined)
+            return fail(400, { buyListRelationEdit: { error: "Missing article ID" }});
+
+        if(Number.isNaN(quantity))
+            return fail(400, { buyListRelationEdit: { error: "Quantity is not a number" }});
+
+        if(buylist === undefined)
+            return fail(400, { buyListRelationEdit: { error: "Missing buylist ID" }});
+
+        /// — Quantity data to check with
+        const buylistArticleStoreRelation = await locals.prisma.scm_store_relation.findUnique({ where: { article_id_store_id: { article_id: articleId, store_id: list.store_id} }});
+        const articleAvailableStores = await locals.prisma.scm_store_relation.findMany({ where: { article_id: articleId, quantity: { gt: 0 }, store: { temporary: false }}});
+
+        if(storeToUse === undefined && articleAvailableStores.length > 1)
+            return fail(400, { buyListRelationEdit: { error: "Multiple stores available for this article, please specify one" }});
+
+        const articleQuantityDelta = quantity - (buylistArticleStoreRelation?.quantity ?? 0);
+
+        // TODO: implement this next
+
         try
         {
-            if(articleID === undefined || quantity === undefined || buylist === undefined)
-                throw "Invalid form data";
+            
 
             const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponse>(params.id);
             const storeRelationLinkedList = await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${articleID}" && store = "${list.store}"` });
@@ -143,121 +183,23 @@ export const actions: Actions = {
             }};
     },
 
-    generateOrder: async ({ locals, params, request }) => {
-    
-        const form = await request.formData();
-
-        const supplier = form.get("supplier")?.toString();
-
-        if(supplier === undefined)
-            return;
-
-        const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
-        const supplierResponse = await locals.pb.collection(Collections.Suppliers).getOne<SuppliersResponse>(supplier);
-        const assemblyRows = await flattenAssembly(list.expand?.assembly, locals.pb);
-
-        const orderRows: OrdersRowsRecord[] = [];
-
-        for(const assemblyRow of assemblyRows.filter(k => k.article.supplier?.includes(supplier)))
-        {
-            const buyListRelation = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${assemblyRow.article.id}" && store = "${list.store}"` })).at(0);
-
-            if((buyListRelation?.quantity ?? 0) >= assemblyRow.quantity)
-                continue;
-
-            orderRows.push({
-                order: "",
-                article: assemblyRow.article.id,
-                quantity: assemblyRow.quantity - (buyListRelation?.quantity ?? 0),
-                project: list.project,
-            });
-        }
-
-        if(orderRows.length > 0)
-        {
-            const orderRecord = { 
-                name: `Commande ${list.name} — ${supplierResponse.name}`,
-                supplier: supplier,
-                issuer: locals.user?.id,
-                state: OrdersStateOptions.draft,
-            } satisfies OrdersRecord;
-
-            const order = await locals.pb.collection(Collections.Orders).create(orderRecord);
-            orderRows.map(k => { return { ...k, order: order.id }});
-
-            for(const orderRow of orderRows)
-            {
-                await locals.pb.collection(Collections.OrdersRows).create({ ...orderRow, order: order.id });
-            }
-
-            throw redirect(303, `/app/scm/orders/${order.id}`);
-        }
-        else
-        {
-            return { generateOrder: { error: "Nothing to order with this supplier" }};
-        }
-    },
-
-    generateFabOrders: async ({ locals, params }) => {
-
-        let generatedFabOrder = 0;
-
-        try
-        {
-            const list = await locals.pb.collection(Collections.AssembliesBuylists).getOne<AssembliesBuylistsResponseExpanded>(params.id, { expand: "assembly,project" });
-            const assemblyRows = await flattenAssembly(list.expand?.assembly, locals.pb);
-
-            for(const assemblyRow of assemblyRows.filter(k => k.article.internal))
-            {
-                const buyListRelation = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${assemblyRow.article.id}" && store = "${list.store}"` })).at(0);
-                const availableQuantity = (await locals.pb.collection(Collections.StoresRelations).getFullList<StoresRelationsResponse>({ filter: `article = "${assemblyRow.article.id}" && quantity > 0 && store.temporary = false`})).reduce((p, c) => p + c.quantity, 0);
-
-                const deltaQuantity = assemblyRow.quantity - (buyListRelation?.quantity ?? 0) - availableQuantity;
-
-                if(deltaQuantity <= 0)
-                    continue;
-
-                await locals.pb.collection(Collections.FabricationOrders).create({
-
-                    article: assemblyRow.article.id,
-                    quantity: deltaQuantity,
-                    project: list.project,
-                    receiver: locals.user?.id,
-                    applicant: locals.user?.id,
-                    start_date: new Date(),
-                    end_date: new Date(),
-                    state: FabricationOrdersStateOptions.asked
-
-                } satisfies FabricationOrdersRecord);
-
-                generatedFabOrder++;
-            }
-        }
-        catch(ex)
-        {
-            console.log(ex);
-            return { generateFabOrders: { error: (ex instanceof ClientResponseError) ? ex.message : ex }};
-        }
-
-        if(generatedFabOrder > 0)
-            return redirect(303, `/app/scm/fabrication_orders`);
-        
-        return { generateFabOrders: { warning: "Generated 0 fabrication orders" }};
-    },
-
     editList: async ({ locals, request, params }) => {
 
         const form = await request.formData();
-        form.set("closed", String(form.has("closed")));
+
+        const name = form.get("name")?.toString();
+        const assembly_id = form.get("assembly")?.toString();
+        const project_id = form.get("list")?.toString();
+        const closed = form.has("closed");
 
         try
         {
-            await locals.pb.collection(Collections.AssembliesBuylists).update(params.id, form);
+            await locals.prisma.scm_assembly_buylist.update({ where: { id: params.id }, data: { name, closed, assembly_id, project_id }});
             return { editList: { success: "Successfully updated row" }};
         }
         catch(e)
         {
-            return { editList: { error: e.message }};
+            return fail(400, { editList: { error: String(e) }});
         }
     }
 };
