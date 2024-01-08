@@ -1,15 +1,11 @@
-import { Collections, type AssembliesBuylistsResponse, type ProjectsResponse, type ArticleMovementsResponse, type ArticleResponse, type StoresResponse } from "$lib/DBTypes";
-import { articleResponseExpand, type ArticleResponseExpanded } from "$lib/components/article/ArticleRow.svelte";
-import { ClientResponseError } from "pocketbase";
-import type { OrderRowsResponseExpanded } from "../../approx/proxy+page.server";
-import type { FabricationOrdersResponseExpanded } from "../../fabrication_orders/+page.server";
+import { fail } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
 
 export const load = (async ({ locals, params }) => {
 
     const projectID = params.id;
 
-    const project = await locals.prisma.sCMProject.findUniqueOrThrow({ where: { id: projectID } });
+    const project = await locals.prisma.pr_project.findUniqueOrThrow({ where: { id: projectID } });
 
     /*
 
@@ -58,11 +54,15 @@ export const actions: Actions = {
 
         try
         {
-            await locals.pb.collection(Collections.Projects).update(params.id, form);
+            //await locals.pb.collection(Collections.Projects).update(params.id, form);
+            await locals.prisma.pr_project.update({ where: { id: params.id }, data: { 
+                name: form.get("name"),
+                customer: form.get("customer")
+            }});
         }
         catch(e)
         {
-            return { editProject: { error: (e instanceof ClientResponseError) ? e.message : e }};
+            return fail(400, { editProject: { error: String(e) }});
         }
     }
 }

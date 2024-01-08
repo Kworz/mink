@@ -4,7 +4,7 @@ export const ssr = true;
 
 export const load = (async ({ locals }) => {
 
-    const approx_count = await locals.prisma.sCMOrderRows.count({ where: { order: { state: { in: ["acknowledged", "ordered"] }}, received_quantity: { lt: locals.prisma.sCMOrderRows.fields.needed_quantity } }});
+    const approx_count = await locals.prisma.scm_order_rows.count({ where: { order: { state: { in: ["acknowledged", "ordered"] }}, received_quantity: { lt: locals.prisma.scm_order_rows.fields.needed_quantity } }});
 
     return { 
         session: locals.session,

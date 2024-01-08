@@ -24,8 +24,8 @@ export const articleIncludeQuery = {
         where: { order: { state: { notIn: ["closed", "cancelled", "quotation"] }}}
     },
     files: true
-} satisfies Prisma.SCMArticleInclude;
+} satisfies Prisma.scm_articleInclude;
 
-export type SCMArticleWithIncludes = Prisma.SCMArticleGetPayload<{
+export type scm_articleWithIncludes = Prisma.scm_articleGetPayload<{
     include: typeof articleIncludeQuery
 }>;

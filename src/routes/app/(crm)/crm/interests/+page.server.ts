@@ -1,15 +1,12 @@
-import { Collections, type CrmInterestResponse } from "$lib/DBTypes";
-import { ClientResponseError } from "pocketbase";
 import type { Actions, PageServerLoad } from "./$types";
-import { redirect } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 
 export const load = (async ({ locals }) => {
 
     try
     {
         const interests = await locals.prisma.crm_interest.findMany();
-
-        return { interests: structuredClone(interests) };
+        return { interests };
     }
     catch(ex)
     {
@@ -18,8 +15,6 @@ export const load = (async ({ locals }) => {
 
 }) satisfies PageServerLoad;
 
-// TODO: Convert to Prisma
-
 export const actions: Actions = {
     createInterest: async ({ locals, request }) => {
 
@@ -27,13 +22,15 @@ export const actions: Actions = {
 
         try
         {
-            const interest = await locals.pb.collection(Collections.CrmInterest).create(form);
+            const interest = await locals.prisma.crm_interest.create({
+                data: form
+            });
 
-            return { createInterest: { success: structuredClone(interest) }};
+            return { createInterest: { success: interest }};
         }
         catch(ex)
         {
-            return { createInterest: { error: (ex instanceof ClientResponseError) ? ex.message : ex }}
+            return fail(500, { createInterest: { error: ex }});
         }
     },
     editInterest: async ({ locals, request }) => {
@@ -46,14 +43,14 @@ export const actions: Actions = {
             if(id === null)
                 throw "Missing id";
 
-            await locals.pb.collection(Collections.CrmInterest).update(id.toString(), form);
+            await locals.prisma.crm_interest.update({ where: { id: id.toString() }, data: form });
 
             return { editInterest: { success: true }};
 
         }
         catch(ex)
         {
-            return { editInterest: { error: (ex instanceof ClientResponseError) ? ex.message : ex }}
+            return fail(500, { editInterest: { error: ex }});
         }
     },
     deleteInterest: async ({ locals, request }) => {
@@ -66,15 +63,15 @@ export const actions: Actions = {
 
             if(id === null)
                 throw "Missing id";
-            
-            await locals.pb.collection(Collections.CrmInterest).delete(id.toString());
 
+            await locals.prisma.crm_interest.delete({ where: { id: id.toString() }});
+            
             return { deleteInterest: { success: true }};
 
         }
         catch(ex)
         {
-            return { deleteInterest: { error: (ex instanceof ClientResponseError) ? ex.message : ex }}
+            return fail(500, { deleteInterest: { error: ex }});
         }
     }
 }

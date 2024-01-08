@@ -1,8 +1,8 @@
-import type { SCMSupplier } from "@prisma/client";
+import type { scm_supplier } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load = (async ({ locals }) => {
-    const suppliers = await locals.prisma.sCMSupplier.findMany();
+    const suppliers = await locals.prisma.scm_store.findMany();
     return {
         suppliers
     }
@@ -24,10 +24,10 @@ export const actions: Actions = {
             if((form.get("logo") as (Blob | null))?.size === 0)
                 form.delete("logo");
 
-            await locals.prisma.sCMSupplier.update({
+            await locals.prisma.scm_store.update({
                 where: { id: supplierID },
                 data: {
-                    ...(Object.fromEntries(form) as unknown as SCMSupplier),
+                    ...(Object.fromEntries(form) as unknown as scm_supplier),
                     internal: form.has("internal") && form.get("internal") === "true"
                 }
             })
@@ -51,9 +51,9 @@ export const actions: Actions = {
             if((form.get("logo") as (File | null))?.size === 0)
                 form.delete("logo");
 
-            await locals.prisma.sCMSupplier.create({
+            await locals.prisma.scm_store.create({
                 data: {
-                    ...(Object.fromEntries(form) as unknown as SCMSupplier),
+                    ...(Object.fromEntries(form) as unknown as scm_supplier),
                     internal: form.has("internal") && form.get("internal") === "true"
                 }
             })
@@ -75,7 +75,7 @@ export const actions: Actions = {
             if(deleteID === null)
                 throw "scm.supplier.delete.error.no_id_given";
 
-            await locals.prisma.sCMSupplier.delete({
+            await locals.prisma.scm_store.delete({
                 where: { id: deleteID }
             })
 

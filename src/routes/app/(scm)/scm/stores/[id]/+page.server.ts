@@ -6,7 +6,7 @@ export const load = (async ({ locals, params, url }) => {
     const filter = url.searchParams.get("filter") ?? "";
     const page = Number(url.searchParams.get("page")) ?? 1;
 
-    const store = await locals.prisma.sCMStore.findUniqueOrThrow({ where: { id: params.id }, include: { store_relations: { include: { article: { include: { 
+    const store = await locals.prisma.scm_store.findUniqueOrThrow({ where: { id: params.id }, include: { store_relations: { include: { article: { include: { 
         order_rows: { include: { order: true }},
         store_relations: { include: { store: true } }
     }}}, skip: page * 50, take: 50 }}});

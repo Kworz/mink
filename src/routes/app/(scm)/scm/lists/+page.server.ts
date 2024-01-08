@@ -1,17 +1,17 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types';
-import type { SCMAssemblyBuylists } from '@prisma/client';
+import type { scm_assembly_buylist } from '@prisma/client';
 
 export const load = (async ({ locals, url }) => {
 
     const filter = url.searchParams.get("filter") || "";
     const sort = url.searchParams.get("sort") || "assembly.name";
 
-    const lists = await locals.prisma.sCMAssemblyBuylists.findMany({ include: { project: true, assembly: true }});
+    const lists = await locals.prisma.scm_assembly_buylist.findMany({ include: { project: true, assembly: true }});
 
-    const assemblies = await locals.prisma.sCMAssembly.findMany();
-    const projects = await locals.prisma.sCMProject.findMany();
+    const assemblies = await locals.prisma.scm_assembly.findMany();
+    const projects = await locals.prisma.pr_project.findMany();
 
     return {
         lists,
@@ -25,7 +25,7 @@ export const actions = {
 
     createBuyList: async ({ locals, request }) => {
 
-        let createdList: SCMAssemblyBuylists | SCMAssemblyBuylists[] = [];
+        let createdList: scm_assembly_buylist | scm_assembly_buylist[] = [];
 
         const form = await request.formData();
 
@@ -44,7 +44,7 @@ export const actions = {
 
             if(isNaN(listAmount))
             {
-                createdList = await locals.prisma.sCMAssemblyBuylists.create({
+                createdList = await locals.prisma.scm_assembly_buylist.create({
                     data: {
                         name,
                         assembly_id,
@@ -57,7 +57,7 @@ export const actions = {
                 createdList = [];
                 for(let i = 0; i < listAmount; i++)
                 {
-                    const list = await locals.prisma.sCMAssemblyBuylists.create({
+                    const list = await locals.prisma.scm_assembly_buylist.create({
                         data: {
                             name: `${name} ${i + 1}`,
                             assembly_id,

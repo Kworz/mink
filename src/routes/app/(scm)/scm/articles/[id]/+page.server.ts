@@ -1,8 +1,7 @@
-import { redirect } from "@sveltejs/kit";
-import type { PageServerLoad, Actions } from "./$types";
-import { Collections, type ArticleTagsResponse, type StoresRelationsResponse } from "$lib/DBTypes";
-import { deleteFile, saveFile } from "$lib/server/files";
 import { articleIncludeQuery } from "$lib/components/article/article";
+import { deleteFile, saveFile } from "$lib/server/files";
+import { redirect } from "@sveltejs/kit";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load = (async ({ params, locals }) => {
 
@@ -10,12 +9,12 @@ export const load = (async ({ params, locals }) => {
     {
         const articleID = params.id;
 
-        const article = await locals.prisma.sCMArticle.findFirstOrThrow({ 
+        const article = await locals.prisma.scm_article.findFirstOrThrow({ 
             where: { id: articleID },
             include: articleIncludeQuery
         });
 
-        const stores = await locals.prisma.sCMStore.findMany({ where: { temporary: false }});
+        const stores = await locals.prisma.scm_store.findMany({ where: { temporary: false }});
 
         return {
             article,
@@ -35,7 +34,7 @@ export const actions: Actions = {
     deleteArticle: async ({ params, locals }) => {
         try
         {
-            await locals.prisma.sCMArticle.delete({
+            await locals.prisma.scm_article.delete({
                 where: {
                     id: params.id
                 }
@@ -61,7 +60,7 @@ export const actions: Actions = {
             //TODO: This might require a zod validation before being sent to the database
             //TODO: This needs proper field types
 
-            await locals.prisma.sCMArticle.update({
+            await locals.prisma.scm_article.update({
                 where: {
                     id: params.id
                 },
@@ -99,11 +98,11 @@ export const actions: Actions = {
 
         try
         {
-            const article = await locals.prisma.sCMArticle.findFirstOrThrow({ where: { id: params.id }});
+            const article = await locals.prisma.scm_article.findFirstOrThrow({ where: { id: params.id }});
 
             article.name = article.name + " — Copie";
 
-            let { id } = await locals.prisma.sCMArticle.create({
+            let { id } = await locals.prisma.scm_article.create({
                 data: {...article, id: undefined, thumbnail: undefined }
             });
 
@@ -124,7 +123,7 @@ export const actions: Actions = {
 
         try
         {
-            const { thumbnail } = await locals.prisma.sCMArticle.findFirstOrThrow({ where: { id: params.id }});
+            const { thumbnail } = await locals.prisma.scm_article.findFirstOrThrow({ where: { id: params.id }});
 
             if(thumbnail !== null)
                 await deleteFile(thumbnail);
@@ -133,7 +132,7 @@ export const actions: Actions = {
                 return { editThumbnail: { success: "scm.article.thumbnail.delete_success" } };
 
             const path = await saveFile("scm/articles/thumbnails", form.get("thumbnail") as Blob);
-            await locals.prisma.sCMArticle.update({ where: { id: params.id }, data: { thumbnail: path }});
+            await locals.prisma.scm_article.update({ where: { id: params.id }, data: { thumbnail: path }});
 
             return { editThumbnail: { success: "scm.article.thumbnail.update_success" } };
         }
@@ -213,8 +212,8 @@ export const actions: Actions = {
 
             const quantityDelta = Number(form.get("quantity_update")?.toString());
 
-            const storeIn = await locals.prisma.sCMStoreRelation.findFirst({ where: { article_id: params.id, store_id: storeInID }});
-            const storeOut = await locals.prisma.sCMStoreRelation.findFirst({ where: { article_id: params.id, store_id: storeOutID }});
+            const storeIn = await locals.prisma.scm_store_relation.findFirst({ where: { article_id: params.id, store_id: storeInID }});
+            const storeOut = await locals.prisma.scm_store_relation.findFirst({ where: { article_id: params.id, store_id: storeOutID }});
 
             if(direction === "outward" && storeOutID === undefined)
                 throw "scm.article.movement.error.store_out_not_defined"; //"L'emplacement de provenance n'est pas défini";
@@ -229,15 +228,14 @@ export const actions: Actions = {
             {
                 if(storeIn === null)
                 {
-                    await locals.pb.collection(Collections.StoresRelations).create<StoresRelationsResponse>({ article: params.id, store: storeInID, quantity: quantityDelta });
-                    await locals.prisma.sCMStoreRelation.create({ data: { article_id: params.id, store_id: storeInID, quantity: quantityDelta }});
+                    await locals.prisma.scm_store_relation.create({ data: { article_id: params.id, store_id: storeInID, quantity: quantityDelta }});
                 }
                 else
                 {
-                    await locals.prisma.sCMStoreRelation.update({ where: { id: storeIn.id }, data: { quantity: { increment: quantityDelta }}});
+                    await locals.prisma.scm_store_relation.update({ where: { id: storeIn.store_id }, data: { quantity: { increment: quantityDelta }}});
                 }
 
-                await locals.prisma.sCMArticleMovements.create({
+                await locals.prisma.scm_article_movements.create({
                     data: {
                         article_id: params.id,
                         user_id: locals.session.user.userId,
@@ -255,8 +253,8 @@ export const actions: Actions = {
                 if(storeOut.quantity < quantityDelta)
                     throw "scm.article.movement.error.store_not_enough_items"; //"La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
                 
-                await locals.prisma.sCMStoreRelation.update({ where: { id: storeOut.id }, data: { quantity: { decrement: quantityDelta }}});
-                await locals.prisma.sCMArticleMovements.create({
+                await locals.prisma.scm_store_relation.update({ where: { id: storeOut.id }, data: { quantity: { decrement: quantityDelta }}});
+                await locals.prisma.scm_article_movements.create({
                     data: {
                         article_id: params.id,
                         user_id: locals.session.user.userId,
@@ -278,13 +276,13 @@ export const actions: Actions = {
                     throw "scm.article.movement.error.out_store_not_enough_items"; //"La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
 
                 if(storeIn === null)
-                    await locals.prisma.sCMStoreRelation.create({ data: { article_id: params.id, store_id: storeInID, quantity: quantityDelta }});
+                    await locals.prisma.scm_store_relation.create({ data: { article_id: params.id, store_id: storeInID, quantity: quantityDelta }});
                 else
-                    await locals.prisma.sCMStoreRelation.update({ where: { id: storeIn.id }, data: { quantity: { increment: quantityDelta }}});
+                    await locals.prisma.scm_store_relation.update({ where: { id: storeIn.id }, data: { quantity: { increment: quantityDelta }}});
 
-                await locals.prisma.sCMStoreRelation.update({ where: { id: storeOut.id }, data: { quantity: { decrement: quantityDelta }}});
+                await locals.prisma.scm_store_relation.update({ where: { id: storeOut.id }, data: { quantity: { decrement: quantityDelta }}});
 
-                await locals.prisma.sCMArticleMovements.create({
+                await locals.prisma.scm_article_movements.create({
                     data: {
                         article_id: params.id,
                         user_id: locals.session.user.userId,

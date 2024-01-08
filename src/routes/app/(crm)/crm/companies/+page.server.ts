@@ -1,10 +1,4 @@
-import { Collections, type CrmCompanyResponse, type CrmCompanyContactResponse } from "$lib/DBTypes";
-import { ClientResponseError } from "pocketbase";
 import type { Actions, PageServerLoad } from "./$types";
-
-export type CrmCompanyResponseExpanded = CrmCompanyResponse<{
-    "crm_company_contact(company)": Array<CrmCompanyContactResponse>;
-}>;
 
 export const load = (async ({ locals, url }) => {
 
@@ -14,12 +8,13 @@ export const load = (async ({ locals, url }) => {
 
     try
     {
-        const companies = await locals.pb.collection(Collections.CrmCompany).getList<CrmCompanyResponseExpanded>(page, 50,{ expand: "crm_company_contact(company)", filter, sort });
-        return { companies: structuredClone(companies) };
+        const companies = await locals.prisma.cRMCompany.findMany();
+        return { companies };
     }
     catch(ex)
     {
-        return { error: ex instanceof ClientResponseError ? ex.message : ex };
+        console.error(ex);
+        return { error: String(ex) };
     }
 
 }) satisfies PageServerLoad;
@@ -32,6 +27,10 @@ export const actions: Actions = {
 
         try
         {
+            await locals.prisma.cRMCompany.create({ data: {
+                
+            }});
+
             await locals.pb.collection(Collections.CrmCompany).create(form);
             return { createCompany: { success: "Successfully created company" }};
         }

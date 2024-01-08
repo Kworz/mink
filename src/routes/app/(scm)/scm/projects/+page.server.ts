@@ -5,7 +5,7 @@ export const load = (async ({ locals, url }) => {
 
     const showClosed = url.searchParams.get("showClosed") === "true";
 
-    const projects = await locals.prisma.sCMProject.findMany({ where: { closed: !showClosed }, include: { attached_users: { include: { user: true }}}});
+    const projects = await locals.prisma.pr_project.findMany({ where: { closed: !showClosed }, include: { attached_users: { include: { user: true }}}});
     const users = await locals.prisma.user.findMany();
 
     return {
@@ -28,7 +28,7 @@ export const actions: Actions = {
             if(name === null)
                 throw new Error("Name is required");
 
-            createdProject = await locals.prisma.sCMProject.create({
+            createdProject = await locals.prisma.pr_project.create({
                 data: {
                     name
                 }

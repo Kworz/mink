@@ -3,7 +3,7 @@ import type { RequestHandler } from "./$types";
 import { LabelDocument } from "$lib/label/labelDocument";
 import type jsPDF from "jspdf";
 import { env } from "$env/dynamic/public";
-import type { SCMArticle } from "@prisma/client";
+import type { scm_article } from "@prisma/client";
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 
@@ -13,11 +13,11 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     if(articlesIDS === null)
         return new Response("Wrong request", { status: 400 });
 
-    const articles: Array<SCMArticle> = [];
+    const articles: Array<scm_article> = [];
 
     for(const article of articlesIDS.split(","))
     {
-        articles.push(await locals.prisma.sCMArticle.findFirstOrThrow({ where: { id: article } }));
+        articles.push(await locals.prisma.scm_article.findFirstOrThrow({ where: { id: article } }));
     }
 
     const label = new LabelDocument(32, 57) as (jsPDF & LabelDocument);

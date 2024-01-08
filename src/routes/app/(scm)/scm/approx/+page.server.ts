@@ -3,16 +3,16 @@ import { fail } from "@sveltejs/kit";
 
 export const load = (async ({ locals}) => {
 
-    const order_rows = await locals.prisma.sCMOrderRows.findMany(
+    const order_rows = await locals.prisma.scm_order_rows.findMany(
         { 
             where: { 
                 order: { state: { in: ["acknowledged", "ordered"] }},
-                received_quantity: { lt: locals.prisma.sCMOrderRows.fields.needed_quantity }
+                received_quantity: { lt: locals.prisma.scm_order_rows.fields.needed_quantity }
             }, 
             include: { article: { include: { order_rows: { include: { order: true }}, store_relations: { include: { store: true }}}}, order: { include: { supplier: true }}}
         });
-    const suppliers = await locals.prisma.sCMSupplier.findMany();
-    const stores = await locals.prisma.sCMStore.findMany();
+    const suppliers = await locals.prisma.scm_supplier.findMany();
+    const stores = await locals.prisma.scm_store.findMany();
 
     return {
         order_rows,
@@ -49,7 +49,7 @@ export const actions: Actions = {
             if(store_in === undefined)
                 throw "scm.order_row.receive.error.store_in_undefined";
 
-            await locals.prisma.sCMStoreRelation.upsert({
+            await locals.prisma.scm_store_relation.upsert({
                 where: { article_id_store_id: { article_id: articleID, store_id: store_in } },
                 create: {
                     store_id: store_in,
@@ -61,7 +61,7 @@ export const actions: Actions = {
                 }
             });
 
-            await locals.prisma.sCMArticleMovements.create({
+            await locals.prisma.scm_article_movements.create({
                 data: {
                     article_id: articleID,
                     quantity_update: quantity_received,
@@ -70,17 +70,17 @@ export const actions: Actions = {
                 }
             });
 
-            const order_row_prisma = await locals.prisma.sCMOrderRows.update({
+            const order_row_prisma = await locals.prisma.scm_order_rows.update({
                 where: { id: order_row },
                 data: {
                     received_quantity: { increment: quantity_received }
                 }
             });
 
-            const incompleteOrderRows = await locals.prisma.sCMOrderRows.findMany({ where: { order_id: { equals: order_row_prisma.order_id }, received_quantity: { lt: locals.prisma.sCMOrderRows.fields.needed_quantity  }}});
+            const incompleteOrderRows = await locals.prisma.scm_order_rows.findMany({ where: { order_id: { equals: order_row_prisma.order_id }, received_quantity: { lt: locals.prisma.scm_order_rows.fields.needed_quantity  }}});
 
             if(incompleteOrderRows.length === 0)
-                await locals.prisma.sCMOrder.update({ where: { id: order_row_prisma.order_id }, data: { state: "completed" }});
+                await locals.prisma.scm_order.update({ where: { id: order_row_prisma.order_id }, data: { state: "completed" }});
 
             return { receiveArticle: { success: "scm.order_row.receive.success" }};
         }

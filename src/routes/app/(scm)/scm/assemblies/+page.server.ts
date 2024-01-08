@@ -1,13 +1,11 @@
-import { type AssembliesResponse, Collections } from "$lib/DBTypes";
-import { redirect, type Actions } from "@sveltejs/kit";
+import { redirect, type Actions, fail } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { ClientResponseError } from "pocketbase";
 
 export const load = (async ({ locals, url }) => {
 
     const filter = url.searchParams.get("filter") || "";
 
-    const assemblies = await locals.prisma.sCMAssembly.findMany();
+    const assemblies = await locals.prisma.scm_assembly.findMany();
 
     return {
         assemblies,
@@ -29,7 +27,7 @@ export const actions: Actions = {
                 throw new Error("Name is required");
             }
 
-            const { id } = await locals.prisma.sCMAssembly.create({
+            const { id } = await locals.prisma.scm_assembly.create({
                 data: {
                     name
                 }
@@ -38,7 +36,8 @@ export const actions: Actions = {
             createAssemblyID = id;
         }
         catch (ex) {
-            return { createAssembly: { error: (ex instanceof ClientResponseError ? ex.message : ex) } };
+            
+            return fail(500, { createAssembly: { error: String(ex) }});
         }
 
         throw redirect(303, `/app/scm/assemblies/${createAssemblyID}`);

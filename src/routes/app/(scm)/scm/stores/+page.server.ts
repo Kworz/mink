@@ -1,8 +1,8 @@
 import type { Actions, PageServerLoad } from "./$types";
-import type { SCMStore } from "@prisma/client";
+import type { scm_store } from "@prisma/client";
 
 export const load = (async ({ locals }) => {
-    const stores = await locals.prisma.sCMStore.findMany();
+    const stores = await locals.prisma.scm_store.findMany();
 
     return { 
         stores
@@ -14,9 +14,9 @@ export const actions: Actions = {
         const form = await request.formData();
 
         try {
-            await locals.prisma.sCMStore.create({
+            await locals.prisma.scm_store.create({
                 data: {
-                    ...Object.fromEntries(form) as unknown as SCMStore,
+                    ...Object.fromEntries(form) as unknown as scm_store,
                     temporary: form.has("temporary") && form.get("temporary") === "true"
                 }
             });
@@ -36,10 +36,10 @@ export const actions: Actions = {
             if(!id)
                 throw "scm.store.update.error";
             
-            await locals.prisma.sCMStore.update({
+            await locals.prisma.scm_store.update({
                 where: { id },
                 data: {
-                    ...Object.fromEntries(form) as unknown as SCMStore,
+                    ...Object.fromEntries(form) as unknown as scm_store,
                     temporary: form.has("temporary") && form.get("temporary") === "true"
                 }
             });
@@ -58,7 +58,7 @@ export const actions: Actions = {
             if(!id)
                 throw "scm.store.delete.error";
             
-            await locals.prisma.sCMStore.delete({
+            await locals.prisma.scm_store.delete({
                 where: { id }
             });
             return { deleteStore: { success: "scm.store.delete.success" }};

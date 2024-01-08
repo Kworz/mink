@@ -7,7 +7,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
     try
     {        
-        const articles = await locals.prisma.sCMArticle.findMany({ include:  articleIncludeQuery });
+        const articles = await locals.prisma.scm_article.findMany({ include:  articleIncludeQuery });
 
         const excel: (string | number)[][] = [];
 

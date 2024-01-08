@@ -1,4 +1,4 @@
-import type { SCMArticle } from "@prisma/client";
+import type { scm_article } from "@prisma/client";
 import { redirect, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
@@ -28,9 +28,9 @@ export const actions: Actions = {
                     reference: line[columns.indexOf("reference")],
                     brand: line[columns.indexOf("manufacturer")],
                     
-                } satisfies Partial<SCMArticle>;
+                } satisfies Partial<scm_article>;
 
-                await locals.prisma.sCMArticle.create({ data: article });
+                await locals.prisma.scm_article.create({ data: article });
             }
     
             throw redirect(303, "/app/scm/articles");

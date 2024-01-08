@@ -9,9 +9,9 @@
     import Price from "../formatters/Price.svelte";
 
     import { page } from "$app/stores";
-    import type { SCMArticleWithIncludes } from "./article";
+    import type { scm_articleWithIncludes } from "./article";
 
-    export let article: SCMArticleWithIncludes;
+    export let article: scm_articleWithIncludes;
 
     /** Wether the stock should be displayed or not */
     export let displayStock = false;

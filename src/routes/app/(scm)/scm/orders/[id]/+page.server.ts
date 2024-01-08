@@ -3,10 +3,10 @@ import { fail, redirect } from "@sveltejs/kit";
 
 export const load = (async ({ params, locals }) => {
 
-    const order = await locals.prisma.sCMOrder.findUniqueOrThrow({ where: { id: params.id }, include: { order_rows: { include: { article: true, project: true }}, supplier: true, issuer: true }});
-    const projects = await locals.prisma.sCMProject.findMany({ where: { closed: false }})
+    const order = await locals.prisma.scm_order.findUniqueOrThrow({ where: { id: params.id }, include: { order_rows: { include: { article: true, project: true }}, supplier: true, issuer: true }});
+    const projects = await locals.prisma.pr_project.findMany({ where: { closed: false }})
 
-    const articles = await locals.prisma.sCMArticle.findMany({ include: { store_relations: { include: { store: true }}, order_rows: { include: { order: true }} }});
+    const articles = await locals.prisma.scm_article.findMany({ include: { store_relations: { include: { store: true }}, order_rows: { include: { order: true }} }});
 
     return {
         order,
@@ -21,7 +21,7 @@ export const actions: Actions = {
         try
         {
             const form = await request.formData();
-            await locals.prisma.sCMOrder.update({ where: { id: params.id }, data: {
+            await locals.prisma.scm_order.update({ where: { id: params.id }, data: {
                 name: form.has("name") ? form.get("name")?.toString() : undefined,
                 state: form.has("state") ? form.get("state")?.toString() : undefined,
                 delivery_fees: form.has("delivery_fees") ? Number(form.get("delivery_fees")) : undefined,
@@ -44,7 +44,7 @@ export const actions: Actions = {
             if(row_id === undefined)
                 throw "scm.order.edit_row.error.row_id_not_found";
 
-            await locals.prisma.sCMOrderRows.update({ where: { id: row_id }, data: {
+            await locals.prisma.scm_order_rows.update({ where: { id: row_id }, data: {
                 needed_quantity: form.has("needed_quantity") ? Number(form.get("needed_quantity")) : undefined,
                 ack_price: form.has("ack_price") ? Number(form.get("ack_price")) : undefined,
                 ack_date: form.has("ack_date") ? new Date(form.get("ack_date")?.toString() ?? new Date().toISOString()) : undefined,
@@ -65,10 +65,10 @@ export const actions: Actions = {
             const form = await request.formData();
             console.log(form);
 
-            await locals.prisma.sCMOrderRows.create({
+            await locals.prisma.scm_order_rows.create({
                 data: {
                     order_id: params.id,
-                    article_id: form.get("article_id")?.toString(),
+                    article_id: form.get("article_id")!.toString(), // TODO: this is unsafe
                     needed_quantity: Number(form.get("needed_quantity")),
                 }
             })
@@ -90,7 +90,7 @@ export const actions: Actions = {
             if(row_id === undefined) 
                 throw "scm.order.delete_row.error.row_id_undefined";
 
-            await locals.prisma.sCMOrderRows.delete({ where: { id: row_id }});
+            await locals.prisma.scm_order_rows.delete({ where: { id: row_id }});
 
             return { deleteRow: { success: "scm.order.delete_row.success" }};
         }
@@ -104,7 +104,7 @@ export const actions: Actions = {
     deleteOrder: async ({ params, locals }) => {
         try
         {
-            await locals.prisma.sCMOrder.delete({ where: { id: params.id }});
+            await locals.prisma.scm_order.delete({ where: { id: params.id }});
         }
         catch(ex)
         {

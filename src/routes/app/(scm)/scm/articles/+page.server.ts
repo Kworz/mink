@@ -10,7 +10,7 @@ export const load = (async ({ locals, url }) => {
         const filter = url.searchParams.get("filter");
         const page = Number(url.searchParams.get("page")) || 1;
 
-        const articles = await locals.prisma.sCMArticle.findMany({
+        const articles = await locals.prisma.scm_article.findMany({
             orderBy: (sort !== null) ? JSON.parse(atob(sort)) : undefined,
             where: (filter !== null) ? JSON.parse(atob(filter)) : undefined,
             skip: (page - 1) * 50,
@@ -18,7 +18,7 @@ export const load = (async ({ locals, url }) => {
             include: articleIncludeQuery,
         });
 
-        const totalItems = await locals.prisma.sCMArticle.count();
+        const totalItems = await locals.prisma.scm_article.count();
                 
         return {
             articles: articles,
@@ -46,7 +46,7 @@ export const actions: Actions = {
         
         try
         {
-            createdArticle = await locals.prisma.sCMArticle.create({
+            createdArticle = await locals.prisma.scm_article.create({
                 data: {
                     ...Object.fromEntries(form),
                     name: form.get("name")?.toString() as string,

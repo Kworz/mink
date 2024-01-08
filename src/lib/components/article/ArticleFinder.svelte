@@ -2,7 +2,7 @@
     import { createEventDispatcher } from "svelte";
 
     import type { FilterCondition } from "$lib/components/filter/filter2";
-    import type { SCMArticleWithIncludes } from "./article";
+    import type { scm_articleWithIncludes } from "./article";
     
     import Filter2 from "../filter/Filter2.svelte";
     import Button from "../Button.svelte";
@@ -13,8 +13,8 @@
 
     let filter = "";
     
-    export let articles: SCMArticleWithIncludes[];
-    export let selectedArticle: SCMArticleWithIncludes | undefined = undefined;
+    export let articles: scm_articleWithIncludes[];
+    export let selectedArticle: scm_articleWithIncludes | undefined = undefined;
 
     export let filters: Array<FilterCondition> = [];
     export let formFieldName: string | undefined = undefined;

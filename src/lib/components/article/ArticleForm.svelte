@@ -1,9 +1,9 @@
 <script lang="ts">
     import FormInput from "../FormInput.svelte";
-    import type { SCMArticle } from "@prisma/client";
+    import type { scm_article } from "@prisma/client";
     import { page } from "$app/stores";
 
-    export let article: SCMArticle = {
+    export let article: scm_article = {
         id: "",
 
         name: "",
