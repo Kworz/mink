@@ -1,20 +1,13 @@
-import { Collections, type UsersResponse } from "$lib/DBTypes";
 import type { PageServerLoad } from "./$types";
+import { fail } from "@sveltejs/kit";
 
 export const load = (async ({ locals, params }) => {
 
-    const { id } = params;
+    const user = await locals.prisma.user.findUnique({ where: { id: params.id }});
 
-    try {
-        const user = await locals.prisma.user.findUnique({ where: { id }});
-
-        return {
-            user
-        }
-    }
-    catch(ex)
-    {
-        return { status: 404, error: "User not found" }
-    }
+    if(user)
+        return { user };
+    else
+        return fail(404, { error: "app.user.error.not-found"});
 
 }) satisfies PageServerLoad;
