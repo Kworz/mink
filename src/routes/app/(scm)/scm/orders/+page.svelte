@@ -1,6 +1,5 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import { OrdersStateOptions } from "$lib/DBTypes";
     import { DocumentCheck, PlusCircle } from "@steeze-ui/heroicons";
     import type { PageData } from "./$types";
 
