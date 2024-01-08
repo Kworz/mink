@@ -35,7 +35,7 @@
 </script>
 
 <svelte:head>
-    <title>Liste des Assemblages — Nomenclaturize</title>
+    <title>Liste des Assemblages — mink</title>
 </svelte:head>
 
 {#if createAssembly}

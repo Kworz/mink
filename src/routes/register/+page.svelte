@@ -15,7 +15,7 @@
     <div class="bg-zinc-800 min-w-[33%] p-6 rounded-lg ring-1 ring-zinc-400/25 shadow-xl">
 
         <h1>S'inscrire</h1>
-        <p>Inscrivez vous sur Nomenclaturize.</p>
+        <p>Inscrivez vous sur mink.</p>
 
         {#if form?.error}
             <p class="text-red-500 font-medium">{form.error}</p>

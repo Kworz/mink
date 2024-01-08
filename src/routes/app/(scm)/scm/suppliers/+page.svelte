@@ -30,7 +30,7 @@
 </script>
 
 <svelte:head>
-    <title>Nomenclaturize — Fournisseurs</title>
+    <title>mink — Fournisseurs</title>
 </svelte:head>
 
 {#if editSupplier !== undefined || createSupplier}

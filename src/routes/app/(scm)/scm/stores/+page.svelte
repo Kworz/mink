@@ -28,7 +28,7 @@
 </script>
 
 <svelte:head>
-    <title>Nomenclaturize — Stocks</title>
+    <title>mink — Stocks</title>
 </svelte:head>
 
 <h1>Emplacements de stock</h1>

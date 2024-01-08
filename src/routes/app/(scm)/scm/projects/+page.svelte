@@ -26,7 +26,7 @@
 
 </script>
 
-<svelte:head><title>Nomenclaturize — Affaires</title></svelte:head>
+<svelte:head><title>mink — Affaires</title></svelte:head>
 
 {#if createProject}
     <MenuSide closable on:close={() => createProject = false}>

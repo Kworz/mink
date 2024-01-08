@@ -51,7 +51,7 @@
 </script>
 
 <svelte:head>
-    <title>Nomenclaturize — Articles</title>
+    <title>mink — Articles</title>
 </svelte:head>
 
 {#if createArticle}

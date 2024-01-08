@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-    <title>Nomenclaturize - Approvisionement</title>
+    <title>mink - Approvisionement</title>
 </svelte:head>
 
 <h1>Approvisionement</h1>

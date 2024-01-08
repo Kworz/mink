@@ -20,7 +20,7 @@
     <div class="bg-zinc-800 min-w-[33%] p-6 rounded-lg ring-1 ring-zinc-400/25 shadow-xl">
 
         <h1>Connexion</h1>
-        <p>Connectez vous pour utiliser Nomenclaturize.</p>
+        <p>Connectez vous pour utiliser mink.</p>
 
         {#if $page.url.searchParams.has("registered")}
             <p class="text-emerald-500 font-medium mt-3">Connectez vous avec votre compte crée précédemment.</p>
