@@ -6,7 +6,7 @@
     
     import Button from "$lib/components/Button.svelte";
     import FormInput from "$lib/components/FormInput.svelte";
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import Flex from "$lib/components/layout/flex.svelte";
     import Table from "$lib/components/table/Table.svelte";
     import TableCell from "$lib/components/table/TableCell.svelte";

@@ -10,7 +10,7 @@
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import Wrapper from "$lib/components/Wrapper.svelte";
     import Wrapper2 from "$lib/components/Wrapper2.svelte";
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import type { FilterCondition } from "$lib/components/filter/filter2";
     import Flex from "$lib/components/layout/flex.svelte";
     import { crm_company_size, type crm_company, type crm_company_contact } from "@prisma/client";
@@ -28,8 +28,6 @@
 
     let newContact = false;
     let editContact: crm_company_contact | undefined = undefined;
-
-    const sizeOptions = Object.entries(crm_company_size).map(([key, value]) => ({ key, value }));
 
     let filters: Array<FilterCondition> = [];
     let filter: string = $page.url.searchParams.get("filter") ?? "";

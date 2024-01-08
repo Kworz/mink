@@ -1,26 +1,23 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
-    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
-    import Flex from "$lib/components/layout/flex.svelte";
-    import Supplier from "$lib/components/supplier/Supplier.svelte";
-    import Table from "$lib/components/table/Table.svelte";
-    import TableCell from "$lib/components/table/TableCell.svelte";
-
-    import { page } from "$app/stores";
-
-    import { browser } from "$app/environment";
     import { enhance } from "$app/forms";
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
     import Button from "$lib/components/Button.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import ArticleForm from "$lib/components/article/ArticleForm.svelte";
+    import ArticleRow from "$lib/components/article/ArticleRow.svelte";
     import { returnArticleUnit } from "$lib/components/article/artictleUnits";
     import Filter2 from "$lib/components/filter/Filter2.svelte";
     import type { FilterCondition } from "$lib/components/filter/filter2";
     import Price from "$lib/components/formatters/Price.svelte";
-    import Modal from "$lib/components/modal/Modal.svelte";
+    import Flex from "$lib/components/layout/flex.svelte";
     import Store from "$lib/components/store/Store.svelte";
+    import Supplier from "$lib/components/supplier/Supplier.svelte";
+    import Table from "$lib/components/table/Table.svelte";
+    import TableCell from "$lib/components/table/TableCell.svelte";
     import TablePages from "$lib/components/table/TablePages.svelte";
     import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
     import type { PageData, Snapshot } from "./$types";
@@ -55,7 +52,7 @@
 </svelte:head>
 
 {#if createArticle}
-    <Modal title="Créer un article">
+    <MenuSide closable title="Créer un article" on:close={() => createArticle = false}>
         <form action="?/create" method="POST" use:enhance>
             <ArticleForm />
             <div class="flex flex-row gap-6 mt-4">
@@ -63,7 +60,7 @@
                 <Button size="small" preventSend role="tertiary" click={() => createArticle = false}>Annuler</Button>
             </div>
         </form>
-    </Modal>
+    </MenuSide>
 {/if}
 
 <h1>Articles</h1>
@@ -105,7 +102,7 @@
 >
     {#each data.articles as article (article.id)}
 
-        {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)}
+        {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)} <!-- TODO: Deprecate this, find a way to calculate article price -->
         {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
 
             <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>

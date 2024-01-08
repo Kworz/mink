@@ -4,7 +4,7 @@ import { CRMInterestValidator } from "$lib/dataValidation/CRM/CRMInterest";
 import { SCMAssemblyExtension } from "$lib/dataValidation/SCM/SCMAssembly";
 
 export const prisma = new PrismaClient()
-    .$extends(SCMArticleExtension)
+    //.$extends(SCMArticleExtension)
     .$extends(SCMAssemblyExtension)
     .$extends(CRMInterestValidator);
 

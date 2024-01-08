@@ -3,7 +3,7 @@
     import { invalidateAll } from "$app/navigation";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { ChevronDown, ChevronUp, DocumentChartBar, DocumentDuplicate, Trash, WrenchScrewdriver } from "@steeze-ui/heroicons";
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import Modal from "$lib/components/modal/Modal.svelte";
     import AssemblyTree from "$lib/components/assemblies/AssemblyTree.svelte";
     import Button from "$lib/components/Button.svelte";

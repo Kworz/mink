@@ -22,7 +22,7 @@
     import Wrapper from "$lib/components/Wrapper.svelte";
     import Price from "$lib/components/formatters/Price.svelte";
     import Store from "$lib/components/store/Store.svelte";
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
     import ArticleForm from "$lib/components/article/ArticleForm.svelte";

@@ -2,9 +2,9 @@
     
     import { ChevronLeft, ListBullet, UserGroup, Sparkles } from "@steeze-ui/heroicons";
     import Flex from "$lib/components/layout/flex.svelte";
-    import Menu from "$lib/components/appLayout/Menu.svelte";
-    import MenuItem from "$lib/components/appLayout/MenuItem.svelte";
-    import MenuSeparator from "$lib/components/appLayout/MenuSeparator.svelte";
+    import Menu from "$lib/components/menu/Menu.svelte";
+    import MenuItem from "$lib/components/menu/MenuItem.svelte";
+    import MenuSeparator from "$lib/components/menu/MenuSeparator.svelte";
 
 </script>
 

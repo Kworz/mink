@@ -4,7 +4,7 @@
     import type { ActionData, PageData } from "./$types";
     import PillMenu from "$lib/components/PillMenu/PillMenu.svelte";
     import PillMenuButton from "$lib/components/PillMenu/PillMenuButton.svelte";
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import { enhance } from "$app/forms";
     import FormInput from "$lib/components/FormInput.svelte";
     import Button from "$lib/components/Button.svelte";

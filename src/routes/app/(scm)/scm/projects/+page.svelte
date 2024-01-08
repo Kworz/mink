@@ -12,7 +12,7 @@
     import Button from "$lib/components/Button.svelte";
     import { enhance } from "$app/forms";
     import Flex from "$lib/components/layout/flex.svelte";
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import { goto } from "$app/navigation";
     import { browser } from "$app/environment";
 

@@ -10,6 +10,7 @@
 
     export let closable = false;
     export let noBlur = false;
+    export let title: string | undefined = undefined;
 
     onMount(() => {
         if(noBlur) return; 
@@ -28,18 +29,19 @@
 </script>
 
 <Portal target="#side_menu">
-    <div class="m-4 h-[calc(100vh-2rem)] rounded-xl shrink-0 bg-zinc-800 shadow-2xl duration-300 p-4 w-max">
+    <div class="m-4 h-[calc(100vh-2rem)] rounded-xl shrink-0 bg-zinc-800 shadow-2xl duration-300 p-4 w-max relative">
 
         {#if closable}
-            <button on:click={() => dispatch('close')} class="py-1.5 px-3 w-full bg-zinc-700 hover:bg-zinc-700/75 ring-1 ring-zinc-600/50 duration-200 rounded-md">
-                <span class="text-red-500">
-                    <Icon src={XMark} class="h-4 w-4 inline-block" />
-                    Fermer le menu
-                </span>
+            <button class="absolute top-4 right-4" on:click={() => dispatch("close")}>
+                <Icon src={XMark} class="h-4 w-4 text-red-500" />
             </button>
         {/if}
+        {#if title}
+            <h3>{title}</h3>
+            <div class="mt-3 mb-4 h-[1px] w-full bg-zinc-400/25" />
+        {/if}
         
-        <div class="mt-8 w-max duration-300">
+        <div class="w-max h-max duration-300 px-[1px] overflow-y-scroll">
             <slot />
         </div>
     </div>

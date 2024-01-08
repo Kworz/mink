@@ -6,7 +6,7 @@
     import TableCell from "$lib/components/table/TableCell.svelte";
     import { Envelope, UserPlus } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import { invalidateAll } from "$app/navigation";
     import { enhance } from "$app/forms";
     import FormInput from "$lib/components/FormInput.svelte";

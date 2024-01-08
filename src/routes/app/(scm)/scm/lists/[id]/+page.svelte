@@ -16,7 +16,7 @@
     import { Check, DocumentChartBar, DocumentPlus, QrCode, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
 
-    import MenuSide from "$lib/components/appLayout/MenuSide.svelte";
+    import MenuSide from "$lib/components/menu/MenuSide.svelte";
     import RoundedLabel from "$lib/components/RoundedLabel.svelte";
     import type { ActionData, PageData, Snapshot } from "./$types";
     
