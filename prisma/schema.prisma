@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -22,11 +22,14 @@ model User {
   key                    Key[]
 
   article_movements      scm_article_movements[]
+  
   attached_projects      pr_project_attached_user[]
-  orders                 scm_order[]
 
-  fabrication_orders_asked            scm_fabrication_orders[] @relation("fabrication_order_asked")
-  fabrication_orders_received         scm_fabrication_orders[] @relation("fabrication_order_received")
+  orders                 scm_order[]
+  order_state_changes    scm_order_state_change[]
+
+  fabrication_orders_asked            scm_fabrication_order[] @relation("fabrication_order_asked")
+  fabrication_orders_received         scm_fabrication_order[] @relation("fabrication_order_received")
   fabrication_orders_state_changes    scm_fabrication_oder_state_change[]
 
 }
@@ -88,6 +91,8 @@ model scm_article {
   article_assembly_relations  scm_assembly_relation_article[]
 
   files                       scm_article_file[]
+
+  fabrication_orders          scm_fabrication_order[]
 
 }
 
@@ -248,13 +253,38 @@ model scm_order {
   supplier_id         String
   supplier            scm_supplier @relation(references: [id], fields: [supplier_id], onDelete: Cascade)
 
-  state               String @default("draft")
+  state               scm_order_state @default(draft)
   name                String
 
   vat                 Float @default(0)
   delivery_fees       Float @default(0)
 
   order_rows          scm_order_rows[]
+  state_changes       scm_order_state_change[]
+}
+
+model scm_order_state_change {
+
+  id                    String @id @default(uuid()) @unique
+
+  order_id              String
+  order                 scm_order @relation(references: [id], fields: [order_id], onDelete: Cascade)
+
+  state                 scm_order_state
+  comment               String?
+  date                  DateTime @default(now())
+  
+  user_id               String @default("")
+  user                  User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+}
+
+enum scm_order_state {
+  draft
+  sent
+  acknowledged
+  completed
+  cancelled
 }
 
 model scm_order_rows {
@@ -282,7 +312,7 @@ model scm_order_rows {
   received_quantity   Float  @default(0)
 }
 
-model scm_fabrication_orders {
+model scm_fabrication_order {
 
   id                  String @id @default(uuid()) @unique
 
@@ -292,16 +322,20 @@ model scm_fabrication_orders {
   receiver_id         String?
   receiver            User? @relation("fabrication_order_received", references: [id], fields: [receiver_id], onDelete: Cascade)
 
-  article             String? @default("")
-  project             String? @default("")
-  quantity            Float?  @default(0)
-  state               String? @default("")
+  article_id          String
+  article             scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
+
+  project_id          String?
+  project             pr_project? @relation(references: [id], fields: [project_id], onDelete: Cascade)
+
+  quantity            Float @default(1)
+  state               scm_fabrication_order_state @default(draft)
 
   start_date          DateTime?
   end_date            DateTime?
 
-  created             DateTime? @default(now())
-  updated             DateTime? @updatedAt
+  created             DateTime @default(now())
+  updated             DateTime @updatedAt
 
   state_changes       scm_fabrication_oder_state_change[]
 
@@ -312,9 +346,9 @@ model scm_fabrication_oder_state_change {
   id                    String @id @default(uuid()) @unique
 
   fabrication_order_id  String
-  fabrication_order     scm_fabrication_orders @relation(references: [id], fields: [fabrication_order_id], onDelete: Cascade)
+  fabrication_order     scm_fabrication_order @relation(references: [id], fields: [fabrication_order_id], onDelete: Cascade)
 
-  state                 String
+  state                 scm_fabrication_order_state
   comment               String?
   date                  DateTime @default(now())
   
@@ -323,22 +357,41 @@ model scm_fabrication_oder_state_change {
 
 }
 
+enum scm_fabrication_order_state {
+  draft
+  sent
+  acknowledged
+  completed
+  cancelled
+}
+
 model crm_company {
 
   id      String  @id @default(uuid()) @unique
 
   name    String
-  type    String?
-  sector  String?
-  country String?
-  field   String?
-  size    String?
+  size    crm_company_size
   
-  created DateTime? @default(now())
-  updated DateTime? @updatedAt
+  country String?
+  sector  String?
+  type    String?
+  
+  created DateTime @default(now())
+  updated DateTime @updatedAt
 
   contacts crm_company_contact[]
   leads crm_leads[]
+
+}
+
+enum crm_company_size {
+
+  tiny
+  small
+  medium
+  big
+  large
+  huge
 
 }
 
@@ -347,17 +400,17 @@ model crm_company_contact {
   id           String  @id @default(uuid()) @unique
   
   name         String
-  company_role String?
+  position     String?
   address      String?
   phone        String?
-  spoken_langs String?
   email        String?
+  spoken_langs String[]
 
   company_id   String
   company      crm_company @relation(references: [id], fields: [company_id], onDelete: Cascade)      
 
-  created       DateTime? @default(now())
-  updated       DateTime? @updatedAt
+  created       DateTime @default(now())
+  updated       DateTime @updatedAt
 
   attached_leads crm_leads_contacts[]
 
@@ -441,6 +494,8 @@ model pr_project {
   order_rows          scm_order_rows[]
   
   attached_users      pr_project_attached_user[]
+
+  fabrication_orders  scm_fabrication_order[]
 
 }
 
