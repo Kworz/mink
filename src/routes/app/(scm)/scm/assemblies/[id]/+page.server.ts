@@ -3,7 +3,7 @@ import { deleteFile, saveFile } from "$lib/server/files";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import type { scm_assembly } from "@prisma/client";
 import type { PageServerLoad, Actions } from "./$types";
-import type { SCMAssemblyTree } from "$lib/components/assemblies/assemblyTree";
+import type { SCMAssemblyTree } from "$lib/components/derived/assemblies/assemblyTree";
 
 export const load = (async ({ locals, params }) => {
 

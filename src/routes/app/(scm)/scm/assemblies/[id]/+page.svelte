@@ -12,7 +12,6 @@
     import Flex from "$lib/components/generics/layout/flex.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
-    
     import type { ActionData, PageData } from "./$types";
     import Grid from "$lib/components/generics/layout/grid.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
@@ -21,8 +20,8 @@
     import ArticleFinder from "$lib/components/derived/article/ArticleFinder.svelte";
     import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
-    import type { SCMArticleWithIncludes } from "$lib/components/article/article";
-    import type { SCMAssemblyRelationArticle, SCMAssemblyRelationSubAssembly } from "@prisma/client";
+    import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
+    import type { scm_assembly_relation_article, scm_assembly_relation_sub_assembly } from "@prisma/client";
     import AssemblyPreview from "$lib/components/derived/assemblies/AssemblyPreview.svelte";
 
     export let data: PageData;
@@ -35,10 +34,10 @@
 
     let moveRelationsToSubAssembly = false;
 
-    let addArticleSelected: SCMArticleWithIncludes | undefined = undefined;
+    let addArticleSelected: scm_articleWithIncludes | undefined = undefined;
 
-    let deleteArticleRelation: SCMAssemblyRelationArticle | undefined = undefined;
-    let deleteSubAssemblyRelation: SCMAssemblyRelationSubAssembly | undefined = undefined;
+    let deleteArticleRelation: scm_assembly_relation_article | undefined = undefined;
+    let deleteSubAssemblyRelation: scm_assembly_relation_sub_assembly | undefined = undefined;
 
     let selectedArticles: string[] = [];
     let selectedAssemblies: string[] = [];
