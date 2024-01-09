@@ -1,13 +1,11 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
-    
     import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
     import Button from "$lib/components/generics/Button.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
-    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
+    import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher();
 
