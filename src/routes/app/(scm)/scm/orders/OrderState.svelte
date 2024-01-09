@@ -1,48 +1,35 @@
-<script context="module" lang="ts">
-
-    export type OrderStateOptions = "draft" | "quotation" | "ordered" | "acknowledged" | "cancelled" | "completed";
-    
-    export const OrderStateOptionsValues: Record<OrderStateOptions, string> = {
-        "draft": "draft",
-        "quotation": "quotation",
-        "ordered": "ordered",
-        "acknowledged": "acknowledged",
-        "cancelled": "cancelled",
-        "completed": "completed"
-    };
-
-</script>
-
 <script lang="ts">
-
-    import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
+    import RoundedLabel, { type Roles } from "$lib/components/generics/RoundedLabel.svelte";
+    import type { scm_order_state } from "@prisma/client";
     import { ArchiveBoxXMark, Check, DocumentMagnifyingGlass, DocumentText, Envelope, EnvelopeOpen } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     
-    export let state: OrderStateOptions;
+    export let state: scm_order_state;
 
-    let icons: Record<OrderStateOptions, typeof DocumentText> = {
+    let icons: Record<scm_order_state, typeof DocumentText> = {
         "draft": DocumentText,
         "quotation": DocumentMagnifyingGlass,
-        "ordered": Envelope,
+        "sent": Envelope,
         "acknowledged": EnvelopeOpen,
         "cancelled": ArchiveBoxXMark,
         "completed": Check
     };
 
-    let names: Record<OrderStateOptions, string> = {
+    // TODO: Repla ce with i18n
+
+    let names: Record<scm_order_state, string> = {
         "draft": "Brouillon",
         "quotation": "Demande de devis",
-        "ordered": "Commandé",
+        "sent": "Commandé",
         "acknowledged": "A/R recu",
         "completed": "Terminée",
-        "cancelled": "Anullée"
+        "cancelled": "Annulée"
     };
 
-    let roleChoosen = {
+    const roleChoosen: Record<scm_order_state, Roles> = {
         "draft": "secondary",
         "quotation": "info",
-        "ordered": "warning",
+        "sent": "warning",
         "acknowledged": "info",
         "completed": "success",
         "cancelled": "warning"

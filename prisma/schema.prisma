@@ -281,6 +281,7 @@ model scm_order_state_change {
 
 enum scm_order_state {
   draft
+  quotation
   sent
   acknowledged
   completed
