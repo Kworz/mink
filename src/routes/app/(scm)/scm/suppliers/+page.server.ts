@@ -2,7 +2,7 @@ import type { scm_supplier } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load = (async ({ locals }) => {
-    const suppliers = await locals.prisma.scm_store.findMany();
+    const suppliers = await locals.prisma.scm_supplier.findMany();
     return {
         suppliers
     }
