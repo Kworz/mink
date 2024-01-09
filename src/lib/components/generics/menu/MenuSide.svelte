@@ -28,6 +28,8 @@
 
 </script>
 
+<svelte:window on:keydown={e => e.key === "Escape" && dispatch("close")} />
+
 <Portal target="#side_menu">
     <div class="m-4 h-[calc(100vh-2rem)] rounded-xl shrink-0 bg-zinc-800 shadow-2xl duration-300 p-4 w-max relative">
 

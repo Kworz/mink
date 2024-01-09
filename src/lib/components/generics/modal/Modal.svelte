@@ -12,6 +12,8 @@
 
 </script>
 
+<svelte:window on:keydown={e => e.key === "Escape" && dispatch("close")} />
+
 <Portal target="body">
     <div class="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50" in:fade={{ duration:100 }} out:fade={{ duration: 100 }}>
 
