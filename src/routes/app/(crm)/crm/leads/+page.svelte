@@ -2,10 +2,10 @@
     import { browser } from "$app/environment";
     import { goto, invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
+    import EmptyData from "$lib/components/EmptyData.svelte";
     import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
     import type { FilterCondition } from "$lib/components/derived/filter/filter2";
     import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
-    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
@@ -40,22 +40,19 @@
     }
 
     $: filter, activeSort, itemsPage, triggerRefresh();  
-    
     $: if(form !== null) { invalidateAll(); };
 
 </script>
 
-<Wrapper>
-    <h3>Leads</h3>
-    <p>Listes des pistes commerciales</p>
-    <p>Nombre de pistes: <DetailLabel>{data.leads.totalItems}</DetailLabel>.</p>
+<h1>Leads</h1>
+<p>Listes des pistes commerciales</p>
+<p>Nombre de pistes: <DetailLabel>{data.leads.length}</DetailLabel>.</p>
 
-    <PillMenu>
-        <PillMenuButton icon={PlusCircle} click={() => createLead = !createLead}>Créer une piste</PillMenuButton>
-    </PillMenu>
-</Wrapper>
+<PillMenu>
+    <PillMenuButton icon={PlusCircle} click={() => createLead = !createLead}>Créer une piste</PillMenuButton>
+</PillMenu>
 
-<Wrapper class="mt-6">
+{#if data.leads.length > 0}
     <Filter2 bind:filter bind:filters availableFilters={[
         { name: "company.name", default: true },
         { name: "state" },
@@ -63,24 +60,24 @@
     ]} />
 
     <Table embeded headers={[{ label: "Société" }, { label: "Statut" }, { label: "Contact" }, { label: "Intérets" }, { label: "Origines" }, { label: "Commentaire" }]}>
-        {#each data.leads.items as lead}
+        {#each data.leads as lead}
             <TableCell>
-                <h5>{lead.expand?.company.name}</h5>
-                <span class="text-sm text-zinc-500 block">{[lead.expand?.company.field, lead.expand?.company.sector, lead.expand?.company.type].filter(l => l != "").join(" / ")}</span>
-                <span class="text-sm text-zinc-500 block">Pays: {lead.expand?.company.country}</span>                    
+                <h5>{lead.company.name}</h5>
+                <span class="text-sm text-zinc-500 block">{[lead.company.sector, lead.company.type].filter(l => l != "").join(" / ")}</span>
+                <span class="text-sm text-zinc-500 block">Pays: {lead.company.country}</span>                    
             </TableCell>
             <TableCell>{lead.state || "—"}</TableCell>
             <TableCell>
                 <Flex gap={2} items="center" wrap="wrap">
-                    {#each lead.expand?.company_contacts ?? [] as contact}
-                        <CompanyContact {contact} />
+                    {#each lead.contacts as contact}
+                        <CompanyContact contact={contact.contact} />
                     {/each}
                 </Flex>
             </TableCell>
             <TableCell>
                 <Flex gap={2} items="center" wrap="wrap">
-                    {#each lead.expand?.["crm_leads_interests(lead)"] ?? [] as interest}
-                        <InterestLabel interest={interest.expand?.interest} />
+                    {#each lead.interests as interest}
+                        <InterestLabel interest={interest.interest} />
                     {/each}
                 </Flex>
             </TableCell>
@@ -90,4 +87,6 @@
     </Table>
 
     <TablePages totalPages={data.leads.totalPages} bind:currentPage={itemsPage} />
-</Wrapper>
+{:else}
+    <EmptyData on:click={() => createLead = true} />
+{/if}
