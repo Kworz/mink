@@ -1,21 +1,20 @@
 <script lang="ts">
     import { browser } from "$app/environment";
+    import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
-    import Button from "$lib/components/generics/Button.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import EmptyData from "$lib/components/EmptyData.svelte";
     import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Button from "$lib/components/generics/Button.svelte";
+    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
-    import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
-    import { PlusCircle, PuzzlePiece, Star, VideoCameraSlash } from "@steeze-ui/heroicons";
+    import { PlusCircle, VideoCameraSlash } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
-    import { enhance } from "$app/forms";
-
-    import { env } from "$env/dynamic/public";
-    import Modal from "$lib/components/generics/modal/Modal.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -51,39 +50,40 @@
 {/if}
 
 <h1>Liste des assemblages</h1>
+<p>Créez des assemblages, définissez vos produits et visualisez leurs dépendances !</p>
 
 <PillMenu>
     <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>Créer un assemblage</PillMenuButton>
 </PillMenu>
 
-<Filter2 bind:filter bind:filters availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }, { name: "favorite", type: "boolean" }]} class="mt-6" />
+{#if data.assemblies.length > 0}
+    <Filter2 bind:filter bind:filters availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }, { name: "favorite", type: "boolean" }]} class="mt-6" />
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:cols-4 gap-4 mt-6">
-    {#each data.assemblies as assembly}
-        <Wrapper>
-
-            <a href="/app/scm/assemblies/{assembly.id}">
-                <Flex items="center">
-                
-                    {#if assembly.thumbnail !== null}
-                        <img src={assembly.thumbnail} alt="Miniature {assembly.name}" class="aspect-square object-cover h-24 duration-100 rounded-md ring-1 ring-zinc-400/25" />
-                    {:else}
-                        <div class="aspect-square object-cover rounded-md border h-24 border-zinc-500/50">
-                            <Icon src={VideoCameraSlash} class="h-full w-8 m-auto text-red-500" />
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:cols-4 gap-4 mt-6">
+        {#each data.assemblies as assembly}
+            <Wrapper>
+    
+                <a href="/app/scm/assemblies/{assembly.id}">
+                    <Flex items="center">
+                    
+                        {#if assembly.thumbnail !== null}
+                            <img src={assembly.thumbnail} alt="Miniature {assembly.name}" class="aspect-square object-cover h-24 duration-100 rounded-md ring-1 ring-zinc-400/25" />
+                        {:else}
+                            <div class="aspect-square object-cover rounded-md border h-24 border-zinc-500/50">
+                                <Icon src={VideoCameraSlash} class="h-full w-8 m-auto text-red-500" />
+                            </div>
+                        {/if}
+    
+                        <div>
+                            <p>{assembly.name}</p>
+                            <p class="text-zinc-500 text-base font-normal">{assembly.description}</p>
                         </div>
-                    {/if}
+                    </Flex>
+                </a>    
+            </Wrapper>
+        {/each}
+    </div>
+{:else}
+    <EmptyData on:click={() => createAssembly = true }/>
+{/if}
 
-                    <div>
-                        <p>
-                            {#if 1 == 2}<Icon src={Star} theme="solid" class="h-4 w-4 mb-1 mr-0.25 text-violet-500 inline" />{/if}
-                            {assembly.name}
-                        </p>
-                        <p class="text-zinc-500 text-base font-normal">{assembly.description}</p>
-                    </div>
-                </Flex>
-            </a>    
-        </Wrapper>
-    {:else}
-        <h3 class="text-orange-500">Aucun assemblage créé</h3>
-    {/each}
-</div>
