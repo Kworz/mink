@@ -29,3 +29,7 @@ export const articleIncludeQuery = {
 export type scm_articleWithIncludes = Prisma.scm_articleGetPayload<{
     include: typeof articleIncludeQuery
 }>;
+
+export const computeArticlePrice = (orderRows: scm_articleWithIncludes["order_rows"]): number => {
+    return orderRows.reduce((p, c) => p + (c.ack_price ?? 0) * c.needed_quantity, 0) / orderRows.reduce((p, c) => p + c.needed_quantity, 0);
+}
