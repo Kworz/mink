@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model user {
   id                     String  @id @unique
 
   email                  String  @unique
@@ -18,8 +18,8 @@ model User {
   updated                DateTime @updatedAt
   created                DateTime @default(now())
 
-  auth_session           Session[]
-  key                    Key[]
+  auth_session           auth_session[]
+  key                    auth_key[]
 
   article_movements      scm_article_movements[]
   
@@ -34,7 +34,7 @@ model User {
 
 }
 
-model UserInvitation {
+model user_invitation {
 
   id                     String  @id @unique @default(uuid())
   email                  String  @unique
@@ -43,26 +43,43 @@ model UserInvitation {
   
 }
 
-model Session {
-  id        String  @id @unique
-  user_id   String  
-  active_expires BigInt
-  idle_expires  BigInt
-  user User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+model auth_session {
+  id                String  @id @unique
+  user_id           String  
+  active_expires    BigInt
+  idle_expires      BigInt
+  user              user @relation(references: [id], fields: [user_id], onDelete: Cascade)
 }
 
-model Key {
-  id              String  @id @unique
-  hashed_password String?
-  user_id         String
-  user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
+model auth_key {
+  id                  String  @id @unique
+  hashed_password     String?
+  user_id             String
+  user                user    @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   @@index([user_id])
 }
 
-model AppSettings {
-  key             String  @id @unique
+model app_settings {
+  key             app_settings_keys  @id @unique
   value           String
+}
+
+enum app_settings_keys {
+
+  // mink settings
+  app_configured
+
+  // company settings
+  company_name
+
+  company_address_road
+  company_address_city
+  company_address_postal_code
+  company_address_country
+
+  company_default_vat
+
 }
 
 model scm_article {
@@ -106,21 +123,47 @@ model scm_article_file {
 }
 
 model scm_supplier {
-  id            String @id @default(uuid()) @unique
+  id                      String @id @default(uuid()) @unique
   
-  name          String
-  internal      Boolean @default(false)
-  logo          String?
+  name                    String
+  internal                Boolean @default(false)
+  logo                    String?
 
-  email         String?
-  phone         String?
-  website       String?
+  email                   String?
+  phone                   String?
+  website                 String?
 
-  address       String?
+  address_road_number     String?
+  address_road_name       String?
+  address_city            String?
+  address_postal_code     String?
+  address_country         String?
 
-  payment_rule  String?
+  payment_method          payment_method[]
+  payment_rule            payment_rule
 
-  orders        scm_order[]
+  orders                  scm_order[]
+
+}
+
+enum payment_method {
+  cash
+  bank_transfer
+  credit_card
+  check
+  paypal
+  other
+}
+
+enum payment_rule {
+
+  immediate
+  on_receipt
+  on_delivery
+  on_order
+  on_invoice
+  on_invoice_30
+  on_invoice_60
 
 }
 
@@ -134,7 +177,7 @@ model scm_article_movements {
   quantity_update     Float  @default(0)
 
   user_id             String
-  user User           @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user user           @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   store_in_id         String?
   store_in            scm_store? @relation("store_out", references: [id], fields: [store_in_id], onDelete: Cascade)
@@ -248,7 +291,7 @@ model scm_order {
   updated             DateTime @updatedAt
 
   issuer_id           String
-  issuer              User @relation(references: [id], fields: [issuer_id], onDelete: Cascade)
+  issuer              user @relation(references: [id], fields: [issuer_id], onDelete: Cascade)
 
   supplier_id         String
   supplier            scm_supplier @relation(references: [id], fields: [supplier_id], onDelete: Cascade)
@@ -275,7 +318,7 @@ model scm_order_state_change {
   date                  DateTime @default(now())
   
   user_id               String @default("")
-  user                  User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user                  user @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
 }
 
@@ -318,10 +361,10 @@ model scm_fabrication_order {
   id                  String @id @default(uuid()) @unique
 
   askedBy_id          String
-  askedBy             User @relation("fabrication_order_asked", references: [id], fields: [askedBy_id], onDelete: Cascade)
+  askedBy             user @relation("fabrication_order_asked", references: [id], fields: [askedBy_id], onDelete: Cascade)
   
   receiver_id         String?
-  receiver            User? @relation("fabrication_order_received", references: [id], fields: [receiver_id], onDelete: Cascade)
+  receiver            user? @relation("fabrication_order_received", references: [id], fields: [receiver_id], onDelete: Cascade)
 
   article_id          String
   article             scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
@@ -354,7 +397,7 @@ model scm_fabrication_oder_state_change {
   date                  DateTime @default(now())
   
   user_id               String @default("")
-  user                  User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user                  user @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
 }
 
@@ -510,6 +553,6 @@ model pr_project_attached_user {
   project             pr_project @relation(references: [id], fields: [project_id], onDelete: Cascade)
 
   user_id             String
-  user                User @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user                user @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
 }

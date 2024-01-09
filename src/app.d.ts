@@ -8,6 +8,7 @@
 import type { PrismaClient } from "@prisma/client";
 import type { Auth } from "$lib/server/lucia";
 import type { AppSettings } from "$lib/server/settings";
+import type { S3Client } from "@aws-sdk/client-s3";
 
 declare global {
 
@@ -15,10 +16,12 @@ declare global {
 		// interface Error {}
 	
 		interface Locals {
-			prisma: PrismaClient
-
+			prisma: PrismaClient;
 			lucia: import("lucia").AuthRequest
 			session: Awaited<ReturnType<typeof import("lucia").AuthRequest.prototype.validate>>
+
+			s3: S3Client;
+
 			appSettings: AppSettings
 		}
 	
