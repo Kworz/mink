@@ -16,8 +16,6 @@
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
     import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
     import Price from "$lib/components/generics/formatters/Price.svelte";
-    import { onMount } from "svelte";
-    import { page } from "$app/stores";
     
     export let data: PageData;
     export let form: ActionData;
@@ -58,33 +56,33 @@
     <Table 
         headers={["selectAll", { label: "Article"}, { label: "Total" }, ...data.lists.map(k => { return { label: k.name }})]}
         class="mt-6"
-        on:selectall={() => { selected = (allSelected) ? [] : data.flattenAssemblyReference.map(k => k.article.id)}}
+        on:selectall={() => { selected = (allSelected) ? [] : data.flattenAssemblyReference.map(far => far.article_child_id)}}
         bind:allSelected
     >
         {#each data.flattenAssemblyReference as assemblyRow}
 
             <TableCell>
-                <input type="checkbox" bind:group={selected} value={assemblyRow.article.id} />
+                <input type="checkbox" bind:group={selected} value={assemblyRow.article_child_id} />
             </TableCell>
 
             <TableCell>
-                <ArticleRow article={assemblyRow.article} displayStock displayApprox />
+                <ArticleRow article={assemblyRow.article_child} displayStock displayApprox />
             </TableCell>
 
             <TableCell>
-                {@const itemsAdded = data.storeRelations.filter(r => r.article === assemblyRow.article.id).reduce((p, c) => p+c.quantity, 0)}
+                {@const itemsAdded = data.storeRelations.filter(r => r.article_id === assemblyRow.article_child_id).reduce((p, c) => p + c.quantity, 0)}
                 {@const itemsTotal = assemblyRow.quantity * data.lists.length}
                 <RoundedLabel role={(itemsAdded != itemsTotal ? (itemsAdded === 0) ? "danger" : "warning" : "success")} class="self-center">{`${itemsAdded} / ${itemsTotal}`}</RoundedLabel>
             </TableCell>
 
             {#each data.lists as list}
-                {@const buyListRelation = data.storeRelations.find((r) => r.store === list.store && r.article === assemblyRow.article.id)}
+                {@const buyListRelation = data.storeRelations.find((r) => r.store_id === list.store_id && r.article_id === assemblyRow.article_child_id)}
 
                 <TableCell position="center">
                     <form action="/app/scm/lists/grid/?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
 
-                        {#if form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article.id]}
-                            {@const data = form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article.id]}
+                        {#if form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article_child_id]}
+                            {@const data = form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article_child_id]}
 
                             {#if data.storesToGetFrom !== undefined}
                                 <FormInput type="select" name="store" label="Choisir un stock de provenance" labelMandatory>
@@ -103,20 +101,20 @@
                             {/if}
                         {/if}
 
-                        <input type="hidden" name="article" value={assemblyRow.article.id} />
+                        <input type="hidden" name="article" value={assemblyRow.article_child_id} />
                         <input type="hidden" name="list" value={list.id} />
 
                         <Flex items="center" gap={2}>
                             <FormInput 
                                 name="quantity"
                                 type="number" 
-                                step={assemblyRow.article.unit === "" ? 1 : 0.1} 
+                                step={assemblyRow.article_child.unit === "" ? 1 : 0.1} 
                                 value={buyListRelation?.quantity ?? 0}
                                 min={0}
                                 max={assemblyRow.quantity}
                                 valid={buyListRelation?.quantity >= assemblyRow.quantity}
-                                invalid={form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article.id]?.error !== undefined}
-                                label={form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article.id]?.error ?? (form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article.id]?.success ?? undefined)}
+                                invalid={form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article_child_id]?.error !== undefined}
+                                label={form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article_child_id]?.error ?? (form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article_child_id]?.success ?? undefined)}
                                 validateOnChange
                             />
                             /
