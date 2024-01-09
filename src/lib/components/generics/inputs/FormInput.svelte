@@ -26,6 +26,8 @@
 
     export let backColors = "bg-gray-200 dark:bg-zinc-700";
     export let parentClass: string | undefined = undefined;
+
+    export let autocomplete: string | undefined = undefined;
     
     const baseStyle = ""
 
@@ -86,7 +88,7 @@
             <span>{label}</span>
         </Flex>
     {:else}
-        <input use:typeAction {name} {form} bind:value {min} {max} {step} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}/>
+        <input use:typeAction {name} {form} bind:value {min} {max} {step} {autocomplete} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}/>
     {/if}
 
     {#if validateButton}
