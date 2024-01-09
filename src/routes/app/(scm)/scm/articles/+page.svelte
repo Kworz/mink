@@ -21,6 +21,7 @@
     import TablePages from "$lib/components/generics/table/TablePages.svelte";
     import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
     import type { PageData, Snapshot } from "./$types";
+    import EmptyData from "$lib/components/EmptyData.svelte";
 
     export let data: PageData;
 
@@ -69,82 +70,87 @@
 <PillMenu message={selected.length > 0 ? `${selected.length} articles sélectionnés` : undefined}>
     <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>Créer un article</PillMenuButton>
     <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">Importer des articles</PillMenuButton>
-    <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
     {#if selected.length > 0}
+        <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
         <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>Imprimer les étiquettes</PillMenuButton>
     {/if}
 </PillMenu>
 
-<Filter2 class="my-6" bind:filters availableFilters={[
-    { name: "name", default: true, type: "string" },
-    { name: "reference", type: "string" },
-    { name: "manufacturer", type: "string" },
-    { name: "critical_quantity", type: "number"},
-    { name: "consumable", type: "boolean" }]}
-    on:filter={(e) => editQueryParams({ filter: e.detail })}
-/>
+{#if data.articles.length > 0}
+    <Filter2 class="my-6" bind:filters availableFilters={[
+        { name: "name", default: true, type: "string" },
+        { name: "reference", type: "string" },
+        { name: "manufacturer", type: "string" },
+        { name: "critical_quantity", type: "number"},
+        { name: "consumable", type: "boolean" }]}
+        on:filter={(e) => editQueryParams({ filter: e.detail })}
+    />
 
-<Table headers={[
-    "selectAll", 
-    { label: `Article (${data.totalItems})`, colname: "name" }, 
-    { label: "Consommable" }, 
-    { label: "Stock" }, 
-    { label: "Emplacements" }, 
-    { label: "Référence" }, 
-    { label: "Fournisseurs" }, 
-    { label: "Marque" },    
-    { label: "PUMP" }, 
-    { label: "Total prix stock"}]}
-    selectables={data.articles.map(a => a.id)}
-    bind:selected={selected}
-    bind:sort={data.sort}
-    on:sort={(e) => editQueryParams({ sort: e.detail })}
->
-    {#each data.articles as article (article.id)}
+    <Table headers={[
+        "selectAll", 
+        { label: `Article (${data.totalItems})`, colname: "name" }, 
+        { label: "Consommable" }, 
+        { label: "Stock" }, 
+        { label: "Emplacements" }, 
+        { label: "Référence" }, 
+        { label: "Fournisseurs" }, 
+        { label: "Marque" },    
+        { label: "PUMP" }, 
+        { label: "Total prix stock"}]}
+        selectables={data.articles.map(a => a.id)}
+        bind:selected={selected}
+        bind:sort={data.sort}
+        on:sort={(e) => editQueryParams({ sort: e.detail })}
+    >
+        {#each data.articles as article (article.id)}
 
-        {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)} <!-- TODO: Deprecate this, find a way to calculate article price -->
-        {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
+            {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)} <!-- TODO: Deprecate this, find a way to calculate article price -->
+            {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
 
-            <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
-            <TableCell>
-                <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayApprox />
-            </TableCell>
-            <TableCell>
-                <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? "Oui" : "Non"}</RoundedLabel>
-            </TableCell>
-            <TableCell>
-                {#if article.critical_quantity}
-                    <span
-                        class:text-red-500={stock_quantity <= article.critical_quantity}
-                        class:font-semibold={stock_quantity <= article.critical_quantity}
-                    >
+                <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
+                <TableCell>
+                    <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayApprox />
+                </TableCell>
+                <TableCell>
+                    <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? "Oui" : "Non"}</RoundedLabel>
+                </TableCell>
+                <TableCell>
+                    {#if article.critical_quantity}
+                        <span
+                            class:text-red-500={stock_quantity <= article.critical_quantity}
+                            class:font-semibold={stock_quantity <= article.critical_quantity}
+                        >
+                            {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
+                        </span>         
+                    {:else}               
                         {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
-                    </span>         
-                {:else}               
-                    {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
-                {/if}
-            </TableCell>
-            <TableCell>
-                {#each article.store_relations.reduce((c, p) => [...c, p.store], new Array()) as store}
-                    <Store {store} />
-                {/each}
-            </TableCell>
-            <TableCell>{article.reference}</TableCell>
-            <TableCell>
-                <Flex gap={2} direction="col" items="start">
-                    {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.includes(p) ? c : [...c, p], new Array())}
-                    {#each suppliers as supplier}
-                        <Supplier {supplier} />
-                    {:else}
-                        —
+                    {/if}
+                </TableCell>
+                <TableCell>
+                    {#each article.store_relations.reduce((c, p) => [...c, p.store], new Array()) as store}
+                        <Store {store} />
                     {/each}
-                </Flex>
-            </TableCell>
-            <TableCell>{(article.internal) ? $page.data.settings.appCompanyName : article.brand}</TableCell>
-            
-            <TableCell><Price value={price} /></TableCell>
-            <TableCell><Price value={price * stock_quantity} /></TableCell>
-    {/each}
-</Table>
+                </TableCell>
+                <TableCell>{article.reference}</TableCell>
+                <TableCell>
+                    <Flex gap={2} direction="col" items="start">
+                        {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.includes(p) ? c : [...c, p], new Array())}
+                        {#each suppliers as supplier}
+                            <Supplier {supplier} />
+                        {:else}
+                            —
+                        {/each}
+                    </Flex>
+                </TableCell>
+                <TableCell>{(article.internal) ? $page.data.settings.appCompanyName : article.brand}</TableCell>
+                
+                <TableCell><Price value={price} /></TableCell>
+                <TableCell><Price value={price * stock_quantity} /></TableCell>
+        {/each}
+    </Table>
 
-<TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={data.page} on:change={(e) => editQueryParams({ page: e.detail })} />
+    <TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={data.page} on:change={(e) => editQueryParams({ page: e.detail })} />
+{:else}
+    <EmptyData on:click={() => createArticle = true } />
+{/if}
+
