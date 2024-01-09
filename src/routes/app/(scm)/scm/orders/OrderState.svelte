@@ -16,7 +16,6 @@
     };
 
     // TODO: Repla ce with i18n
-
     let names: Record<scm_order_state, string> = {
         "draft": "Brouillon",
         "quotation": "Demande de devis",
