@@ -27,6 +27,7 @@
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import { computeArticlePrice } from "$lib/components/derived/article/article";
 
     export let data: PageData;
     export let form: ActionData;
@@ -41,7 +42,7 @@
     $: if(form !== null) { setTimeout(() => form = null, 3000); }
         
     $: articleQuantity = data.article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
-    $: articlePrice = data.article.order_rows.flatMap(or => new Array(or.needed_quantity).fill(or.ack_price ?? 0)).reduce((p, c) => p = p + c, 0) / data.article.order_rows.reduce((p, c) => p = p + c.needed_quantity, 0);
+    $: articlePrice = computeArticlePrice(data.article.order_rows);
     $: exploitableStoreRelations = data.article.store_relations.filter(sr => !sr.store.temporary && sr.quantity > 0);
     $: articlePreffedStores = data.article.store_relations.filter(sr => sr.quantity > 0).map(sr => sr.store_id);
     $: suppliers = data.article.order_rows.reduce((p, c) => [...p, c.order.supplier], new Array());

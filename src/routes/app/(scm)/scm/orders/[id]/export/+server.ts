@@ -1,4 +1,4 @@
-import { articleIncludeQuery } from "$lib/components/derived/article/article";
+import { articleIncludeQuery, computeArticlePrice } from "$lib/components/derived/article/article";
 import { LabelDocument } from "$lib/label/labelDocument";
 import type jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -21,11 +21,11 @@ export const GET: RequestHandler = async ({ params, locals }) => {
             headStyles: { fillColor: [0, 0, 0] },
             footStyles: { fillColor: [139, 92, 246] },
             head: [["Projet", "Désignation", "Référence", "Quantité", "Délai", "UO", "Prix Unitaire", "Prix total"]],
-            body: order.order_rows.map(row => [row.project?.name, row.article.name, row.article.reference, row.needed_quantity, (row.needed_date) ? row.needed_date : "—", "U", `${round(row.article.price, 2)} €`, `${round(row.needed_quantity * (row.article.price ?? 0), 2)} €`]),
+            body: order.order_rows.map(row => [row.project?.name ?? "—", row.article.name, row.article.reference, row.needed_quantity, (row.needed_date) ? row.needed_date : "—", "U", `${round(computeArticlePrice(row.article.order_rows), 2)} €`, `${round(row.needed_quantity * computeArticlePrice(row.article.order_rows), 2)} €`]),
             foot: [
-                ["Total HT", { content: `${round(order.order_rows.reduce((acc, row) => acc + (row.needed_quantity * (row.expand?.article.price ?? 0)), 0), 2)} €`, colSpan: 7, styles: { halign: "right" }}],
-                ["TVA 20%", { content: `${round(order.order_rows.reduce((acc, row) => acc + (row.needed_quantity * (row.expand?.article.price ?? 0)), 0) * 0.2, 2)} €`, colSpan: 7, styles: { halign: "right" }}],
-                ["Total TTC", { content: `${round(order.order_rows.reduce((acc, row) => acc + (row.needed_quantity * (row.expand?.article.price ?? 0)), 0) * 1.2, 2)} €`, colSpan: 7, styles: { halign: "right" }}]
+                ["Total HT", { content: `${round(order.order_rows.reduce((acc, row) => acc + (row.needed_quantity * computeArticlePrice(row.article.order_rows)), 0), 2)} €`, colSpan: 7, styles: { halign: "right" }}],
+                ["TVA 20%", { content: `${round(order.order_rows.reduce((acc, row) => acc + (row.needed_quantity * computeArticlePrice(row.article.order_rows)), 0) * 0.2, 2)} €`, colSpan: 7, styles: { halign: "right" }}],
+                ["Total TTC", { content: `${round(order.order_rows.reduce((acc, row) => acc + (row.needed_quantity * computeArticlePrice(row.article.order_rows)), 0) * 1.2, 2)} €`, colSpan: 7, styles: { halign: "right" }}]
             ],
             showFoot: "lastPage",
         });
@@ -78,6 +78,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     }
     catch(ex){
         console.error(ex);
+        return new Response("Internal server error", { status: 500 });
     }
 
 };
