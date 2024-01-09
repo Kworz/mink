@@ -31,6 +31,7 @@
 </PillMenu>
 
 <h1>Ordres de fabrication</h1>
+<p>Créez des ordres de fabrication pour faire le suivi de la fabrication de vos pièces!</p>
 
 {#if fabricationOrders.length > 0}
     <Table embeded={true} headers={[{ label: "Article" }, { label: "Etat" }, { label: "Quantité" }, { label: "Projet" }, { label: "Demandeur" }, { label: "Receveur" }, { label: "Date de butoire" }]}> 
