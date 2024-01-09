@@ -37,11 +37,11 @@
             </button>
         {/if}
         {#if title}
-            <h3>{title}</h3>
+            <h3 class="mr-12">{title}</h3>
             <div class="mt-3 mb-4 h-[1px] w-full bg-zinc-400/25" />
         {/if}
         
-        <div class="w-max h-max duration-300 px-[1px] overflow-y-scroll">
+        <div class="w-full h-max duration-300 px-[1px] overflow-y-scroll">
             <slot />
         </div>
     </div>
