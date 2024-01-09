@@ -22,15 +22,23 @@ export const actions: Actions = {
 
         const form = await request.formData();
 
-        // TODO: Check for missing data
+        const articleId = form.get("article")?.toString();
+        const receiverId = form.get("receiver")?.toString();
+        const quantity = Number(form.get("quantity")?.toString());
+
+        if(articleId === undefined)
+            return fail(400, { error: "Article not found" });
+
+        if(Number.isNaN(quantity))
+            return fail(400, { error: "Quantity is not a number" });
 
         const fabricationOrder = await locals.prisma.scm_fabrication_order.create({
             data: {
+                article_id: articleId,
                 askedBy_id: locals.session!.user.id,
-                receiver_id: form.get("receiver_id")?.toString() ?? "",
+                receiver_id: receiverId,
                 state: scm_fabrication_order_state.draft,
-                article_id: form.get("article_id")?.toString() ?? "",
-                quantity: parseInt(form.get("quantity")?.toString() ?? "0"),
+                quantity,
             }
         });
 

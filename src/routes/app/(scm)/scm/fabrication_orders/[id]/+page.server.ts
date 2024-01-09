@@ -1,6 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
+import { scm_fabrication_order_state } from "@prisma/client";
 
 export const load = (async ({ params, locals }) => {
 
@@ -35,11 +36,38 @@ export const actions: Actions = {
         try
         {
             const form = await request.formData();
-            await locals.prisma.scm_fabrication_order.update({ where: { id: params.id }, data: form });
+
+            const receiverId = form.get("receiver")?.toString();
+            const quantity = Number(form.get("quantity")?.toString());
+            const endDate = form.get("end_date")?.toString();  
+            const state = form.get("state")?.toString(); 
+                        
+            if(Number.isNaN(quantity)) return fail(400, { edit: { error: "Quantity is not a number" }});
+            if(state === undefined || state === "" || !Object.keys(scm_fabrication_order_state).includes(state)) return fail(400, { edit: { error: "State is invalid" }});
+
+            const { state: oldState } = await locals.prisma.scm_fabrication_order.findUniqueOrThrow({ where: { id: params.id }});
+
+            await locals.prisma.scm_fabrication_order.update({ where: { id: params.id }, data: {
+                receiver_id: receiverId === "" ? null : receiverId,
+                quantity,
+                end_date: endDate === "" || endDate === undefined ? null : new Date(endDate),
+                state: (state as scm_fabrication_order_state)
+            }});
+
+            if(oldState !== state)
+            {
+                await locals.prisma.scm_fabrication_oder_state_change.create({ data: {
+                    fabrication_order_id: params.id,
+                    user_id: locals.session!.user.id,
+                    state: state as scm_fabrication_order_state,
+                }})
+            }
+
         }
         catch(ex)
         {
-            return { edit: { error: ex }};
+            console.log(ex);
+            return fail(500, { edit: { error: "Failed to update the fabrication order" }});
         }
 
         return { edit: { success: "Successfully updated fabrication order" }};
@@ -47,11 +75,20 @@ export const actions: Actions = {
     completeFabOrder: async ({ params, locals, request }) => {
 
         const form = await request.formData();
-        const storeIn = form.get("store_in")?.toString();
+        let storeIn = form.get("store_in")?.toString();
+        storeIn = storeIn === "" ? undefined : storeIn;
+
+        const singleStorePolicy = await locals.prisma.scm_store.count({ where: { temporary: false }}) === 1;
 
         try
         {
-            if(storeIn === undefined) return fail(400, { completeFabOrder: { error: "Missing store_in", stores: await locals.prisma.scm_store.findMany({ where: { temporary: false }}) }});
+            if(storeIn === undefined)
+            {
+                if(singleStorePolicy)
+                    storeIn = (await locals.prisma.scm_store.findFirst({ where: { temporary: false }}))!.id;
+                else
+                    return fail(400, { completeFabOrder: { error: "scm.fabricration_order.complete.error.missing_store_in", stores: await locals.prisma.scm_store.findMany({ where: { temporary: false }}) }});
+            }
 
             await locals.prisma.scm_fabrication_oder_state_change.create({ data: { fabrication_order_id: params.id, state: "completed", user_id: locals.session!.user.id }});
             const fabricationOrder = await locals.prisma.scm_fabrication_order.update({ where: { id: params.id }, data: { state: "completed" }});
@@ -68,7 +105,8 @@ export const actions: Actions = {
         }
         catch(ex)
         {
-            return { completeFabOrder: { error: ex }};
+            console.error(ex);
+            return fail(400, { completeFabOrder: { error: "Failed to complete fabrication order" }});
         }
 
         return { completeFabOrder: { success: "Successfully completed fabrication order" }};
