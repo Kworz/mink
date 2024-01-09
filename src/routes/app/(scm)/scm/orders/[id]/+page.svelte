@@ -14,31 +14,20 @@
     import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { Printer, Trash } from "@steeze-ui/heroicons";
-    import { type OrderStateOptions, OrderStateOptionsValues } from "../OrderState.svelte";
-
     import type { ActionData, PageData } from "./$types";
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
     import Date from "$lib/components/generics/formatters/Date.svelte";
     import { enhance } from "$app/forms";
-    import type { SCMArticle } from "@prisma/client";
+    import { scm_order_state } from "@prisma/client";
     import Modal from "$lib/components/generics/modal/Modal.svelte";
+    import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
 
-    const states: Record<OrderStateOptions, string> = {
-        "draft": "Brouillon",
-        "quotation": "Demande de devis",
-        "ordered": "Commandé",
-        "acknowledged": "AR réceptionné",
-        "completed": "Terminée",
-        "cancelled": "Annulée"
-    }
-
-    const statesKeys = Object.keys(states) as Array<OrderStateOptions>;
-
-    let selectedArticle: SCMArticle | undefined = undefined;
+    let selectedArticle: scm_articleWithIncludes| undefined = undefined;
     let selectedArticleQuantity = 0;
 
     let confirmDelete = false;
     let deleteOrder = false;
+    let batchDeleteConfirm = false;
 
     let selectedOrderRows: string[] = [];
 
@@ -52,43 +41,6 @@
     $: if(form !== null) { invalidateAll(); selectedArticle = undefined; }
     $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 3500) };
     $: if(batchDeleteConfirm) { setTimeout(() => batchDeleteConfirm = false, 3500) };
-
-    const batchEditProject = async (project: string) => {
-
-        console.log("test");
-        for(const order_row of selectedOrderRows)
-        {
-            await $page.data.pb.collection(Collections.OrdersRows).update(order_row, {
-                project
-            });
-        }
-        await invalidateAll();
-    }
-
-    const batchEditACKDate = async (date: string) => {
-        for(const order_row of selectedOrderRows)
-        {
-            await $page.data.pb.collection(Collections.OrdersRows).update(order_row, {
-                ack_date: date
-            });
-        }
-        await invalidateAll();
-    }
-
-    let batchDeleteConfirm = false;
-    const batchDelete = async () => {
-        if(!batchDeleteConfirm)
-        {
-            batchDeleteConfirm = true;
-            return;
-        }
-        for(const order_row of selectedOrderRows)
-        {
-            await $page.data.pb.collection(Collections.OrdersRows).delete(order_row);
-        }
-        await invalidateAll();
-    }
-
 </script>
 
 <svelte:head>
@@ -116,8 +68,8 @@
 <form action="?/editOrder" method="post" use:enhanceNoReset class="flex md:flex-row flex-col gap-6 mt-6">
     <FormInput label="Description" labelMandatory name="name" value={data.order.name} validateOnChange parentClass="grow" />
     <FormInput label="Etat de la commande" type="select" name="state" value={data.order.state} validateOnChange>
-        {#each statesKeys as state}
-            <option value={state} class="capitalize">{states[state]}</option>
+        {#each Object.entries(scm_order_state) as state}
+            <option value={state} class="capitalize">{state}</option> <!-- TODO: i18n -->
         {/each}
     </FormInput>
 </form>
@@ -147,7 +99,7 @@
         { label: "Délai A/R" },
         { label: "Prix A/R" },
         { label: "Total" },
-        (data.order.state === OrderStateOptionsValues.draft) ? { label: "Supprimer" } : undefined
+        (data.order.state === scm_order_state.draft) ? { label: "Supprimer" } : undefined
         ]}
         selectables={data.order.order_rows.map(or => or.id)}
         bind:selected={selectedOrderRows}
@@ -156,27 +108,39 @@
         {#if selectedOrderRows.length > 1}
             <TableCell />
             <TableCell>
-                <FormInput type="select" name="project" change={(val) => void batchEditProject(val)}>
-                    <option value="">—</option>
-                    {#each data.projects as project}
-                        <option value={project.id}>{project.name}</option>
-                    {/each}
-                </FormInput>
+                <form action="?/batchEdit" use:enhanceNoReset method="post">
+                    <input type="hidden" value={selectedOrderRows.join(",")} name="order_rows" />
+                    <FormInput type="select" name="project" validateOnChange>
+                        <option value="">—</option>
+                        {#each data.projects as project}
+                            <option value={project.id}>{project.name}</option>
+                        {/each}
+                    </FormInput>
+                </form>
             </TableCell>
             <TableCell></TableCell>
             <TableCell></TableCell>
             <TableCell></TableCell>
             <TableCell>
-                {#if data.order.state === OrderStateOptionsValues.acknowledged}
-                    <FormInput type="date" name="ack_date" change={(val) => void batchEditACKDate(val)} />
-
+                {#if data.order.state === scm_order_state.acknowledged}
+                    <form action="?/batchEdit" use:enhanceNoReset method="post">
+                        <input type="hidden" value={selectedOrderRows.join(",")} name="order_rows" />
+                        <FormInput type="date" name="ack_date" validateOnChange />
+                    </form>
                 {/if}
             </TableCell>
             <TableCell></TableCell>
             <TableCell></TableCell>
-            {#if data.order.state === OrderStateOptionsValues.draft}
+            {#if data.order.state === scm_order_state.draft}
                 <TableCell>
-                    <Button size="small" role="danger" on:click={batchDelete}>{batchDeleteConfirm ? "Confirmer" : "Supprimer"} ({selectedOrderRows.length})</Button>
+                    <form action="?/batchDelete" use:enhanceNoReset method="post">
+                        <input type="hidden" value={selectedOrderRows.join(",")} name="order_rows" />
+                        {#if batchDeleteConfirm}
+                            <Button size="small" role="danger">Confirmer</Button>
+                        {:else}
+                            <Button size="small" role="danger" on:click={() => batchDeleteConfirm = true} preventSend>Supprimer les {selectedOrderRows.length} ligne(s)</Button>
+                        {/if}
+                    </form>
                 </TableCell>
             {/if}
         {/if}
@@ -186,7 +150,7 @@
                 <input type="checkbox" bind:group={selectedOrderRows} value={order_row.id} />
             </TableCell>
             <TableCell>
-                {#if data.order.state === OrderStateOptionsValues.draft}
+                {#if data.order.state === scm_order_state.draft}
                     <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
                         <FormInput type="select" name="project" bind:value={order_row.project_id} validateOnChange={true}>
@@ -203,7 +167,7 @@
             <TableCell><a href="/app/scm/articles/{order_row.article.id}">{order_row.article.name}</a></TableCell>
             <TableCell>{order_row.article.reference}</TableCell>
             <TableCell>
-                {#if data.order.state === OrderStateOptionsValues.draft}
+                {#if data.order.state === scm_order_state.draft}
                     <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
                         <FormInput type="number" name="needed_quantity" bind:value={order_row.needed_quantity} validateOnChange={true} min={order_row.article.order_quantity} step={order_row.article.order_quantity}/>
@@ -213,7 +177,7 @@
                 {/if}
             </TableCell>
             <TableCell>
-                {#if data.order.state === OrderStateOptionsValues.acknowledged}
+                {#if data.order.state === scm_order_state.acknowledged}
                     <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
                         <FormInput type="date" name="ack_date" value={order_row.ack_date?.toISOString().split("T").at(0) ?? undefined} validateOnChange={true} />
@@ -223,7 +187,7 @@
                 {/if}
             </TableCell>
             <TableCell>
-                {#if data.order.state === OrderStateOptionsValues.acknowledged}
+                {#if data.order.state === scm_order_state.acknowledged}
                     <form action="?/editOrderRow" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
                         <FormInput type="number" name="ack_price" label={order_row.ack_price === 0 ? "Prix a valider" : undefined} value={order_row.ack_price} validateOnChange={true} step={0.00001} min={0} />
@@ -233,7 +197,7 @@
                 {/if}
             </TableCell>
             <TableCell><Price value={(order_row.ack_price ?? 0) * order_row.needed_quantity} /></TableCell>
-            {#if data.order.state === OrderStateOptionsValues.draft}
+            {#if data.order.state === scm_order_state.draft}
                 <TableCell>
                     {#if confirmDelete}
                         <form action="?/deleteOrderRow" method="post" use:enhance>
@@ -249,7 +213,7 @@
     </Table>
 {/if}
 
-{#if data.order.state === OrderStateOptionsValues.draft}
+{#if data.order.state === scm_order_state.draft}
     <Wrapper class="mt-6">
         <h3 class="mb-3">Ajouter un article a la commande</h3>
         <form action="?/createOrderRow" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
