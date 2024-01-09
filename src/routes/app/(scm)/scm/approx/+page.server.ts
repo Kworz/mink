@@ -1,4 +1,5 @@
 import type { Actions, PageServerLoad } from "./$types";
+import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import { fail } from "@sveltejs/kit";
 
 export const load = (async ({ locals}) => {
@@ -9,7 +10,7 @@ export const load = (async ({ locals}) => {
                 order: { state: { in: ["acknowledged", "sent"] }},
                 received_quantity: { lt: locals.prisma.scm_order_rows.fields.needed_quantity }
             }, 
-            include: { article: { include: { order_rows: { include: { order: true }}, store_relations: { include: { store: true }}}}, order: { include: { supplier: true }}}
+            include: { article: { include: articleIncludeQuery }, order: true }
         });
     const suppliers = await locals.prisma.scm_supplier.findMany();
     const stores = await locals.prisma.scm_store.findMany();
