@@ -340,6 +340,8 @@ model scm_fabrication_order {
 
   state_changes       scm_fabrication_oder_state_change[]
 
+  @@index ([id])
+  
 }
 
 model scm_fabrication_oder_state_change {

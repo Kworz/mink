@@ -5,6 +5,9 @@ import { articleIncludeQuery } from "$lib/components/derived/article/article";
 export const load = (async ({ params, locals }) => {
 
     const fabricationOrder = await locals.prisma.scm_fabrication_order.findUnique({ where: { id: params.id }, include: { askedBy: true, receiver: true, article: { include: articleIncludeQuery }}});
+
+    if(fabricationOrder === null) return redirect(303, "/app/scm/fabrication_orders");
+
     const users = await locals.prisma.user.findMany();
 
     return { 
