@@ -11,7 +11,7 @@
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
-    import type { scm_supplier } from "@prisma/client";
+    import { payment_method, payment_rule, type scm_supplier } from "@prisma/client";
     import { Home, PlusCircle } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
@@ -20,6 +20,7 @@
     export let form: ActionData;
 
     let editSupplier: scm_supplier | undefined = undefined;
+
     let deleteConfirm: string | undefined = undefined;
     let createSupplier = false;
 
@@ -33,14 +34,10 @@
 </svelte:head>
 
 {#if editSupplier !== undefined || createSupplier}
+    <MenuSide closable on:close={() => { editSupplier = undefined; createSupplier = false; }} title="Créer un founisseur">
+        <form action="?/upsertSupplier" use:enhance method="post" enctype="multipart/form-data">
 
-    <MenuSide closable on:close={() => { editSupplier = undefined; createSupplier = false; }}>
-
-        <form action={createSupplier ? "?/createSupplier" : "?/editSupplier"} method="post" use:enhance>
-
-            {#if !createSupplier}
-                <input type="hidden" name="id" value={editSupplier?.id ?? ""} />
-            {/if}
+            {#if !createSupplier}<input type="hidden" name="id" value={editSupplier?.id ?? ""} />{/if}
 
             <Flex direction="col">
 
@@ -53,41 +50,50 @@
                     <FormInput type="file" name="logo" label="Logo fournisseur" backgroundColor="bg-white" />
                 {/if}
 
-                <FormInput name="name" label="Nom du fournisseur" labelMandatory={true} value={editSupplier?.name ?? ""}  backgroundColor="bg-white"/>
+                <FormInput name="name" label="Nom du fournisseur" labelMandatory={true} value={editSupplier?.name ?? ""}  backgroundColor="bg-white" autocomplete="organization"/>
+                
                 <Flex items="center" gap={2}>
                     <input type="checkbox" name="internal" checked={editSupplier?.internal ?? false}>
                     <span>Fournisseur interne</span>
                 </Flex>
-                <FormInput name="website" label="Site web" value={editSupplier?.website ?? ""} />
-                <FormInput name="address" label="Adresse" value={editSupplier?.address ?? ""} />
-                <FormInput type="email" name="email" label="Email de contact" value={editSupplier?.email ?? ""}/>
 
-                <FormInput type="select" name="payment_rule" value={editSupplier?.payment_rule ?? ""} label="Conditions de paiement" >
+                <FormInput name="website" label="Site web" value={editSupplier?.website ?? ""} autocomplete="website" />
+
+                <FormInput name="address_road" label="Rue" value={editSupplier?.address_road ?? ""} autocomplete="address-line1" />
+                <FormInput name="address_postal_code" label="Code postal" value={editSupplier?.address_postal_code ?? ""} autocomplete="postal-code" />
+                <FormInput name="address_city" label="Ville" value={editSupplier?.address_city ?? ""} autocomplete="address-level2" />
+                <FormInput name="address_country" label="Pays" value={editSupplier?.address_country ?? ""} autocomplete="country" />
+
+                <FormInput type="email" name="email" label="Email de contact" value={editSupplier?.email ?? ""} autocomplete="email" />
+
+                <FormInput type="select" name="payment_rule" value={editSupplier?.payment_rule ?? ""} label="Conditions de paiement">
                     <option value={undefined}>—</option>
-                    <option value="order">À la commande</option>
-                    <option value="received">À la reception</option>
-                    <option value="30eom">30 Jours fin du mois</option>
-                    <option value="45eom">45 Jours fin du mois</option>
-                    <option value="60d">60 Jours</option>
+                    {#each Object.keys(payment_rule) as paymentRule}
+                        <option value={paymentRule}>{paymentRule}</option>
+                    {/each}
                 </FormInput>
 
+                <FormInput type="select" name="payment_method" value={editSupplier?.payment_method ?? ""} label="Méthode de paiement" multiple>
+                    <option value={"test"}>—</option>
+                    {#each Object.keys(payment_method) as paymentMethod}
+                        <option value={paymentMethod}>{paymentMethod}</option>
+                    {/each}
+                </FormInput>
             </Flex>
 
             <Flex class="mt-6">
                 <Button role="success">Valider les modifications</Button>
-                <Button on:click={() => (createSupplier) ? createSupplier = false : editSupplier = undefined} role="warning">Annuler les modifications</Button>
+                <Button on:click={() => (createSupplier) ? createSupplier = false : editSupplier = undefined} role="warning" preventSend>Annuler les modifications</Button>
             </Flex>
-        
         </form>
     </MenuSide>
-    
 {/if}
 
 <h1>Liste des fournisseurs</h1>
 <p>Liste des fournisseurs disponibles.</p>
 
 <PillMenu>
-    <PillMenuButton icon={PlusCircle} click={() => createSupplier = true }>Créer un fournisseur</PillMenuButton>
+    <PillMenuButton icon={PlusCircle} click={() => createSupplier = true}>Créer un fournisseur</PillMenuButton>
 </PillMenu>
 
 {#if data.suppliers.length > 0}
@@ -108,7 +114,11 @@
                     </a>
                 </Flex>
             </TableCell>
-            <TableCell>{supplier.address}</TableCell>
+            <TableCell>
+                <p>{supplier.address_road}</p>
+                <p>{supplier.address_city}, {supplier.address_postal_code}</p>
+                <p class="uppercase">{supplier.address_country}</p>
+            </TableCell>
             <TableCell><a href="mailto:{supplier.email}">{supplier.email}</a></TableCell>
             <TableCell>
                 <Flex>

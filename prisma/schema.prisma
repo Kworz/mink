@@ -133,8 +133,7 @@ model scm_supplier {
   phone                   String?
   website                 String?
 
-  address_road_number     String?
-  address_road_name       String?
+  address_road            String?
   address_city            String?
   address_postal_code     String?
   address_country         String?

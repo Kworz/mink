@@ -1,7 +1,10 @@
-import type { scm_supplier } from "@prisma/client";
+import { payment_method, payment_rule } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
+import { fail } from "@sveltejs/kit";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export const load = (async ({ locals }) => {
+
     const suppliers = await locals.prisma.scm_supplier.findMany();
     return {
         suppliers
@@ -11,30 +14,81 @@ export const load = (async ({ locals }) => {
 
 export const actions: Actions = {
 
-    editSupplier: async ({ locals, request }) => {
-        try {
+    upsertSupplier: async ({ locals, request }) => {
+        try
+        {
             const form = await request.formData();
-            form.set("internal", String(form.has("internal")));
 
-            const supplierID = form.get("id")?.toString();
+            const supplierId = form.get("id")?.toString();
+            console.log(supplierId);
+            const name = form.get("name")?.toString();
 
-            if(supplierID === null)
-                throw "could not find supplier ID";
+            if(!name || name.length < 1) return fail(400, { error: "scm.supplier.update.error.no_name_given" });
 
-            if((form.get("logo") as (Blob | null))?.size === 0)
-                form.delete("logo");
+            const internal = form.has("internal");
 
-            await locals.prisma.scm_store.update({
-                where: { id: supplierID },
-                data: {
-                    ...(Object.fromEntries(form) as unknown as scm_supplier),
-                    internal: form.has("internal") && form.get("internal") === "true"
+            const website = form.get("website")?.toString();
+
+            const addressRoad = form.get("address_road")?.toString();
+            const addressCity = form.get("address_city")?.toString();
+            const addressPostalcode = form.get("address_postal_code")?.toString();
+            const addressCountry = form.get("address_country")?.toString();
+
+            const paymentRule = form.get("payment_rule")?.toString();
+            const paymentMethod = form.getAll("payment_method").map(m => m.toString());
+
+            if(paymentMethod !== undefined && !paymentMethod.every(m => Object.keys(payment_method).indexOf(m) !== -1))
+                throw "scm.supplier.update.error.invalid_payment_method";
+            
+            if(paymentRule !== undefined && Object.keys(payment_rule).indexOf(paymentRule) === -1)
+                throw "scm.supplier.update.error.invalid_payment_rule";
+
+            const { id } = await locals.prisma.scm_supplier.upsert({
+                where: { id: supplierId ?? "" },
+                create: {
+                    name,
+                    internal,
+                    website,
+                    address_road: addressRoad,
+                    address_city: addressCity,
+                    address_postal_code: addressPostalcode,
+                    address_country: addressCountry,
+                    payment_rule: (paymentRule as payment_rule),
+                    payment_method: (paymentMethod as payment_method[])
+                },
+                update: {
+                    name,
+                    internal,
+                    website,
+                    address_road: addressRoad,
+                    address_city: addressCity,
+                    address_postal_code: addressPostalcode,
+                    address_country: addressCountry,
+                    payment_rule: (paymentRule as payment_rule),
+                    payment_method: (paymentMethod as payment_method[])
                 }
-            })
+            });
 
-            return {
-                edit: { success: "scm.supplier.update.success" }
-            };
+            let logo: File | null | undefined = form.get("logo") as File | null;
+            logo = logo?.size ?? 0 === 0 ? undefined : logo;
+
+            if(logo)
+            {
+                const uploadCommande = new PutObjectCommand({
+                    Bucket: "mink-dev",
+                    Key: `scm/supplier/${id}/logo.${logo.name.split(".").at(-1)}`,
+                    Body: await logo.arrayBuffer()
+                });
+
+                const uploadResult = await locals.s3.send(uploadCommande);
+
+                if(!uploadResult.ETag)
+                    throw "scm.supplier.update.error.logo_upload_failed";
+
+                await locals.prisma.scm_supplier.update({ where: { id }, data: { logo: uploadResult.ETag }});
+            }
+
+            return { upsertSupplier: { success: "scm.supplier.update.success" }};
         }
         catch(ex)
         {
@@ -42,28 +96,6 @@ export const actions: Actions = {
             return {
                 edit: { error: "scm.supplier.update.error" }
             }
-        }
-    },
-    createSupplier: async ({ locals, request }) => {
-        try {
-            const form = await request.formData();
-
-            if((form.get("logo") as (File | null))?.size === 0)
-                form.delete("logo");
-
-            await locals.prisma.scm_store.create({
-                data: {
-                    ...(Object.fromEntries(form) as unknown as scm_supplier),
-                    internal: form.has("internal") && form.get("internal") === "true"
-                }
-            })
-
-            return { create: { success: "scm.supplier.create.success" }};
-        }
-        catch(ex)
-        {
-            console.log(ex);
-            return { create: { error: "scm.supplier.create.error" }};
         }
     },
     deleteSupplier: async ({ locals, request }) => {
