@@ -1,12 +1,13 @@
 <script lang="ts">
-    import TableCell from "$lib/components/generics/table/TableCell.svelte";
-    import Table from "$lib/components/generics/table/Table.svelte";
-    import type { PageData } from "./$types";
-    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
-    import { page } from "$app/stores";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
     import { browser } from "$app/environment";
     import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
+    import EmptyData from "$lib/components/EmptyData.svelte";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import type { PageData } from "./$types";
 
     export let data: PageData;
 
@@ -35,13 +36,17 @@
 
 <h1>Stock: {data.store.name}</h1>
 <p>Emplacement: {data.store.location}</p>
-<p>Stock temporaire: {data.store.temporary}</p>
+<p>Stock temporaire: {data.store.temporary ? "Oui" : "Non"}</p>
 
-<Table headers={[{ label: "Article", colname: "article.name" }, { label: "Quantité", colname: "quantity" }]} bind:sorts={activeSort} class="mt-6">
-    {#each data.store.store_relations as relation}
-        <TableCell>
-            <ArticleRow article={relation.article} />
-        </TableCell>
-        <TableCell>{relation.quantity}</TableCell>
-    {/each}
-</Table>
+{#if data.store.store_relations.length > 0}
+    <Table headers={[{ label: "Article", colname: "article.name" }, { label: "Quantité", colname: "quantity" }]} bind:sorts={activeSort} class="mt-6">
+        {#each data.store.store_relations as relation}
+            <TableCell>
+                <ArticleRow article={relation.article} />
+            </TableCell>
+            <TableCell>{relation.quantity}</TableCell>
+        {/each}
+    </Table>
+{:else}
+    <EmptyData />
+{/if}
