@@ -1,12 +1,13 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { getSettings } from "$lib/server/settings";
+import { app_settings_keys } from "@prisma/client";
 
 export const load = (async ({ locals }) => {
 
     try
     {
-        const storedSettings = await locals.prisma.appSettings.findMany();
+        const storedSettings = await locals.prisma.app_settings.findMany();
         const settings = getSettings(storedSettings);
 
         return { 
@@ -35,9 +36,12 @@ export const actions: Actions = {
             if(key === undefined || value === undefined)
                 throw "app.settings.update.error.missing_key_or_value";
 
-            await locals.prisma.appSettings.upsert({
-                where: { key },
-                create: { key, value },
+            if(Object.keys(app_settings_keys).indexOf(key) === -1)
+                throw "app.settings.update.error.invalid_key";
+
+            await locals.prisma.app_settings.upsert({
+                where: { key: key as app_settings_keys },
+                create: { key: key as app_settings_keys, value },
                 update: { value }
             });
 
