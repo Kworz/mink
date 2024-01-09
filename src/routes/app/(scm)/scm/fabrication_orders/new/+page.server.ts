@@ -1,6 +1,7 @@
 import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
+import { scm_fabrication_order_state } from "@prisma/client";
 
 export const load = (async ({ locals }) => {
 
@@ -23,11 +24,11 @@ export const actions: Actions = {
 
         // TODO: Check for missing data
 
-        const fabricationOrder = await locals.prisma.scm_fabrication_orders.create({
+        const fabricationOrder = await locals.prisma.scm_fabrication_order.create({
             data: {
                 askedBy_id: locals.session!.user.id,
                 receiver_id: form.get("receiver_id")?.toString() ?? "",
-                state: 'asked',
+                state: scm_fabrication_order_state.draft,
                 article_id: form.get("article_id")?.toString() ?? "",
                 quantity: parseInt(form.get("quantity")?.toString() ?? "0"),
             }
