@@ -9,13 +9,14 @@
     import Button from "$lib/components/generics/Button.svelte";
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
-    import Modal from "$lib/components/generics/modal/Modal.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { PlusCircle, Printer, Squares2x2 } from "@steeze-ui/heroicons";
     import type { PageData, Snapshot } from "./$types";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
+    import EmptyData from "$lib/components/EmptyData.svelte";
 
     export let data: PageData;
 
@@ -46,24 +47,8 @@
 
 </script>
 
-<h1>Listes d'achat d'assemblages</h1>
-<FormInput type="checkbox" name="" label="Afficher les listes terminées" bind:checked={showClosedLists} />
-
-<PillMenu message={(selected.length > 0 ? `${selected.length} éléments sélectionnés` : undefined)}>
-    <PillMenuButton icon={PlusCircle} click={() => createList = !createList}>Créer une liste</PillMenuButton>
-    {#if selected.length > 0}
-        {@const firstList = data.lists.find(list => list.id === selected[0])}
-        {#if !selected.some(s => data.lists.find(l => l.id === s)?.assembly !== firstList?.assembly)}
-            <PillMenuButton role="primary" icon={Squares2x2} click={() => goto(`/app/scm/lists/grid?ids=${selected.join(",")}`)}>Ouvrir la grille</PillMenuButton>
-        {/if}
-
-        <PillMenuButton role="secondary" icon={Printer} click={() => window.open(`/app/scm/lists/print?lists=${selected.join(",")}`, '_blank')}>Imprimer</PillMenuButton>
-    {/if}
-</PillMenu>
-
 {#if createList}
-    <Modal on:close={() => createList = false} title="Créer une liste">
-
+    <MenuSide closable on:close={() => createList = false} title="Créer une liste">
         <form action="?/createBuyList" method="post" use:enhance class="flex flex-col gap-4">
             <FormInput name="name" label="Nom de la liste" labelMandatory />
             <FormInput name="assembly_id" type="select" label="Assemblage" labelMandatory >
@@ -85,36 +70,58 @@
 
             <Button>Créer</Button>
         </form>
-
-    </Modal>
+    </MenuSide>
 {/if}
 
-<Filter2 bind:filter bind:filters availableFilters={[
-    { name: "name", default: true, type: "string" },
-    { name: "assembly.name", type: "string" },
-    { name: "project.name", type: "string" },
-    { name: "closed", type: "boolean" }
-]} class="mt-6" />
 
-<Table 
-    headers={[
-        "selectAll",
-        { label: "Liste", colname: "name" },
-        { label: "Terminée", colname: "closed" },
-        { label: "Assemblage de base", colname: "assembly.name" },
-        { label: "Affaire", colname: "project.name" }
-    ]}
-    selectables={lists.map(l => l.id)}
-    bind:selected={selected}
-    class="mt-6"
->
 
-    {#each lists as list}
-        <TableCell position="center"><input type="checkbox" bind:group={selected} value={list.id} /></TableCell>
-        <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
-        <TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>
-        <TableCell><AssemblyPreview assembly={list.assembly} /></TableCell>
-        <TableCell>{list.project?.name}</TableCell>
-    {/each}
+<h1>Listes d'achat d'assemblages</h1>
+<p>Suivez précisément les achats pour votre nomenclature.</p>
 
-</Table>
+<PillMenu message={(selected.length > 0 ? `${selected.length} éléments sélectionnés` : undefined)}>
+    <PillMenuButton icon={PlusCircle} click={() => createList = !createList}>Créer une liste</PillMenuButton>
+    {#if selected.length > 0}
+        {@const firstList = data.lists.find(list => list.id === selected[0])}
+        {#if !selected.some(s => data.lists.find(l => l.id === s)?.assembly !== firstList?.assembly)}
+            <PillMenuButton role="primary" icon={Squares2x2} click={() => goto(`/app/scm/lists/grid?ids=${selected.join(",")}`)}>Ouvrir la grille</PillMenuButton>
+        {/if}
+
+        <PillMenuButton role="secondary" icon={Printer} click={() => window.open(`/app/scm/lists/print?lists=${selected.join(",")}`, '_blank')}>Imprimer</PillMenuButton>
+    {/if}
+</PillMenu>
+
+{#if data.lists.length > 0}
+    <FormInput type="checkbox" name="" label="Afficher les listes terminées" bind:checked={showClosedLists} />
+
+    <Filter2 bind:filter bind:filters availableFilters={[
+        { name: "name", default: true, type: "string" },
+        { name: "assembly.name", type: "string" },
+        { name: "project.name", type: "string" },
+        { name: "closed", type: "boolean" }
+    ]} class="mt-6" />
+
+    <Table 
+        headers={[
+            "selectAll",
+            { label: "Liste", colname: "name" },
+            { label: "Terminée", colname: "closed" },
+            { label: "Assemblage de base", colname: "assembly.name" },
+            { label: "Affaire", colname: "project.name" }
+        ]}
+        selectables={lists.map(l => l.id)}
+        bind:selected={selected}
+        class="mt-6"
+    >
+
+        {#each lists as list}
+            <TableCell position="center"><input type="checkbox" bind:group={selected} value={list.id} /></TableCell>
+            <TableCell><a href="/app/scm/lists/{list.id}">{list.name}</a></TableCell>
+            <TableCell><RoundedLabel role={list.closed ? "success" : "warning"}>{list.closed ? "Terminée" : "En cours"}</RoundedLabel></TableCell>
+            <TableCell><AssemblyPreview assembly={list.assembly} /></TableCell>
+            <TableCell>{list.project?.name}</TableCell>
+        {/each}
+
+    </Table>
+{:else}
+    <EmptyData on:click={() => createList = true} />
+{/if}
