@@ -8,10 +8,18 @@
 
 <form action="?/addCompanyDetails" method="post" use:enhance class="flex flex-col gap-4 mt-6">
 
-    <FormInput label="Nom de votre société" name="companyName" type="text" required labelMandatory />
-    <FormInput label="Adresse de votre société" name="companyAddress" type="text" required labelMandatory />
+    <FormInput label="Nom de votre société" name="company_name" type="text" required labelMandatory autocomplete="organization" />
 
-    <FormInput label="Taux de TVA par défaut" name="companyDefaultVat" type="number" required labelMandatory />
+    <h5>Adresse</h5>
+
+    <FormInput label="Nom de rue" name="company_road" type="text" required labelMandatory autocomplete="address-line1" />
+    <FormInput label="Code postal" name="company_postal_code" type="text" required labelMandatory autocomplete="postal-code" />
+    <FormInput label="Ville" name="company_city" type="text" required labelMandatory autocomplete="address-level2" />
+    <FormInput label="Pays" name="company_country" type="text" required labelMandatory autocomplete="country" />
+
+    <h5>Fiscalité</h5>
+
+    <FormInput label="Taux de TVA par défaut" name="company_default_vat" type="number" required labelMandatory />
 
     <Button class="w-full">Créer la société</Button>
 

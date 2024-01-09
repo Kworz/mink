@@ -5,21 +5,38 @@ export const actions = {
         const form = await request.formData();
 
         try {
-            const companyName = form.get("companyName")?.toString();
-            const companyAddress = form.get("companyAddress")?.toString();
-            const companyDefaultVat = form.get("companyDefaultVat")?.toString();
+            const companyName = form.get("company_name")?.toString();
 
-            if (companyName === undefined || companyAddress === undefined || companyDefaultVat === undefined)
+            const companyAddressRoad = form.get("company_road")?.toString();
+            const companyAddressPostalCode = form.get("company_postal_code")?.toString();
+            const companyAddressCity = form.get("company_city")?.toString();
+            const companyAddressCountry = form.get("company_country")?.toString();
+            
+            const companyDefaultVat = form.get("company_default_vat")?.toString();
+
+            if (companyName === undefined || 
+                companyAddressRoad === undefined ||
+                companyAddressPostalCode === undefined ||
+                companyAddressCity === undefined ||
+                companyAddressCountry === undefined ||
+                companyDefaultVat === undefined
+            )
                 throw new Error("Missing required fields");
 
             if (companyName?.length < 3)
                 throw new Error("Company name must be at least 3 characters long");
 
-            await locals.prisma.appSettings.create({ data: { key: "appCompanyName", value: companyName }});
-            await locals.prisma.appSettings.create({ data: { key: "appCompanyAddress", value: companyAddress }});
-            await locals.prisma.appSettings.create({ data: { key: "appCompanyDefaultVat", value: companyDefaultVat }});
-            await locals.prisma.appSettings.create({ data: { key: "appConfigured", value: "true" }});
-
+            await locals.prisma.app_settings.createMany({
+                data: [
+                    { key: "app_configured", value: "true" },
+                    { key: "company_name", value: companyName },
+                    { key: "company_address_road", value: companyAddressRoad },
+                    { key: "company_address_postal_code", value: companyAddressPostalCode },
+                    { key: "company_address_city", value: companyAddressCity },
+                    { key: "company_address_country", value: companyAddressCountry },
+                    { key: "company_default_vat", value: companyDefaultVat },
+                ]
+            });
         }
         catch(ex)
         {

@@ -1,34 +1,43 @@
-import type { AppSettings as StoredAppSettings } from "@prisma/client";
+import { app_settings_keys, type app_settings } from "@prisma/client";
 
-export type AppSettings = {
+const defaultSettings = {
 
-    appConfigured: boolean,
-    appCompanyName: string,
-    appCompanyAddress: string,
-    appCompanyDefaultVat: number
+    app_configured: true,
 
-};
+    company_name: "Your Company Name",
+    company_address_road: "",
+    company_address_city: "",
+    company_address_postal_code: "",
+    company_address_country: "",
 
-const defaultSettings: AppSettings = {
+    company_default_vat: 20,
 
-    appConfigured: true,
-    appCompanyName: "Your Company Name",
-    appCompanyAddress: "Your Company Address",
-    appCompanyDefaultVat: 20
+} satisfies Record<app_settings_keys, boolean | string | number>;
 
-};
+export type appSettings = typeof defaultSettings;
 
 /**
  * Convert stored app settings to app settings with defaults for unset values
  * @param storedAppSettings App settings stored in the database
+ * @throws
  * @returns Exploitable app settings
  */
-export const getSettings = (storedAppSettings: Array<StoredAppSettings>) => {
+export const getSettings = (storedAppSettings: Array<app_settings>): typeof defaultSettings | undefined => {
+
+    const appIsConfigured = storedAppSettings.find(s => s.key === "app_configured")?.value === "true";
+
+    if(appIsConfigured === false) return undefined;
 
     return {
-        appConfigured: storedAppSettings.find(s => s.key === "appConfigured")?.value === "true",
-        appCompanyName: storedAppSettings.find(s => s.key === "appCompanyName")?.value ?? defaultSettings.appCompanyName,
-        appCompanyAddress: storedAppSettings.find(s => s.key === "appCompanyAddress")?.value ?? defaultSettings.appCompanyAddress,
-        appCompanyDefaultVat: Number(storedAppSettings.find(s => s.key === "appCompanyDefaultVat")?.value ?? defaultSettings.appCompanyDefaultVat)
+        app_configured: true,
+
+        company_name: storedAppSettings.find(s => s.key === "company_name")?.value ?? defaultSettings.company_name,
+
+        company_address_road: storedAppSettings.find(s => s.key === "company_address_road")?.value ?? defaultSettings.company_address_road,
+        company_address_city: storedAppSettings.find(s => s.key === "company_address_city")?.value ?? defaultSettings.company_address_city,
+        company_address_postal_code: storedAppSettings.find(s => s.key === "company_address_postal_code")?.value ?? defaultSettings.company_address_postal_code,
+        company_address_country: storedAppSettings.find(s => s.key === "company_address_country")?.value ?? defaultSettings.company_address_country,
+
+        company_default_vat: Number(storedAppSettings.find(s => s.key === "company_default_vat")?.value ?? defaultSettings.company_default_vat),
     }
 }
