@@ -2,25 +2,24 @@
     import { browser } from "$app/environment";
     import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
-    import type { SCMSupplier } from "@prisma/client";
-    
+    import EmptyData from "$lib/components/EmptyData.svelte";
     import Button from "$lib/components/generics/Button.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
-    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
-    import Table from "$lib/components/generics/table/Table.svelte";
-    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
+    import Table from "$lib/components/generics/table/Table.svelte";
+    import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import type { scm_supplier } from "@prisma/client";
     import { Home, PlusCircle } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-
     import type { ActionData, PageData } from "./$types";
 
     export let data: PageData;
     export let form: ActionData;
 
-    let editSupplier: SCMSupplier | undefined = undefined;
+    let editSupplier: scm_supplier | undefined = undefined;
     let deleteConfirm: string | undefined = undefined;
     let createSupplier = false;
 
@@ -91,37 +90,41 @@
     <PillMenuButton icon={PlusCircle} click={() => createSupplier = true }>Créer un fournisseur</PillMenuButton>
 </PillMenu>
 
-<Table class="mt-6" headers={[{ label: "Nom du fournisseur"}, { label: "Adresse"}, { label: "Adresse mail"}, { label: "Actions" }]}>  
-    {#each data.suppliers as supplier}
-        <TableCell>
-            <Flex items="center">
-                {#if supplier.internal}
-                    <Icon src={Home} class="h-4 w-4" />
-                {/if}
-                <a href={supplier.website ?? "#"}>
-                    {#if supplier.logo !== null}
-                        <img src={supplier.logo} alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
+{#if data.suppliers.length > 0}
+    <Table class="mt-6" headers={[{ label: "Nom du fournisseur"}, { label: "Adresse"}, { label: "Adresse mail"}, { label: "Actions" }]}>  
+        {#each data.suppliers as supplier}
+            <TableCell>
+                <Flex items="center">
+                    {#if supplier.internal}
+                        <Icon src={Home} class="h-4 w-4" />
                     {/if}
-                    <span>
-                        {supplier.name}
-                    </span>
-                </a>
-            </Flex>
-        </TableCell>
-        <TableCell>{supplier.address}</TableCell>
-        <TableCell><a href="mailto:{supplier.email}">{supplier.email}</a></TableCell>
-        <TableCell>
-            <Flex>
-                {#if deleteConfirm === supplier.id}
-                    <form action="?/deleteSupplier" method="post" use:enhance>
-                        <input type="hidden" name="id" value={supplier.id} />
-                        <Button size="small" role="danger">Confirmer</Button>
-                    </form>
-                {:else}
-                    <Button size="small" role="danger" on:click={() => deleteConfirm = supplier.id}>Supprimer</Button>
-                {/if}
-                <Button size="small" role="warning" on:click={() => editSupplier = supplier}>Modifier</Button>
-            </Flex>
-        </TableCell>
-    {/each}
-</Table>
+                    <a href={supplier.website ?? "#"}>
+                        {#if supplier.logo !== null}
+                            <img src={supplier.logo} alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
+                        {/if}
+                        <span>
+                            {supplier.name}
+                        </span>
+                    </a>
+                </Flex>
+            </TableCell>
+            <TableCell>{supplier.address}</TableCell>
+            <TableCell><a href="mailto:{supplier.email}">{supplier.email}</a></TableCell>
+            <TableCell>
+                <Flex>
+                    {#if deleteConfirm === supplier.id}
+                        <form action="?/deleteSupplier" method="post" use:enhance>
+                            <input type="hidden" name="id" value={supplier.id} />
+                            <Button size="small" role="danger">Confirmer</Button>
+                        </form>
+                    {:else}
+                        <Button size="small" role="danger" on:click={() => deleteConfirm = supplier.id}>Supprimer</Button>
+                    {/if}
+                    <Button size="small" role="warning" on:click={() => editSupplier = supplier}>Modifier</Button>
+                </Flex>
+            </TableCell>
+        {/each}
+    </Table>
+{:else}
+    <EmptyData on:click={() => createSupplier = true} />
+{/if}

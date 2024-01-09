@@ -1,27 +1,26 @@
 <script lang="ts">
-    import { ExclamationTriangle, PlusCircle } from "@steeze-ui/heroicons";
-
-    import type { ActionData, PageData } from "./$types";
+    import { enhance } from "$app/forms";
+    import { invalidateAll } from "$app/navigation";
+    import EmptyData from "$lib/components/EmptyData.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
+    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
-    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
-    import { enhance } from "$app/forms";
-    import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
-    import Button from "$lib/components/generics/Button.svelte";
-    import { invalidateAll } from "$app/navigation";
-    
-    import Modal from "$lib/components/generics/modal/Modal.svelte";
-    import type { SCMStore } from "@prisma/client";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
+    import type { scm_store } from "@prisma/client";
+    import { ExclamationTriangle, PlusCircle } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
+    import type { ActionData, PageData } from "./$types";
 
     export let data: PageData;
     export let form: ActionData;
 
     let createStore = false;
-    let editStore: SCMStore | undefined = undefined;
-    let deleteStoreConfirm: SCMStore | undefined = undefined;
+    let editStore: scm_store | undefined = undefined;
+    let deleteStoreConfirm: scm_store | undefined = undefined;
 
     $: if(form !== null) { invalidateAll(); createStore = false; editStore = undefined; }
 
@@ -72,25 +71,30 @@
     </MenuSide>
 {/if}
 
-<Table headers={[{ label: "Nom de l'emplacement" }, { label: "Localisation" }, { label: "Actions" }]} class="mt-6">
+{#if data.stores.length > 0}
+    <Table headers={[{ label: "Nom de l'emplacement" }, { label: "Localisation" }, { label: "Actions" }]} class="mt-6">
+        {#each data.stores as store}
+            <TableCell><a href="/app/scm/stores/{store.id}">{store.name}</a></TableCell>
+            <TableCell>{store.location}</TableCell>
+            <TableCell>
+                <div class="flex flex-row gap-4 items-center">
+                    <Button role="warning" size="small" on:click={() => editStore = store}>
+                        Modifier
+                    </Button>
+                    <form action="?/deleteStore" method="post" use:enhance>
+                        <input type="hidden" name="id" value={store.id} />
+                        {#if deleteStoreConfirm?.id === store.id}
+                            <Button role="danger" size="small">Confirmer</Button>
+                        {:else}
+                            <Button role="danger" size="small" preventSend on:click={() => deleteStoreConfirm = store}>Supprimer</Button>
+                        {/if}
+                    </form>
+                </div>
+            </TableCell>
+        {/each}
+    </Table>
+{:else}
+    <EmptyData on:click={() => createStore = true} />
+{/if}
 
-    {#each data.stores as store}
-        <TableCell><a href="/app/scm/stores/{store.id}">{store.name}</a></TableCell>
-        <TableCell>{store.location}</TableCell>
-        <TableCell>
-            <div class="flex flex-row gap-4 items-center">
-                <Button role="warning" size="small" on:click={() => editStore = store}>
-                    Modifier
-                </Button>
-                <form action="?/deleteStore" method="post" use:enhance>
-                    <input type="hidden" name="id" value={store.id} />
-                    {#if deleteStoreConfirm?.id === store.id}
-                        <Button role="danger" size="small">Confirmer</Button>
-                    {:else}
-                        <Button role="danger" size="small" preventSend on:click={() => deleteStoreConfirm = store}>Supprimer</Button>
-                    {/if}
-                </form>
-            </div>
-        </TableCell>
-    {/each}
-</Table>
+
