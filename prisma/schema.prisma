@@ -339,8 +339,6 @@ model scm_fabrication_order {
   updated             DateTime @updatedAt
 
   state_changes       scm_fabrication_oder_state_change[]
-
-  @@index ([id])
   
 }
 
@@ -362,8 +360,8 @@ model scm_fabrication_oder_state_change {
 
 enum scm_fabrication_order_state {
   draft
-  sent
-  acknowledged
+  ready
+  in_progress
   completed
   cancelled
 }
