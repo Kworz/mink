@@ -9,7 +9,8 @@
     <div class="flex flex-row gap-8 items-center">
         <Icon src={CubeTransparent} class="w-36 text-violet-500" theme="solid" />
         <div>
-            <h2 class="mb-4">Aucun élément à afficher 😅</h2>
+            <h2>Aucun élément à afficher 😅</h2>
+            <p class="mb-4">Vous n'avez pas encore créé d'élément ici!</p>
             <Button on:click size="small" class="self-center">Créer votre premier élément</Button>
         </div>
     </div>
