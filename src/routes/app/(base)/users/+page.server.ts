@@ -4,7 +4,7 @@ import { fail, type Actions } from "@sveltejs/kit";
 export const load = (async ({ locals }) => {
     
     const users = await locals.prisma.user.findMany();
-    const invitations = await locals.prisma.userInvitation.findMany();
+    const invitations = await locals.prisma.user_invitation.findMany();
 
     return { users, invitations };
 
@@ -17,7 +17,7 @@ export const actions: Actions = {
         try
         {
             // create table in prisma to generate an invitation code
-            const invivation = await locals.prisma.userInvitation.create({
+            const invivation = await locals.prisma.user_invitation.create({
                 data: {
                     email: form.get("email") as string,
                 }
