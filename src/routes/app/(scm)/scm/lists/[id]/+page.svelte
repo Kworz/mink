@@ -16,9 +16,10 @@
     import { Check, DocumentChartBar, DocumentPlus, QrCode, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData, Snapshot } from "./$types";
+    import type { scm_store } from "@prisma/client";
     
     export let data: PageData;
-    export let form: ActionData;
+    export let form: ActionData | { buyListRelationEdit: { article: { [x:string]: ({ storesToGetFrom: scm_store[] } | { storesToSendTo: scm_store[]})}}}; // issue in sveltekit because of typescript https://github.com/sveltejs/kit/issues/9727
 
     let filters: Array<FilterCondition> = [];
     let filter: string = "";
@@ -101,10 +102,10 @@
         <TableCell>
             <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
 
-                {#if form?.buyListRelationEdit?.[assemblyRelation.far.article.id]}
-                    {@const data = form.buyListRelationEdit[assemblyRelation.far.article.id]}
+                {#if form?.buyListRelationEdit !== undefined && "article" in form.buyListRelationEdit}
+                    {@const data = form.buyListRelationEdit.article[assemblyRelation.article_child_id]}
 
-                    {#if data.storesToGetFrom !== undefined}
+                    {#if "storesToGetFrom" in data}
                         <FormInput type="select" name="store" label="Choisir un stock de provenance" labelMandatory>
                             {#each data.storesToGetFrom as store}
                                 <option value={store.id}>{store.name}</option>
@@ -112,7 +113,7 @@
                         </FormInput>
                     {/if}
 
-                    {#if data.storesToSendTo !== undefined}
+                    {#if "storesToSendTo" in data}
                         <FormInput type="select" name="store" label="Choisir un stock de destination">
                             {#each data.storesToSendTo as store}
                                 <option value={store.id}>{store.name}</option>
@@ -123,7 +124,12 @@
 
                 <input type="hidden" name="article" value={assemblyRelation.article_child_id} />
                 <input type="hidden" name="buylist" value={data.list.id} />
-                <FormInput name="quantity" type="number" step={assemblyRelation.article_child.unit ? 1 : 0.01} value={associatedStoreRelation?.quantity ?? 0} max={assemblyRelation.quantity} invalid={form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.error !== undefined} label={form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.error ?? (form?.buyListRelationEdit[`${assemblyRelation.far.article.id}`]?.success ?? undefined)} />
+                <FormInput name="quantity" type="number" step={assemblyRelation.article_child.unit ? 1 : 0.01} 
+                    max={assemblyRelation.quantity} 
+                    value={form?.buyListRelationEdit?.article[`${assemblyRelation.article_child_id}`]?.quantity ?? associatedStoreRelation?.quantity ?? 0}
+                    invalid={form?.buyListRelationEdit?.article[`${assemblyRelation.article_child_id}`]?.error !== undefined} 
+                    label={form?.buyListRelationEdit?.article[`${assemblyRelation.article_child_id}`]?.error ?? (form?.buyListRelationEdit?.article[`${assemblyRelation.article_child_id}`]?.success ?? undefined)} 
+                />
                 <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
             </form>
         </TableCell>

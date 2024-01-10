@@ -1,8 +1,9 @@
-import type { PageServerLoad, Actions } from "./$types";
+import type { PageServerLoad, Actions, Action } from "./$types";
 
 import { fail, redirect } from "@sveltejs/kit";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import { flatAssembly } from "$lib/components/derived/assemblies/flattenAssembly";
+import type { scm_store } from "@prisma/client";
 
 export const load = (async ({ locals, params }) => {
 
@@ -54,20 +55,28 @@ export const actions: Actions = {
 
         /// — Quantity data to check with
         const buylistArticleStoreRelation = await locals.prisma.scm_store_relation.findUnique({ where: { article_id_store_id: { article_id: articleId, store_id: list.store_id} }});
-        const articleAvailableStores = await locals.prisma.scm_store_relation.findMany({ where: { article_id: articleId, quantity: { gt: 0 }, store: { temporary: false }}, orderBy: { quantity: "desc" }});
+        const articleAvailableStores = await locals.prisma.scm_store_relation.findMany({ where: { article_id: articleId, quantity: { gt: 0 }, store: { temporary: false }}, orderBy: { quantity: "desc" }, include: { store: true }});
+
+        let storeToUseId: string | undefined = undefined;
 
         if(storeToUse === undefined && articleAvailableStores.length > 1)
-            return fail(400, { buyListRelationEdit: { [articleId]: { error: "Multiple stores available for this article, please specify one", stores: articleAvailableStores }}});
+            return fail(400, { buyListRelationEdit: { article: { [articleId]: { error: "Multiple stores available for this article, please specify one", storesToGetFrom: articleAvailableStores.map(aas => aas.store) as scm_store[], quantity }}}});
+        else if(storeToUse === undefined && articleAvailableStores.length === 1)
+            storeToUseId = articleAvailableStores.at(0)!.store_id;
+        else if(storeToUse !== undefined)
+            storeToUseId = storeToUse;
+        else
+            return fail(500, { buyListRelationEdit: { error: "Something went wrong during store checking" }});
 
         const articleQuantityDelta = quantity - (buylistArticleStoreRelation?.quantity ?? 0);
 
         if(articleQuantityDelta > 0) // Adding article to the list from the specified store
         {
             // check if store has enough quantity (choose either from the specified store or the first available one as it is the default one)
-            const availableQuantity = storeToUse ? articleAvailableStores.find(k => k.store_id === storeToUse)?.quantity : articleAvailableStores.at(0)?.quantity;
+            const availableQuantity = articleAvailableStores.find(storeRelation => storeRelation.store_id === storeToUseId)?.quantity;
 
             if(availableQuantity === undefined || availableQuantity < articleQuantityDelta)
-                return fail(400, { buyListRelationEdit: { [articleId]: { error: "Not enough quantity in store" }}});
+                return fail(400, { buyListRelationEdit: { article: { [articleId]: { error: "Not enough quantity in store", quantity }}}});
 
             // update relations
 
@@ -78,7 +87,7 @@ export const actions: Actions = {
                 update: { quantity: { increment: articleQuantityDelta }}
             });
 
-            await locals.prisma.scm_store_relation.update({ where: { article_id_store_id: { article_id: articleId, store_id: storeToUse ?? articleAvailableStores.at(0)?.store_id }}, data: { quantity: { decrement: articleQuantityDelta }}});
+            await locals.prisma.scm_store_relation.update({ where: { article_id_store_id: { article_id: articleId, store_id: storeToUseId }}, data: { quantity: { decrement: articleQuantityDelta }}});
 
             await locals.prisma.scm_article_movements.create({
                 data: {
@@ -86,24 +95,27 @@ export const actions: Actions = {
                     quantity_update: articleQuantityDelta,
                     user_id: locals.session!.user.id,
                     store_in_id: list.store_id,
-                    store_out_id: storeToUse ?? articleAvailableStores.at(0)?.store_id
+                    store_out_id: storeToUseId
                 }
             });
         }
         else // Removing article from the list to the specied store if given
         {
+            if(storeToUse === undefined && articleAvailableStores.length > 1)
+                return fail(400, { buyListRelationEdit: { article: { [articleId]: { error: "Multiple stores available for this article, please specify one", storesToSendTo: articleAvailableStores.map(aas => aas.store), quantity }}}});
+
             // check if store has enough quantity (choose either from the specified store or the first available one as it is the default one)
-            const availableQuantity = buylistArticleStoreRelation?.quantity
+            const availableQuantity = buylistArticleStoreRelation?.quantity;
 
             if(availableQuantity === undefined || availableQuantity < -articleQuantityDelta)
-                return fail(400, { buyListRelationEdit: { [articleId]: {error: "Not enough quantity in list's store" }}});
+                return fail(400, { buyListRelationEdit: { article: { [articleId]: { error: "Not enough quantity in list's store", quantity }}}});
 
             // update relations
 
             // update buylist store_relation
             await locals.prisma.scm_store_relation.upsert({ 
-                where: { article_id_store_id: { article_id: articleId, store_id: storeToUse ?? articleAvailableStores.at(0)?.store_id }}, 
-                create: { article_id: articleId, store_id: storeToUse ?? articleAvailableStores.at(0)?.store_id, quantity: quantity }, 
+                where: { article_id_store_id: { article_id: articleId, store_id: storeToUseId }}, 
+                create: { article_id: articleId, store_id: storeToUseId, quantity: quantity }, 
                 update: { quantity: { decrement: -articleQuantityDelta }}
             });
 
@@ -114,7 +126,7 @@ export const actions: Actions = {
                     article_id: articleId,
                     quantity_update: -articleQuantityDelta,
                     user_id: locals.session!.user.id,
-                    store_in_id: storeToUse ?? articleAvailableStores.at(0)?.store_id,
+                    store_in_id: storeToUseId,
                     store_out_id: list.store_id,
                 }
             });
@@ -122,8 +134,9 @@ export const actions: Actions = {
 
         return {
             buyListRelationEdit: { 
-                success: true,
-                [articleId]: { success: "Successfully Created/updated row row" }
+                article: {
+                    [articleId]: { success: true }
+                }
             }
         };
     },
@@ -133,13 +146,13 @@ export const actions: Actions = {
         const form = await request.formData();
 
         const name = form.get("name")?.toString();
-        const assembly_id = form.get("assembly")?.toString();
-        const project_id = form.get("list")?.toString();
+        const assemblyId = form.get("assembly")?.toString();
+        const projectId = form.get("list")?.toString();
         const closed = form.has("closed");
 
         try
         {
-            await locals.prisma.scm_assembly_buylist.update({ where: { id: params.id }, data: { name, closed, assembly_id, project_id }});
+            await locals.prisma.scm_assembly_buylist.update({ where: { id: params.id }, data: { name, closed, assembly_id: assemblyId, project_id: projectId }});
             return { editList: { success: "Successfully updated row" }};
         }
         catch(e)
