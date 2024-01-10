@@ -3,11 +3,12 @@ import { auth } from "$lib/server/lucia";
 import { prisma } from "$lib/server/prisma";
 import { getSettings } from '$lib/server/settings';
 import { s3Client } from '$lib/server/s3';
+import type { PrismaClient } from '@prisma/client';
 
 export const handle = (async ({ event, resolve }) => {
 
     // locals hydration
-    event.locals.prisma = prisma;
+    event.locals.prisma = prisma as unknown as PrismaClient; // ? extended Prisma client looses its type information needs this to be casted
     event.locals.s3 = s3Client;
     event.locals.lucia = auth(event.locals.prisma).handleRequest(event);
     event.locals.session = await event.locals.lucia.validate();
@@ -19,6 +20,8 @@ export const handle = (async ({ event, resolve }) => {
         return new Response(null, {status: 303, headers: { 'location': `/install` }});
     else if(appSettings !== undefined && event.route.id?.startsWith("/install"))
         return new Response(null, {status: 303, headers: { 'location': `/app` }});
+    else if(appSettings === undefined)
+        throw "App settings are undefined.";
 
     event.locals.appSettings = appSettings;
     
