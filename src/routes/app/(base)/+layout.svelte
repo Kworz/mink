@@ -26,7 +26,7 @@
         <MenuItem icon={Users} href="/app/users" label="Utilisateurs" />
     </Menu>
 
-    <div class="grow overflow-x-hidden overflow-y-scroll">
+    <div class="grow overflow-x-hidden overflow-y-scroll" id="main_content">
         <div class="relative w-full p-10 pl-6">
             <slot />
         </div>
