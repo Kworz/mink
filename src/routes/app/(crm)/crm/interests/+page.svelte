@@ -12,6 +12,7 @@
     import { PlusCircle } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
     import InterestLabel from "./InterestLabel.svelte";
+    import EmptyData from "$lib/components/EmptyData.svelte";
 
     let createInterest = false;
     let editInterest: crm_interest | undefined = undefined;
@@ -20,7 +21,9 @@
     export let data: PageData;
     export let form: ActionData;
 
-    $: if(form != null) { createInterest = false; editInterest = undefined; invalidateAll(); };
+    $: if(form?.upsertInterest && "success" in form.upsertInterest) { createInterest = false; editInterest = undefined; invalidateAll(); };
+    $: if(form?.upsertInterest && "error" in form.upsertInterest) { setTimeout(() => form = null, 3000); };
+    $: if(form?.deleteInterest && "success" in form.deleteInterest) { deleteInterestConfirm = undefined; invalidateAll(); };
 
     const colorList = [
         "bg-slate-500",
@@ -51,18 +54,17 @@
 </script>
 
 {#if createInterest || editInterest !== undefined}
-    <MenuSide closable on:close={() => { createInterest = false; editInterest = undefined;}}>
-        <h3 class="mb-4">Créer un intéret</h3>
+    <MenuSide on:close={() => { createInterest = false; editInterest = undefined;}} title="{createInterest ? "Créer" : "Modifier"} un intéret">
 
-        <form action={editInterest !== undefined ? "?/editInterest" : "?/createInterest"} method="post" use:enhance class="flex flex-col gap-4">
+        {#if form?.upsertInterest && "error" in form?.upsertInterest}<p class="text-red-500 mb-2">{form?.upsertInterest?.error}</p>{/if}
 
-            {#if editInterest !== undefined}
-                <input type="hidden" name="id" value={editInterest.id} />
-            {/if}
+        <form action="?/upsertInterest" method="post" use:enhance class="flex flex-col gap-4">
+
+            {#if editInterest !== undefined}<input type="hidden" name="id" value={editInterest.id} />{/if}
         
             <FormInput label="Nom" labelMandatory name="name" value={editInterest?.name} />
             <FormInput label="Description" name="description" value={editInterest?.description}/>
-            <FormInput label="Couleur" name="color" type="select" value={editInterest?.color ?? "bg-red-500"}>
+            <FormInput label="Couleur" labelMandatory name="color" type="select" value={editInterest?.color ?? "bg-red-500"}>
                 {#each colorList as color}
                     <option value={color} class="capitalize">{color.split("-").at(1)}</option>
                 {/each}
@@ -80,12 +82,7 @@
 <h1>CRM: Intérets</h1>
 <p class="mb-6">Liste des intérets que peuvent porter les prospects.</p>
 
-{#if data.interests.length == 0}
-    <p class="text-orange-500">
-        Aucun intéret n'a été créé pour le moment.<br>
-        Ajoutez un intéret en cliquant en haut à droite.
-    </p>
-{:else}
+{#if data.interests.length > 0}
     <Table headers={[{ label: "Intéret" }, { label: "Description" }, { label: "Actions" }]}>
         {#each data.interests as interest}
             <TableCell><InterestLabel {interest} /></TableCell>
@@ -104,4 +101,6 @@
             </TableCell>
         {/each}
     </Table>
+{:else}
+    <EmptyData on:click={() => createInterest = true } />
 {/if}

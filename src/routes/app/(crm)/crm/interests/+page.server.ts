@@ -16,62 +16,37 @@ export const load = (async ({ locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-    createInterest: async ({ locals, request }) => {
+
+    upsertInterest: async ({ locals, request }) => {
 
         const form = await request.formData();
 
-        try
-        {
-            const interest = await locals.prisma.crm_interest.create({
-                data: form
-            });
+        const id = form.get("id")?.toString();
 
-            return { createInterest: { success: interest }};
-        }
-        catch(ex)
-        {
-            return fail(500, { createInterest: { error: ex }});
-        }
+        const name = form.get("name")?.toString();
+        if(name === undefined || name.length === 0) return fail(400, { upsertInterest: { error : "crm.interest.upsert.error.name_null" }});
+
+        const color = form.get("color")?.toString();
+        if(color === undefined || color.length === 0) return fail(400, { upsertInterest: { error : "crm.interest.upsert.error.color_null" }});
+
+        const description = form.get("description")?.toString();
+
+        await locals.prisma.crm_interest.upsert({
+            create: { name, description, color },
+            update: { name, description, color },
+            where: { id: id || '' }
+        });
+
+        return { upsertInterest: { success: true }};
     },
-    editInterest: async ({ locals, request }) => {
-        const form = await request.formData();
 
-        try
-        {
-            const id = form.get("id");
-
-            if(id === null)
-                throw "Missing id";
-
-            await locals.prisma.crm_interest.update({ where: { id: id.toString() }, data: form });
-
-            return { editInterest: { success: true }};
-
-        }
-        catch(ex)
-        {
-            return fail(500, { editInterest: { error: ex }});
-        }
-    },
     deleteInterest: async ({ locals, request }) => {
 
         const form = await request.formData();
+        
+        const id = form.get("id")?.toString();
+        if(!id) return fail(400, { deleteInterest: { error: "crm.interest.delete.error.id_null" }});
 
-        try
-        {
-            const id = form.get("id");
-
-            if(id === null)
-                throw "Missing id";
-
-            await locals.prisma.crm_interest.delete({ where: { id: id.toString() }});
-            
-            return { deleteInterest: { success: true }};
-
-        }
-        catch(ex)
-        {
-            return fail(500, { deleteInterest: { error: ex }});
-        }
+        await locals.prisma.crm_interest.delete({ where: { id: id }});
     }
 }
