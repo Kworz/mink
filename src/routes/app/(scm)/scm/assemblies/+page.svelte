@@ -9,12 +9,12 @@
     import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
-    import Modal from "$lib/components/generics/modal/Modal.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
     import { PlusCircle, VideoCameraSlash } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -23,6 +23,7 @@
     let filter = "";
 
     let createAssembly = false;
+    let createFormSent = false;
 
     const triggerResfresh = () => {
         if(browser)
@@ -31,6 +32,8 @@
 
     $: filter, triggerResfresh();
 
+    $: if(form?.createAssembly.error !== undefined) { createFormSent = false; setTimeout(() => form = null, 3000); }
+
 </script>
 
 <svelte:head>
@@ -38,15 +41,15 @@
 </svelte:head>
 
 {#if createAssembly}
-    <Modal on:close={() => createAssembly = false} title="Créer un assemblage">
-        {#if form?.createAssembly?.error}<p class="text-red-500">{form?.createAssembly?.error}</p>{/if}
+    <MenuSide on:close={() => createAssembly = false} title="Créer un assemblage">
+        {#if form?.createAssembly?.error}<p class="text-red-500 mb-2">{form?.createAssembly?.error}</p>{/if}
 
-        <form action="?/createAssembly" method="post" use:enhance class="flex flex-col gap-4">
-            <FormInput name="name" label="Nom" labelMandatory />
-            <FormInput name="description" label="Description" labelMandatory parentClass="grow" />
-            <Button role="primary">Créer</Button>
+        <form action="?/createAssembly" method="post" use:enhance class="flex flex-col gap-4" on:submit={() => createFormSent = true}>
+            <FormInput name="name" label="Nom" labelMandatory value={form?.createAssembly.name ?? ""} />
+            <FormInput name="description" label="Description" value={form?.createAssembly.description ?? ""} />
+            <Button role="primary" class="self-start" suspense={createFormSent}>Créer</Button>
         </form>
-    </Modal>
+    </MenuSide>
 {/if}
 
 <h1>Liste des assemblages</h1>
