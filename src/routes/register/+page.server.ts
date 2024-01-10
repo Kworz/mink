@@ -21,9 +21,9 @@ export const actions: Actions = {
 
             await authValidator.createUser({
 				key: {
-					providerId: "username", // auth method
-					providerUserId: username.toLowerCase(), // unique id when using "username" auth method
-					password // hashed by Lucia
+					providerId: "username",
+					providerUserId: username.toLowerCase(),
+					password
 				},
 				attributes: {
 					username,

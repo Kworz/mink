@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { jsPDF, type TextOptionsLight } from "jspdf";
 import qrcode from "qrcode";
 

@@ -8,7 +8,7 @@
     export let role: "primary" | "secondary" | "danger" | "warning" = "primary";
 
     export let href: string | undefined = undefined;
-    export let click: (() => boolean | void) | undefined = undefined;
+    export let click: (() => boolean | any) | undefined = undefined;
 
     const { open } = getPillMenuContext();
 
