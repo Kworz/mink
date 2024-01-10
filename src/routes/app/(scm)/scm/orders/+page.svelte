@@ -6,7 +6,6 @@
     import Price from "$lib/components/generics/formatters/Price.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
-    import Modal from "$lib/components/generics/modal/Modal.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
@@ -15,28 +14,29 @@
     import type { PageData } from "./$types";
     import OrderState from "./OrderState.svelte";
     import EmptyData from "$lib/components/EmptyData.svelte";
-    import { scm_order_state } from "@prisma/client";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
+    import { page } from "$app/stores";
+    import { browser } from "$app/environment";
+    import { goto } from "$app/navigation";
 
     export let data: PageData;
 
-    let showCompletedOrders = false;
-    let showCancelledOrders = false;
     let createOrder = false;
 
-    $: orders = data.orders.filter(k => {
+    let showCompletedOrders = $page.url.searchParams.get("show_completed") === "true";
+    let showCancelledOrders = $page.url.searchParams.get("show_cancelled") === "true";
 
-        let result = true;
+    $: showCancelledOrders, showCompletedOrders, refresh();
 
-        if(!showCancelledOrders) result = result && k.state !== scm_order_state.cancelled;
-        if(!showCompletedOrders) result = result && k.state !== scm_order_state.completed;
-        
-        return result;
-    });
+    const refresh = () => { 
+        if(browser) return; 
+        goto(`?show_completed=${showCompletedOrders}&show_cancelled=${showCancelledOrders}`);
+    };
 
 </script>
 
 {#if createOrder}
-    <Modal title="Créer une nouvelle commande" on:close={() => createOrder = false }>
+    <MenuSide title="Créer une nouvelle commande" on:close={() => createOrder = false }>
         <form action="?/createOrder" method="post" use:enhance class="grid grid-cols-1 gap-4">
             <FormInput name="name" label="Nom de commande" labelMandatory={true} />
             <FormInput type="select" name="supplier_id" label="Fournisseur" labelMandatory={true}>
@@ -46,7 +46,7 @@
             </FormInput>
             <Button>Créer la commande</Button>
         </form>
-    </Modal>
+    </MenuSide>
 {/if}
 
 <h1>Commandes</h1>
@@ -58,10 +58,10 @@
     <PillMenuButton icon={DocumentCheck} click={() => { showCompletedOrders = !showCompletedOrders; return true; }}>{showCompletedOrders ? "Masquer" : "Afficher"} les commandes terminées</PillMenuButton>
 </PillMenu>
 
-{#if orders.length > 0}
+{#if data.orders.length > 0}
     <Table headers={[{label: "Numéro de commande"}, {label: "Fournisseur"}, {label: "Montant (HT)"}, {label: "Montant (TTC)"}, {label: "État"}, {label: "Demandeur"}]} class="mt-6">
             
-        {#each orders as order}
+        {#each data.orders as order}
             {@const orderGrossPrice = order.order_rows.reduce((p, c) => p = p + c.needed_quantity * (c.ack_price ?? 0), 0)}
             <TableCell>
                 <a href="/app/scm/orders/{order.id}">

@@ -1,14 +1,24 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import type { scm_order } from "@prisma/client";
+import type { scm_order, scm_order_state } from "@prisma/client";
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ locals, url }) => {
 
-    const orders = await locals.prisma.scm_order.findMany({ include: { order_rows: true, supplier: true, issuer: true }});
+    const showCancelledOrders = url.searchParams.get("show_cancelled") === "true";
+    const showCompletedOrders = url.searchParams.get("show_completed") === "true";
+
+    const stateFilter: scm_order_state[] = ["draft", "quotation", "sent", "acknowledged"];
+
+    if(showCancelledOrders) stateFilter.push("cancelled");
+    if(showCompletedOrders) stateFilter.push("completed");
+
+    const orders = await locals.prisma.scm_order.findMany({ where: { state: { in: stateFilter }}, include: { order_rows: true, supplier: true, issuer: true }});
+    const orderCount = await locals.prisma.scm_order.count();
     const suppliers = await locals.prisma.scm_supplier.findMany();
     
     return {
-        orders: orders,
+        orders,
+        orderCount,
         suppliers
     };
 
