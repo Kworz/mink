@@ -16,6 +16,7 @@
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
     import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
     import Price from "$lib/components/generics/formatters/Price.svelte";
+    import { computeArticlePrice } from "$lib/components/derived/article/article";
     
     export let data: PageData;
     export let form: ActionData;
@@ -130,20 +131,20 @@
 
         <TableFootCell>
 
-            <Price value={data.lists.reduce((pl, cl) => pl + data.flattenAssemblyReference.reduce((p, c) => p + ((c.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.article?.price ?? 0) * (c.quantity - (data.storeRelations.find(r => r.article === c.article.id && r.store == cl.store)?.quantity ?? 0))), 0), 0)}/>
+            <Price value={data.lists.reduce((pl, cl) => pl + data.flattenAssemblyReference.reduce((p, c) => p + (computeArticlePrice(c.article_child.order_rows) * (c.quantity - (data.storeRelations.find(r => r.article_id === c.article_child_id && r.store_id == cl.store_id)?.quantity ?? 0))), 0), 0)}/>
                 /
-            <Price value={data.flattenAssemblyReference.reduce((p, c) => p + ((c.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.article?.price ?? 0)) * c.quantity, 0) * data.lists.length} />
+            <Price value={data.flattenAssemblyReference.reduce((p, c) => p + (computeArticlePrice(c.article_child.order_rows)) * c.quantity, 0) * data.lists.length} />
 
         </TableFootCell>
 
         {#each data.lists as list}
             <TableFootCell>
 
-                {@const buyListRelations = data.storeRelations.filter((r) => r.store === list.store)}
+                {@const buyListRelations = data.storeRelations.filter((r) => r.store_id === list.store_id)}
 
-                <Price value={data.flattenAssemblyReference.reduce((p, c) => p + ((c.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.article?.price ?? 0) * (c.quantity - (buyListRelations.find(r => r.article === c.article.id)?.quantity ?? 0))), 0)}/>
+                <Price value={data.flattenAssemblyReference.reduce((p, c) => p + (computeArticlePrice(c.article_child.order_rows) * (c.quantity - (buyListRelations.find(r => r.article_id === c.article_child_id)?.quantity ?? 0))), 0)}/>
                 /
-                <Price value={data.flattenAssemblyReference.reduce((p, c) => p + ((c.article.expand?.["article_price(article)"]?.at(0)?.price ?? c.article?.price ?? 0)) * c.quantity, 0)} />
+                <Price value={data.flattenAssemblyReference.reduce((p, c) => p + computeArticlePrice(c.article_child.order_rows) * c.quantity, 0)} />
 
             </TableFootCell>
         {/each}
