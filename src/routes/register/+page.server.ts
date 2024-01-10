@@ -25,6 +25,7 @@ export const actions: Actions = {
 					providerUserId: username.toLowerCase(),
 					password
 				},
+                //@ts-ignore
 				attributes: {
 					username,
                     email

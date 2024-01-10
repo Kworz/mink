@@ -31,6 +31,7 @@ export const actions = {
 					providerUserId: username.toLowerCase(), // unique id when using "username" auth method
 					password // hashed by Lucia
 				},
+                //@ts-ignore
 				attributes: {
 					username,
                     email
@@ -44,6 +45,7 @@ export const actions = {
 			);
 			const session = await luciaAuth.createSession({
 				userId: key.userId,
+                //@ts-ignore
 				attributes: {}
 			});
 

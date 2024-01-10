@@ -27,6 +27,7 @@ export const actions: Actions = {
 			);
 			const session = await auth.createSession({
 				userId: key.userId,
+                //@ts-ignore
 				attributes: {}
 			});
 
