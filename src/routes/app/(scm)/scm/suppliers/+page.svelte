@@ -118,7 +118,13 @@
                 <p>{supplier.address_city}, {supplier.address_postal_code}</p>
                 <p class="uppercase">{supplier.address_country}</p>
             </TableCell>
-            <TableCell><a href="mailto:{supplier.email}">{supplier.email}</a></TableCell>
+            <TableCell>
+                {#if supplier.email !== null}
+                    <a href="mailto:{supplier.email}">{supplier.email}</a>
+                {:else}
+                    —
+                {/if}
+            </TableCell>
             <TableCell>
                 <Flex>
                     {#if deleteConfirm === supplier.id}
