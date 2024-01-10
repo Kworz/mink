@@ -6,7 +6,7 @@
     import { Wrench } from "@steeze-ui/heroicons";
 </script>
 
-<nav class=" flex flex-col justify-between m-4 group z-10 h-[calc(100% - 2rem)] rounded-xl dark:bg-white bg-zinc-800 overflow-y-auto shadow-3xl duration-300 text-start p-4 group-hover:p-8 shrink-0" id="navbar">
+<nav class="flex flex-col justify-between m-4 group z-10 h-[calc(100% - 2rem)] rounded-xl ring-1 ring-zinc-400/25 bg-zinc-800 overflow-y-auto shadow-3xl duration-300 text-start p-4 group-hover:p-8 shrink-0" id="navbar">
     
     <Flex direction="col" gap={2}>
         <slot />
