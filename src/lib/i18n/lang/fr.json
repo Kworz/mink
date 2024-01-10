@@ -1,1 +1,16 @@
-{}
+{
+  "app": {
+    "settings": {
+      "description": "Modifiez les réglages de votre installation de mink.",
+      "lead": "Réglages de mink",
+      "keys": {
+        "company_address_city": "Ville de la société",
+        "company_address_road": "Rue de la société",
+        "company_default_vat": "TVA Appliquée par défaut",
+        "company_address_postal_code": "Code postal de la société",
+        "company_address_country": "Pays de la société",
+        "company_name": "Nom de la société"
+      }
+    }
+  }
+}
