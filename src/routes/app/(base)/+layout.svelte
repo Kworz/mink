@@ -31,6 +31,4 @@
             <slot />
         </div>
     </div>
-
-    <div class="h-screen" id="side_menu" />
 </Flex>

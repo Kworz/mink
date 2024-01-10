@@ -36,6 +36,4 @@
     <div class="relative grow overflow-x-hidden overflow-y-scroll p-10 pl-6" id="main_content">
         <slot />
     </div>
-
-    <div class="h-screen" id="side_menu" />
 </Flex>

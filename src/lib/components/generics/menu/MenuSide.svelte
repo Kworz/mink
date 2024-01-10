@@ -30,8 +30,8 @@
 
 <svelte:window on:keydown={e => e.key === "Escape" && dispatch("close")} />
 
-<Portal target="#side_menu">
-    <div class="m-4 h-[calc(100vh-2rem)] rounded-xl shrink-0 bg-zinc-800 shadow-2xl duration-300 p-4 w-max relative">
+<Portal target="body">
+    <div class="absolute z-50 top-4 right-4 bottom-4 rounded-xl shrink-0 ring-1 ring-zinc-400/25 bg-zinc-800 shadow-2xl duration-300 p-4 w-1/4 overflow-y-scroll">
 
         {#if closable}
             <button class="absolute top-4 right-4" on:click={() => dispatch("close")}>
@@ -43,7 +43,7 @@
             <div class="mt-3 mb-4 h-[1px] w-full bg-zinc-400/25" />
         {/if}
         
-        <div class="w-full h-max duration-300 px-[1px] overflow-y-scroll">
+        <div class="w-full duration-300 px-[1px] overflow-y-scroll">
             <slot />
         </div>
     </div>
