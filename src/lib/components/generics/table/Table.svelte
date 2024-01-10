@@ -12,7 +12,13 @@
     /// - INPUT DATA
 
     /** Headers used on this table */
-    export let headers: Array<headerTypes | undefined> = [];
+    export let headers: Array<headerTypes | undefined> | undefined = undefined;
+
+    /** 
+     * Number of columns to be defined
+     * @note This is only used if headers is undefined
+     */
+    export let cols: number = 0;
 
     /// - OUTPUT DATA
 
@@ -39,7 +45,7 @@
 
     $: sort = btoa(JSON.stringify(sorts)), dispatch("sort", convertTableSortToPrismaSort(sorts));
 
-    $: columns = headers.filter(h => h !== undefined).length;
+    $: columns = headers === undefined ? cols : headers.filter(h => h !== undefined).length;
 
     $: allSelected = (selectables.length === selected.length) && selectables.length !== 0;
 
