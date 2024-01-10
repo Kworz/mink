@@ -37,7 +37,7 @@
             <TableCell>
                 <ArticleRow article={orderRow.article} displayStock={true} />
             </TableCell>
-            <TableCell><Date date={orderRow.ack_date?.toISOString()} colorDate={true} /></TableCell>
+            <TableCell><Date date={orderRow.ack_date} colorDate={true} /></TableCell>
             <TableCell><a href="/app/scm/orders/{orderRow.order_id}">{orderRow.order.name}</a></TableCell>
             <TableCell>{orderRow.needed_quantity - (orderRow.received_quantity)}</TableCell>
             <TableCell>{orderRow.received_quantity}</TableCell>
