@@ -29,7 +29,7 @@
 <svelte:head><title>mink — Affaires</title></svelte:head>
 
 {#if createProject}
-    <MenuSide closable on:close={() => createProject = false}>
+    <MenuSide on:close={() => createProject = false} title="Créer une affaire">
         <form action="?/createProject" method="POST" use:enhance class="flex flex-col gap-4">
             <FormInput label="Nom de l'affaire" name="name" labelMandatory />
             <FormInput label="Client" name="customer" />

@@ -42,9 +42,7 @@
 </svelte:head>
 
 {#if editList}
-    <MenuSide closable on:close={() => editList = false}>
-
-        <h2>Modifier la liste d'achat</h2>
+    <MenuSide on:close={() => editList = false} title="Modifier la liste d'achat">
 
         <form action="?/editList" use:enhanceNoReset method="post" class="flex flex-col gap-4">
 

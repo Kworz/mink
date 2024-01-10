@@ -48,7 +48,7 @@
 </script>
 
 {#if createList}
-    <MenuSide closable on:close={() => createList = false} title="Créer une liste">
+    <MenuSide on:close={() => createList = false} title="Créer une liste">
         <form action="?/createBuyList" method="post" use:enhance class="flex flex-col gap-4">
             <FormInput name="name" label="Nom de la liste" labelMandatory />
             <FormInput name="assembly_id" type="select" label="Assemblage" labelMandatory >

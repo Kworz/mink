@@ -26,7 +26,7 @@
 </script>
 
 {#if editFabricationOrder}
-    <MenuSide closable on:close={() => editFabricationOrder = false} title="Modifier l'ordre de fabrication">
+    <MenuSide on:close={() => editFabricationOrder = false} title="Modifier l'ordre de fabrication">
         <form action="?/editFabOrder" method="post" use:enhance class="flex flex-col gap-4">
             <FormInput label="Date butoir" name="end_date" labelMandatory type="date" value={data.fabricationOrder.end_date?.toISOString()} />
             <FormInput label="Quantité" name="quantity" labelMandatory type="number" value={data.fabricationOrder.quantity} />

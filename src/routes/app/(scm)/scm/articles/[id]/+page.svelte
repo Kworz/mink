@@ -53,7 +53,7 @@
 </svelte:head>
 
 {#if editArticle}
-    <MenuSide closable on:close={() => editArticle = false}>
+    <MenuSide on:close={() => editArticle = false}>
         <form action="?/editArticle" method="post" use:enhanceNoReset>
             <ArticleForm bind:article={data.article} />
             <Button class="mt-3">Modifier</Button>
