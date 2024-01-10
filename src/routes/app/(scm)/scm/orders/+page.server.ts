@@ -39,7 +39,7 @@ export const actions: Actions = {
             createdOrder = await locals.prisma.scm_order.create({
                 data: {
                     ...Object.fromEntries(form.entries()) as unknown as scm_order, 
-                    vat: locals.appSettings.appCompanyDefaultVat
+                    vat: locals.appSettings.company_default_vat
                 }
             });
         }
