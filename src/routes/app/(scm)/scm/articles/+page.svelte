@@ -54,7 +54,7 @@
 </svelte:head>
 
 {#if createArticle}
-    <MenuSide closable title="Créer un article" on:close={() => createArticle = false}>
+    <MenuSide title="Créer un article" on:close={() => createArticle = false}>
         <form action="?/create" method="POST" use:enhance>
             <ArticleForm />
             <div class="flex flex-row gap-6 mt-4">
