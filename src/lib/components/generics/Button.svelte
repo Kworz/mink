@@ -29,9 +29,7 @@
 </script>
 
 <button {form} type={preventSend ? "button" : "submit"} class="flex flex-row gap-3 items-center text-white duration-100 rounded-md {sizes[size]} {roles[role]} {$$props.class}" on:click>
-    {#if suspense}
-        <Icon src={ArrowPath} class="animate-spin w-5 h-5 inline" />
-    {/if}
+    {#if suspense} <Icon src={ArrowPath} class="animate-spin w-5 h-5 inline" /> {/if}
     <div>
         <slot />
     </div>
