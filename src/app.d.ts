@@ -5,7 +5,7 @@
 // for information about these interfaces
 // and what to do when importing types
 
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient, auth_session, user } from "@prisma/client";
 import type { Auth } from "$lib/server/lucia";
 import type { AppSettings } from "$lib/server/settings";
 import type { S3Client } from "@aws-sdk/client-s3";
@@ -36,14 +36,8 @@ declare global {
 	namespace Lucia
 	{
 		type Auth = import("$lib/server/lucia").Auth;
-		type DatabaseUserAttributes = {
-			username: string;
-			email: string;
-			avatar: string | null;
-			created: Date;
-			updated: Date;
-		};
-		type DatabaseSessionAttributes = {};
+		type DatabaseUserAttributes = user;
+		type DatabaseSessionAttributes = auth_session;
 	}
 }
 
