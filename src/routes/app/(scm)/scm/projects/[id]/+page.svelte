@@ -15,7 +15,6 @@
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { Temporal } from "@js-temporal/polyfill";
     import { Wrench } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
 
@@ -34,8 +33,8 @@
             <FormInput name="name" label="Nom du projet" labelMandatory bind:value={data.project.name} />
             <FormInput name="customer" label="Client du projet" bind:value={data.project.customer} />
             <FormInput type="checkbox" name="closed" label="Affaire cloturée" bind:checked={data.project.closed} />
-            <FormInput type="date" name="start_date" label="Date de début de projet" labelMandatory={true} value={Temporal.Instant.from(data.project.start_date).toZonedDateTimeISO('UTC').toPlainDate().toString()} />
-            <FormInput type="date" name="end_date" label="Date de fin de projet" labelMandatory={true} value={Temporal.Instant.from(data.project.end_date).toZonedDateTimeISO('UTC').toPlainDate().toString()} />
+            <FormInput type="date" name="start_date" label="Date de début de projet" labelMandatory={true} value={data.project.start_date?.toISOString()} />
+            <FormInput type="date" name="end_date" label="Date de fin de projet" labelMandatory={true} value={data.project.end_date?.toISOString()} />
     
             <Flex class="mt-2">
                 <Button size="small" role="warning">Valider les modifications</Button>
