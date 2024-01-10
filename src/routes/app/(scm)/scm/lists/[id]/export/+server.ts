@@ -35,7 +35,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
                 listRelationArticle?.quantity ?? 0,
                 far.quantity,
                 far.quantity <= (listRelationArticle?.quantity ?? 0) ? "Oui" : "Non",
-                far.article_child.internal ? locals.appSettings.appCompanyName : (far.article_child.brand ?? ""),
+                far.article_child.internal ? locals.appSettings.company_name : (far.article_child.brand ?? ""),
                 "Suppliers are empty for now",
                 far.article_child.reference ?? "",
                 "Article prices are empty for now"
