@@ -21,10 +21,12 @@
 
     let editSupplier: scm_supplier | undefined = undefined;
 
+    let upsertSent = false;
+
     let deleteConfirm: string | undefined = undefined;
     let createSupplier = false;
 
-    $: if(form !== undefined && browser) { editSupplier = undefined; createSupplier = false; invalidateAll(); };
+    $: if(form !== null) { editSupplier = undefined; createSupplier = false; upsertSent = false; invalidateAll(); };
     $: if(deleteConfirm !== undefined) { setTimeout(() => deleteConfirm = undefined, 5000); }
 
 </script>
@@ -35,7 +37,7 @@
 
 {#if editSupplier !== undefined || createSupplier}
     <MenuSide closable on:close={() => { editSupplier = undefined; createSupplier = false; }} title="Créer un founisseur">
-        <form action="?/upsertSupplier" use:enhance method="post" enctype="multipart/form-data">
+        <form action="?/upsertSupplier" use:enhance method="post" enctype="multipart/form-data" on:submit={() => upsertSent = true}>
 
             {#if !createSupplier}<input type="hidden" name="id" value={editSupplier?.id ?? ""} />{/if}
 
@@ -81,10 +83,7 @@
                 </FormInput>
             </Flex>
 
-            <Flex class="mt-6">
-                <Button role="success">Valider les modifications</Button>
-                <Button on:click={() => (createSupplier) ? createSupplier = false : editSupplier = undefined} role="warning" preventSend>Annuler les modifications</Button>
-            </Flex>
+            <Button role="success" class="mt-6" suspense={upsertSent}>Valider les modifications</Button>
         </form>
     </MenuSide>
 {/if}
