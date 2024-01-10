@@ -143,7 +143,7 @@
                         {/each}
                     </Flex>
                 </TableCell>
-                <TableCell>{(article.internal) ? $page.data.settings.appCompanyName : article.brand}</TableCell>
+                <TableCell>{(article.internal) ? $page.data.appSettings.company_name : article.brand}</TableCell>
                 
                 <TableCell><Price value={price} /></TableCell>
                 <TableCell><Price value={price * stock_quantity} /></TableCell>

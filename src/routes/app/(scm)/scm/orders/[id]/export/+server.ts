@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
             headStyles: { fillColor: [0, 0, 0] },
             footStyles: { fillColor: [139, 92, 246] },
             head: [["Projet", "Désignation", "Référence", "Quantité", "Délai", "UO", "Prix Unitaire", "Prix total"]],
-            body: order.order_rows.map(row => [row.project?.name ?? "—", row.article.name, row.article.reference, row.needed_quantity, (row.needed_date) ? row.needed_date : "—", "U", `${round(computeArticlePrice(row.article.order_rows), 2)} €`, `${round(row.needed_quantity * computeArticlePrice(row.article.order_rows), 2)} €`]),
+            body: order.order_rows.map(row => [row.project?.name ?? "—", row.article.name, row.article.reference, row.needed_quantity, (row.needed_date) ? row.needed_date.toISOString() : "—", "U", `${round(computeArticlePrice(row.article.order_rows), 2)} €`, `${round(row.needed_quantity * computeArticlePrice(row.article.order_rows), 2)} €`]),
             foot: [
                 ["Total HT", { content: `${round(order.order_rows.reduce((acc, row) => acc + (row.needed_quantity * computeArticlePrice(row.article.order_rows)), 0), 2)} €`, colSpan: 7, styles: { halign: "right" }}],
                 ["TVA 20%", { content: `${round(order.order_rows.reduce((acc, row) => acc + (row.needed_quantity * computeArticlePrice(row.article.order_rows)), 0) * 0.2, 2)} €`, colSpan: 7, styles: { halign: "right" }}],
@@ -54,11 +54,14 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
             doc.setFontSize(14);
             doc.text(order.supplier.name, 7.5, 35);
-            doc.text(locals.appSettings.appCompanyName, 210 / 2 + 7.5, 35);
+            doc.text(locals.appSettings.company_name, 210 / 2 + 7.5, 35);
             doc.setFontSize(12);
 
-            if(order.supplier.address) doc.text(order.supplier.address.split(", "), 7.5, 52);
-            doc.text(locals.appSettings.appCompanyAddress.split(", "), 210 / 2 + 7.5, 52);
+            const supplierAddress = [order.supplier.address_road, order.supplier.address_postal_code, order.supplier.address_city, order.supplier.address_city].filter(k => k !== null) as string[];
+            if(supplierAddress.length > 0) doc.text(supplierAddress, 7.5, 52);
+
+            const companyAddress = [locals.appSettings.company_address_road, locals.appSettings.company_address_postal_code, locals.appSettings.company_address_city, locals.appSettings.company_address_country].filter(k => k !== null) as string[];
+            if(companyAddress.length > 0) doc.text(companyAddress, 210 / 2 + 7.5, 52);
 
             doc.setTextColor(139, 92 ,246)
             if(order.supplier.email) doc.textWithLink(order.supplier.email, 7.5, 45, { url: `mailto:${order.supplier.email}` })

@@ -14,7 +14,7 @@ const defaultSettings = {
 
 } satisfies Record<app_settings_keys, boolean | string | number>;
 
-export type appSettings = typeof defaultSettings;
+export type AppSettings = typeof defaultSettings;
 
 /**
  * Convert stored app settings to app settings with defaults for unset values

@@ -76,15 +76,23 @@
 
 <Grid cols={2} gap={6} items="start" class="mt-6">
     <Wrapper>
-        <h2>{$page.data.appSettings.appCompanyName}</h2>
-        <p class="my-2">{@html $page.data.appSettings.appCompanyAddress.split(",").join(',</br>')}</p>
+        <h2>{$page.data.appSettings.company_name}</h2>
+
+        <p class="my-2">{$page.data.appSettings.company_address_road}</p>
+        <p class="my-2">{$page.data.appSettings.company_address_postal_code} / {$page.data.appSettings.company_address_city}</p>
+        <p class="my-2">{$page.data.appSettings.company_address_country}</p>
+
         <DetailLabel>{data.order.issuer.email}</DetailLabel>
     </Wrapper>
 
     <Wrapper>
         <h2>Fournisseur</h2>
         <p class="text-sm">{data.order.supplier.name}</p>
-        <p class="my-2">{@html data.order.supplier?.address?.split(",").join(',</br>')}</p>
+
+        <p class="my-2">{data.order.supplier.address_road}</p>
+        <p class="my-2">{data.order.supplier.address_postal_code} / {data.order.supplier.address_city}</p>
+        <p class="my-2">{data.order.supplier.address_country}</p>
+
         <DetailLabel>{data.order.supplier.email || "pas d'addresse mail spécifiée"}</DetailLabel>
     </Wrapper>
 </Grid>
@@ -183,7 +191,7 @@
                         <FormInput type="date" name="ack_date" value={order_row.ack_date?.toISOString().split("T").at(0) ?? undefined} validateOnChange={true} />
                     </form>
                 {:else}
-                    <Date value={order_row.ack_date} />
+                    <Date date={order_row.ack_date} />
                 {/if}
             </TableCell>
             <TableCell>

@@ -39,7 +39,7 @@
         {#if article.internal === false}
             <FormInput name="brand" label="Fabricant" bind:value={article.brand} />
         {:else}
-            <p>Fabricant: {$page.data.appSettings.appCompanyName}</p>
+            <p>Fabricant: {$page.data.appSettings.company_name}</p>
         {/if}
 
         <h3 class="mb-2 mt-3">Informations d'achat</h3>
