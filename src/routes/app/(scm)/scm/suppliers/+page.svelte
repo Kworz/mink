@@ -15,6 +15,7 @@
     import { Home, PlusCircle } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
+    import { env } from "$env/dynamic/public";
 
     export let data: PageData;
     export let form: ActionData;
@@ -36,7 +37,7 @@
 </svelte:head>
 
 {#if editSupplier !== undefined || createSupplier}
-    <MenuSide closable on:close={() => { editSupplier = undefined; createSupplier = false; }} title="Créer un founisseur">
+    <MenuSide on:close={() => { editSupplier = undefined; createSupplier = false; }} title="Créer un founisseur">
         <form action="?/upsertSupplier" use:enhance method="post" enctype="multipart/form-data" on:submit={() => upsertSent = true}>
 
             {#if !createSupplier}<input type="hidden" name="id" value={editSupplier?.id ?? ""} />{/if}
@@ -105,7 +106,7 @@
                     {/if}
                     <a href={supplier.website ?? "#"}>
                         {#if supplier.logo !== null}
-                            <img src={supplier.logo} alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
+                            <img src="https://{env.PUBLIC_AWS_BUCKET_NAME}.s3.{env.PUBLIC_AWS_REGION}.amazonaws.com/scm/supplier/{supplier.id}/{supplier.logo}" alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
                         {/if}
                         <span>
                             {supplier.name}

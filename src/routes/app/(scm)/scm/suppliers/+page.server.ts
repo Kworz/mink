@@ -1,4 +1,4 @@
-import { payment_method, payment_rule, type scm_supplier } from "@prisma/client";
+import { payment_method, payment_rule } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
 import { DeleteObjectCommand, PutObjectAclCommand, PutObjectCommand } from "@aws-sdk/client-s3";
@@ -9,7 +9,7 @@ export const load = (async ({ locals }) => {
     const suppliers = await locals.prisma.scm_supplier.findMany();
 
     return {
-        suppliers: JSON.parse(JSON.stringify(suppliers)) as unknown as scm_supplier[] // ? this is due to a bug in Prisma https://github.com/prisma/prisma/issues/20627
+        suppliers
     }
 
 }) satisfies PageServerLoad;
