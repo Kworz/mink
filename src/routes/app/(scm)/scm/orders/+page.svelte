@@ -62,6 +62,7 @@
     <Table headers={[{label: "Numéro de commande"}, {label: "Fournisseur"}, {label: "Montant (HT)"}, {label: "Montant (TTC)"}, {label: "État"}, {label: "Demandeur"}]} class="mt-6">
             
         {#each orders as order}
+            {@const orderGrossPrice = order.order_rows.reduce((p, c) => p = p + c.needed_quantity * (c.ack_price ?? 0), 0)}
             <TableCell>
                 <a href="/app/scm/orders/{order.id}">
                     <Flex direction="col" gap={1}>
@@ -71,8 +72,9 @@
                 </a>
             </TableCell>
             <TableCell><Supplier supplier={order.supplier} /></TableCell>
-            <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.gross_price ?? 0} /></TableCell>
-            <TableCell><Price value={order.expand?.["orders_total_price(order_ref)"]?.at(0)?.net_price ?? 0} /></TableCell>
+            
+            <TableCell><Price value={orderGrossPrice} /></TableCell>
+            <TableCell><Price value={orderGrossPrice * (1 + (order.vat / 100))} /></TableCell>
             <TableCell><OrderState state={order.state} /></TableCell>
             <TableCell><User user={order.issuer} /></TableCell>
         {/each}
