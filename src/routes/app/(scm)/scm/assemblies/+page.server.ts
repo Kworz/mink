@@ -18,20 +18,16 @@ export const actions: Actions = {
 
         const form = await request.formData();
         const name = form.get("name")?.toString();
+        const description = form.get("description")?.toString();
 
-        try {
-            
-            if(!name) throw 'scm.assembly.create.error.name.null';
+        if(!name) return fail(400, { createAssembly: { error : "scm.assembly.create.error.name.null", name, description }});
 
-            const { id } = await locals.prisma.scm_assembly.create({
-                data: { name }
-            });
+        const { id } = await locals.prisma.scm_assembly.create({
+            data: { name, description }
+        });
 
-            return redirect(303, `/app/scm/assemblies/${id}`);
-        }
-        catch (ex)
-        {    
-            return fail(500, { createAssembly: { name, error: String(ex) }});
-        }
+        if(id === null) return fail(500, { createAssembly: { error : "scm.assembly.create.error.id.null", name, description }});
+
+        return redirect(303, `/app/scm/assemblies/${id}`);
     }
 }
