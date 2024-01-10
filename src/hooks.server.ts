@@ -1,9 +1,10 @@
 import type { Handle } from '@sveltejs/kit';
+import type { PrismaClient } from '@prisma/client';
 import { auth } from "$lib/server/lucia";
 import { prisma } from "$lib/server/prisma";
 import { getSettings } from '$lib/server/settings';
 import { s3Client } from '$lib/server/s3';
-import type { PrismaClient } from '@prisma/client';
+import { locale } from 'svelte-i18n';
 
 export const handle = (async ({ event, resolve }) => {
 
@@ -12,6 +13,9 @@ export const handle = (async ({ event, resolve }) => {
     event.locals.s3 = s3Client;
     event.locals.lucia = auth(event.locals.prisma).handleRequest(event);
     event.locals.session = await event.locals.lucia.validate();
+
+    const lang = event.request.headers.get('accept-language')?.split(',')[0]; // TODO: this can also be set using user_settings
+    if(lang) locale.set(lang);
 
     const appSettings = getSettings(await event.locals.prisma.app_settings.findMany());
 
