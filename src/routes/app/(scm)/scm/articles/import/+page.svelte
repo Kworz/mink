@@ -52,7 +52,7 @@
     <Flex direction="col" class="w-1/3">
 
         <input type="file" name="file" on:change={(e)=> {
-            file = e.target.files.item(0);
+            file = e.target?.files.item(0);
         }} />
 
         <input type="hidden" name="columnOrder" value={JSON.stringify(columns)} />
