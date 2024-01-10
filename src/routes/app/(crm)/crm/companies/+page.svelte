@@ -53,14 +53,10 @@
 </script>
 
 {#if editCompany || newCompany}
-    <MenuSide closable on:close={() => { editCompany = undefined; newCompany = false;}}>
+    <MenuSide on:close={() => { editCompany = undefined; newCompany = false;}} title="{editCompany ? "Modifier" : "Créer"} une société">
         <form action={"?/upsertCompany"} method="post" use:enhance class="flex flex-col gap-4">
             
-            <h3>{editCompany ? "Modifier" : "Créer"} une société</h3>
-
-            {#if editCompany}
-                <input type="hidden" name="id" value={editCompany.id} />
-            {/if}
+            {#if editCompany}<input type="hidden" name="id" value={editCompany.id} />{/if}
 
             <FormInput label="Nom" labelMandatory name="name" value={editCompany?.name} />
             <FormInput label="Secteur" name="sector" value={editCompany?.sector} />
@@ -84,15 +80,10 @@
 {/if}
 
 {#if editContact || newContact}
-    <MenuSide closable on:close={() => { editContact = undefined; newContact = false }}>
-        
+    <MenuSide on:close={() => { editContact = undefined; newContact = false }} title="{editContact ? "Modifier" : "Créer"} un contact">
         <form action={"?/upsertContact"} method="post" use:enhance class="flex flex-col gap-4">
             
-            <h3>{editContact ? "Modifier" : "Créer"} un contact</h3>
-
-            {#if editContact}
-                <input type="hidden" name="id" value={editContact.id} />
-            {/if}
+            {#if editContact}<input type="hidden" name="id" value={editContact.id} />{/if}
 
             <FormInput label="Nom" labelMandatory name="name" value={editContact?.name} />
             <FormInput label="Position" name="position" value={editContact?.position} />
