@@ -25,10 +25,8 @@
 </script>
 
 {#if createUser}
-    <MenuSide closable on:close={() => createUser = false}>
+    <MenuSide title="Créer un utilisateur" on:close={() => createUser = false}>
     
-        <h3 class="mb-4">Créer un utilisateur</h3>
-
         <form action="?/createUser" method="post" use:enhance class="flex flex-col gap-4">
         
             <FormInput label="Nom d'utilisateur" labelMandatory name="username" />
@@ -41,10 +39,10 @@
 {/if}
 
 {#if showInvitations}
-    <Modal title="Invitations" on:close={() => showInvitations = false}>
+    <MenuSide title="Invitations" on:close={() => showInvitations = false}>
     
-        {#if form?.inviteUser.success}<p class="text-emerald-500">{form?.inviteUser.success}</p>{/if}
-        {#if form?.inviteUser.error}<p class="text-red-500">{form?.inviteUser.error}</p>{/if}
+        {#if form?.inviteUser && "success" in form.inviteUser}<p class="text-emerald-500">{form?.inviteUser.success}</p>{/if}
+        {#if form?.inviteUser && "error" in form.inviteUser}<p class="text-red-500">{form?.inviteUser.error}</p>{/if}
 
         <form action="?/inviteUser" method="post" use:enhance class="flex flex-row items-end gap-4">
             <FormInput label="Email" labelMandatory name="email" type="email" class="grow" />
@@ -57,11 +55,11 @@
             <Table headers={[{ label: "Email" }, { label: "Date d'expiration" }]} class="mt-6">
                 {#each data.invitations as invitation}
                     <TableCell>{invitation.email}</TableCell>
-                    <TableCell><Date date={invitation.created.toISOString()} /></TableCell>
+                    <TableCell><Date date={invitation.created} /></TableCell>
                 {/each}
             </Table>
         {/if}
-    </Modal>
+        </MenuSide>
 {/if}
 
 <h1>Liste des utilisateurs</h1>
