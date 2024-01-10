@@ -68,7 +68,7 @@
 <form action="?/editOrder" method="post" use:enhanceNoReset class="flex md:flex-row flex-col gap-6 mt-6">
     <FormInput label="Description" labelMandatory name="name" value={data.order.name} validateOnChange parentClass="grow" />
     <FormInput label="Etat de la commande" type="select" name="state" value={data.order.state} validateOnChange>
-        {#each Object.entries(scm_order_state) as state}
+        {#each Object.keys(scm_order_state) as state}
             <option value={state} class="capitalize">{state}</option> <!-- TODO: i18n -->
         {/each}
     </FormInput>
@@ -227,8 +227,8 @@
         <form action="?/createOrderRow" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
             <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
                 <ArticleFinder articles={data.articles} bind:selectedArticle on:refreshArticles={() => invalidateAll()} />
-            </div>
-                
+            </div>     
+             
             {#if selectedArticle !== undefined}
                 <input type="hidden" name="article_id" value={selectedArticle?.id} />
                 <FormInput name="needed_quantity" type="number" bind:value={selectedArticleQuantity} min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
