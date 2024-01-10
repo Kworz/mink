@@ -1,15 +1,17 @@
 <script lang="ts">
     import { Temporal } from "@js-temporal/polyfill";
+    import { date as dateParser} from "svelte-i18n";
 
-    export let date: Date | string | undefined | null;
+    export let date: Date | null;
 
     export let format: "long" | "medium" | "short" = "short";
     export let colorDate = false;
 
 </script>
 
-{#if date !== undefined && date !== null && date !== ""}
-    {@const datePosition = Temporal.PlainDate.compare(Temporal.Instant.from(date).toZonedDateTimeISO('UTC').toPlainDate(), Temporal.Now.zonedDateTimeISO('UTC').toPlainDate())}
+{#if date !== null}
+
+    {@const datePosition = Temporal.PlainDate.compare(Temporal.Instant.from(date.toISOString()).toZonedDateTimeISO('UTC').toPlainDate(), Temporal.Now.zonedDateTimeISO('UTC').toPlainDate())}
     {@const isToday = datePosition === 0}
     {@const isPassed = datePosition === -1}
     {@const isFuture = datePosition === 1}
@@ -20,11 +22,7 @@
         class:text-amber-500={colorDate && isToday}
         class:font-medium={colorDate && (isPassed || isToday)}
     >
-        {#if format === "short"}
-            {Temporal.Instant.from(date).toZonedDateTimeISO('UTC').toPlainDate().toString()}
-        {:else}
-            {Intl.DateTimeFormat("fr", { dateStyle: format}).format(Date.parse(date))}
-        {/if}
+        {$dateParser(typeof date === "string" ? new Date(date) : date, { format: format})}
     </span>
 {:else}
     Date Inconnue
