@@ -1,5 +1,4 @@
 import { fail, redirect } from "@sveltejs/kit";
-import { deleteFile, saveFile } from "$lib/server/files";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import type { scm_assembly } from "@prisma/client";
 import type { PageServerLoad, Actions } from "./$types";
@@ -51,15 +50,11 @@ export const actions: Actions = {
                 const assembly = await locals.prisma.scm_assembly.findUniqueOrThrow({ where: { id: params.id }});
                 if(assembly.thumbnail !== null)
                 {
-                    await deleteFile(assembly.thumbnail);    
                     await locals.prisma.scm_assembly.update({ where: { id: params.id }, data: { thumbnail: null }});           
                 }
             }
 
             const query = {} as scm_assembly;
-
-            if(form.has("thumbnail") !== false && thumbnail.size !== 0)
-                query.thumbnail = await saveFile("scm/assembly/thumbnails", thumbnail) as string;
 
             await locals.prisma.scm_assembly.update({ where: { id: params.id }, data: {
                 ...query,
