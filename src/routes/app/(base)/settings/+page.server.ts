@@ -10,6 +10,9 @@ export const load = (async ({ locals }) => {
         const storedSettings = await locals.prisma.app_settings.findMany();
         const settings = getSettings(storedSettings);
 
+        if(settings === undefined)
+            throw "App settings are undefined.";
+
         return { 
             settings
         }
