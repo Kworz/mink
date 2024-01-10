@@ -22,6 +22,7 @@
     import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
     import type { PageData, Snapshot } from "./$types";
     import EmptyData from "$lib/components/EmptyData.svelte";
+    import { computeArticlePrice } from "$lib/components/derived/article/article";
 
     export let data: PageData;
 
@@ -104,7 +105,7 @@
     >
         {#each data.articles as article (article.id)}
 
-            {@const price = article.order_rows.filter(or => or.order.state === "received").reduce((c, p) => (p.ack_price ?? 0) * p.received_quantity + c, 0)} <!-- TODO: Deprecate this, find a way to calculate article price -->
+            {@const price = computeArticlePrice(article.order_rows)}
             {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
 
                 <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
