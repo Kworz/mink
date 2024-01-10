@@ -138,11 +138,10 @@ model scm_supplier {
   address_postal_code     String?
   address_country         String?
 
+  payment_rule            payment_rule?
   payment_method          payment_method[]
-  payment_rule            payment_rule
 
   orders                  scm_order[]
-
 }
 
 enum payment_method {
