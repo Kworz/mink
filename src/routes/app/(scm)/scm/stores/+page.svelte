@@ -22,7 +22,9 @@
     let editStore: scm_store | undefined = undefined;
     let deleteStoreConfirm: scm_store | undefined = undefined;
 
-    $: if(form !== null) { invalidateAll(); createStore = false; editStore = undefined; }
+    $: if(form?.upsertStore !== undefined && "error" in form.upsertStore) { setTimeout(() => form = null, 3000); }
+    $: if(form?.upsertStore !== undefined && "success" in form.upsertStore) { createStore = false; editStore = undefined; invalidateAll();}
+    $: if(form?.deleteStore !== undefined && "success" in form.deleteStore) { deleteStoreConfirm = undefined; invalidateAll(); }
 
 </script>
 
@@ -55,9 +57,11 @@
 {/if}
 
 {#if createStore || editStore}
-    <MenuSide closable on:close={() => { createStore = false; editStore = undefined }}>
-        <form action={createStore ? "?/createStore" : "?/editStore"} method="post" use:enhance class="flex flex-col gap-4">
-        
+    <MenuSide on:close={() => { createStore = false; editStore = undefined }} title="{createStore ? "Créer" : "Modifier"} un emplacement de stock">
+
+        {#if form?.upsertStore !== undefined && "error" in form.upsertStore}<p class="text-red-500 font-semibold">{form.upsertStore.error}</p>{/if}
+
+        <form action="?/upsertStore" method="post" use:enhance class="flex flex-col gap-4">
             {#if !createStore}<input type="hidden" name="id" value={editStore?.id} />{/if}
 
             <FormInput name="name" label="Nom" labelMandatory value={editStore?.name} />
@@ -66,7 +70,6 @@
             <FormInput type="checkbox" name="temporary" label="Stock temporaire" checked={editStore?.temporary} />
 
             <Button role={createStore ? "success" : "warning"}>{createStore ? "Créer" : "Modifier"}</Button>
-        
         </form>
     </MenuSide>
 {/if}
