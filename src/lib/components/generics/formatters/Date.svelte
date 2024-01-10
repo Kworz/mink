@@ -1,14 +1,14 @@
 <script lang="ts">
     import { Temporal } from "@js-temporal/polyfill";
 
-    export let date: Date | string | undefined;
+    export let date: Date | string | undefined | null;
 
     export let format: "long" | "medium" | "short" = "short";
     export let colorDate = false;
 
 </script>
 
-{#if date !== undefined && date !== ""}
+{#if date !== undefined && date !== null && date !== ""}
     {@const datePosition = Temporal.PlainDate.compare(Temporal.Instant.from(date).toZonedDateTimeISO('UTC').toPlainDate(), Temporal.Now.zonedDateTimeISO('UTC').toPlainDate())}
     {@const isToday = datePosition === 0}
     {@const isPassed = datePosition === -1}
