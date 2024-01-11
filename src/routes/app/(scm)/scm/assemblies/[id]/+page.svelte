@@ -1,28 +1,29 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
-    import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import { ChevronDown, ChevronUp, DocumentChartBar, DocumentDuplicate, Trash, WrenchScrewdriver } from "@steeze-ui/heroicons";
-    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
-    import Modal from "$lib/components/generics/modal/Modal.svelte";
+    import ArticleFinder from "$lib/components/derived/article/ArticleFinder.svelte";
+    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
+    import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
+    import AssemblyPreview from "$lib/components/derived/assemblies/AssemblyPreview.svelte";
     import AssemblyTree from "$lib/components/derived/assemblies/AssemblyTree.svelte";
     import Button from "$lib/components/generics/Button.svelte";
     import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
+    import Grid from "$lib/components/generics/layout/grid.svelte";
+    import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
-    import type { ActionData, PageData } from "./$types";
-    import Grid from "$lib/components/generics/layout/grid.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
-    import { Icon } from "@steeze-ui/svelte-icon";
-    import ArticleFinder from "$lib/components/derived/article/ArticleFinder.svelte";
     import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
-    import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
-    import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
+    import { enhanceNoReset } from "$lib/enhanceNoReset";
     import type { scm_assembly_relation_article, scm_assembly_relation_sub_assembly } from "@prisma/client";
-    import AssemblyPreview from "$lib/components/derived/assemblies/AssemblyPreview.svelte";
+    import { ChevronDown, ChevronUp, DocumentChartBar, DocumentDuplicate, Trash, WrenchScrewdriver } from "@steeze-ui/heroicons";
+    import { Icon } from "@steeze-ui/svelte-icon";
+    import type { ActionData, PageData } from "./$types";
+    import { _ } from "svelte-i18n";
 
     export let data: PageData;
     export let form: ActionData;
@@ -49,16 +50,16 @@
 </script>
 
 <svelte:head>
-    <title>{data.assembly.name} - Assemblages</title>
+    <title>{data.assembly.name} / {$_('app.generic.assembly')} - mink</title>
 </svelte:head>
 
 {#if editAssembly}
-    <MenuSide on:close={() => editAssembly = false}>
+    <MenuSide on:close={() => editAssembly = false} title={$_('scm.assembly.action.edit.title')}>
         <form action="?/editAssembly" method="post" use:enhanceNoReset class="flex flex-col gap-4 mt-6">
             
-            <FormInput type="text" name="name" label="Nom de l'assemblage" value={data.assembly.name} labelMandatory />
-            <FormInput type="text" name="description" label="Description" value={data.assembly.description} />
-            <FormInput type="number" name="assembly_time" label="Durée de montage (heures)" min={0} step={0.25} value={data.assembly.assembly_time} />
+            <FormInput type="text" name="name" label={$_('scm.assembly.name')} value={data.assembly.name} labelMandatory />
+            <FormInput type="text" name="description" label={$_('app.generic.description')} value={data.assembly.description} />
+            <FormInput type="number" name="assembly_time" label={$_('scm.assembly.assembly_time')} min={0} step={0.25} value={data.assembly.assembly_time} />
 
             {#if data.assembly.thumbnail !== null}
                 <Button on:click={() => editAssemblyDeleteThumbnail = !editAssemblyDeleteThumbnail} preventSend  size="small" role={editAssemblyDeleteThumbnail ? "warning" : "danger"} class="self-start">{editAssemblyDeleteThumbnail ? "Anuller le retrait" : "Retirer la miniature"}</Button>
@@ -71,7 +72,7 @@
 
             <Flex>
                 <Button>Valider les modifications</Button>
-                <Button role="warning" on:click={() => editAssembly = false}>Anuller</Button>
+                <Button role="warning" on:click={() => editAssembly = false}>{$_('app.generic.cancel')}</Button>
             </Flex>
         
         </form>
@@ -79,59 +80,59 @@
 {/if}
 
 {#if deleteAssembly}
-    <Modal on:close={() => deleteAssembly = false} title="Souhaitez vous supprimer {data.assembly.name}">
+    <Modal on:close={() => deleteAssembly = false} title={$_('scm.assembly.action.delete.title', { values: { name: data.assembly.name }})}>
         <form action="?/deleteAssembly" method="post" use:enhance>
-            <Button role="danger">Oui</Button>
-            <Button role="tertiary" preventSend on:click={() => deleteAssembly = false}>Non</Button>
+            <Button role="danger">{$_('app.generic.yes')}</Button>
+            <Button role="tertiary" preventSend on:click={() => deleteAssembly = false}>{$_('app.generic.cancel')}</Button>
         </form>
     </Modal>
 {/if}
 
 {#if copyAssembly}
-    <Modal on:close={() => copyAssembly = false} title="Copie de {data.assembly.name}">
+    <Modal on:close={() => copyAssembly = false} title={$_('scm.assembly.action.copy.title', { values: { name: data.assembly.name }})}>
         <form action="?/copyAssembly" method="post" use:enhance class="flex flex-col gap-4">
-            <FormInput type="text" name="name" label="Nom de la copie" class="grow" />
-            <Button role="primary" size="small">Copier</Button>
+            <FormInput type="text" name="name" label={$_('app.generic.copy_name')} class="grow" />
+            <Button role="primary" size="small">{$_('app.action.copy')}</Button>
         </form>
     </Modal>
 {/if}
 
 {#if deleteArticleRelation !== undefined || deleteSubAssemblyRelation !== undefined}
-    <Modal on:close={() => {deleteArticleRelation = undefined; deleteSubAssemblyRelation = undefined}} title={"Confirmer la supréssion"}>
+    <Modal on:close={() => {deleteArticleRelation = undefined; deleteSubAssemblyRelation = undefined}} title={$_('scm.assembly.action.delete_relation.title')}>
 
-        <p>Souhaitez vous supprimer la relation ?</p>
+        <p>{$_('scm.assembly.action.delete_relation.body')}</p>
 
         <slot name="form">
             <form action="?/deleteRelation" method="post" use:enhance>
                 <input type="hidden" name="subassembly_relation_id" value={deleteArticleRelation?.id} />
                 <input type="hidden" name="article_relation_id" value={deleteSubAssemblyRelation?.id} />
-                <Button role="danger" size="small">Oui</Button>
-                <Button role="tertiary" size="small" preventSend on:click={() => {deleteArticleRelation = undefined; deleteSubAssemblyRelation = undefined}}>Non</Button>
+                <Button role="danger" size="small">{$_('app.generic.yes')}</Button>
+                <Button role="tertiary" size="small" preventSend on:click={() => {deleteArticleRelation = undefined; deleteSubAssemblyRelation = undefined}}>{$_('app.generic.cancel')}</Button>
             </form>
         </slot>
     </Modal>
 {/if}
 
 {#if moveRelationsToSubAssembly}
-    <Modal on:close={() => moveRelationsToSubAssembly = false} title="Déplacer {selectedRelations.length} relations vers un sous assemblage">
+    <Modal on:close={() => moveRelationsToSubAssembly = false} title={$_('scm.assembly.action.move_relations.title', { values: { amount: selectedRelations.length }})}>
 
-        <p>Choisissez un nom pour le nouveau sous-assemblage cible</p>
+        <p>{$_('scm.assembly.action.move_relations.body')}</p>
 
         <form action="?/moveRelations" use:enhance method="post" class="flex flex-col gap-4 mt-2">
             <input type="hidden" name="selected_article_relations" value={selectedArticles.join(',')} />
             <input type="hidden" name="selected_assemblies_relations" value={selectedAssemblies.join(',')} />
 
-            <FormInput name="name" type="text" label="Nom du sous-assemblage" labelMandatory />
-            <FormInput name="description" type="text" label="Description" />
+            <FormInput name="name" type="text" label={$_('app.generic.sub_assembly')} labelMandatory />
+            <FormInput name="description" type="text" label={$_('app.generic.description')} />
 
-            <Button role="primary">Déplacer</Button>
+            <Button role="primary">{$_('app.action.move')}</Button>
         </form>
     </Modal>
 {/if}
 
-<h1>Assemblage: {data.assembly.name}</h1>
+<h1>{$_('app.generic.assembly')}: {data.assembly.name}</h1>
 {#if data.assembly.description} <p>{data.assembly.description}</p> {/if}  
-<p>Durée d'assemblage: <DetailLabel>{data.assembly.assembly_time} Heures</DetailLabel>.</p>
+<p>{$_('scm.assembly.assembly_time')}: <DetailLabel>{data.assembly.assembly_time} {$_('app.time.hours')}</DetailLabel>.</p>
 
 <PillMenu message={(selectedRelations.length > 0) ? `${selectedRelations.length} Éléments selectionnés` : undefined}>
     <PillMenuButton icon={WrenchScrewdriver} click={() => editAssembly = !editAssembly}>Modifier l'assemblage</PillMenuButton>
@@ -146,13 +147,13 @@
 
     <section class="shrink-0">
         {#if data.assembly.thumbnail !== null}
-            <img src={data.assembly.thumbnail} alt="Miniature de l'assemblage {data.assembly.name}" class="aspect-square w-48 mb-6 rounded-lg ring-1 ring-zinc-400/25"/>
+            <img src={data.assembly.thumbnail} alt={$_('scm.assembly.thumbnail', { values: { name: data.assembly.name }})} class="aspect-square w-48 mb-6 rounded-lg ring-1 ring-zinc-400/25"/>
         {/if}
         <AssemblyTree assembly={data.assemblyTree} />
     </section>
 
     <Grid cols={1} gap={6} items="center" class="w-full">
-        <Table headers={["selectAll", { label: `Sous assemblage (${data.assembly.assembly_childrens.length})`}, { label: "Quantité" }, { label: "Supprimer" }]}>
+        <Table headers={["selectAll", { label: `${$_('app.generic.sub_assemblies')} (${data.assembly.assembly_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete') }]}>
             {#each data.assembly.assembly_childrens as subAssemblyRelation, index}
                 <TableCell class="items-center">                
                     <form action="?/updateAssemblyRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
@@ -179,30 +180,30 @@
                 <TableCell>
                     <form action="?/updateAssemblyRelationSubassembly" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={subAssemblyRelation.id} />
-                        <FormInput name="quantity" type="number" bind:value={subAssemblyRelation.quantity} validateOnChange />
+                        <FormInput name="quantity" type="number" label={$_('app.generic.quantity')} bind:value={subAssemblyRelation.quantity} validateOnChange />
                     </form>
                 </TableCell>
                 <TableCell>
-                    <Button size="small" role="danger" on:click={() => deleteSubAssemblyRelation = subAssemblyRelation}>Supprimer</Button>
+                    <Button size="small" role="danger" on:click={() => deleteSubAssemblyRelation = subAssemblyRelation}>{$_("app.action.delete")}</Button>
                 </TableCell>
             {/each}
 
             {#if data.assemblies.length > 0}
                 <TableFootCell class="col-span-4">
-                    <h3>Ajouter un sous-assemblage</h3>
+                    <h3>{$_('app.action.add_subassembly')}</h3>
                     <form action="?/addAssemblySubAssembly" method="post" use:enhance class="flex flex-row items-end gap-4 mt-2">
-                        <FormInput name="child_assembly_id" label="Sous assemblage" labelMandatory type="select">
+                        <FormInput name="child_assembly_id" label={$_('app.generic.sub_assembly')} labelMandatory type="select">
                             {#each data.assemblies as assembly}
                                 <option value={assembly.id}>{assembly.name}</option>
                             {/each}
                         </FormInput>
-                        <FormInput name="quantity" label="Quantité" labelMandatory type="number" min={1} />
-                        <Button>Ajouter</Button>
+                        <FormInput name="quantity" label={$_('app.generic.quantity')} labelMandatory type="number" min={1} />
+                        <Button>{$_('app.action.add')}</Button>
                 </TableFootCell>
             {/if}
         </Table>
 
-        <Table headers={["selectAll", { label: `Article (${data.assembly.article_childrens.length})`}, { label: "Quantité" }, { label: "Supprimer" }]}>
+        <Table headers={["selectAll", { label: `${$_('app.generic.articles')} (${data.assembly.article_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete')}]}>
             {#each data.assembly.article_childrens as subArticleRelation, index (subArticleRelation.id)}
                 <TableCell class="items-center">
                     <form action="?/updateAssemblyRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
@@ -233,18 +234,18 @@
                     </form>
                 </TableCell>
                 <TableCell>
-                    <Button size="small" role="danger" on:click={() => deleteArticleRelation = subArticleRelation}>Supprimer</Button>
+                    <Button size="small" role="danger" on:click={() => deleteArticleRelation = subArticleRelation}>{$_('app.action.delete')}</Button>
                 </TableCell>
             {/each}
 
             {#if data.articles.length > 0}
                 <TableFootCell class="col-span-4">
-                    <h3>Ajouter un article</h3>
+                    <h3>{$_('app.action.add_article')}</h3>
                     <form action="?/addAssemblySubArticle" method="post" use:enhance class="flex flex-row gap-8 items-end mt-2">
                         <ArticleFinder articles={data.articles} bind:selectedArticle={addArticleSelected} formFieldName="child_article_id" />
                         {#if addArticleSelected !== undefined}
-                            <FormInput name="quantity" label="Quantité" labelMandatory={true} type="number" />
-                            <Button>Ajouter</Button>
+                            <FormInput name="quantity" label={$_('app.generic.quantity')} labelMandatory={true} type="number" />
+                            <Button>{$_('app.action.add')}</Button>
                         {/if}
                     </form>
                 </TableFootCell>

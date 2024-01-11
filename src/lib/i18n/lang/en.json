@@ -14,23 +14,42 @@
         },
         "generic": {
             "article": "Article",
+            "articles": "Articles",
             "order": "Order",
             "received_quantity": "Received quantity",
             "destination_store": "Inbound store",
             "delivery_date": "Delivery date",
             "handle_receive": "Handle reception",
             "description": "Description",
-            "decription_null": "No description defined"
+            "decription_null": "No description defined",
+            "yes": "Yes",
+            "cancel": "Cancel",
+            "copy_name": "Copy name",
+            "sub_assembly": "Sub-assembly",
+            "sub_assemblies": "Sub-assemblies",
+            "assembly": "Assembly",
+            "quantity": "Quantity",
+            "waited_quantity": "Awaited quantity"
         },
-        "actions": {
+        "time": {
+            "hours": "Hours"
+        },
+        "action": {
+            "add": "Add",
+            "delete": "Delete",
+            "add_article": "Add an article",
+            "add_subassembly": "Add a sub-assembly",
             "validate": "Confirm",
-            "create": "Create"
+            "create": "Create",
+            "copy": "Copy",
+            "move": "Move"
         }
     },
     "scm": {
         "inbound_supplies": {
             "lead": "Inbound supplies",
-            "description": "Manage article inbound supplies."
+            "description": "Manage article inbound supplies.",
+            "title": "Inbound deliveries"
         },
         "generic": {
             "article": "Article"
@@ -40,9 +59,42 @@
             "description": "Create assemblies, add articles and manage their dependencies.",
             "actions": {
                 "create": "Create an assembly"
+            }
+        },
+        "assembly": {
+            "title": "Assembly",
+            "thumbnail": "{name} thumbnail",
+            "action": {
+                "edit": {
+                    "title": "Edit assembly"
+                },
+                "delete": {
+                    "title": "Delete {name} assembly"
+                },
+                "copy": {
+                    "title": "Copy of {name} assembly"
+                },
+                "delete_relation": {
+                    "body": "Would you like to delete this assembly relation ?",
+                    "title": "Delete an assembly relation"
+                },
+                "move_relations": {
+                    "title": "Move {amount} relations to a sub-assembly",
+                    "body": "Choose a name for the target sub-assembly"
+                }
             },
-            "name": "Assembly name",
-            "thumbnail": "{name} thumbnail"
+            "assembly_time": "Assembly time (hours)",
+            "name": "Assembly name"
+        }
+    },
+    "errors": {
+        "scm": {
+            "assembly": {
+                "create": {
+                    "name_null": "The given assembly name is not valid.",
+                    "failed": "An error has occured while creating the assembly."
+                }
+            }
         }
     }
 }

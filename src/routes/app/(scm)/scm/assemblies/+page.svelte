@@ -43,12 +43,12 @@
 
 {#if createAssembly}
     <MenuSide on:close={() => createAssembly = false} title={$_('scm.assemblies.actions.create')}>
-        {#if form?.createAssembly?.error}<p class="text-red-500 mb-2">{form?.createAssembly?.error}</p>{/if}
+        {#if form?.createAssembly && "error" in form.createAssembly}<p class="text-red-500 mb-2">{$_(form.createAssembly.error)}</p>{/if}
 
         <form action="?/createAssembly" method="post" use:enhance class="flex flex-col gap-4" on:submit={() => createFormSent = true}>
-            <FormInput name="name" label={$_('scm.assemblies.name')} labelMandatory value={form?.createAssembly.name ?? ""} />
+            <FormInput name="name" label={$_('scm.assembly.name')} labelMandatory value={form?.createAssembly.name ?? ""} />
             <FormInput name="description" label={$_('app.generic.description')} value={form?.createAssembly.description ?? ""} />
-            <Button role="primary" class="self-start" suspense={createFormSent}>{$_('app.actions.create')}</Button>
+            <Button role="primary" class="self-start" suspense={createFormSent}>{$_('app.action.create')}</Button>
         </form>
     </MenuSide>
 {/if}
@@ -71,7 +71,7 @@
                     <Flex items="center">
                     
                         {#if assembly.thumbnail !== null}
-                            <img src={assembly.thumbnail} alt={$_('scm.assemblies.thumbnail', { values: { name: assembly.name }})} class="aspect-square object-cover h-24 duration-100 rounded-md ring-1 ring-zinc-400/25" />
+                            <img src={assembly.thumbnail} alt={$_('scm.assembly.thumbnail', { values: { name: assembly.name }})} class="aspect-square object-cover h-24 duration-100 rounded-md ring-1 ring-zinc-400/25" />
                         {:else}
                             <div class="aspect-square object-cover rounded-md border h-24 border-zinc-500/50">
                                 <Icon src={VideoCameraSlash} class="h-full w-8 m-auto text-red-500" />

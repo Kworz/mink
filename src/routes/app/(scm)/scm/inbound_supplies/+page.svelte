@@ -55,7 +55,7 @@
                             <option value={store.id}>{store.name} / {store.location}</option>
                         {/each}
                     </FormInput>
-                    <Button>{$_('app.actions.validate')}</Button>
+                    <Button>{$_('app.action.validate')}</Button>
                 </form>
             </TableCell>
         {/each}
