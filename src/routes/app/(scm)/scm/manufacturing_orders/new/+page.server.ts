@@ -26,6 +26,9 @@ export const actions: Actions = {
         const receiverId = form.get("receiver")?.toString();
         const quantity = Number(form.get("quantity")?.toString());
 
+        let endDate: string | Date | undefined = form.get("end_date")?.toString();
+        endDate = endDate ? new Date(endDate) : undefined;
+
         if(articleId === undefined)
             return fail(400, { error: "Article not found" });
 
@@ -38,7 +41,8 @@ export const actions: Actions = {
                 askedBy_id: locals.session!.user.id,
                 receiver_id: receiverId,
                 state: scm_manufacturing_order_state.draft,
-                quantity,
+                end_date: endDate,
+                quantity
             }
         });
 

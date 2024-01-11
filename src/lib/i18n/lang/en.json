@@ -40,7 +40,8 @@
             "assemblies": "Assemblies",
             "projects": "Projects",
             "inbound_supplies": "Inbound supplies",
-            "stores": "Stores"
+            "stores": "Stores",
+            "quantity_to_manufacture": "Quantity to manufacture"
         },
         "time": {
             "hours": "Hours"
@@ -53,7 +54,8 @@
             "validate": "Confirm",
             "create": "Create",
             "copy": "Copy",
-            "move": "Move"
+            "move": "Move",
+            "complete": "Completed"
         }
     },
     "scm": {
@@ -100,7 +102,10 @@
         "manufacturing_orders": {
             "description": "Create manufacturing orders, manage them to track the manufacturing of your articles.",
             "actions": {
-                "create": "Create a manufacturing order"
+                "create": "Create a manufacturing order",
+                "delete": {
+                    "title": "Delete fabrication order"
+                }
             },
             "filter": {
                 "hide_cancelled": "Hide cancelled manufacturing orders",
@@ -121,6 +126,11 @@
                     "failed": "An error has occured while creating the assembly."
                 }
             }
+        }
+    },
+    "add": {
+        "generic": {
+            "article_to_manufacture": "Article to manufacture"
         }
     }
 }

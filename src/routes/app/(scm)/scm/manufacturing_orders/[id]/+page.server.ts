@@ -100,7 +100,11 @@ export const actions: Actions = {
                 user_id: locals.session!.user.id }
             });
 
-            await locals.prisma.scm_store_relation.upsert({ where: { article_id_store_id: { article_id: manufacturingOrder.article_id, store_id: storeIn }}, create: { article_id: manufacturingOrder.article_id, store_id: storeIn, quantity: manufacturingOrder.quantity }, update: { quantity: { increment: manufacturingOrder.quantity }}});
+            await locals.prisma.scm_store_relation.upsert({ 
+                where: { article_id_store_id: { article_id: manufacturingOrder.article_id, store_id: storeIn }}, 
+                create: { article_id: manufacturingOrder.article_id, store_id: storeIn, quantity: manufacturingOrder.quantity }, 
+                update: { quantity: { increment: manufacturingOrder.quantity }}
+            });
 
         }
         catch(ex)

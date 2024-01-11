@@ -11,13 +11,15 @@
     import Modal from "$lib/components/generics/modal/Modal.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
-    import { scm_manufacturing_order_state } from "@prisma/client";
+    import { scm_manufacturing_order_state, type scm_store } from "@prisma/client";
     import { Trash, Wrench } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
     import { _ } from "svelte-i18n";
+    import Date from "$lib/components/generics/formatters/Date.svelte";
+    import User from "$lib/components/derived/user/User.svelte";
 
     export let data: PageData;
-    export let form: ActionData;
+    export let form: ActionData & { completeManufacturingOrder: { error: string, stores: scm_store[] }};
 
     let editManufacturingOrder = false;
     let deleteConfirm = false;
@@ -31,11 +33,11 @@
 </svelte:head>
 
 {#if editManufacturingOrder}
-    <MenuSide on:close={() => editManufacturingOrder = false} title="Modifier l'ordre de manufacturing">
+    <MenuSide on:close={() => editManufacturingOrder = false} title={$_('scm.manufacturing_orders.actions.edit.title')}>
         <form action="?/editManufacturingOrder" method="post" use:enhance class="flex flex-col gap-4">
-            <FormInput label="Date butoir" name="end_date" labelMandatory type="date" value={data.manufacturingOrder.end_date?.toISOString()} />
-            <FormInput label="Quantité" name="quantity" labelMandatory type="number" value={data.manufacturingOrder.quantity} />
-            <FormInput label="Receveur" name="receiver" type="select" value={data.manufacturingOrder.receiver?.id}>
+            <FormInput label={$_('app.generic.limit_date')} name="end_date" labelMandatory type="date" value={data.manufacturingOrder.end_date?.toISOString()} />
+            <FormInput label={$_('app.generic.quantity')} name="quantity" labelMandatory type="number" value={data.manufacturingOrder.quantity} />
+            <FormInput label={$_('app.generic.user_receiving')} name="receiver" type="select" value={data.manufacturingOrder.receiver?.id}>
                 <option value={undefined}>Aucun</option>
                 {#each data.users as user}
                     <option value={user.id}>{user.username}</option>
@@ -46,35 +48,34 @@
                     <option value={state}>{state}</option>
                 {/each}
             </FormInput>
-            <Button role="success">Modifier l'ordre de manufacturing</Button>
+            <Button role="success">{$_('app.action.validate')}</Button>
         </form>
     </MenuSide>
 {/if}
 
 {#if deleteConfirm}
-    <Modal on:close={() => deleteConfirm = false} title="Confirmer la suppression">
-        <p>Souhaitez vous réellement supprimer cet ordre de manufacturing ?</p>
+    <Modal on:close={() => deleteConfirm = false} title={$_('scm.manufacturing_orders.actions.delete.title')}>
+        <p>{$_('scm.manufacturing_orders.actions.delete.body')}</p>
         <form action="?/deleteManufacturingOrder" method="post" use:enhance slot="form">
-            <Button role="danger">Supprimer l'ordre de manufacturing</Button>
+            <Button role="danger">{$_('app.action.delete')}</Button>
         </form>
     </Modal>
 {/if}
 
 <PillMenu>
-    <PillMenuButton icon={Wrench} role="warning" click={() => editManufacturingOrder = true}>Modifier l'ordre de manufacturing</PillMenuButton>
-    <PillMenuButton icon={Trash} role="danger" click={() => deleteConfirm = true}>Supprimer l'ordre de manufacturing</PillMenuButton>
+    <PillMenuButton icon={Wrench} role="warning" click={() => editManufacturingOrder = true}>{$_('scm.manufacturing_orders.actions.edit.title')}</PillMenuButton>
+    <PillMenuButton icon={Trash} role="danger" click={() => deleteConfirm = true}>{$_('scm.manufacturing_orders.actions.delete.title')}</PillMenuButton>
 </PillMenu>
 
 <h1>{$_('app.generic.manufacturing_order')} <RoundedLabel>#{data.manufacturingOrder.id}</RoundedLabel></h1>
 
-<p>État de la demande <DetailLabel>{data.manufacturingOrder.state}</DetailLabel>.</p>
-<p>Demandeur: <DetailLabel>{data.manufacturingOrder.askedBy.username}</DetailLabel>.</p>
-<p>Receveur: <DetailLabel>{data.manufacturingOrder.receiver?.username}</DetailLabel>.</p>
-<p>Date butoir: <DetailLabel>{data.manufacturingOrder.end_date}</DetailLabel>.</p>
-<p>Statut: <DetailLabel>{data.manufacturingOrder.state}</DetailLabel>.</p>
+<p>{$_('app.generic.state')}: <DetailLabel>{data.manufacturingOrder.state}</DetailLabel>.</p>
+<p>{$_('app.generic.limit_date')}: <Date date={data.manufacturingOrder.end_date} />.</p>
+<p class="flex flex-row gap-2 items-center mb-2">{$_('app.generic.user_requesting')}: <User user={data.manufacturingOrder.askedBy}/></p>
+<p class="flex flex-row gap-2 items-center">{$_('app.generic.user_receiving')}: <User user={data.manufacturingOrder.receiver} /></p>
 
 <Wrapper class="mt-6">
-    <h3 class="mb-4">Article à fabriquer</h3>
+    <h3 class="mb-4">{$_('add.generic.article_to_manufacture')}</h3>
     
     <Flex items="center" justify="between">
         {#if data.manufacturingOrder.article !== undefined}
@@ -85,16 +86,16 @@
 
     {#if !(data.manufacturingOrder.state === "draft" || data.manufacturingOrder.state === "cancelled")}
         <form action="?/completeManufacturingOrder" method="post" use:enhance class="mt-6 flex flex-row gap-4 items-end">
-            {#if form?.completeFabOrder?.error === "scm.fabricration_order.complete.error.missing_store_in"}
-                <FormInput label="Stock de destination" name="store_in" labelMandatory type="select">
-                    {#each form.completeFabOrder.stores as store}
+            {#if form?.completeManufacturingOrder !== undefined && "error" in form.completeManufacturingOrder && "stores" in form.completeManufacturingOrder}
+                <FormInput label={$_('app.generic.destination_store')} name="store_in" labelMandatory type="select">
+                    {#each form.completeManufacturingOrder.stores as store}
                         <option value={store.id}>{store.name} / {store.location}</option>
                     {/each}
                 </FormInput>
 
-                <Button role="success">Ordre de manufacturing terminé</Button>
+                <Button role="success">{$_('app.action.complete')}</Button>
             {:else}
-                <Button>Valider l'odre de manufacturing</Button>
+                <Button>{$_('app.action.validate')}</Button>
             {/if}
         </form>
     {/if}

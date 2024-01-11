@@ -40,7 +40,8 @@
             "assemblies": "Assemblages",
             "projects": "Affaires",
             "inbound_supplies": "Approvisionements",
-            "stores": "Stocks"
+            "stores": "Stocks",
+            "quantity_to_manufacture": "Quantité à fabriquer"
         },
         "time": {
             "hours": "Heures"
@@ -53,7 +54,8 @@
             "validate": "Valider",
             "create": "Créer",
             "copy": "Copier",
-            "move": "Déplacer"
+            "move": "Déplacer",
+            "complete": "Terminé"
         }
     },
     "scm": {
@@ -100,7 +102,14 @@
         "manufacturing_orders": {
             "description": "Créez des ordres de fabrication pour faire le suivi de la fabrication de vos articles.",
             "actions": {
-                "create": "Créer un ordre de fabrication"
+                "create": "Créer un ordre de fabrication",
+                "delete": {
+                    "title": "Supprimer l'ordre de fabrication",
+                    "body": "Souhaitez vous supprimer cet ordre de fabrication ?"
+                },
+                "edit": {
+                    "title": "Modifier l'ordre de fabrication"
+                }
             },
             "filter": {
                 "hide_cancelled": "Masquer les ordres de fabrication anullés",
@@ -121,6 +130,11 @@
                     "failed": "Une erreur est survenue lors de la création de l'assemblage."
                 }
             }
+        }
+    },
+    "add": {
+        "generic": {
+            "article_to_manufacture": "Article à fabriquer"
         }
     }
 }
