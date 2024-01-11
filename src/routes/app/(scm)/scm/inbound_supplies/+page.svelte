@@ -9,6 +9,7 @@
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
+    import { _ } from "svelte-i18n";
     import type { ActionData, PageData } from "./$types";
 
     export let data: PageData;
@@ -18,20 +19,20 @@
 </script>
 
 <svelte:head>
-    <title>mink - Approvisionement</title>
+    <title>mink - {$_('scm.inbound_supplies.lead')}</title>
 </svelte:head>
 
-<h1>Approvisionement</h1>
-<p>Articles en attente de réception.</p>
+<h1>{$_('scm.inbound_supplies.lead')}</h1>
+<p>{$_('scm.inbound_supplies.description')}</p>
 
 {#if data.orderRows.length > 0}
     <Table class="mt-6" headers={[
-        {label: "Article"},
-        {label: "Date d'arrivée"},
-        {label: "Commande"},
-        {label: "Quantité en attente"},
-        {label: "Quantité reçue"},
-        {label: "Réception"},
+        { label: $_('app.generic.article') },
+        { label: $_('app.generic.delivery_date') },
+        { label: $_('app.generic.order') },
+        { label: $_('app.generic.waited_quantity') },
+        { label: $_('app.generic.received_quantity') },
+        { label: $_('app.generic.handle_receive') },
     ]}>
         {#each data.orderRows as orderRow}
             <TableCell>
@@ -46,15 +47,15 @@
                     <input type="hidden" name="article" value={orderRow.article_id} />
                     <input type="hidden" name="order_row" value={orderRow.id} />
 
-                    <FormInput name="received_quantity" type="number" min={0} max={orderRow.needed_quantity - orderRow.received_quantity} value={0} step={orderRow.article.unit !== "u" ? 0.1 : 1} label="Quantité recue" labelMandatory={true} backgroundColor="bg-white" />
+                    <FormInput name="received_quantity" type="number" min={0} max={orderRow.needed_quantity - orderRow.received_quantity} value={0} step={orderRow.article.unit !== "u" ? 0.1 : 1} label={$_('app.generic.received_quantity')} labelMandatory={true} backgroundColor="bg-white" />
                     
-                    <FormInput name="store_in" type="select" value="" labelMandatory label="Stock de destination">
+                    <FormInput name="store_in" type="select" value="" labelMandatory label={$_('app.generic.destination_store')}>
                         <option value=''>—</option>
                         {#each data.stores as store}
                             <option value={store.id}>{store.name} / {store.location}</option>
                         {/each}
                     </FormInput>
-                    <Button>Valider</Button>
+                    <Button>{$_('app.actions.validate')}</Button>
                 </form>
             </TableCell>
         {/each}
