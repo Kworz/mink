@@ -20,7 +20,7 @@
         <MenuItem icon={CircleStack} href="/app/scm/articles" label="Base articles" />
         <MenuItem icon={Truck} href="/app/scm/suppliers" label="Fournisseurs" />
         <MenuItem icon={ArchiveBox} href="/app/scm/stores" label="Stocks" />
-        <MenuItem icon={QueueList} href="/app/scm/approx" label="Approvisionements" dotNumber={data.approxCount} />
+        <MenuItem icon={QueueList} href="/app/scm/inbound_supplies" label="Approvisionements" dotNumber={data.inboundSuppliesCount} />
 
         <MenuSeparator>Nomenclatures</MenuSeparator>
         <MenuItem icon={ClipboardDocumentCheck} href="/app/scm/lists" label="Listes d'achats" />
