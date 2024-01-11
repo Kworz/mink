@@ -4,6 +4,7 @@
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
     import Button from "$lib/components/generics/Button.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import { _ } from "svelte-i18n";
     import type { PageData } from "./$types";
 
     export let data: PageData;
@@ -11,8 +12,12 @@
     let selectedArticle: scm_articleWithIncludes | undefined = undefined;
 </script>
 
-<h1>Créer un ordre de fabrication</h1>
-<p>Utilisez cet ordre de fabrication pour suive la production</p>
+<svelte:head>
+    <title>{$_('scm.manufacturing_orders.actions.create')} — mink</title>
+</svelte:head>
+
+<h1>{$_('scm.manufacturing_orders.actions.create')}</h1>
+<p>{$_('scm.manufacturing_orders.create.description')}</p>
 
 <form method="post" use:enhance class="flex flex-col gap-4 mt-6">
 
@@ -34,5 +39,5 @@
 
     <FormInput type="date" name="end_date" label="Date butoir" labelMandatory={true} />
 
-    <Button>Créer l'ordre de fabrication</Button>
+    <Button>Créer l'ordre de manufacturing</Button>
 </form>

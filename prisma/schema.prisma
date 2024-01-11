@@ -28,9 +28,9 @@ model user {
   orders                 scm_order[]
   order_state_changes    scm_order_state_change[]
 
-  fabrication_orders_asked            scm_fabrication_order[] @relation("fabrication_order_asked")
-  fabrication_orders_received         scm_fabrication_order[] @relation("fabrication_order_received")
-  fabrication_orders_state_changes    scm_fabrication_oder_state_change[]
+  manufacturing_orders_asked            scm_manufacturing_order[] @relation("manufacturing_order_asked")
+  manufacturing_orders_received         scm_manufacturing_order[] @relation("manufacturing_order_received")
+  manufacturing_orders_state_changes    scm_manufacturing_oder_state_change[]
 
 }
 
@@ -109,7 +109,7 @@ model scm_article {
 
   files                       scm_article_file[]
 
-  fabrication_orders          scm_fabrication_order[]
+  manufacturing_orders          scm_manufacturing_order[]
 
 }
 
@@ -354,15 +354,15 @@ model scm_order_rows {
   received_quantity   Float  @default(0)
 }
 
-model scm_fabrication_order {
+model scm_manufacturing_order {
 
   id                  String @id @default(uuid()) @unique
 
   askedBy_id          String
-  askedBy             user @relation("fabrication_order_asked", references: [id], fields: [askedBy_id], onDelete: Cascade)
+  askedBy             user @relation("manufacturing_order_asked", references: [id], fields: [askedBy_id], onDelete: Cascade)
   
   receiver_id         String?
-  receiver            user? @relation("fabrication_order_received", references: [id], fields: [receiver_id], onDelete: Cascade)
+  receiver            user? @relation("manufacturing_order_received", references: [id], fields: [receiver_id], onDelete: Cascade)
 
   article_id          String
   article             scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
@@ -371,7 +371,7 @@ model scm_fabrication_order {
   project             pr_project? @relation(references: [id], fields: [project_id], onDelete: Cascade)
 
   quantity            Float @default(1)
-  state               scm_fabrication_order_state @default(draft)
+  state               scm_manufacturing_order_state @default(draft)
 
   start_date          DateTime?
   end_date            DateTime?
@@ -379,18 +379,18 @@ model scm_fabrication_order {
   created             DateTime @default(now())
   updated             DateTime @updatedAt
 
-  state_changes       scm_fabrication_oder_state_change[]
+  state_changes       scm_manufacturing_oder_state_change[]
   
 }
 
-model scm_fabrication_oder_state_change {
+model scm_manufacturing_oder_state_change {
 
   id                    String @id @default(uuid()) @unique
 
-  fabrication_order_id  String
-  fabrication_order     scm_fabrication_order @relation(references: [id], fields: [fabrication_order_id], onDelete: Cascade)
+  manufacturing_order_id  String
+  manufacturing_order     scm_manufacturing_order @relation(references: [id], fields: [manufacturing_order_id], onDelete: Cascade)
 
-  state                 scm_fabrication_order_state
+  state                 scm_manufacturing_order_state
   comment               String?
   date                  DateTime @default(now())
   
@@ -399,7 +399,7 @@ model scm_fabrication_oder_state_change {
 
 }
 
-enum scm_fabrication_order_state {
+enum scm_manufacturing_order_state {
   draft
   ready
   in_progress
@@ -537,7 +537,7 @@ model pr_project {
   
   attached_users      pr_project_attached_user[]
 
-  fabrication_orders  scm_fabrication_order[]
+  manufacturing_orders  scm_manufacturing_order[]
 
 }
 

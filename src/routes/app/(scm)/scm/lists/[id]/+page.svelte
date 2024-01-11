@@ -71,7 +71,7 @@
 <PillMenu>
     <PillMenuButton icon={WrenchScrewdriver} click={() => editList = !editList}>Modifier la liste d'achat</PillMenuButton>
     <form action="?/generateFabOrders" method="post" use:enhance>
-        <PillMenuButton icon={DocumentPlus}>Créer les ordres de fabrication</PillMenuButton>
+        <PillMenuButton icon={DocumentPlus}>Créer les ordres de manufacturing</PillMenuButton>
     </form>
     <PillMenuButton icon={DocumentChartBar} click={() => window.open(`/app/scm/lists/${data.list.id}/export`, "_blank")?.focus()}>Exporter la liste</PillMenuButton>
     <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/lists/print/?lists=${data.list.id}`, "_blank")?.focus()}>Imprimer l'etiquette</PillMenuButton>

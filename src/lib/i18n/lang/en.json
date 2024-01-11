@@ -29,7 +29,18 @@
             "sub_assemblies": "Sub-assemblies",
             "assembly": "Assembly",
             "quantity": "Quantity",
-            "waited_quantity": "Awaited quantity"
+            "waited_quantity": "Awaited quantity",
+            "manufacturing_order": "Manufacturing order",
+            "manufacturing_orders": "Manufacturing orders",
+            "state": "State",
+            "project": "Project",
+            "user_requesting": "Requesting user",
+            "limit_date": "Limit date",
+            "user_receiving": "Receiving user",
+            "assemblies": "Assemblies",
+            "projects": "Projects",
+            "inbound_supplies": "Inbound supplies",
+            "stores": "Stores"
         },
         "time": {
             "hours": "Hours"
@@ -85,6 +96,21 @@
             },
             "assembly_time": "Assembly time (hours)",
             "name": "Assembly name"
+        },
+        "manufacturing_orders": {
+            "description": "Create manufacturing orders, manage them to track the manufacturing of your articles.",
+            "actions": {
+                "create": "Create a manufacturing order"
+            },
+            "filter": {
+                "hide_cancelled": "Hide cancelled manufacturing orders",
+                "show_cancelled": "Show cancelled manufacturing orders",
+                "hide_completed": "Hide completed manufacturing orders",
+                "show_completed": "Show completed manufacturing orders"
+            },
+            "create": {
+                "description": "Use this manufacturing order to track article manufacturing"
+            }
         }
     },
     "errors": {

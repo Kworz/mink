@@ -7,6 +7,7 @@
     import { ArchiveBox, ChevronLeft, CircleStack, ClipboardDocumentCheck, DocumentChartBar, DocumentText, PuzzlePiece, QueueList, Truck, Wrench } from "@steeze-ui/heroicons";
     
     import type { LayoutData } from "./$types";
+    import { _ } from "svelte-i18n";
 
     export let data: LayoutData;
 
@@ -19,17 +20,17 @@
         <MenuSeparator>Articles</MenuSeparator>
         <MenuItem icon={CircleStack} href="/app/scm/articles" label="Base articles" />
         <MenuItem icon={Truck} href="/app/scm/suppliers" label="Fournisseurs" />
-        <MenuItem icon={ArchiveBox} href="/app/scm/stores" label="Stocks" />
-        <MenuItem icon={QueueList} href="/app/scm/inbound_supplies" label="Approvisionements" dotNumber={data.inboundSuppliesCount} />
+        <MenuItem icon={ArchiveBox} href="/app/scm/stores" label={$_('app.generic.stores')} />
+        <MenuItem icon={QueueList} href="/app/scm/inbound_supplies" label={$_('app.generic.inbound_supplies')} dotNumber={data.inboundSuppliesCount} />
 
         <MenuSeparator>Nomenclatures</MenuSeparator>
         <MenuItem icon={ClipboardDocumentCheck} href="/app/scm/lists" label="Listes d'achats" />
-        <MenuItem icon={PuzzlePiece} href="/app/scm/assemblies" label="Assemblages" />
+        <MenuItem icon={PuzzlePiece} href="/app/scm/assemblies" label={$_('app.generic.assemblies')} />
 
         <MenuSeparator>Gestion</MenuSeparator>
-        <MenuItem icon={DocumentText} href="/app/scm/projects" label="Affaires" />
+        <MenuItem icon={DocumentText} href="/app/scm/projects" label={$_('app.generic.projects')} />
         <MenuItem icon={DocumentChartBar} href="/app/scm/orders" label="Commandes" />
-        <MenuItem icon={Wrench} href="/app/scm/fabrication_orders" label="Ordres de fabrication" />
+        <MenuItem icon={Wrench} href="/app/scm/manufacturing_orders" label={$_('app.generic.manufacturing_orders')} />
 
     </Menu>
 

@@ -29,7 +29,18 @@
             "assembly": "Assemblage",
             "quantity": "Quantité",
             "sub_assemblies": "Sous-assemblages",
-            "articles": "Articles"
+            "articles": "Articles",
+            "manufacturing_order": "Ordre de fabrication",
+            "manufacturing_orders": "Ordres de fabrication",
+            "state": "État",
+            "project": "Affaire",
+            "user_requesting": "Utilisateur demandeur",
+            "limit_date": "Date butoire",
+            "user_receiving": "Utilisateur receveur",
+            "assemblies": "Assemblages",
+            "projects": "Affaires",
+            "inbound_supplies": "Approvisionements",
+            "stores": "Stocks"
         },
         "time": {
             "hours": "Heures"
@@ -85,6 +96,21 @@
             },
             "name": "Nom de l'assemblage",
             "assembly_time": "Durée de montage (heures)"
+        },
+        "manufacturing_orders": {
+            "description": "Créez des ordres de fabrication pour faire le suivi de la fabrication de vos articles.",
+            "actions": {
+                "create": "Créer un ordre de fabrication"
+            },
+            "filter": {
+                "hide_cancelled": "Masquer les ordres de fabrication anullés",
+                "show_cancelled": "Afficher les ordres de fabrication anullés",
+                "hide_completed": "Masquer les ordres de fabrication terminés",
+                "show_completed": "Afficher les ordres de fabrication terminés"
+            },
+            "create": {
+                "description": "Utilisez cet ordre de fabrication pour suive la production."
+            }
         }
     },
     "errors": {

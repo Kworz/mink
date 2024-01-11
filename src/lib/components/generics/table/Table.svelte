@@ -63,7 +63,7 @@
 
 <svelte:window on:resize={computeScrolls} />
 
-<div class="{$$props.class} bg-zinc-800 ring-1 ring-zinc-400/25 rounded-md relative" class:overflow-x-scroll={contentScrollable} bind:this={parentContainer} on:scroll={computeScrolls}>
+<div class="bg-zinc-800 ring-1 ring-zinc-400/25 rounded-md relative mt-6 {$$props.class || ''}" class:overflow-x-scroll={contentScrollable} bind:this={parentContainer} on:scroll={computeScrolls}>
 
     <div class="sticky top-0 right-0 left-0 bottom-0 z-50">
         {#if shouldScrollRight}

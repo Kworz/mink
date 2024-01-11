@@ -46,7 +46,7 @@
 {/if}
 
 <h1>Affaires</h1>
-<p>Créez des affaires, assignez des commandes, lists d'achats et ordres de fabrication.</p>
+<p>Créez des affaires, assignez des commandes, lists d'achats et ordres de manufacturing.</p>
 
 <PillMenu>
     <PillMenuButton click={() => createProject = !createProject} icon={PlusCircle}>Créer une affaire</PillMenuButton>

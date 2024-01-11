@@ -8,7 +8,7 @@ export const load = (async ({ locals, params }) => {
 
     const project = await locals.prisma.pr_project.findUniqueOrThrow({ where: { id: projectID }, include: {
 
-        fabrication_orders: { include: { article: { include: articleIncludeQuery }, askedBy: true, receiver: true }},
+        manufacturing_orders: { include: { article: { include: articleIncludeQuery }, askedBy: true, receiver: true }},
         order_rows: { include: { order: true, article: { include: articleIncludeQuery }}},
         assembly_buylists: true
 

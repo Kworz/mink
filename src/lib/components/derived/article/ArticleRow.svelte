@@ -16,7 +16,7 @@
     /** Wether the stock should be displayed or not */
     export let displayStock = false;
 
-    /** Wether the `Inbound supplies` or fabrication amount should be displayed or not */
+    /** Wether the `Inbound supplies` or manufacturing amount should be displayed or not */
     export let displayInboundSupplies = false;
     
     /** Wether the thumb image is displayed or not */
@@ -31,7 +31,7 @@
     $: articleQuantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
     $: inboundQuantity = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).reduce((p, c) => p = p + (c.needed_quantity - c.received_quantity), 0);
     $: articlePrice = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).filter(or => or.ack_price !== null).reduce((p, c) => p = p + (c.ack_price as number) * c.received_quantity, 0);
-    $: fabricationQuantity = 0;
+    $: manufacturingQuantity = 0;
 
 </script>
 
@@ -56,8 +56,8 @@
         {#if inboundQuantity > 0 && displayInboundSupplies === true}
             <span class="text-sm text-amber-500 block">{returnArticleUnit(article.unit, article.unit_quantity, inboundQuantity)} en approvisionement.</span>
         {/if}
-        {#if fabricationQuantity > 0 && displayInboundSupplies === true}
-            <span class="text-sm text-amber-700 block">{returnArticleUnit(article.unit, article.unit_quantity, fabricationQuantity)} en fabrication.</span>
+        {#if manufacturingQuantity > 0 && displayInboundSupplies === true}
+            <span class="text-sm text-amber-700 block">{returnArticleUnit(article.unit, article.unit_quantity, manufacturingQuantity)} en manufacturing.</span>
         {/if}
     </div>
 </Flex>

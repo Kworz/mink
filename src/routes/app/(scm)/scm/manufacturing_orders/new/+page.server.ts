@@ -1,7 +1,7 @@
 import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
-import { scm_fabrication_order_state } from "@prisma/client";
+import { scm_manufacturing_order_state } from "@prisma/client";
 
 export const load = (async ({ locals }) => {
 
@@ -32,18 +32,18 @@ export const actions: Actions = {
         if(Number.isNaN(quantity))
             return fail(400, { error: "Quantity is not a number" });
 
-        const fabricationOrder = await locals.prisma.scm_fabrication_order.create({
+        const manufacturingOrder = await locals.prisma.scm_manufacturing_order.create({
             data: {
                 article_id: articleId,
                 askedBy_id: locals.session!.user.id,
                 receiver_id: receiverId,
-                state: scm_fabrication_order_state.draft,
+                state: scm_manufacturing_order_state.draft,
                 quantity,
             }
         });
 
-        if(fabricationOrder === undefined) return fail(400, { error: "Failed to create Fabrication order" });
+        if(manufacturingOrder === undefined) return fail(400, { error: "Failed to create Manufacturing order" });
 
-        return redirect(303, `/app/scm/fabrication_orders/${fabricationOrder.id}`);
+        return redirect(303, `/app/scm/manufacturing_orders/${manufacturingOrder.id}`);
     }
 }

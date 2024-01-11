@@ -55,30 +55,30 @@
 <p>Date de fin: <DetailLabel>{data.project.end_date}</DetailLabel>.</p>
 <p>Affaire cloturée: <DetailLabel>{data.project.closed ? "Oui" : "Non"}</DetailLabel>.</p>
 
-{#if data.project.fabrication_orders.length > 0}
-    <h2>Ordres de fabrication</h2>
+{#if data.project.manufacturing_orders.length > 0}
+    <h2>Ordres de manufacturing</h2>
 
     <Table class="self-start" headers={[{ label: "Article demandé" }, { label: "Quantité" }, { label: "Demandeur" }, { label: "Receveur" }, { label: "Date butoire" }]}>
-        {#each data.project.fabrication_orders as fabricationOrder}
+        {#each data.project.manufacturing_orders as manufacturingOrder}
             <TableCell>
-                {#if fabricationOrder.article !== undefined}
-                    <ArticleRow article={fabricationOrder.article} displayStock={false} />
+                {#if manufacturingOrder.article !== undefined}
+                    <ArticleRow article={manufacturingOrder.article} displayStock={false} />
                 {:else}
                     —
                 {/if}
             </TableCell>
-            <TableCell>{fabricationOrder.quantity}</TableCell>
+            <TableCell>{manufacturingOrder.quantity}</TableCell>
             <TableCell>
-                {#if fabricationOrder.askedBy !== undefined}
-                    <User user={fabricationOrder.askedBy} />
+                {#if manufacturingOrder.askedBy !== undefined}
+                    <User user={manufacturingOrder.askedBy} />
                 {/if}
             </TableCell>
             <TableCell>
-                {#if fabricationOrder.receiver !== undefined}
-                    <User user={fabricationOrder.receiver} />
+                {#if manufacturingOrder.receiver !== undefined}
+                    <User user={manufacturingOrder.receiver} />
                 {/if}
             </TableCell>
-            <TableCell>{fabricationOrder.end_date}</TableCell>
+            <TableCell>{manufacturingOrder.end_date}</TableCell>
         {/each}
     </Table>
 {/if}
