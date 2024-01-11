@@ -1,16 +1,38 @@
 {
-  "app": {
-    "settings": {
-      "description": "Modifiez les réglages de votre installation de mink.",
-      "lead": "Réglages de mink",
-      "keys": {
-        "company_address_city": "Ville de la société",
-        "company_address_road": "Rue de la société",
-        "company_default_vat": "TVA Appliquée par défaut",
-        "company_address_postal_code": "Code postal de la société",
-        "company_address_country": "Pays de la société",
-        "company_name": "Nom de la société"
-      }
+    "app": {
+        "settings": {
+            "description": "Modifiez les réglages de votre installation de mink.",
+            "lead": "Réglages de mink",
+            "keys": {
+                "company_address_city": "Ville de la société",
+                "company_address_road": "Rue de la société",
+                "company_default_vat": "TVA Appliquée par défaut",
+                "company_address_postal_code": "Code postal de la société",
+                "company_address_country": "Pays de la société",
+                "company_name": "Nom de la société"
+            }
+        },
+        "generic": {
+            "article": "Article",
+            "order": "Commande",
+            "received_quantity": "Quantité reçue",
+            "destination_store": "Stock de destination",
+            "waited_quantity": "Quantitée en attente",
+            "delivery_date": "Date de livraison",
+            "handle_receive": "Gérer la réception"
+        },
+        "actions": {
+            "validate": "Valider"
+        }
+    },
+    "scm": {
+        "inbound_supplies": {
+            "title": "Approvisionements",
+            "lead": "Approvisionements",
+            "description": "Gérez les flux d'arrivée d'articles."
+        },
+        "generic": {
+            "article": "Article"
+        }
     }
-  }
 }

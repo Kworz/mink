@@ -3,16 +3,34 @@
         "settings": {
             "lead": "mink settings",
             "description": "Edit the settings of your mink installation",
-
             "keys": {
                 "company_name": "Company name",
                 "company_address_road": "Company address road",
                 "company_address_city": "Company city",
                 "company_address_postal_code": "Company postal code",
                 "company_address_country": "Company country",
-    
                 "company_default_vat": "Company tax number"
             }
+        },
+        "generic": {
+            "article": "Article",
+            "order": "Order",
+            "received_quantity": "Received quantity",
+            "destination_store": "Inbound store",
+            "delivery_date": "Delivery date",
+            "handle_receive": "Handle reception"
+        },
+        "actions": {
+            "validate": "Confirm"
+        }
+    },
+    "scm": {
+        "inbound_supplies": {
+            "lead": "Inbound supplies",
+            "description": "Manage article inbound supplies."
+        },
+        "generic": {
+            "article": "Article"
         }
     }
 }
