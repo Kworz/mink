@@ -16,8 +16,8 @@
     /** Wether the stock should be displayed or not */
     export let displayStock = false;
 
-    /** Wether the approx or fabrication amount should be displayed or not */
-    export let displayApprox = false;
+    /** Wether the `Inbound supplies` or fabrication amount should be displayed or not */
+    export let displayInboundSupplies = false;
     
     /** Wether the thumb image is displayed or not */
     export let displayThumb = true;
@@ -29,7 +29,7 @@
     export let displayManufacturer = true;
 
     $: articleQuantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
-    $: approxQuantity = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).reduce((p, c) => p = p + (c.needed_quantity - c.received_quantity), 0);
+    $: inboundQuantity = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).reduce((p, c) => p = p + (c.needed_quantity - c.received_quantity), 0);
     $: articlePrice = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).filter(or => or.ack_price !== null).reduce((p, c) => p = p + (c.ack_price as number) * c.received_quantity, 0);
     $: fabricationQuantity = 0;
 
@@ -53,10 +53,10 @@
             {@const shouldOrder = articleQuantity < (article.critical_quantity ?? 0)}
             <span class="text-sm block" class:text-red-500={shouldOrder} class:text-emerald-500={!shouldOrder}>{returnArticleUnit(article.unit, article.unit_quantity, articleQuantity)} en stock.</span>
         {/if}
-        {#if approxQuantity > 0 && displayApprox === true}
-            <span class="text-sm text-amber-500 block">{returnArticleUnit(article.unit, article.unit_quantity, approxQuantity)} en approvisionement.</span>
+        {#if inboundQuantity > 0 && displayInboundSupplies === true}
+            <span class="text-sm text-amber-500 block">{returnArticleUnit(article.unit, article.unit_quantity, inboundQuantity)} en approvisionement.</span>
         {/if}
-        {#if fabricationQuantity > 0 && displayApprox === true}
+        {#if fabricationQuantity > 0 && displayInboundSupplies === true}
             <span class="text-sm text-amber-700 block">{returnArticleUnit(article.unit, article.unit_quantity, fabricationQuantity)} en fabrication.</span>
         {/if}
     </div>

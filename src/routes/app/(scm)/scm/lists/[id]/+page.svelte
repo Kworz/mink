@@ -96,7 +96,7 @@
         {@const totalPrice = assemblyRelation.quantity * assemblyRelation.article_child.order_rows.reduce((p, c) => p = (c.ack_price ?? 0) + p, 0)}
         {@const isValid = assemblyRelation.quantity <= (associatedStoreRelation?.quantity ?? 0)}
 
-        <TableCell><ArticleRow article={assemblyRelation.article_child} displayStock displayApprox /></TableCell>
+        <TableCell><ArticleRow article={assemblyRelation.article_child} displayStock displayInboundSupplies /></TableCell>
         <TableCell>
             <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
 

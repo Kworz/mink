@@ -224,7 +224,7 @@
                     </form>
                 </TableCell>
                 <TableCell>
-                    <ArticleRow article={subArticleRelation.article_child} displayStock displayApprox />
+                    <ArticleRow article={subArticleRelation.article_child} displayStock displayInboundSupplies />
                 </TableCell>
                 <TableCell>
                     <form action="?/updateAssemblyRelation" method="post" use:enhanceNoReset>
