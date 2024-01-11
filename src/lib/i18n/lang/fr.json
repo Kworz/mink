@@ -41,7 +41,8 @@
             "projects": "Affaires",
             "inbound_supplies": "Approvisionements",
             "stores": "Stocks",
-            "quantity_to_manufacture": "Quantité à fabriquer"
+            "quantity_to_manufacture": "Quantité à fabriquer",
+            "article_to_manufacture": "Article à fabriquer"
         },
         "time": {
             "hours": "Heures"
@@ -133,8 +134,6 @@
         }
     },
     "add": {
-        "generic": {
-            "article_to_manufacture": "Article à fabriquer"
-        }
+        "generic": {}
     }
 }

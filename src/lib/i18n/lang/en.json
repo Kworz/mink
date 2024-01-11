@@ -41,7 +41,8 @@
             "projects": "Projects",
             "inbound_supplies": "Inbound supplies",
             "stores": "Stores",
-            "quantity_to_manufacture": "Quantity to manufacture"
+            "quantity_to_manufacture": "Quantity to manufacture",
+            "article_to_manufacture": "Article to manufacture"
         },
         "time": {
             "hours": "Hours"
@@ -104,7 +105,11 @@
             "actions": {
                 "create": "Create a manufacturing order",
                 "delete": {
-                    "title": "Delete fabrication order"
+                    "title": "Delete fabrication order",
+                    "body": "Would you like to delete this manufacturing order ?"
+                },
+                "edit": {
+                    "title": "Edit the manufacturing order"
                 }
             },
             "filter": {
@@ -129,8 +134,6 @@
         }
     },
     "add": {
-        "generic": {
-            "article_to_manufacture": "Article to manufacture"
-        }
+        "generic": {}
     }
 }

@@ -75,7 +75,7 @@
 <p class="flex flex-row gap-2 items-center">{$_('app.generic.user_receiving')}: <User user={data.manufacturingOrder.receiver} /></p>
 
 <Wrapper class="mt-6">
-    <h3 class="mb-4">{$_('add.generic.article_to_manufacture')}</h3>
+    <h3 class="mb-4">{$_('app.generic.article_to_manufacture')}</h3>
     
     <Flex items="center" justify="between">
         {#if data.manufacturingOrder.article !== undefined}
