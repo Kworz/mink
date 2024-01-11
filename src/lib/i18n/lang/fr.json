@@ -19,10 +19,13 @@
             "destination_store": "Stock de destination",
             "waited_quantity": "Quantitée en attente",
             "delivery_date": "Date de livraison",
-            "handle_receive": "Gérer la réception"
+            "handle_receive": "Gérer la réception",
+            "description": "Description",
+            "decription_null": "Pas de description"
         },
         "actions": {
-            "validate": "Valider"
+            "validate": "Valider",
+            "create": "Créer"
         }
     },
     "scm": {
@@ -33,6 +36,15 @@
         },
         "generic": {
             "article": "Article"
+        },
+        "assemblies": {
+            "list": "Liste des assemblages",
+            "description": "Créez des assemblages, définissez vos produits et visualisez leurs dépendances.",
+            "actions": {
+                "create": "Créer un assemblage"
+            },
+            "name": "Nom d'assemblage",
+            "thumbnail": "Miniature {name}"
         }
     }
 }

@@ -15,6 +15,7 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
+    import { _ } from "svelte-i18n";
 
     export let data: PageData;
     export let form: ActionData;
@@ -37,26 +38,26 @@
 </script>
 
 <svelte:head>
-    <title>Liste des Assemblages — mink</title>
+    <title>{$_('scm.assemblies.list')} — mink</title>
 </svelte:head>
 
 {#if createAssembly}
-    <MenuSide on:close={() => createAssembly = false} title="Créer un assemblage">
+    <MenuSide on:close={() => createAssembly = false} title={$_('scm.assemblies.actions.create')}>
         {#if form?.createAssembly?.error}<p class="text-red-500 mb-2">{form?.createAssembly?.error}</p>{/if}
 
         <form action="?/createAssembly" method="post" use:enhance class="flex flex-col gap-4" on:submit={() => createFormSent = true}>
-            <FormInput name="name" label="Nom" labelMandatory value={form?.createAssembly.name ?? ""} />
-            <FormInput name="description" label="Description" value={form?.createAssembly.description ?? ""} />
-            <Button role="primary" class="self-start" suspense={createFormSent}>Créer</Button>
+            <FormInput name="name" label={$_('scm.assemblies.name')} labelMandatory value={form?.createAssembly.name ?? ""} />
+            <FormInput name="description" label={$_('app.generic.description')} value={form?.createAssembly.description ?? ""} />
+            <Button role="primary" class="self-start" suspense={createFormSent}>{$_('app.actions.create')}</Button>
         </form>
     </MenuSide>
 {/if}
 
-<h1>Liste des assemblages</h1>
-<p>Créez des assemblages, définissez vos produits et visualisez leurs dépendances !</p>
+<h1>{$_('scm.assemblies.list')}</h1>
+<p>{$_('scm.assemblies.description')}</p>
 
 <PillMenu>
-    <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>Créer un assemblage</PillMenuButton>
+    <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>{$_('scm.assemblies.actions.create')}</PillMenuButton>
 </PillMenu>
 
 {#if data.assemblies.length > 0}
@@ -70,7 +71,7 @@
                     <Flex items="center">
                     
                         {#if assembly.thumbnail !== null}
-                            <img src={assembly.thumbnail} alt="Miniature {assembly.name}" class="aspect-square object-cover h-24 duration-100 rounded-md ring-1 ring-zinc-400/25" />
+                            <img src={assembly.thumbnail} alt={$_('scm.assemblies.thumbnail', { values: { name: assembly.name }})} class="aspect-square object-cover h-24 duration-100 rounded-md ring-1 ring-zinc-400/25" />
                         {:else}
                             <div class="aspect-square object-cover rounded-md border h-24 border-zinc-500/50">
                                 <Icon src={VideoCameraSlash} class="h-full w-8 m-auto text-red-500" />
@@ -79,7 +80,7 @@
     
                         <div>
                             <p>{assembly.name}</p>
-                            <p class="text-zinc-500 text-base font-normal">{assembly.description}</p>
+                            <p class="text-zinc-500 text-base font-normal">{assembly.description || $_('app.generic.decription_null')}</p>
                         </div>
                     </Flex>
                 </a>    

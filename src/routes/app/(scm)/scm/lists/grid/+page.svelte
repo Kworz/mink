@@ -26,7 +26,7 @@
 
     let selected: string[] = [];
 
-    $: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
+    $: if(form !== null && form?.buyListRelationEdit?.success) { filter = ""; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
 
     export const snapshot: Snapshot<FilterCondition[]> = {
         capture: () => filters,
@@ -67,7 +67,7 @@
             </TableCell>
 
             <TableCell>
-                <ArticleRow article={assemblyRow.article_child} displayStock displayApprox />
+                <ArticleRow article={assemblyRow.article_child} displayStock displayInboundSupplies />
             </TableCell>
 
             <TableCell>

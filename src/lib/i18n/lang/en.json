@@ -18,10 +18,13 @@
             "received_quantity": "Received quantity",
             "destination_store": "Inbound store",
             "delivery_date": "Delivery date",
-            "handle_receive": "Handle reception"
+            "handle_receive": "Handle reception",
+            "description": "Description",
+            "decription_null": "No description defined"
         },
         "actions": {
-            "validate": "Confirm"
+            "validate": "Confirm",
+            "create": "Create"
         }
     },
     "scm": {
@@ -31,6 +34,15 @@
         },
         "generic": {
             "article": "Article"
+        },
+        "assemblies": {
+            "list": "Assemblies list",
+            "description": "Create assemblies, add articles and manage their dependencies.",
+            "actions": {
+                "create": "Create an assembly"
+            },
+            "name": "Assembly name",
+            "thumbnail": "{name} thumbnail"
         }
     }
 }
