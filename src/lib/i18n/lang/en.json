@@ -42,7 +42,11 @@
             "inbound_supplies": "Inbound supplies",
             "stores": "Stores",
             "quantity_to_manufacture": "Quantity to manufacture",
-            "article_to_manufacture": "Article to manufacture"
+            "article_to_manufacture": "Article to manufacture",
+            "orders": "Orders",
+            "supplier": "Supplier",
+            "order_name": "Order's name",
+            "order_number": "Order ID"
         },
         "time": {
             "hours": "Hours"
@@ -121,6 +125,24 @@
             "create": {
                 "description": "Use this manufacturing order to track article manufacturing"
             }
+        },
+        "orders": {
+            "actions": {
+                "create": {
+                    "title": "Create a new order"
+                }
+            },
+            "state": {
+                "draft": "Draft",
+                "quotation": "Quotation",
+                "sent": "Ordered",
+                "acknowledged": "Acknowledged",
+                "completed": "Completed",
+                "cancelled": "Cancelled"
+            },
+            "description": "Create purchase order and track your suppliers.",
+            "amount_gross": "Amount without taxes",
+            "amount_net": "Amount with taxes included"
         }
     },
     "errors": {

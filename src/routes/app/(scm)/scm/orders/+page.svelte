@@ -18,6 +18,7 @@
     import { page } from "$app/stores";
     import { browser } from "$app/environment";
     import { goto } from "$app/navigation";
+    import { _ } from "svelte-i18n";
 
     export let data: PageData;
 
@@ -35,31 +36,35 @@
 
 </script>
 
+<svelte:head>
+    <title>{$_('app.generic.orders')} — mink</title>
+</svelte:head>
+
 {#if createOrder}
-    <MenuSide title="Créer une nouvelle commande" on:close={() => createOrder = false }>
+    <MenuSide title={$_('scm.orders.actions.create.title')} on:close={() => createOrder = false }>
         <form action="?/createOrder" method="post" use:enhance class="grid grid-cols-1 gap-4">
-            <FormInput name="name" label="Nom de commande" labelMandatory={true} />
-            <FormInput type="select" name="supplier_id" label="Fournisseur" labelMandatory={true}>
+            <FormInput name="name" label={$_('app.generic.order_name')} labelMandatory={true} />
+            <FormInput type="select" name="supplier_id" label={$_('app.generic.supplier')} labelMandatory={true}>
                 {#each data.suppliers as supplier}
                     <option value={supplier.id}>{supplier.name}</option>
                 {/each}
             </FormInput>
-            <Button>Créer la commande</Button>
+            <Button>{$_('app.action.create')}</Button>
         </form>
     </MenuSide>
 {/if}
 
-<h1>Commandes</h1>
-<p>Commandes en cours.</p>
+<h1>{$_('app.generic.orders')}</h1>
+<p>{$_('scm.orders.description')}</p>
 
 <PillMenu>
-    <PillMenuButton icon={PlusCircle} click={() => createOrder = !createOrder }>Créer une commande</PillMenuButton>
-    <PillMenuButton icon={DocumentMinus} click={() => { showCancelledOrders = !showCancelledOrders; return true; }}>{showCancelledOrders ? "Masquer" : "Afficher"} les commandes annulées</PillMenuButton>
-    <PillMenuButton icon={DocumentCheck} click={() => { showCompletedOrders = !showCompletedOrders; return true; }}>{showCompletedOrders ? "Masquer" : "Afficher"} les commandes terminées</PillMenuButton>
+    <PillMenuButton icon={PlusCircle} click={() => createOrder = !createOrder }>{$_('scm.orders.actions.create.title')}</PillMenuButton>
+    <PillMenuButton icon={DocumentMinus} click={() => { showCancelledOrders = !showCancelledOrders; return true; }}>{`scm.orders.${showCancelledOrders ? "hide" : "show"}_cancelled_orders`}</PillMenuButton>
+    <PillMenuButton icon={DocumentCheck} click={() => { showCompletedOrders = !showCompletedOrders; return true; }}>{`scm.orders.${showCompletedOrders ? "hide" : "show"}_completed_orders`}</PillMenuButton>
 </PillMenu>
 
 {#if data.orders.length > 0}
-    <Table headers={[{label: "Numéro de commande"}, {label: "Fournisseur"}, {label: "Montant (HT)"}, {label: "Montant (TTC)"}, {label: "État"}, {label: "Demandeur"}]} class="mt-6">
+    <Table headers={[{ label: $_('app.generic.order_number') }, {label: $_('app.generic.supplier') }, {label: $_('scm.orders.amount_gross')}, {label: $_('scm.orders.amount_net')}, {label: $_('app.generic.state')}, { label: $_('app.generic.user_requesting') }]} class="mt-6">
             
         {#each data.orders as order}
             {@const orderGrossPrice = order.order_rows.reduce((p, c) => p = p + c.needed_quantity * (c.ack_price ?? 0), 0)}

@@ -42,7 +42,11 @@
             "inbound_supplies": "Approvisionements",
             "stores": "Stocks",
             "quantity_to_manufacture": "Quantité à fabriquer",
-            "article_to_manufacture": "Article à fabriquer"
+            "article_to_manufacture": "Article à fabriquer",
+            "orders": "Commandes",
+            "supplier": "Fournisseur",
+            "order_name": "Nom de la commande",
+            "order_number": "Numéro de commande"
         },
         "time": {
             "hours": "Heures"
@@ -121,6 +125,24 @@
             "create": {
                 "description": "Utilisez cet ordre de fabrication pour suive la production."
             }
+        },
+        "orders": {
+            "actions": {
+                "create": {
+                    "title": "Créer une nouvelle commande"
+                }
+            },
+            "state": {
+                "draft": "Brouillon",
+                "quotation": "Demande de devis",
+                "sent": "Commandé",
+                "acknowledged": "A/R recu",
+                "completed": "Terminée",
+                "cancelled": "Annulée"
+            },
+            "description": "Créez vos bons de commandes et suivez vos fournisseurs.",
+            "amount_gross": "Montant hors taxe",
+            "amount_net": "Montant toute taxe comprise"
         }
     },
     "errors": {
