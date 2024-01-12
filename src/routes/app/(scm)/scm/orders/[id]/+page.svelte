@@ -21,13 +21,13 @@
     import { scm_order_state } from "@prisma/client";
     import Modal from "$lib/components/generics/modal/Modal.svelte";
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
+    import { _ } from "svelte-i18n";
 
-    let selectedArticle: scm_articleWithIncludes| undefined = undefined;
+    let selectedArticle: scm_articleWithIncludes | undefined = undefined;
     let selectedArticleQuantity = 0;
 
-    let confirmDelete = false;
+    let deleteOrderRow: PageData["order"]["order_rows"][number][] | undefined = undefined;
     let deleteOrder = false;
-    let batchDeleteConfirm = false;
 
     let selectedOrderRows: string[] = [];
 
@@ -37,39 +37,67 @@
     $: htTotal = (data.order.order_rows.map(k => k.needed_quantity * (k.ack_price ?? 0)).reduce((p, c) => p + c, 0) ?? 0) + (data.order.delivery_fees ?? 0);
     $: tvaSubtotal = Math.floor(((htTotal * (1 + (data.order.vat ?? 20) / 100)) - htTotal) * 100) / 100;
     $: completeTotal = htTotal + tvaSubtotal;
+
+    $: if(form?.deleteOrderRows !== undefined && "success" in form.deleteOrderRows) { deleteOrderRow = undefined; selectedOrderRows = []; }
     
     $: if(form !== null) { invalidateAll(); selectedArticle = undefined; }
-    $: if(confirmDelete) { setTimeout(() => confirmDelete = false, 3500) };
-    $: if(batchDeleteConfirm) { setTimeout(() => batchDeleteConfirm = false, 3500) };
 </script>
 
 <svelte:head>
-    <title>Commande — {data.order.name}</title>
+    <title>{$_('app.generic.order')} {data.order.sub_id} - mink</title>
 </svelte:head>
 
+{#if form?.createOrderRow?.error}
+    <Modal title={$_('app.generic.error')} on:close={() => form = null}>
+        <p class="my-2">{$_(form.createOrderRow.error)}</p>
+    </Modal>
+{/if}
+
 {#if deleteOrder}
-    <Modal title="Confirmer" on:close={() => deleteOrder = false}>
-        <p>Souhaitez vous supprimer la commande <strong>{data.order.name}</strong>?</p>
+    <Modal on:close={() => deleteOrder = false} title={$_('scm.orders.action.delete.title')}>
+        <p>{$_('scm.order.action.delete.body', { values: { name: data.order.name }})}</p>
 
         <form action="?/deleteOrder" method="post" use:enhance slot="form" class="flex flex-row gap-4">
-            <Button size="small" role="danger">Confirmer</Button>
-            <Button size="small" role="tertiary" on:click={() => deleteOrder = false} preventSend>Annuler</Button>
+            <Button size="small" role="danger">{$_('app.generic.yes')}</Button>
+            <Button size="small" role="tertiary" on:click={() => deleteOrder = false} preventSend>{$_('app.generic.cancel')}</Button>
+        </form>
+    </Modal>
+{/if}
+
+{#if deleteOrderRow}
+    <Modal on:close={() => { deleteOrderRow = undefined; selectedOrderRows = []; }} title={$_('scm.order.action.delete_order_row.title', { values: { n: deleteOrderRow.length }})}>
+
+        {#if form?.deleteOrderRows && "error" in form.deleteOrderRows}
+            <p class="text-red-500 font-semibold">{$_(form.deleteOrderRows.error)}</p>
+        {/if}
+
+        <p>{$_('scm.order.action.delete_order_row.body', { values: { n: deleteOrderRow.length }})}</p>
+        
+        <ul>
+            {#each deleteOrderRow as order_row}
+                <li>{order_row.needed_quantity} x {order_row.article.name}</li>
+            {/each}
+        </ul>
+
+        <form action="?/deleteOrderRows" method="post" use:enhance slot="form" class="flex flex-row gap-4">
+            <input type="hidden" name="id" value={deleteOrderRow.map(or => or.id).join(',')} />
+            <Button size="small" role="danger">{$_('app.generic.yes')}</Button>
         </form>
     </Modal>
 {/if}
 
 <PillMenu>
-    <PillMenuButton icon={Printer} click={() => window.open(`/app/scm/orders/${data.order.id}/export`, '_blank')?.focus()}>Créer un PDF de la commande</PillMenuButton>
-    <PillMenuButton icon={Trash} click={() => deleteOrder = true }>Supprimer</PillMenuButton>
+    <PillMenuButton icon={Printer} click={() => window.open(`/app/scm/orders/${data.order.id}/export`, '_blank')?.focus()}>{$_('scm.orders.action.export.title')}</PillMenuButton>
+    <PillMenuButton icon={Trash} click={() => deleteOrder = true }>{$_('scm.orders.action.delete.title')}</PillMenuButton>
 </PillMenu>
 
-<h1>Commande <RoundedLabel class="-translate-y-2 ml-2">{data.order.sub_id}</RoundedLabel></h1>
+<h1>{$_('app.generic.order')} <RoundedLabel class="-translate-y-2 ml-2">{data.order.sub_id}</RoundedLabel></h1>
 
 <form action="?/editOrder" method="post" use:enhanceNoReset class="flex md:flex-row flex-col gap-6 mt-6">
-    <FormInput label="Description" labelMandatory name="name" value={data.order.name} validateOnChange parentClass="grow" />
-    <FormInput label="Etat de la commande" type="select" name="state" value={data.order.state} validateOnChange>
+    <FormInput label={$_('app.generic.description')} labelMandatory name="name" value={data.order.name} validateOnChange parentClass="grow" />
+    <FormInput label={$_('app.generic.state')} type="select" name="state" value={data.order.state} validateOnChange>
         {#each Object.keys(scm_order_state) as state}
-            <option value={state} class="capitalize">{state}</option> <!-- TODO: i18n -->
+            <option value={state} class="capitalize">{$_(`scm.orders.state.${state}`)}</option>
         {/each}
     </FormInput>
 </form>
@@ -86,28 +114,28 @@
     </Wrapper>
 
     <Wrapper>
-        <h2>Fournisseur</h2>
+        <h2>{$_('app.generic.supplier')}</h2>
         <p class="text-sm">{data.order.supplier.name}</p>
 
         <p class="my-2">{data.order.supplier.address_road}</p>
         <p class="my-2">{data.order.supplier.address_postal_code} / {data.order.supplier.address_city}</p>
         <p class="my-2">{data.order.supplier.address_country}</p>
 
-        <DetailLabel>{data.order.supplier.email || "pas d'addresse mail spécifiée"}</DetailLabel>
+        <DetailLabel>{data.order.supplier.email || $_('app.generic.email_null')}</DetailLabel>
     </Wrapper>
 </Grid>
 
 {#if data.order.order_rows}
     <Table headers={[
-        "selectAll",
-        { label: "Affaire" },
-        { label: "Article" },
-        { label: "Référence" },
-        { label: "Quantité" },
-        { label: "Délai A/R" },
-        { label: "Prix A/R" },
-        { label: "Total" },
-        (data.order.state === scm_order_state.draft) ? { label: "Supprimer" } : undefined
+            "selectAll",
+            { label: $_('app.generic.project') },
+            { label: $_('app.generic.article') },
+            { label: $_('app.generic.sku') },
+            { label: $_('app.generic.quantity') },
+            { label: $_('app.generic.acknowledged_delay') },
+            { label: $_('app.generic.acknowledged_price') },
+            { label: $_('app.generic.total') },
+            (data.order.state === scm_order_state.draft) ? { label: $_('app.action.delete') } : undefined
         ]}
         selectables={data.order.order_rows.map(or => or.id)}
         bind:selected={selectedOrderRows}
@@ -116,7 +144,7 @@
         {#if selectedOrderRows.length > 1}
             <TableCell />
             <TableCell>
-                <form action="?/batchEdit" use:enhanceNoReset method="post">
+                <form action="?/editOrderRows" use:enhanceNoReset method="post">
                     <input type="hidden" value={selectedOrderRows.join(",")} name="order_rows" />
                     <FormInput type="select" name="project" validateOnChange>
                         <option value="">—</option>
@@ -128,10 +156,17 @@
             </TableCell>
             <TableCell></TableCell>
             <TableCell></TableCell>
-            <TableCell></TableCell>
+            <TableCell>
+                {#if data.order.state === scm_order_state.draft}
+                    <form action="?/editOrderRows" method="post" use:enhanceNoReset>
+                        <input type="hidden" name="id" value={selectedOrderRows.join(",")} />
+                        <FormInput type="number" name="needed_quantity" value={0} validateOnChange min={0} step={0} />
+                    </form>
+                {/if}
+            </TableCell>
             <TableCell>
                 {#if data.order.state === scm_order_state.acknowledged}
-                    <form action="?/batchEdit" use:enhanceNoReset method="post">
+                    <form action="?/editOrderRows" use:enhanceNoReset method="post">
                         <input type="hidden" value={selectedOrderRows.join(",")} name="order_rows" />
                         <FormInput type="date" name="ack_date" validateOnChange />
                     </form>
@@ -141,25 +176,18 @@
             <TableCell></TableCell>
             {#if data.order.state === scm_order_state.draft}
                 <TableCell>
-                    <form action="?/batchDelete" use:enhanceNoReset method="post">
-                        <input type="hidden" value={selectedOrderRows.join(",")} name="order_rows" />
-                        {#if batchDeleteConfirm}
-                            <Button size="small" role="danger">Confirmer</Button>
-                        {:else}
-                            <Button size="small" role="danger" on:click={() => batchDeleteConfirm = true} preventSend>Supprimer les {selectedOrderRows.length} ligne(s)</Button>
-                        {/if}
-                    </form>
+                    <Button size="small" role="danger" on:click={() => deleteOrderRow = data.order.order_rows.filter(or => selectedOrderRows.includes(or.id))} preventSend>{$_('scm.order.action.delete_order_row.title', { values: { n: selectedOrderRows.length }})}</Button>
                 </TableCell>
             {/if}
         {/if}
 
         {#each data.order.order_rows as order_row (order_row.id)}
-            <TableCell>
+            <TableCell position="center">
                 <input type="checkbox" bind:group={selectedOrderRows} value={order_row.id} />
             </TableCell>
             <TableCell>
                 {#if data.order.state === scm_order_state.draft}
-                    <form action="?/editOrderRow" method="post" use:enhanceNoReset>
+                    <form action="?/editOrderRows" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
                         <FormInput type="select" name="project" bind:value={order_row.project_id} validateOnChange={true}>
                             <option value="">—</option>
@@ -176,7 +204,7 @@
             <TableCell>{order_row.article.reference}</TableCell>
             <TableCell>
                 {#if data.order.state === scm_order_state.draft}
-                    <form action="?/editOrderRow" method="post" use:enhanceNoReset>
+                    <form action="?/editOrderRows" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
                         <FormInput type="number" name="needed_quantity" bind:value={order_row.needed_quantity} validateOnChange={true} min={order_row.article.order_quantity} step={order_row.article.order_quantity}/>
                     </form>
@@ -186,7 +214,7 @@
             </TableCell>
             <TableCell>
                 {#if data.order.state === scm_order_state.acknowledged}
-                    <form action="?/editOrderRow" method="post" use:enhanceNoReset>
+                    <form action="?/editOrderRows" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
                         <FormInput type="date" name="ack_date" value={order_row.ack_date?.toISOString().split("T").at(0) ?? undefined} validateOnChange={true} />
                     </form>
@@ -196,9 +224,9 @@
             </TableCell>
             <TableCell>
                 {#if data.order.state === scm_order_state.acknowledged}
-                    <form action="?/editOrderRow" method="post" use:enhanceNoReset>
+                    <form action="?/editOrderRows" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
-                        <FormInput type="number" name="ack_price" label={order_row.ack_price === 0 ? "Prix a valider" : undefined} value={order_row.ack_price} validateOnChange={true} step={0.00001} min={0} />
+                        <FormInput type="number" name="ack_price" label={order_row.ack_price === 0 ? $_('app.generic.price_to_validate') : undefined} value={order_row.ack_price} validateOnChange={true} step={0.00001} min={0} />
                     </form>
                 {:else}
                     <Price value={order_row.ack_price} />
@@ -207,14 +235,7 @@
             <TableCell><Price value={(order_row.ack_price ?? 0) * order_row.needed_quantity} /></TableCell>
             {#if data.order.state === scm_order_state.draft}
                 <TableCell>
-                    {#if confirmDelete}
-                        <form action="?/deleteOrderRow" method="post" use:enhance>
-                            <input type="hidden" name="id" value={order_row.id} />
-                            <Button role="danger" size="small">Confirmer</Button>
-                        </form>
-                    {:else}
-                        <Button role="danger" size="small" on:click={() => confirmDelete = true}>Supprimer</Button>
-                    {/if}
+                    <Button role="danger" size="small" on:click={() => deleteOrderRow = [order_row]}>{$_('app.action.delete')}</Button>
                 </TableCell>
             {/if}
         {/each}
@@ -223,7 +244,7 @@
 
 {#if data.order.state === scm_order_state.draft}
     <Wrapper class="mt-6">
-        <h3 class="mb-3">Ajouter un article a la commande</h3>
+        <h3 class="mb-3">{$_('app.action.add_article_to_order')}</h3>
         <form action="?/createOrderRow" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
             <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
                 <ArticleFinder articles={data.articles} bind:selectedArticle on:refreshArticles={() => invalidateAll()} />
@@ -232,7 +253,7 @@
             {#if selectedArticle !== undefined}
                 <input type="hidden" name="article_id" value={selectedArticle?.id} />
                 <FormInput name="needed_quantity" type="number" bind:value={selectedArticleQuantity} min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
-                <Button class="ml-auto">Ajouter l'article</Button>
+                <Button class="ml-auto">{$_('app.action.add')}</Button>
             {/if}
         </form>
     </Wrapper>
@@ -240,21 +261,21 @@
 
 <Table cols={3} class="w-max ml-auto mt-6">
     
-    <TableCell>Frais de livraison</TableCell>
+    <TableCell>{$_('app.generic.delivery_fees')}</TableCell>
     <TableCell>
         <form action="?/editOrder" method="post" use:enhanceNoReset>
-            <FormInput label="Frais de livraison" name="delivery_fees" type="number" bind:value={data.order.delivery_fees} min={0} step={0.01} validateOnChange />
+            <FormInput label={$_('app.generic.delivery_fees')} name="delivery_fees" type="number" bind:value={data.order.delivery_fees} min={0} step={0.01} validateOnChange />
         </form>
     </TableCell>
     <TableCell><Price value={data.order.delivery_fees} /></TableCell>
 
-    <TableCell>Total (HT)</TableCell>
+    <TableCell>{$_('app.generic.total_untaxed')}</TableCell>
     <TableCell colspan={2}><Price value={htTotal} /></TableCell>
 
-    <TableCell>TVA</TableCell>
+    <TableCell>{$_('app.generic.vat')}</TableCell>
     <TableCell>
         <form action="?/editOrder" method="post" use:enhanceNoReset>
-            <FormInput label="Taux de TVA" name="vat" type="number" bind:value={data.order.vat} min={0} max={100} step={0.1} validateOnChange />
+            <FormInput label={$_('app.generic.vat_rate')} name="vat" type="number" bind:value={data.order.vat} min={0} max={100} step={0.1} validateOnChange />
         </form>
     </TableCell>
     <TableCell><Price value={tvaSubtotal} /></TableCell>

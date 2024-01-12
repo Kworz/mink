@@ -46,7 +46,18 @@
             "orders": "Commandes",
             "supplier": "Fournisseur",
             "order_name": "Nom de la commande",
-            "order_number": "Numéro de commande"
+            "order_number": "Numéro de commande",
+            "sku": "Référence",
+            "total": "Total",
+            "error": "Erreur",
+            "acknowledged_delay": "Délai A/R",
+            "acknowledged_price": "Prix A/R",
+            "email_null": "Pas d'adresse mail spécifiée.",
+            "delivery_fees": "Frais de livraison",
+            "vat": "TVA",
+            "vat_rate": "Taux de TVA",
+            "total_untaxed": "Total hors taxe",
+            "price_to_validate": "Prix à valider"
         },
         "time": {
             "hours": "Heures"
@@ -60,7 +71,8 @@
             "create": "Créer",
             "copy": "Copier",
             "move": "Déplacer",
-            "complete": "Terminé"
+            "complete": "Terminé",
+            "add_article_to_order": "Ajouter un article à la commande"
         }
     },
     "scm": {
@@ -142,7 +154,26 @@
             },
             "description": "Créez vos bons de commandes et suivez vos fournisseurs.",
             "amount_gross": "Montant hors taxe",
-            "amount_net": "Montant toute taxe comprise"
+            "amount_net": "Montant toute taxe comprise",
+            "action": {
+                "export": {
+                    "title": "Exporter la commande (PDF)"
+                },
+                "delete": {
+                    "title": "Supprimer la commande"
+                }
+            }
+        },
+        "order": {
+            "action": {
+                "delete": {
+                    "body": "Souhaitez vous supprimer la commande {name} ?"
+                },
+                "delete_order_row": {
+                    "title": "Supprimer {n, plural, =1 {la ligne de commande} other {les lignes de commande}}",
+                    "body": "Souhaitez vous supprimer {n, plural, =1 {la ligne de commande contenant} other {les lignes de commandes contenant}}: "
+                }
+            }
         }
     },
     "errors": {
@@ -151,6 +182,13 @@
                 "create": {
                     "name_null": "Le nom fourni pour le nouvel assemblage n'est pas valide.",
                     "failed": "Une erreur est survenue lors de la création de l'assemblage."
+                }
+            },
+            "order": {
+                "create_order_row": {
+                    "article_id_invalid": "La création de la ligne de commande n'as pas pu aboutir, l'identifiant de l'article founi n'est pas valide.",
+                    "needed_quantity_invalid": "La création de la ligne de commande n'as pas pu aboutir, la quantité demandée n'est pas valide.",
+                    "failed": "Une erreur est survenue lors de la création de la ligne de commande."
                 }
             }
         }

@@ -46,7 +46,18 @@
             "orders": "Orders",
             "supplier": "Supplier",
             "order_name": "Order's name",
-            "order_number": "Order ID"
+            "order_number": "Order ID",
+            "sku": "SKU",
+            "total": "Total",
+            "error": "Error",
+            "acknowledged_price": "OA Price",
+            "acknowledged_delay": "OA Delay",
+            "email_null": "No email address given.",
+            "delivery_fees": "Delivery fees",
+            "vat": "VAT",
+            "vat_rate": "VAT %",
+            "total_untaxed": "Total without tax",
+            "price_to_validate": "Price to confirm"
         },
         "time": {
             "hours": "Hours"
@@ -60,7 +71,8 @@
             "create": "Create",
             "copy": "Copy",
             "move": "Move",
-            "complete": "Completed"
+            "complete": "Completed",
+            "add_article_to_order": "Add an article to the order"
         }
     },
     "scm": {
@@ -142,7 +154,26 @@
             },
             "description": "Create purchase order and track your suppliers.",
             "amount_gross": "Amount without taxes",
-            "amount_net": "Amount with taxes included"
+            "amount_net": "Amount with taxes included",
+            "action": {
+                "export": {
+                    "title": "Export order (pdf)"
+                },
+                "delete": {
+                    "title": "Delete order"
+                }
+            }
+        },
+        "order": {
+            "action": {
+                "delete": {
+                    "body": "Would you like to delete {name} ?"
+                },
+                "delete_order_row": {
+                    "title": "Delete an order row",
+                    "body": "Woudl you like to delete the order with {quantity} {article_name} ?"
+                }
+            }
         }
     },
     "errors": {
@@ -152,10 +183,14 @@
                     "name_null": "The given assembly name is not valid.",
                     "failed": "An error has occured while creating the assembly."
                 }
+            },
+            "order": {
+                "create_order_row": {
+                    "article_id_invalid": "Order row creation could not be done, article's unique identifier is invalid.",
+                    "needed_quantity_invalid": "Order row creation could not be done, needed quantity is invalid.",
+                    "failed": "An error has occured while creating the order row."
+                }
             }
         }
-    },
-    "add": {
-        "generic": {}
     }
 }

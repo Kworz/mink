@@ -1,13 +1,14 @@
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
-import type { scm_order_state } from "@prisma/client";
+import { scm_order_state } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
 
 export const load = (async ({ params, locals }) => {
 
-    const order = await locals.prisma.scm_order.findUniqueOrThrow({ where: { id: params.id }, include: { order_rows: { include: { article: true, project: true }}, supplier: true, issuer: true }});
-    const projects = await locals.prisma.pr_project.findMany({ where: { closed: false }})
+    const order = await locals.prisma.scm_order.findUniqueOrThrow({ where: { id: params.id }, include: { order_rows: { orderBy: { created: "desc" }, include: { article: true, project: true }}, supplier: true, issuer: true }});
 
+    /// — Secondary data
+    const projects = await locals.prisma.pr_project.findMany({ where: { closed: false }})
     const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery });
 
     return {
@@ -23,86 +24,108 @@ export const actions: Actions = {
         try
         {
             const form = await request.formData();
+
+            const name = form.has("name") ? form.get("name")?.toString() : undefined
+            const state = form.has("state") ? (form.get("state")?.toString()) : undefined;
+            const deliveryFees = form.has("delivery_fees") ? Number(form.get("delivery_fees")) : undefined
+            const vat = form.has("vat") ? Number(form.get("vat")) : undefined;
+
+            if(state !== undefined && !Object.values(scm_order_state).includes(state as any))
+                return fail(400, { editOrder: { error: "errors.scm.order.edit_order.state_invalid" }});
+
             await locals.prisma.scm_order.update({ where: { id: params.id }, data: {
-                name: form.has("name") ? form.get("name")?.toString() : undefined,
-                state: form.has("state") ? (form.get("state")?.toString() as scm_order_state) : undefined,
-                delivery_fees: form.has("delivery_fees") ? Number(form.get("delivery_fees")) : undefined,
-                vat: form.has("vat") ? Number(form.get("vat")) : undefined,
-            } });
+                name,
+                state: state as scm_order_state,
+                delivery_fees: deliveryFees,
+                vat,
+            }});
 
-            return { edit: { success: "scm.order.update.success" }};
+            return { editOrder: { success: true }};
         }
         catch(ex)
         {
-            return { edit: { error: ex }};
+            console.error(ex);
+            return fail(500, { editOrder: { error: "errors.scm.order.edit_order.failed" }});
         }
     },
-    editOrderRow: async ({ request, locals }) => {
-        try
-        {
-            const form = await request.formData();
-            const rowId = form.get("id")?.toString();
-
-            if(rowId === undefined)
-                throw "scm.order.edit_row.error.row_id_not_found";
-
-            await locals.prisma.scm_order_rows.update({ where: { id: rowId }, data: {
-                needed_quantity: form.has("needed_quantity") ? Number(form.get("needed_quantity")) : undefined,
-                ack_price: form.has("ack_price") ? Number(form.get("ack_price")) : undefined,
-                ack_date: form.has("ack_date") ? new Date(form.get("ack_date")?.toString() ?? new Date().toISOString()) : undefined,
-            } });
-
-            return { editRow: { success: "scm.order.edit_row.success" }};
-        }
-        catch(ex)
-        {
-            console.log(ex);
-            return { editRow: { error: "scm.order.edit_row.error.generic" }};
-        }
-    },
-
     createOrderRow: async ({ request, locals, params }) => {
         try
         {
             const form = await request.formData();
-            console.log(form);
+
+            const articleId = form.get("article_id")?.toString();
+            const neededQuantity = Number(form.get("needed_quantity"));
+
+            if(articleId === undefined || articleId.length === 0)
+                return fail(400, { createOrderRow: { error: "errors.scm.order.create_order_row.article_id_invalid" }});
+
+            if(Number.isNaN(neededQuantity) || neededQuantity <= 0)
+                return fail(400, { createOrderRow: { error: "errors.scm.order.create_order_row.needed_quantity_invalid" }});
 
             await locals.prisma.scm_order_rows.create({
                 data: {
                     order_id: params.id,
-                    article_id: form.get("article_id")!.toString(), // TODO: this is unsafe
-                    needed_quantity: Number(form.get("needed_quantity")),
+                    article_id: articleId,
+                    needed_quantity: neededQuantity,
                 }
-            })
+            });
 
-            return { createRow: { success: "scm.order.create_row.success" }};
+            return { createOrderRow: { success: true }};
         }
         catch(ex)
         {
             console.log(ex);
-            return { createRow: { error: "scm.order.create_row.error.generic" }};
+            return { createOrderRow: { error: "errors.scm.order.create_order_row.failed" }};
         }
     },
-
-    deleteOrderRow: async ({ request, locals }) => {
-        try {
+    editOrderRows: async ({ request, locals }) => {
+        try
+        {
             const form = await request.formData();
-            const row_id = form.get("id")?.toString();
+            let rowsId: string[] | string | undefined = form.get("id")?.toString();
 
-            if(row_id === undefined) 
-                throw "scm.order.delete_row.error.row_id_undefined";
+            if(rowsId !== undefined)
+                rowsId = rowsId.split(',');
+            else
+                return fail(400, { editOrderRow: { error: "errors.scm.order.edit_order_row.row_id_not_found" }});
 
-            await locals.prisma.scm_order_rows.delete({ where: { id: row_id }});
+            const neededQuantity = form.has("needed_quantity") ? Number(form.get("needed_quantity")) : undefined;
+            const ackPrice = form.has("ack_price") ? Number(form.get("ack_price")) : undefined;
+            const ackDate = form.has("ack_date") ? form.get("ack_date")?.toString() : undefined;
 
-            return { deleteRow: { success: "scm.order.delete_row.success" }};
+            const { count } = await locals.prisma.scm_order_rows.updateMany({ where: { id: { in: rowsId }}, data: {
+                needed_quantity: neededQuantity,
+                ack_price: ackPrice,
+                ack_date: ackDate,
+            }});
+
+            if(count !== rowsId.length)
+                return fail(400, { editOrderRow: { error: "errors.scm.order.edit_order_row.failed" }});
+
+            return { editOrderRow: { success: "scm.order.edit_row.success" }};
         }
         catch(ex)
         {
             console.log(ex);
-            return { deleteRow: { error: "scm.order.delete_row.error.generic" }};
+            return fail(500, { editOrderRow: { error: "errors.scm.order.edit_order_row.failed" }});
         }
     },
+    deleteOrderRows: async ({ request, locals }) => {
+        const form = await request.formData();
+            let orderRowsIds: string | string[] | undefined = form.get("id")?.toString();
 
+            if(orderRowsIds === undefined || orderRowsIds.length === 0) 
+                return fail(400, { deleteOrderRows: { error: "errors.scm.order.delete_rows.row_id_undefined" }});
+
+            orderRowsIds = orderRowsIds.split(',');
+
+            const { count } = await locals.prisma.scm_order_rows.deleteMany({ where: { id: { in: orderRowsIds }}});
+
+            if(count !== orderRowsIds.length)
+                return fail(400, { deleteOrderRows: { error: "errors.scm.order.delete_rows.failed" }});
+
+            return { deleteOrderRows: { success: true }};
+    },
     deleteOrder: async ({ params, locals }) => {
         try
         {
@@ -113,30 +136,5 @@ export const actions: Actions = {
             throw fail(400, { delete: { error :"scm.order.delete.error.generic" }});
         }
         throw redirect(302, "/app/scm/orders");
-    },
-    batchEdit: async ({ locals, request }) => {
-
-        const form = await request.formData();
-        const ids = form.get("order_rows")?.toString();
-
-        if(ids === undefined) return fail(400, { batchEdit: { error: "scm.order.batch_edit.error.no_ids" }});
-
-        await locals.prisma.scm_order_rows.updateMany({ where: { id: { in: ids.split(",") }}, data: { 
-            project_id: form.has("project_id") ? form.get("project_id")?.toString() : undefined,
-            needed_date: form.has("needed_date") ? new Date(form.get("needed_date")?.toString() ?? new Date().toISOString()) : undefined,
-        }});
-
-        return { batchEdit: { success: "scm.order.batch_edit.success" }};
-    },
-    batchDelete: async ({ locals, request }) => {
-
-        const form = await request.formData();
-        const ids = form.get("order_rows")?.toString();
-
-        if(ids === undefined) return fail(400, { batchDelete: { error: "scm.order.batch_delete.error.no_ids" }});
-
-        await locals.prisma.scm_order_rows.deleteMany({ where: { id: { in: ids.split(",") }}});
-
-        return { batchDelete: { success: "scm.order.batch_delete.success" }};
     }
 }
