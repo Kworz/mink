@@ -58,7 +58,7 @@ export const actions = {
             return fail(400, { error: ex as string });
         }
 
-        throw redirect(303, "/install/setup-company")
+        throw redirect(303, "/install/setup-s3")
     }
 
 } satisfies Actions;

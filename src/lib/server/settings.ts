@@ -4,6 +4,9 @@ const defaultSettings = {
 
     app_configured: true,
 
+    app_s3_bucketname: "mink",
+    app_s3_region: "eu-west-1",
+
     company_name: "Your Company Name",
     company_address_road: "",
     company_address_city: "",
@@ -30,6 +33,9 @@ export const getSettings = (storedAppSettings: Array<app_settings>): typeof defa
 
     return {
         app_configured: true,
+
+        app_s3_bucketname: storedAppSettings.find(s => s.key === "app_s3_bucketname")?.value ?? defaultSettings.app_s3_bucketname,
+        app_s3_region: storedAppSettings.find(s => s.key === "app_s3_region")?.value ?? defaultSettings.app_s3_region,
 
         company_name: storedAppSettings.find(s => s.key === "company_name")?.value ?? defaultSettings.company_name,
 
