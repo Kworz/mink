@@ -31,7 +31,7 @@
 {#if createProject}
     <MenuSide on:close={() => createProject = false} title="Créer une affaire">
         <form action="?/createProject" method="POST" use:enhance class="flex flex-col gap-4">
-            <FormInput label="Nom de l'affaire" name="name" labelMandatory />
+            <FormInput label="Nom de l'affaire" name="name" required />
             <FormInput label="Client" name="customer" />
             <FormInput type="date" name="start_date" label="Date de début" labelManadatory />
             <FormInput type="date" name="end_date" label="Date de fin" labelManadatory />

@@ -29,7 +29,7 @@
 <div class="flex flex-col gap-3">
 
     <h3 class="mb-2">Informations de base</h3>
-    <FormInput name="name" label={$_('app.generic.article_name')} labelMandatory={true} bind:value={article.name} />    
+    <FormInput name="name" label={$_('app.generic.article_name')} required bind:value={article.name} />    
     <FormInput type="checkbox" name="non_physical" label={$_('app.generic.article_non_physical')} bind:checked={article.non_physical} />
     <FormInput type="checkbox" name="internal" label={$_('app.generic.internal_article')} bind:checked={article.internal} />
 
@@ -50,14 +50,14 @@
         
         <h3 class="mb-2 mt-3">{$_('app.generic.packaging_data')}</h3>
 
-        <FormInput type="select" name="unit" label={$_(`app.generic.unit_of_work`)} labelMandatory bind:value={article.unit}>
+        <FormInput type="select" name="unit" label={$_(`app.generic.unit_of_work`)} required bind:value={article.unit}>
             {#each Object.keys(unit_of_work) as uow}
                 <option value={uow}>{$_(`app.generic.units_of_work.${uow}`)}</option>
             {/each}
         </FormInput>
     
         {#if article?.unit.startsWith("c_")}
-            <FormInput type="number" name="unit_quantity" label="Quantité du contenant" bind:value={article.unit_quantity} step={1} min={1} labelMandatory />
+            <FormInput type="number" name="unit_quantity" label="Quantité du contenant" bind:value={article.unit_quantity} step={1} min={1} required />
         {/if}
     {/if}
 </div>

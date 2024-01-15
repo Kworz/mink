@@ -57,7 +57,7 @@
     <MenuSide on:close={() => editAssembly = false} title={$_('scm.assembly.action.edit.title')}>
         <form action="?/editAssembly" method="post" use:enhanceNoReset class="flex flex-col gap-4 mt-6">
             
-            <FormInput type="text" name="name" label={$_('scm.assembly.name')} value={data.assembly.name} labelMandatory />
+            <FormInput type="text" name="name" label={$_('scm.assembly.name')} value={data.assembly.name} required />
             <FormInput type="text" name="description" label={$_('app.generic.description')} value={data.assembly.description} />
             <FormInput type="number" name="assembly_time" label={$_('scm.assembly.assembly_time')} min={0} step={0.25} value={data.assembly.assembly_time} />
 
@@ -122,7 +122,7 @@
             <input type="hidden" name="selected_article_relations" value={selectedArticles.join(',')} />
             <input type="hidden" name="selected_assemblies_relations" value={selectedAssemblies.join(',')} />
 
-            <FormInput name="name" type="text" label={$_('app.generic.sub_assembly')} labelMandatory />
+            <FormInput name="name" type="text" label={$_('app.generic.sub_assembly')} required />
             <FormInput name="description" type="text" label={$_('app.generic.description')} />
 
             <Button role="primary">{$_('app.action.move')}</Button>
@@ -192,12 +192,12 @@
                 <TableFootCell class="col-span-4">
                     <h3>{$_('app.action.add_subassembly')}</h3>
                     <form action="?/addAssemblySubAssembly" method="post" use:enhance class="flex flex-row items-end gap-4 mt-2">
-                        <FormInput name="child_assembly_id" label={$_('app.generic.sub_assembly')} labelMandatory type="select">
+                        <FormInput name="child_assembly_id" label={$_('app.generic.sub_assembly')} required type="select">
                             {#each data.assemblies as assembly}
                                 <option value={assembly.id}>{assembly.name}</option>
                             {/each}
                         </FormInput>
-                        <FormInput name="quantity" label={$_('app.generic.quantity')} labelMandatory type="number" min={1} />
+                        <FormInput name="quantity" label={$_('app.generic.quantity')} required type="number" min={1} />
                         <Button>{$_('app.action.add')}</Button>
                 </TableFootCell>
             {/if}
@@ -244,7 +244,7 @@
                     <form action="?/addAssemblySubArticle" method="post" use:enhance class="flex flex-row gap-8 items-end mt-2">
                         <ArticleFinder articles={data.articles} bind:selectedArticle={addArticleSelected} formFieldName="child_article_id" />
                         {#if addArticleSelected !== undefined}
-                            <FormInput name="quantity" label={$_('app.generic.quantity')} labelMandatory={true} type="number" />
+                            <FormInput name="quantity" label={$_('app.generic.quantity')} required type="number" />
                             <Button>{$_('app.action.add')}</Button>
                         {/if}
                     </form>

@@ -58,7 +58,7 @@
             
             {#if editCompany}<input type="hidden" name="id" value={editCompany.id} />{/if}
 
-            <FormInput label="Nom" labelMandatory name="name" value={editCompany?.name} />
+            <FormInput label="Nom" required name="name" value={editCompany?.name} />
             <FormInput label="Secteur" name="sector" value={editCompany?.sector} />
             <FormInput label="Type" name="type" value={editCompany?.type} />
             <FormInput type="select" label="Pays" name="country" value={editCompany?.country}>
@@ -85,7 +85,7 @@
             
             {#if editContact}<input type="hidden" name="id" value={editContact.id} />{/if}
 
-            <FormInput label="Nom" labelMandatory name="name" value={editContact?.name} />
+            <FormInput label="Nom" required name="name" value={editContact?.name} />
             <FormInput label="Position" name="position" value={editContact?.position} />
             <FormInput label="Email" type="email" name="email" value={editContact?.email} />
             <FormInput label="Telephone" name="phone" value={editContact?.phone} />

@@ -30,11 +30,11 @@
 {#if editProject}
     <MenuSide on:close={() => editProject = false}>
         <form action="?/editProject" method="post" use:enhanceNoReset class="flex flex-col gap-2">
-            <FormInput name="name" label="Nom du projet" labelMandatory bind:value={data.project.name} />
+            <FormInput name="name" label="Nom du projet" required bind:value={data.project.name} />
             <FormInput name="customer" label="Client du projet" bind:value={data.project.customer} />
             <FormInput type="checkbox" name="closed" label="Affaire cloturée" bind:checked={data.project.closed} />
-            <FormInput type="date" name="start_date" label="Date de début de projet" labelMandatory={true} value={data.project.start_date?.toISOString()} />
-            <FormInput type="date" name="end_date" label="Date de fin de projet" labelMandatory={true} value={data.project.end_date?.toISOString()} />
+            <FormInput type="date" name="start_date" label="Date de début de projet" required value={data.project.start_date?.toISOString()} />
+            <FormInput type="date" name="end_date" label="Date de fin de projet" required value={data.project.end_date?.toISOString()} />
     
             <Flex class="mt-2">
                 <Button size="small" role="warning">Valider les modifications</Button>

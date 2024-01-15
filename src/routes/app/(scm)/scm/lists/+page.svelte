@@ -50,14 +50,14 @@
 {#if createList}
     <MenuSide on:close={() => createList = false} title="Créer une liste">
         <form action="?/createBuyList" method="post" use:enhance class="flex flex-col gap-4">
-            <FormInput name="name" label="Nom de la liste" labelMandatory />
-            <FormInput name="assembly_id" type="select" label="Assemblage" labelMandatory >
+            <FormInput name="name" label="Nom de la liste" required />
+            <FormInput name="assembly_id" type="select" label="Assemblage" required >
                 <option value={undefined}>—</option>
                     {#each data.assemblies as assembly}
                         <option value={assembly.id}>{assembly.name}</option>
                     {/each}
             </FormInput>
-            <FormInput name="project_id" type="select" label="Affaire" labelMandatory>
+            <FormInput name="project_id" type="select" label="Affaire" required>
                 <option value={undefined}>—</option>
                 {#each data.projects as project}
                     <option value={project.id}>{project.name}</option>

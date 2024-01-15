@@ -46,7 +46,7 @@
         {#if form?.createAssembly && "error" in form.createAssembly}<p class="text-red-500 mb-2">{$_(form.createAssembly.error)}</p>{/if}
 
         <form action="?/createAssembly" method="post" use:enhance class="flex flex-col gap-4" on:submit={() => createFormSent = true}>
-            <FormInput name="name" label={$_('scm.assembly.name')} labelMandatory value={form?.createAssembly.name ?? ""} />
+            <FormInput name="name" label={$_('scm.assembly.name')} required value={form?.createAssembly.name ?? ""} />
             <FormInput name="description" label={$_('app.generic.description')} value={form?.createAssembly.description ?? ""} />
             <Button role="primary" class="self-start" suspense={createFormSent}>{$_('app.action.create')}</Button>
         </form>

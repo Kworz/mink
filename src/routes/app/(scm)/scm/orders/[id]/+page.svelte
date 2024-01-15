@@ -94,7 +94,7 @@
 <h1>{$_('app.generic.order')} <RoundedLabel class="-translate-y-2 ml-2">{data.order.sub_id}</RoundedLabel></h1>
 
 <form action="?/editOrder" method="post" use:enhanceNoReset class="flex md:flex-row flex-col gap-6 mt-6">
-    <FormInput label={$_('app.generic.description')} labelMandatory name="name" value={data.order.name} validateOnChange parentClass="grow" />
+    <FormInput label={$_('app.generic.description')} required name="name" value={data.order.name} validateOnChange parentClass="grow" />
     <FormInput label={$_('app.generic.state')} type="select" name="state" value={data.order.state} validateOnChange>
         {#each Object.keys(scm_order_state) as state}
             <option value={state} class="capitalize">{$_(`scm.orders.state.${state}`)}</option>
@@ -252,7 +252,7 @@
              
             {#if selectedArticle !== undefined}
                 <input type="hidden" name="article_id" value={selectedArticle?.id} />
-                <FormInput name="needed_quantity" type="number" bind:value={selectedArticleQuantity} min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" labelMandatory={true} />
+                <FormInput name="needed_quantity" type="number" bind:value={selectedArticleQuantity} min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" required />
                 <Button class="ml-auto">{$_('app.action.add')}</Button>
             {/if}
         </form>

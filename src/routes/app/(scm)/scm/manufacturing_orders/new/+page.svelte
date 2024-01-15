@@ -24,8 +24,8 @@
     <ArticleFinder bind:selectedArticle articles={data.articles} />
     <input type="hidden" name="article" value={selectedArticle?.id} />
 
-    <FormInput type="number" name="quantity" label={$_('app.generic.quantity_to_manufacture')} labelMandatory />
-    <FormInput type="select" name="receiver" label={$_("app.generic.user_receiving")} labelMandatory>
+    <FormInput type="number" name="quantity" label={$_('app.generic.quantity_to_manufacture')} required />
+    <FormInput type="select" name="receiver" label={$_("app.generic.user_receiving")} required>
         {#each data.users as user}
             <option value={user.id}>{user.username}</option>
         {/each}
@@ -37,7 +37,7 @@
         {/each}
     </FormInput>
 
-    <FormInput type="date" name="end_date" label={$_('app.generic.limit_date')} labelMandatory />
+    <FormInput type="date" name="end_date" label={$_('app.generic.limit_date')} required />
 
     <Button>{$_('app.action.create')}</Button>
 </form>

@@ -111,7 +111,7 @@
         <Wrapper>
             <form action="?/addAttachedFile" method="post" use:enhance>
                 <Flex direction="col" justify="between">
-                    <FormInput type="file" name="attached_files" labelMandatory={true}  />
+                    <FormInput type="file" name="attached_files" required  />
                     <Button>Ajouter le fichier</Button>
                 </Flex>
             </form>
@@ -173,9 +173,9 @@
 
                 <form action="?/updateStock" method="post" use:enhance class="flex flex-col md:flex-row gap-4 md:items-end">
 
-                    <FormInput type="number" name="quantity_update" label="Quantité" labelMandatory value={0} min={0} />
+                    <FormInput type="number" name="quantity_update" label="Quantité" required value={0} min={0} />
 
-                    <FormInput type="select" name="direction" label="Direction" labelMandatory bind:value={articleStoreDirection}>
+                    <FormInput type="select" name="direction" label="Direction" required bind:value={articleStoreDirection}>
                         <option value={"inward"}>Entrée</option>
                         <option value={"outward"}>Sortie</option>
                         <option value={"moved"}>Déplacement</option>
@@ -183,7 +183,7 @@
 
                     {#if articleStoreDirection === "outward" || articleStoreDirection === "moved"}
 
-                        <FormInput type="select" name="store_out" label="Stock de provenance" labelMandatory value={""}>
+                        <FormInput type="select" name="store_out" label="Stock de provenance" required value={""}>
                             <option value={""}>—</option>
 
                             {#each data.stores.filter(k => articlePreffedStores.includes(k.id)) as store}
@@ -197,7 +197,7 @@
                     {/if}
 
                     {#if articleStoreDirection === "inward" || articleStoreDirection === "moved"}
-                        <FormInput type="select" name="store_in" label="Stock de destination" labelMandatory value={""}>
+                        <FormInput type="select" name="store_in" label="Stock de destination" required value={""}>
                             <option value={""}>—</option>
 
                             <optgroup label="Article déja présent">

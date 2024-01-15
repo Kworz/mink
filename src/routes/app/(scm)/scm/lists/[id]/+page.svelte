@@ -46,9 +46,9 @@
 
         <form action="?/editList" use:enhanceNoReset method="post" class="flex flex-col gap-4">
 
-            <FormInput name="name" type="text" label="Nom" labelMandatory value={data.list.name} />
+            <FormInput name="name" type="text" label="Nom" required value={data.list.name} />
 
-            <FormInput name="assembly" type="select" label="Assemblage" labelMandatory value={data.list.assembly_id}>
+            <FormInput name="assembly" type="select" label="Assemblage" required value={data.list.assembly_id}>
                 {#each data.assemblies as assembly}
                     <option value={assembly.id}>{assembly.name}</option>
                 {/each}
@@ -104,7 +104,7 @@
                     {@const data = form.buyListRelationEdit.article[assemblyRelation.article_child_id]}
 
                     {#if "storesToGetFrom" in data}
-                        <FormInput type="select" name="store" label="Choisir un stock de provenance" labelMandatory>
+                        <FormInput type="select" name="store" label="Choisir un stock de provenance" required>
                             {#each data.storesToGetFrom as store}
                                 <option value={store.id}>{store.name}</option>
                             {/each}

@@ -62,9 +62,9 @@
 
             {#if editInterest !== undefined}<input type="hidden" name="id" value={editInterest.id} />{/if}
         
-            <FormInput label="Nom" labelMandatory name="name" value={editInterest?.name} />
+            <FormInput label="Nom" required name="name" value={editInterest?.name} />
             <FormInput label="Description" name="description" value={editInterest?.description}/>
-            <FormInput label="Couleur" labelMandatory name="color" type="select" value={editInterest?.color ?? "bg-red-500"}>
+            <FormInput label="Couleur" required name="color" type="select" value={editInterest?.color ?? "bg-red-500"}>
                 {#each colorList as color}
                     <option value={color} class="capitalize">{color.split("-").at(1)}</option>
                 {/each}

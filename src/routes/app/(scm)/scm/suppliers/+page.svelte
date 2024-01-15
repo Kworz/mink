@@ -53,7 +53,7 @@
                     <FormInput type="file" name="logo" label="Logo fournisseur" backgroundColor="bg-white" />
                 {/if}
 
-                <FormInput name="name" label="Nom du fournisseur" labelMandatory={true} value={editSupplier?.name ?? ""}  backgroundColor="bg-white" autocomplete="organization"/>
+                <FormInput name="name" label="Nom du fournisseur" required value={editSupplier?.name ?? ""}  backgroundColor="bg-white" autocomplete="organization"/>
                 
                 <Flex items="center" gap={2}>
                     <input type="checkbox" name="internal" checked={editSupplier?.internal ?? false}>

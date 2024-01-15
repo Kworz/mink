@@ -43,8 +43,8 @@
 {#if createOrder}
     <MenuSide title={$_('scm.orders.actions.create.title')} on:close={() => createOrder = false }>
         <form action="?/createOrder" method="post" use:enhance class="grid grid-cols-1 gap-4">
-            <FormInput name="name" label={$_('app.generic.order_name')} labelMandatory={true} />
-            <FormInput type="select" name="supplier_id" label={$_('app.generic.supplier')} labelMandatory={true}>
+            <FormInput name="name" label={$_('app.generic.order_name')} required />
+            <FormInput type="select" name="supplier_id" label={$_('app.generic.supplier')} required>
                 {#each data.suppliers as supplier}
                     <option value={supplier.id}>{supplier.name}</option>
                 {/each}

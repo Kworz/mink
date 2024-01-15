@@ -29,8 +29,8 @@
     
         <form action="?/createUser" method="post" use:enhance class="flex flex-col gap-4">
         
-            <FormInput label="Nom d'utilisateur" labelMandatory name="username" />
-            <FormInput label="Email" labelMandatory name="email" type="email" />
+            <FormInput label="Nom d'utilisateur" required name="username" />
+            <FormInput label="Email" required name="email" type="email" />
 
             <Button role="success">Créer</Button>
         </form>
@@ -45,7 +45,7 @@
         {#if form?.inviteUser && "error" in form.inviteUser}<p class="text-red-500">{form?.inviteUser.error}</p>{/if}
 
         <form action="?/inviteUser" method="post" use:enhance class="flex flex-row items-end gap-4">
-            <FormInput label="Email" labelMandatory name="email" type="email" class="grow" />
+            <FormInput label="Email" required name="email" type="email" class="grow" />
             <Button role="success">Envoyer l'invitation</Button>
         </form>
 

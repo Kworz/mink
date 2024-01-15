@@ -23,12 +23,12 @@
 
         <form method="post" use:enhance>
             <Flex direction="col" class="mt-8">
-                <FormInput name="username" label="Nom d'utilisateur" labelMandatory={true} />
+                <FormInput name="username" label="Nom d'utilisateur" required />
 
-                <FormInput name="email" type="email" label="Email" labelMandatory={true} />
+                <FormInput name="email" type="email" label="Email" required />
 
-                <FormInput name="password" type="password" label="Mot de passe" labelMandatory={true} />
-                <FormInput name="passwordConfirm" type="password" label="Confirmer le mot de passe" labelMandatory={true} />
+                <FormInput name="password" type="password" label="Mot de passe" required />
+                <FormInput name="passwordConfirm" type="password" label="Confirmer le mot de passe" required />
 
                 <div class="h-[1px] mx-auto w-2/3 my-4 bg-zinc-400/50"/>
 

@@ -1,11 +1,17 @@
 <script lang="ts">
+
     import Flex from "$lib/components/generics/layout/flex.svelte";
+    import { createEventDispatcher } from "svelte";
+
+    const dispatch = createEventDispatcher<{
+        blur: typeof value | typeof checked,
+        change: typeof value | typeof checked
+    }>();
 
     export let type: "number" | "text" | "password" | "email" | "file" | "select" | "date" | "checkbox" = "text";
     export let name: string;
 
     export let label: string | undefined = undefined;
-    export let labelMandatory = false;
 
     export let invalid = false;
     export let valid = false;
@@ -28,6 +34,7 @@
     export let parentClass: string | undefined = undefined;
 
     export let autocomplete: string | undefined = undefined;
+    export let required: boolean = false;
     
     const baseStyle = ""
 
@@ -35,27 +42,22 @@
 
     let exitButton: HTMLButtonElement | undefined = undefined;
 
-    export let blur: ((value: string | string[] | number | boolean) => void) | undefined = undefined;
-    export let change: ((value: string | string[] | number | boolean) => void) | undefined = undefined;
-
     function typeAction(node: HTMLInputElement) {
         node.type = type;
     }
 
-    function onBlur() {
-
-        if(blur)
-            blur(value);
-        else if(validateOnBlur && exitButton)
+    function handleBlur()
+    {
+        if(validateOnBlur && exitButton)
             exitButton.click();
+        dispatch("blur", type === "checkbox" ? checked : value);
     }
 
-    function onChange()
+    function handleChange()
     {
-        if(change)
-            change(value);
         if(validateOnChange && exitButton)
             exitButton.click();
+        dispatch("change", type === "checkbox" ? checked : value);
     }
 
     $: style = baseStyle + " " + backColors + " " + $$props.class;
@@ -66,7 +68,7 @@
     {#if label && type !== "checkbox"}
         <span class="text-white text-xs leading-4 w-max pl-0.5 pr-1">
             {label}
-            {#if labelMandatory}
+            {#if required}
                 <span class="text-red-500">*</span>
             {/if}
         </span>
@@ -74,21 +76,21 @@
 
     {#if type === "select"}
         {#if multiple} 
-            <select {name} {form} bind:value class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} multiple on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="{style}" {required} class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} multiple on:change={handleChange} on:blur={handleBlur}>
                 <slot />
             </select>
         {:else}
-            <select {name} {form} bind:value class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}>
+            <select {name} {form} bind:value class="{style}" {required} class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={handleChange} on:blur={handleBlur}>
                 <slot />
             </select>
         {/if}
     {:else if type === "checkbox"}
         <Flex items="center" gap={2} class="my-0.5">
-            <input type="checkbox" {name} {form} bind:checked {min} {max} {step} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}/>
+            <input type="checkbox" {name} {form} bind:checked {min} {max} {step} {required} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={handleChange} on:blur={handleBlur}/>
             <span>{label}</span>
         </Flex>
     {:else}
-        <input use:typeAction {name} {form} bind:value {min} {max} {step} {autocomplete} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={onChange} on:blur={onBlur}/>
+        <input use:typeAction {name} {form} bind:value {min} {max} {step} {autocomplete} {required} class="{style}" class:ring-emerald-500={valid} class:ring-red-500={invalid} class:ring-2={invalid || valid} on:change={handleChange} on:blur={handleBlur}/>
     {/if}
 
     {#if validateButton}

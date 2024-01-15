@@ -35,8 +35,8 @@
 {#if editManufacturingOrder}
     <MenuSide on:close={() => editManufacturingOrder = false} title={$_('scm.manufacturing_orders.actions.edit.title')}>
         <form action="?/editManufacturingOrder" method="post" use:enhance class="flex flex-col gap-4">
-            <FormInput label={$_('app.generic.limit_date')} name="end_date" labelMandatory type="date" value={data.manufacturingOrder.end_date?.toISOString()} />
-            <FormInput label={$_('app.generic.quantity')} name="quantity" labelMandatory type="number" value={data.manufacturingOrder.quantity} />
+            <FormInput label={$_('app.generic.limit_date')} name="end_date" required type="date" value={data.manufacturingOrder.end_date?.toISOString()} />
+            <FormInput label={$_('app.generic.quantity')} name="quantity" required type="number" value={data.manufacturingOrder.quantity} />
             <FormInput label={$_('app.generic.user_receiving')} name="receiver" type="select" value={data.manufacturingOrder.receiver?.id}>
                 <option value={undefined}>Aucun</option>
                 {#each data.users as user}
@@ -87,7 +87,7 @@
     {#if !(data.manufacturingOrder.state === "draft" || data.manufacturingOrder.state === "cancelled")}
         <form action="?/completeManufacturingOrder" method="post" use:enhance class="mt-6 flex flex-row gap-4 items-end">
             {#if form?.completeManufacturingOrder !== undefined && "error" in form.completeManufacturingOrder && "stores" in form.completeManufacturingOrder}
-                <FormInput label={$_('app.generic.destination_store')} name="store_in" labelMandatory type="select">
+                <FormInput label={$_('app.generic.destination_store')} name="store_in" required type="select">
                     {#each form.completeManufacturingOrder.stores as store}
                         <option value={store.id}>{store.name} / {store.location}</option>
                     {/each}

@@ -33,8 +33,8 @@
         <form method="post" use:enhanceNoReset>
             <Flex direction="col" class="mt-8">
 
-                <FormInput name="username" type="text" label="Nom d'utilisateur" labelMandatory invalid={form?.error !== undefined} />
-                <FormInput name="password" type="password" label="Mot de passe" labelMandatory invalid={form?.error !== undefined} />
+                <FormInput name="username" type="text" label="Nom d'utilisateur" required invalid={form?.error !== undefined} />
+                <FormInput name="password" type="password" label="Mot de passe" required invalid={form?.error !== undefined} />
 
                 <div class="h-[1px] mx-auto w-2/3 my-4 bg-zinc-400/50"/>
 

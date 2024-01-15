@@ -86,7 +86,7 @@
                             {@const data = form?.buyListRelationEdit?.[list.id]?.[assemblyRow.article_child_id]}
 
                             {#if data.storesToGetFrom !== undefined}
-                                <FormInput type="select" name="store" label="Choisir un stock de provenance" labelMandatory>
+                                <FormInput type="select" name="store" label="Choisir un stock de provenance" required>
                                     {#each data.storesToGetFrom as store}
                                         <option value={store.id}>{store.name}</option>
                                     {/each}

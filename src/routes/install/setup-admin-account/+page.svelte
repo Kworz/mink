@@ -13,10 +13,10 @@
 
 <form action="?/createFirstAccount" method="post" use:enhance class="flex flex-col gap-6 mt-6">
 
-    <FormInput label="Nom d'utilisateur" name="username" type="text" required labelMandatory autocomplete="username" />
-    <FormInput label="Adresse email" name="email" type="email" required labelMandatory autocomplete="email" />
-    <FormInput label="Mot de passe" name="password" type="password" required labelMandatory autocomplete="new-password" />
-    <FormInput label="Mot de passe (confirmation)" name="password_confirmation" type="password" required labelMandatory autocomplete="new-password" />
+    <FormInput label="Nom d'utilisateur" name="username" type="text" required required autocomplete="username" />
+    <FormInput label="Adresse email" name="email" type="email" required required autocomplete="email" />
+    <FormInput label="Mot de passe" name="password" type="password" required required autocomplete="new-password" />
+    <FormInput label="Mot de passe (confirmation)" name="password_confirmation" type="password" required required autocomplete="new-password" />
 
     <Button class="w-full">Créer le compte</Button>
 
