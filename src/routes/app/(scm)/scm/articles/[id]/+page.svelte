@@ -28,6 +28,7 @@
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { computeArticlePrice } from "$lib/components/derived/article/article";
+    import { _ } from "svelte-i18n";
 
     export let data: PageData;
     export let form: ActionData;
@@ -49,14 +50,14 @@
 </script>
 
 <svelte:head>
-    <title>Article — {data.article.name}</title>
+    <title>{data.article.name} - {$_('app.generic.article')} - mink</title>
 </svelte:head>
 
 {#if editArticle}
-    <MenuSide on:close={() => editArticle = false}>
+    <MenuSide on:close={() => editArticle = false} title={$_('scm.article.action.edit_article.title', { values: { name: data.article.name }})}>
         <form action="?/editArticle" method="post" use:enhanceNoReset>
             <ArticleForm bind:article={data.article} />
-            <Button class="mt-3">Modifier</Button>
+            <Button class="mt-3">{$_('app.action.validate')}</Button>
         </form>
     </MenuSide>
 {/if}

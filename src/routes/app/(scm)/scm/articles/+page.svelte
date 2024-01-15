@@ -23,6 +23,7 @@
     import type { PageData, Snapshot } from "./$types";
     import EmptyData from "$lib/components/EmptyData.svelte";
     import { computeArticlePrice } from "$lib/components/derived/article/article";
+    import { _ } from "svelte-i18n";
 
     export let data: PageData;
 
@@ -50,30 +51,30 @@
 </script>
 
 <svelte:head>
-    <title>mink — Articles</title>
+    <title>{$_('app.generic.articles')} - mink</title>
 </svelte:head>
 
 {#if createArticle}
-    <MenuSide title="Créer un article" on:close={() => createArticle = false}>
+    <MenuSide title={$_('app.action.create_article')} on:close={() => createArticle = false}>
         <form action="?/create" method="POST" use:enhance>
             <ArticleForm />
             <div class="flex flex-row gap-6 mt-4">
-                <Button size="small">Créer</Button>
-                <Button size="small" preventSend role="tertiary" click={() => createArticle = false}>Annuler</Button>
+                <Button size="small">{$_('app.action.create')}</Button>
+                <Button size="small" preventSend role="tertiary" click={() => createArticle = false}>{$_('app.generic.cancel')}</Button>
             </div>
         </form>
     </MenuSide>
 {/if}
 
-<h1>Articles</h1>
-<p>Liste des articles disponible dans la base.</p>
+<h1>{$_('app.generic.articles')}</h1>
+<p>{$_('scm.articles.description')}</p>
 
-<PillMenu message={selected.length > 0 ? `${selected.length} articles sélectionnés` : undefined}>
-    <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>Créer un article</PillMenuButton>
-    <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">Importer des articles</PillMenuButton>
+<PillMenu message={selected.length > 0 ? $_('scm.articles.selected', { values: { n: selected.length }}) : undefined}>
+    <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>{$_('app.action.create_article')}</PillMenuButton>
+    <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">{$_('scm.articles.action.import_articles')}</PillMenuButton>
+    <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/?articles=${selected.join(',')}`, '_blank')?.focus()} role="secondary">{$_('scm.articles.action.export_articles', { values: { n: selected.length }})}</PillMenuButton>
     {#if selected.length > 0}
-        <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/`, '_blank')?.focus()} role="secondary">Exporter les articles</PillMenuButton>
-        <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>Imprimer les étiquettes</PillMenuButton>
+        <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>{$_('scm.articles.action.print_label', { values: { n: selected.length }})}</PillMenuButton>
     {/if}
 </PillMenu>
 
@@ -89,14 +90,14 @@
 
     <Table headers={[
         "selectAll", 
-        { label: `Article (${data.totalItems})`, colname: "name" }, 
-        { label: "Consommable" }, 
-        { label: "Stock" }, 
-        { label: "Emplacements" }, 
-        { label: "Référence" }, 
-        { label: "Fournisseurs" }, 
-        { label: "Marque" },    
-        { label: "PUMP" }, 
+        { label: `${$_('app.generic.article')} (${data.totalItems})`, colname: "name" }, 
+        { label: $_('app.generic.consumable') }, 
+        { label: $_('app.generic.available_quantity') }, 
+        { label: $_('app.generic.stores') }, 
+        { label: $_('app.generic.sku') }, 
+        { label: $_('app.generic.suppliers') }, 
+        { label: $_('app.generic.brand') },    
+        { label: $_('app.generic.wap_short') }, 
         { label: "Total prix stock"}]}
         selectables={data.articles.map(a => a.id)}
         bind:selected={selected}
@@ -113,7 +114,7 @@
                     <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayInboundSupplies />
                 </TableCell>
                 <TableCell>
-                    <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? "Oui" : "Non"}</RoundedLabel>
+                    <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? $_('app.generic.yes') : $_('app.generic.no')}</RoundedLabel>
                 </TableCell>
                 <TableCell>
                     {#if article.critical_quantity}
@@ -134,12 +135,12 @@
                 </TableCell>
                 <TableCell>{article.reference}</TableCell>
                 <TableCell>
-                    <Flex gap={2} direction="col" items="start">
-                        {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.includes(p) ? c : [...c, p], new Array())}
+                    <Flex gap={2} direction="row" wrap="wrap">
+                        {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.find(s => s.id === p.id) ? c : [...c, p], new Array())}
                         {#each suppliers as supplier}
                             <Supplier {supplier} />
                         {:else}
-                            —
+                            <span class="text-sm text-zinc-200">{$_('app.generic.suppliers_null')}</span>
                         {/each}
                     </Flex>
                 </TableCell>
