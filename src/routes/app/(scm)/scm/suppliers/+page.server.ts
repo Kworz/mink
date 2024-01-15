@@ -76,7 +76,7 @@ export const actions: Actions = {
             if(Oldlogo !== null && (!form.has("logo") || logo === undefined))
             {
                 const deleteObjectCommand = new DeleteObjectCommand({
-                    Bucket: env.AWS_BUCKET_NAME,
+                    Bucket: locals.appSettings.app_s3_bucketname,
                     Key: `scm/supplier/${id}/logo.${Oldlogo.split(".").at(-1)}`
                 });
 
@@ -93,7 +93,7 @@ export const actions: Actions = {
                 const newLogoName = `logo.${logo.name.split(".").at(-1)}`;
 
                 const uploadCommand = new PutObjectCommand({
-                    Bucket: env.AWS_BUCKET_NAME,
+                    Bucket: locals.appSettings.app_s3_bucketname,
                     Key: `scm/supplier/${id}/${newLogoName}`,
 
                     //@ts-ignore
@@ -106,7 +106,7 @@ export const actions: Actions = {
                     throw "scm.supplier.update.error.logo_upload_failed";
 
                 const aclCommand = new PutObjectAclCommand({
-                    Bucket: env.AWS_BUCKET_NAME,
+                    Bucket: locals.appSettings.app_s3_bucketname,
                     Key: `scm/supplier/${id}/${newLogoName}`,
                     ACL: "public-read"
                 });

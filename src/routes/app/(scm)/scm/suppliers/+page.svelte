@@ -15,7 +15,7 @@
     import { Home, PlusCircle } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
-    import { env } from "$env/dynamic/public";
+    import { page } from "$app/stores";
 
     export let data: PageData;
     export let form: ActionData;
@@ -106,7 +106,7 @@
                     {/if}
                     <a href={supplier.website ?? "#"}>
                         {#if supplier.logo !== null}
-                            <img src="https://{env.PUBLIC_AWS_BUCKET_NAME}.s3.{env.PUBLIC_AWS_REGION}.amazonaws.com/scm/supplier/{supplier.id}/{supplier.logo}" alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
+                            <img src="https://{$page.data.appSettings.app_s3_bucketname}.s3.{$page.data.appSettings.app_s3_region}.amazonaws.com/scm/supplier/{supplier.id}/{supplier.logo}" alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
                         {/if}
                         <span>
                             {supplier.name}
