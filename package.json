@@ -9,8 +9,9 @@
     "dev": "vite dev --host",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node ./build/index.js",
-    "migrate": "prisma migrate deploy",
+    "start": "pnpm run start:prisma && pnpm run start:node",
+    "start:node": "node ./build/index.js",
+    "start:prisma": "prisma migrate deploy",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "eslint ."
