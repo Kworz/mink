@@ -57,7 +57,38 @@
             "vat": "TVA",
             "vat_rate": "Taux de TVA",
             "total_untaxed": "Total hors taxe",
-            "price_to_validate": "Prix à valider"
+            "price_to_validate": "Prix à valider",
+            "brand": "Marque",
+            "wap_short": "PMP",
+            "suppliers": "Fournisseurs",
+            "available_quantity": "Stock disponible",
+            "no": "Non",
+            "suppliers_null": "Aucun fournisseur trouvé",
+            "consumable": "Consommable",
+            "article_name": "Nom de l'article",
+            "internal_article": "Article interne",
+            "article_non_physical": "Article non physique",
+            "technical_data": "Information techniques",
+            "ordering_data": "Informations d'achat",
+            "packaging_data": "Informations de conditionement",
+            "minimal_ordering_quantity": "Quantité de commande minimale",
+            "critical_quantity": "Quantité critique",
+            "unit_of_work": "Unité d'oeuvre",
+            "units_of_work": {
+                "unit": "Unité",
+                "kilogram": "Kilogramme",
+                "gram": "Gramme",
+                "meter": "Mètre",
+                "centimeter": "Centimètre",
+                "millimeter": "Millimètre",
+                "liter": "Litre",
+                "centiliter": "Centilitre",
+                "milliliter": "Millilitre",
+                "c_box": "Boite",
+                "c_bottle_liter": "Bouteille (Litre)",
+                "c_bottle_centiliter": "Bouteille (Centilitre)",
+                "c_bottle_milliliter": "Bouteille (Millilitre)"
+            }
         },
         "time": {
             "hours": "Heures"
@@ -72,7 +103,15 @@
             "copy": "Copier",
             "move": "Déplacer",
             "complete": "Terminé",
-            "add_article_to_order": "Ajouter un article à la commande"
+            "add_article_to_order": "Ajouter un article à la commande",
+            "create_article": "Créer un article",
+            "edit": "Modifier",
+            "update": "Modifier"
+        },
+        "setup_s3": {
+            "s3_region": "Région serveur S3",
+            "s3_bucket": "Nom du bucket S3",
+            "title": "Configuration S3"
         }
     },
     "scm": {
@@ -174,6 +213,22 @@
                     "body": "Souhaitez vous supprimer {n, plural, =1 {la ligne de commande contenant} other {les lignes de commandes contenant}}: "
                 }
             }
+        },
+        "articles": {
+            "description": "Consultez la base articles et effectuez des opérations sur ces articles",
+            "action": {
+                "import_articles": "Importer des articles",
+                "export_articles": "Exporter {n, plural, =0 {tous les} =1 {un} other {des}} {n, plural, =1 {article} other {articles}}",
+                "print_label": "Imprimer {n, plural, =1 {une etiquette} other {les étiquettes}} article"
+            },
+            "selected": "{n} {n, plural, =1 {article sélectionné} other {articles selectionnés}}"
+        },
+        "article": {
+            "action": {
+                "edit_article": {
+                    "title": "Modifier l'article {name}"
+                }
+            }
         }
     },
     "errors": {
@@ -190,6 +245,13 @@
                     "needed_quantity_invalid": "La création de la ligne de commande n'as pas pu aboutir, la quantité demandée n'est pas valide.",
                     "failed": "Une erreur est survenue lors de la création de la ligne de commande."
                 }
+            }
+        },
+        "app": {
+            "setup_s3": {
+                "bucket_not_found": "Le bucket S3 n'as pas été trouvé avec les paramètres fournis.",
+                "bucket_name_invalid": "Le nom du bucket fourni n'est pas valide.",
+                "region_invalid": "La région S3 donnée n'est pas valide."
             }
         }
     },

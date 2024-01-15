@@ -57,7 +57,21 @@
             "vat": "VAT",
             "vat_rate": "VAT %",
             "total_untaxed": "Total without tax",
-            "price_to_validate": "Price to confirm"
+            "price_to_validate": "Price to confirm",
+            "brand": "Brand",
+            "wap_short": "WAP",
+            "suppliers": "Suppliers",
+            "available_quantity": "Available quantity",
+            "no": "No",
+            "suppliers_null": "No supplier found",
+            "consumable": "Consumable",
+            "internal_article": "Internal article",
+            "article_non_physical": "Non physical article",
+            "technical_data": "Technical data",
+            "ordering_data": "Ordering data",
+            "packaging_data": "Packaging data",
+            "critical_quantity": "Critical quantity",
+            "unit_of_work": "Unit of work"
         },
         "time": {
             "hours": "Hours"
@@ -72,7 +86,14 @@
             "copy": "Copy",
             "move": "Move",
             "complete": "Completed",
-            "add_article_to_order": "Add an article to the order"
+            "add_article_to_order": "Add an article to the order",
+            "create_article": "Create an article",
+            "update": "Update"
+        },
+        "setup_s3": {
+            "s3_bucket": "S3 Bucket name",
+            "s3_region": "S3 Server region",
+            "title": "S3 Configuration"
         }
     },
     "scm": {
@@ -174,6 +195,12 @@
                     "body": "Woudl you like to delete the order with {quantity} {article_name} ?"
                 }
             }
+        },
+        "articles": {
+            "description": "Search in the articles database somes articles and manage them.",
+            "action": {
+                "import_articles": "Import articles"
+            }
         }
     },
     "errors": {
@@ -190,6 +217,13 @@
                     "needed_quantity_invalid": "Order row creation could not be done, needed quantity is invalid.",
                     "failed": "An error has occured while creating the order row."
                 }
+            }
+        },
+        "app": {
+            "setup_s3": {
+                "bucket_not_found": "This S3 bucket has not been found using given parameters.",
+                "bucket_name_invalid": "Given bucket's name is not valid.",
+                "region_invalid": "S3 Region given is not valid."
             }
         }
     }
