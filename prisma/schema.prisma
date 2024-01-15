@@ -70,6 +70,10 @@ enum app_settings_keys {
   // mink settings
   app_configured
 
+  // mink s3 settings
+  app_s3_region
+  app_s3_bucketname
+
   // company settings
   company_name
 
@@ -96,8 +100,8 @@ model scm_article {
   non_physical      Boolean @default(false)
   internal          Boolean @default(false)
 
-  unit              String?
-  unit_quantity     Int?
+  unit              unit_of_work @default(unit)
+  unit_quantity     Float?
 
   thumbnail         String?
 
@@ -111,6 +115,24 @@ model scm_article {
 
   manufacturing_orders          scm_manufacturing_order[]
 
+}
+
+enum unit_of_work {
+  unit
+  kilogram
+  gram
+  liter
+  centiliter
+  milliliter
+  meter
+  centimeter
+  millimeter
+
+  // Containers, if set to one of this values, the unit_quantity will be required
+  c_box
+  c_bottle_liter
+  c_bottle_centiliter
+  c_bottle_milliliter
 }
 
 model scm_article_file {
