@@ -34,5 +34,4 @@ COPY entrypoint.sh .
 #Final params
 EXPOSE 3000
 ENV NODE_ENV=production
-ENV DATABASE_URL="postgres://postgres:postgres@localhost:5432/mink"
-CMD [ "entrypoint.sh" ]
+CMD [ "/bin/sh", "entrypoint.sh" ]

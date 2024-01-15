@@ -49,17 +49,14 @@
         <FormInput type="checkbox" name="consumable" label={$_('app.generic.consumable')} bind:checked={article.consumable} />
         
         <h3 class="mb-2 mt-3">{$_('app.generic.packaging_data')}</h3>
-        {JSON.stringify(unit_of_work)}
-        <!--
-<FormInput type="select" name="unit" label={$_(`app.generic.unit_of_work`)} bind:value={article.unit}>
+
+        <FormInput type="select" name="unit" label={$_(`app.generic.unit_of_work`)} labelMandatory bind:value={article.unit}>
             {#each Object.keys(unit_of_work) as uow}
                 <option value={uow}>{$_(`app.generic.units_of_work.${uow}`)}</option>
             {/each}
         </FormInput>
-        --> 
-        
     
-        {#if article?.unit?.startsWith("b")}
+        {#if article?.unit.startsWith("c_")}
             <FormInput type="number" name="unit_quantity" label="Quantité du contenant" bind:value={article.unit_quantity} step={1} min={1} labelMandatory />
         {/if}
     {/if}
