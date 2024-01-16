@@ -21,6 +21,8 @@ model user {
   auth_session           auth_session[]
   key                    auth_key[]
 
+  user_settings          user_settings[]
+
   article_movements      scm_article_movements[]
   
   attached_projects      pr_project_attached_user[]
@@ -83,6 +85,23 @@ enum app_settings_keys {
   company_address_country
 
   company_default_vat
+
+}
+
+model user_settings {
+  key             user_settings_keys
+  value           String
+
+  user_id         String
+  user            user @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@id([user_id, key])
+}
+
+enum user_settings_keys {
+
+  app_language
+  app_menu_left
 
 }
 

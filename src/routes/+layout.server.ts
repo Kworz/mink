@@ -6,7 +6,8 @@ export const load = (async ({ locals }) => {
 
     return { 
         session: locals.session,
-        appSettings: locals.appSettings
+        appSettings: locals.appSettings,
+        userSettings: locals.userSettings
     }
     
 }) satisfies LayoutServerLoad;

@@ -1,4 +1,4 @@
-import { app_settings_keys, type app_settings } from "@prisma/client";
+import { app_settings_keys, user_settings_keys, type app_settings, type user_settings } from "@prisma/client";
 
 const defaultSettings = {
 
@@ -45,5 +45,30 @@ export const getSettings = (storedAppSettings: Array<app_settings>): typeof defa
         company_address_country: storedAppSettings.find(s => s.key === "company_address_country")?.value ?? defaultSettings.company_address_country,
 
         company_default_vat: Number(storedAppSettings.find(s => s.key === "company_default_vat")?.value ?? defaultSettings.company_default_vat),
+    }
+}
+
+const defaultUserSettings = {
+
+    app_language: "en",
+    app_menu_left: true as boolean
+
+} satisfies Record<user_settings_keys, boolean | string | number>;
+
+export type UserSettings = typeof defaultUserSettings;
+
+/**
+ * Convert stored user settings to user settings with defaults for unset values
+ * @param storedUserSettings User settings stored in the database
+ * @throws
+ * @returns Exploitable user settings
+ */
+export const getUserSettings = (storedUserSettings: Array<user_settings>): typeof defaultUserSettings => {
+
+    const appLeftMenu = storedUserSettings.find(s => s.key === "app_menu_left")?.value;
+
+    return {
+        app_language: storedUserSettings.find(s => s.key === "app_language")?.value ?? defaultUserSettings.app_language,
+        app_menu_left: appLeftMenu !== undefined ? (appLeftMenu === "true") : defaultUserSettings.app_menu_left,
     }
 }
