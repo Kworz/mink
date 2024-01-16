@@ -9,11 +9,11 @@ import { locale } from 'svelte-i18n';
 export const handle = (async ({ event, resolve }) => {
 
     // locals hydration
-    event.locals.prisma = prisma as unknown as PrismaClient; // ? extended Prisma client looses its type information needs this to be casted
+    event.locals.prisma = prisma as unknown as PrismaClient;
     event.locals.lucia = auth(event.locals.prisma).handleRequest(event);
     event.locals.session = await event.locals.lucia.validate();
 
-    const lang = event.request.headers.get('accept-language')?.split(',')[0]; // TODO: this can also be set using user_settings
+    const lang = event.request.headers.get('accept-language')?.split(',')[0];
     if(lang) locale.set(lang);
 
     const appSettings = getSettings(await event.locals.prisma.app_settings.findMany());
