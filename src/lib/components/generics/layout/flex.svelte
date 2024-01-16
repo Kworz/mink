@@ -8,6 +8,8 @@
 	export const directions = {
 		row: 'flex-row',
 		col: 'flex-col',
+		rowReverse: 'flex-row-reverse',
+		colReverse: 'flex-col-reverse',
 	};
 
 	/**
