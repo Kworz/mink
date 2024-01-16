@@ -47,7 +47,7 @@
                     <input type="hidden" name="article" value={orderRow.article_id} />
                     <input type="hidden" name="order_row" value={orderRow.id} />
 
-                    <FormInput name="received_quantity" type="number" min={0} max={orderRow.needed_quantity - orderRow.received_quantity} value={0} step={orderRow.article.unit !== "u" ? 0.1 : 1} label={$_('app.generic.received_quantity')} required backgroundColor="bg-white" />
+                    <FormInput name="received_quantity" type="number" min={0} max={orderRow.needed_quantity - orderRow.received_quantity} value={0} step={orderRow.article.unit !== "unit" ? (orderRow.article.unit_quantity || 1) : 1} label={$_('app.generic.received_quantity')} required backgroundColor="bg-white" />
                     
                     <FormInput name="store_in" type="select" value="" required label={$_('app.generic.destination_store')}>
                         <option value=''>—</option>
