@@ -98,7 +98,7 @@
 
                 <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                 <TableCell>
-                    <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayInboundSupplies displayStock />
+                    <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayInboundSupplies />
                 </TableCell>
                 <TableCell>
                     <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? $_('app.generic.yes') : $_('app.generic.no')}</RoundedLabel>
