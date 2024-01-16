@@ -28,7 +28,7 @@
 </script>
 
 {#if editProject}
-    <MenuSide on:close={() => editProject = false}>
+    <MenuSide on:close={() => editProject = false} title="Modifier l'affaire">
         <form action="?/editProject" method="post" use:enhanceNoReset class="flex flex-col gap-2">
             <FormInput name="name" label="Nom du projet" required bind:value={data.project.name} />
             <FormInput name="customer" label="Client du projet" bind:value={data.project.customer} />

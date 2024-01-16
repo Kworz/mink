@@ -28,7 +28,7 @@
 
 <form action="?/setupS3" method="post" use:enhance class="flex flex-col gap-4 mt-6" on:submit={() => formSent = true}>
 
-    <FormInput label={$_('app.setup_s3.s3_region')} name="s3_region" type="select" required required autocomplete="s3_region">
+    <FormInput label={$_('app.setup_s3.s3_region')} name="s3_region" type="select" required autocomplete="s3_region">
         <option value="eu-west-1">eu-west-1</option>
         <option value="eu-west-2">eu-west-2</option>
         <option value="eu-west-3">eu-west-3</option>
@@ -58,7 +58,7 @@
         <option value="sa-east-1">sa-east-1</option>
     </FormInput>
 
-    <FormInput label={$_('app.setup_s3.s3_bucket')} name="s3_bucket" type="text" required required autocomplete="s3_bucket" />
+    <FormInput label={$_('app.setup_s3.s3_bucket')} name="s3_bucket" type="text" required autocomplete="s3_bucket" />
 
     <div class="flex flex-row gap-6">
         <Button suspense={formSent}>{$_('app.action.validate')}</Button>
