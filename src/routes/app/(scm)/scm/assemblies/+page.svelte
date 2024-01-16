@@ -3,8 +3,7 @@
     import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import EmptyData from "$lib/components/EmptyData.svelte";
-    import Filter2 from "$lib/components/derived/filter/Filter.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter";
+    import Filter from "$lib/components/derived/filter/Filter.svelte";
     import Button from "$lib/components/generics/Button.svelte";
     import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
@@ -16,22 +15,19 @@
     import type { ActionData, PageData } from "./$types";
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import { _ } from "svelte-i18n";
+    import { page } from "$app/stores";
 
     export let data: PageData;
     export let form: ActionData;
 
-    let filters: Array<FilterCondition> = [];
-    let filter = "";
+    let filter = $page.url.searchParams.has("filter") ? JSON.parse(atob($page.url.searchParams.get("filter")!)) : {};
 
     let createAssembly = false;
     let createFormSent = false;
 
-    const triggerResfresh = () => {
-        if(browser)
-            goto(`/app/scm/assemblies/?filter=${filter}`);
-    }
+    const refresh = () => { if(browser) goto(`/app/scm/assemblies/?filter=${btoa(JSON.stringify(filter))}`); }
 
-    $: filter, triggerResfresh();
+    $: filter, refresh();
 
     $: if(form?.createAssembly.error !== undefined) { createFormSent = false; setTimeout(() => form = null, 3000); }
 
@@ -61,7 +57,7 @@
 </PillMenu>
 
 {#if data.assemblies.length > 0}
-    <Filter2 bind:filter bind:filters availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }, { name: "favorite", type: "boolean" }]} class="mt-6" />
+    <Filter bind:filter availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }]} class="mt-6" />
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:cols-4 gap-4 mt-6">
         {#each data.assemblies as assembly}
