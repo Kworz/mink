@@ -11,7 +11,7 @@ export const load = (async ({ params, locals, url }) => {
 
     /// — Secondary data
     const projects = await locals.prisma.pr_project.findMany({ where: { closed: false }})
-    const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery, where: articleFilter });
+    const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery, where: articleFilter, take: 15 });
 
     return {
         order,
