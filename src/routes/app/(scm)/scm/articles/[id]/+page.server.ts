@@ -50,11 +50,13 @@ export const actions: Actions = {
     editArticle: async ({ params, request, locals }) => {
         try
         {
+            //TODO: typecheck form data
+
             const form = await request.formData();
 
-            const order_quantity = Number(form.get("order_quantity")?.toString());
-            const critical_quantity = Number(form.get("critical_quantity")?.toString());
-            const unit_quantity = Number(form.get("unit_quantity")?.toString());
+            const orderQuantity = Number(form.get("order_quantity")?.toString());
+            const criticalQuantity = Number(form.get("critical_quantity")?.toString());
+            const unitQuantity = Number(form.get("unit_quantity")?.toString());
 
             await locals.prisma.scm_article.update({
                 where: {
@@ -70,11 +72,11 @@ export const actions: Actions = {
                     non_physical: form.has("non_physical"),
                     internal: form.has("internal"),
 
-                    order_quantity: order_quantity ? order_quantity : undefined,
-                    critical_quantity: critical_quantity ? critical_quantity : undefined,
+                    order_quantity: orderQuantity ? orderQuantity : undefined,
+                    critical_quantity: criticalQuantity ? criticalQuantity : undefined,
 
                     unit: form.get("unit")?.toString(),
-                    unit_quantity: unit_quantity ? unit_quantity : undefined
+                    unit_quantity: unitQuantity ? unitQuantity : undefined
 
                 }
             });
