@@ -4,8 +4,7 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import AssemblyPreview from "$lib/components/derived/assemblies/AssemblyPreview.svelte";
-    import Filter2 from "$lib/components/derived/filter/Filter.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter";
+    import Filter from "$lib/components/derived/filter/Filter.svelte";
     import Button from "$lib/components/generics/Button.svelte";
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
@@ -14,11 +13,14 @@
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { PlusCircle, Printer, Squares2x2 } from "@steeze-ui/heroicons";
-    import type { PageData, Snapshot } from "./$types";
+    import type { PageData } from "./$types";
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import EmptyData from "$lib/components/EmptyData.svelte";
 
     export let data: PageData;
+
+    let filter = $page.url.searchParams.has("filter") ? JSON.parse(atob($page.url.searchParams.get("filter")!)) : {};
+    let sort = $page.url.searchParams.has("sort") ? JSON.parse(atob($page.url.searchParams.get("sort")!)) : {};
 
     let createList = false;
     let showClosedLists = false;
@@ -26,23 +28,9 @@
 
     let selected: string[] = [];
 
-    let filters: Array<FilterCondition> = [];
-    let filter: string = $page.url.searchParams.get("filter") ?? "";
+    const refresh = () => { if(browser) goto(`?sort=${btoa(JSON.stringify(sort))}&filter=${btoa(JSON.stringify(filter))}`, { noScroll: true }); }
 
-    let activeSort = $page.url.searchParams.get("sort") ?? "assembly.name";
-
-    export const snapshot: Snapshot<Array<FilterCondition>> = {
-        capture: () => filters,
-        restore: (value) => filters = value
-    }
-
-    const triggerRefresh = () => {
-        if(browser) {
-            goto(`/app/scm/lists?sort=${activeSort}&filter=${filter}`, { noScroll: true });
-        }
-    }
-
-    $: filter, activeSort, triggerRefresh();
+    $: filter, sort, refresh();
     $: lists = data.lists.filter(list => !showClosedLists ? (list.closed === false) : true);
 
 </script>
@@ -73,8 +61,6 @@
     </MenuSide>
 {/if}
 
-
-
 <h1>Listes d'achat d'assemblages</h1>
 <p>Suivez précisément les achats pour votre nomenclature.</p>
 
@@ -93,7 +79,7 @@
 {#if data.lists.length > 0}
     <FormInput type="checkbox" name="" label="Afficher les listes terminées" bind:checked={showClosedLists} />
 
-    <Filter2 bind:filter bind:filters availableFilters={[
+    <Filter bind:filter availableFilters={[
         { name: "name", default: true, type: "string" },
         { name: "assembly.name", type: "string" },
         { name: "project.name", type: "string" },
@@ -110,6 +96,7 @@
         ]}
         selectables={lists.map(l => l.id)}
         bind:selected={selected}
+        bind:sort
         class="mt-6"
     >
 
