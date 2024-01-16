@@ -95,7 +95,7 @@
                     {#if header === "selectAll"}
                         <input type="checkbox" bind:checked={allSelected} on:click={() => selected = (allSelected) ? [] : selectables} class="self-center" />
                     {:else}
-                        <Flex items="center" gap={1}>
+                        <Flex items="center" gap={4} justify="between">
                             <span class="font-semibold truncate">{header.label}</span>
                             {#if header.colname !== undefined}
                                 <SortButton colname={header.colname} on:sort={(e) => {

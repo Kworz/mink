@@ -26,6 +26,6 @@
 
 </script>
 
-<button on:click={sort} class="ml-auto">
+<button on:click={sort}>
     <Icon src={direction !== "none" ? ((direction === "asc") ? ChevronUp : ChevronDown) : Bars2} class="h-4 w-4 font-bold text-violet-400" theme="solid" />
 </button>
