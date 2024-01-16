@@ -73,19 +73,19 @@
         { name: "name", default: true, type: "string" },
         { name: "reference", type: "string" },
         { name: "brand", type: "string" },
-        { name: "critical_quantity", type: "number"},
+        { name: "critical_quantity", type: "number" },
         { name: "consumable", type: "boolean" }]}
     />
 
     <Table headers={[
         "selectAll", 
         { label: `${$_('app.generic.article')} (${data.totalItems})`, colname: "name" }, 
-        { label: $_('app.generic.consumable') }, 
+        { label: $_('app.generic.consumable'), colname: "consumable" }, 
         { label: $_('app.generic.available_quantity') }, 
         { label: $_('app.generic.stores') }, 
-        { label: $_('app.generic.sku') }, 
+        { label: $_('app.generic.sku'), colname: "reference" }, 
         { label: $_('app.generic.suppliers') }, 
-        { label: $_('app.generic.brand') },    
+        { label: $_('app.generic.brand'), colname: "brand" },    
         { label: $_('app.generic.wap_short') }, 
         { label: "Total prix stock"}]}
         selectables={data.articles.map(a => a.id)}
