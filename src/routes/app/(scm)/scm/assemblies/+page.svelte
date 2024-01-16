@@ -59,7 +59,7 @@
 {#if data.assemblies.length > 0}
     <Filter bind:filter availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }]} class="mt-6" />
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:cols-4 gap-4 mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:cols-4 gap-6 mt-6">
         {#each data.assemblies as assembly}
             <Wrapper>
     
