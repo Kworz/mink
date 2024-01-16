@@ -5,11 +5,11 @@
     
     import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
-    import { returnArticleUnit } from "$lib/components/derived/article/artictleUnits";
     import Price from "$lib/components/generics/formatters/Price.svelte";
 
     import { page } from "$app/stores";
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
+    import { _ } from "svelte-i18n";
 
     export let article: scm_articleWithIncludes;
 
@@ -51,13 +51,22 @@
         {#if displayPrice}<span class="text-sm block"><DetailLabel><Price value={articlePrice} /></DetailLabel></span>{/if}
         {#if articleQuantity > 0 && displayStock === true}
             {@const shouldOrder = articleQuantity < (article.critical_quantity ?? 0)}
-            <span class="text-sm block" class:text-red-500={shouldOrder} class:text-emerald-500={!shouldOrder}>{returnArticleUnit(article.unit, article.unit_quantity, articleQuantity)} en stock.</span>
+            <span class="text-sm block" class:text-red-500={shouldOrder} class:text-emerald-500={!shouldOrder}>
+                {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: articleQuantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
+                {$_('app.generic.in_stock')}
+            </span>
         {/if}
         {#if inboundQuantity > 0 && displayInboundSupplies === true}
-            <span class="text-sm text-amber-500 block">{returnArticleUnit(article.unit, article.unit_quantity, inboundQuantity)} en approvisionement.</span>
+            <span class="text-sm text-amber-500 block">
+                {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: inboundQuantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
+                {$_('app.generic.in_inbounds')}
+            </span>
         {/if}
         {#if manufacturingQuantity > 0 && displayInboundSupplies === true}
-            <span class="text-sm text-amber-700 block">{returnArticleUnit(article.unit, article.unit_quantity, manufacturingQuantity)} en manufacturing.</span>
+            <span class="text-sm text-amber-700 block">
+                {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: manufacturingQuantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
+                {$_('app.generic.in_manufacturing')}
+            </span>
         {/if}
     </div>
 </Flex>

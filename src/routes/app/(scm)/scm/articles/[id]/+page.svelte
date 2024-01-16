@@ -3,7 +3,6 @@
     import { enhance } from "$app/forms";
     import { invalidateAll } from "$app/navigation";
     import { env } from "$env/dynamic/public";
-    import { returnArticleUnit } from "$lib/components/derived/article/artictleUnits";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import type { ActionData, PageData } from "./$types";
 
@@ -155,10 +154,12 @@
                 </div>
             {/if}
     
-            {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.order_quantity)}</DetailLabel>.</p>{/if}
-            {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, data.article.critical_quantity)}</DetailLabel>.</p>{/if}
+            {#if data.article.order_quantity}<p>Quantité minimale de commande: <DetailLabel>{$_(`app.generic.units_of_work_number.${data.article.unit}`, {values: { n: data.article.order_quantity / (data.article.unit_quantity ?? 1), b: data.article.unit_quantity }})}</DetailLabel>.</p>{/if}
+            {#if data.article.critical_quantity}<p>Quantité critique: <DetailLabel>{$_(`app.generic.units_of_work_number.${data.article.unit}`, {values: { n: data.article.critical_quantity / (data.article.unit_quantity ?? 1), b: data.article.unit_quantity }})}</DetailLabel>.</p>{/if}
             
-            <p>Quantité en stock: <DetailLabel>{returnArticleUnit(data.article.unit, data.article.unit_quantity, articleQuantity)}</DetailLabel>.</p>
+            <p>Quantité en stock: <DetailLabel>
+                {$_(`app.generic.units_of_work_number.${data.article.unit}`, {values: { n: articleQuantity / (data.article.unit_quantity ?? 1), b: data.article.unit_quantity }})}
+            </DetailLabel>.</p>
             <p>Consommable: <DetailLabel>{data.article.consumable ? "Oui" : "Non"}</DetailLabel>.</p>
     
         </Wrapper>
@@ -235,7 +236,7 @@
                 {#if data.article.acticle_movements.length > 0}
                     <Table headers={[{ label: "𝚫 Quantité" }, { label: "Utilisateur" }, { label: "Déplacement" }, { label: "Date" }]}>
                             {#each data.article.acticle_movements as movement}
-                                <TableCell>{returnArticleUnit(data.article.unit, data.article.unit_quantity, movement.quantity_update)}</TableCell>
+                                <TableCell>{$_(`app.generic.units_of_work_number.${data.article.unit}`, {values: { n: movement.quantity_update / (data.article.unit_quantity ?? 1), b: data.article.unit_quantity }})}</TableCell>
                                 <TableCell>
                                     <User user={movement.user} />
                                 </TableCell>

@@ -71,7 +71,13 @@
             "ordering_data": "Ordering data",
             "packaging_data": "Packaging data",
             "critical_quantity": "Critical quantity",
-            "unit_of_work": "Unit of work"
+            "unit_of_work": "Unit of work",
+            "article_in_manufacturing": "{n} in manufacturing.",
+            "article_in_inbound_supplies": "{n} to be received.",
+            "article_in_stock": "{n} in stock.",
+            "in_stock": "in stock.",
+            "in_inbounds": "to be received.",
+            "in_manufacturing": "to be manufactured."
         },
         "time": {
             "hours": "Hours"

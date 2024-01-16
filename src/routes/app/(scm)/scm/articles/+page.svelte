@@ -4,7 +4,6 @@
     import { page } from "$app/stores";
     import ArticleForm from "$lib/components/derived/article/ArticleForm.svelte";
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
-    import { returnArticleUnit } from "$lib/components/derived/article/artictleUnits";
     import Filter2 from "$lib/components/derived/filter/Filter.svelte";
     import Store from "$lib/components/derived/store/Store.svelte";
     import Supplier from "$lib/components/derived/supplier/Supplier.svelte";
@@ -99,7 +98,7 @@
 
                 <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                 <TableCell>
-                    <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayInboundSupplies />
+                    <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayInboundSupplies displayStock />
                 </TableCell>
                 <TableCell>
                     <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? $_('app.generic.yes') : $_('app.generic.no')}</RoundedLabel>
@@ -110,10 +109,10 @@
                             class:text-red-500={stock_quantity <= article.critical_quantity}
                             class:font-semibold={stock_quantity <= article.critical_quantity}
                         >
-                            {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
+                            {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stock_quantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
                         </span>         
                     {:else}               
-                        {returnArticleUnit(article.unit, article.unit_quantity, stock_quantity)}
+                        {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stock_quantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
                     {/if}
                 </TableCell>
                 <TableCell>

@@ -88,7 +88,28 @@
                 "c_bottle_liter": "Bouteille (Litre)",
                 "c_bottle_centiliter": "Bouteille (Centilitre)",
                 "c_bottle_milliliter": "Bouteille (Millilitre)"
-            }
+            },
+            "units_of_work_number": {
+                "unit": "{n, plural, =1 {{n} Unité} other {{n} Unités}}",
+                "kilogram": "{n, plural, =1 {{n} Kilogramme} other {{n} Kilogrammes}}",
+                "gram": "{n, plural, =1 {{n} Gramme} other {{n} Grammes}}",
+                "meter": "{n, plural, =1 {{n} Mètre} other {{n} Mètres}}",
+                "centimeter": "{n, plural, =1 {{n} Centimètre} other {{n} Centimètres}}",
+                "millimeter": "{n, plural, =1 {{n} Millimètre} other {{n} Millimètres}}",
+                "liter": "{n, plural, =1 {{n} Litre} other {{n} Litres}}",
+                "centiliter": "{n, plural, =1 {{n} Centilitre} other {{n} Centilitres}}",
+                "milliliter": "{n, plural, =1 {{n} Millilitre} other {{n} Millilitres}}",
+                "c_box": "{n} {n, plural, =1 {Boite} other {Boites}} de {b}",
+                "c_bottle_liter": "{n} {n, plural, =1 {Bouteille} other {Bouteilles}} de {b} l",
+                "c_bottle_centiliter": "{n} {n, plural, =1 {Bouteille} other {Bouteilles}} de {b} cl",
+                "c_bottle_milliliter": "{n} {n, plural, =1 {Bouteille} other {Bouteilles}} de {b} ml"
+            },
+            "article_in_manufacturing": "{n} en cours de fabrication.",
+            "article_in_inbound_supplies": "{n} en cours d'approvisionement.",
+            "article_in_stock": "{n} en stock.",
+            "in_stock": "en stock.",
+            "in_inbounds": "en approvisionement.",
+            "in_manufacturing": "en cours de fabrication."
         },
         "time": {
             "hours": "Heures"
