@@ -6,9 +6,6 @@ export type TableSort = { name: string, direction: "asc" | "desc"};
  * @param sorts Array of sorts rules
  * @returns A JSON Stringified Object Base64 encoded string
  */
-export const convertTableSortToPrismaSort = (sorts: Array<TableSort>): string => {
-
-    const sortsMap = sorts.reduce((p, c) => ({...p, [c.name]: c.direction}), {});
-
-    return btoa(JSON.stringify(sortsMap));
+export const convertTableSortToPrismaSort = (sorts: Array<TableSort>): {} => {
+    return sorts.reduce((p, c) => ({...p, [c.name]: c.direction}), {});
 }

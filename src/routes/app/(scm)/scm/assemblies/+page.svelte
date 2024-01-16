@@ -3,8 +3,8 @@
     import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import EmptyData from "$lib/components/EmptyData.svelte";
-    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Filter2 from "$lib/components/derived/filter/Filter.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter";
     import Button from "$lib/components/generics/Button.svelte";
     import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";

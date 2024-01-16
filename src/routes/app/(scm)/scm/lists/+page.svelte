@@ -4,8 +4,8 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import AssemblyPreview from "$lib/components/derived/assemblies/AssemblyPreview.svelte";
-    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Filter2 from "$lib/components/derived/filter/Filter.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter";
     import Button from "$lib/components/generics/Button.svelte";
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";

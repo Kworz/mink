@@ -102,7 +102,7 @@
 <style lang="postcss">
 
     input, select {
-        @apply ring-1 ring-zinc-400/25 bg-zinc-800 rounded-md p-2 transition-all;
+        @apply ring-1 ring-zinc-400/25 bg-zinc-800 rounded-md p-2 transition-all focus-within:ring-2 focus-within:ring-violet-500/25 duration-300;
     }
 
 </style>

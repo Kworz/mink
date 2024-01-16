@@ -5,8 +5,7 @@
     import ArticleForm from "$lib/components/derived/article/ArticleForm.svelte";
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
     import { returnArticleUnit } from "$lib/components/derived/article/artictleUnits";
-    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Filter2 from "$lib/components/derived/filter/Filter.svelte";
     import Store from "$lib/components/derived/store/Store.svelte";
     import Supplier from "$lib/components/derived/supplier/Supplier.svelte";
     import Button from "$lib/components/generics/Button.svelte";
@@ -20,33 +19,24 @@
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import TablePages from "$lib/components/generics/table/TablePages.svelte";
     import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
-    import type { PageData, Snapshot } from "./$types";
+    import type { PageData } from "./$types";
     import EmptyData from "$lib/components/EmptyData.svelte";
     import { computeArticlePrice } from "$lib/components/derived/article/article";
     import { _ } from "svelte-i18n";
+    import { browser } from "$app/environment";
 
     export let data: PageData;
 
+    let filter = $page.url.searchParams.has("filter") ? JSON.parse(atob($page.url.searchParams.get("filter") as string)) : {};
+    let sort = $page.url.searchParams.has("sort") ? JSON.parse(atob($page.url.searchParams.get("sort") as string)) : {};
+    let tablePage = $page.url.searchParams.has("page") ? parseInt($page.url.searchParams.get("page") as string) : 0;
+    
+    let selected: Array<string> = [];
     let createArticle = false;
 
-    let filters: Array<FilterCondition> = [];
-    let selected: Array<string> = [];
+    const refresh = () => { if(browser) goto(`?filter=${btoa(JSON.stringify(filter))}&sort=${btoa(JSON.stringify(sort))}&page=${tablePage}`); }
 
-    export const snapshot: Snapshot<Array<FilterCondition>> = {
-        capture: () => filters,
-        restore: (value) => filters = value
-    };
-
-    const editQueryParams = (query: { filter?: string, sort?: string, page?: number }) => {
-
-        const params = new URLSearchParams();
-
-        //params.set("filter", query.filter ?? data.filter);
-        params.set("sort", query.sort ?? data.sort);
-        params.set("page", query.page?.toString() ?? data.page.toString());
-
-        goto(`?${params.toString()}`, { noScroll: true });
-    }
+    $: filter, sort, tablePage, refresh();
 
 </script>
 
@@ -78,14 +68,13 @@
     {/if}
 </PillMenu>
 
-{#if data.articles.length > 0}
-    <Filter2 class="my-6" bind:filters availableFilters={[
+{#if data.articles.length > 0 || data.totalItems > 0}
+    <Filter2 class="my-6" bind:filter availableFilters={[
         { name: "name", default: true, type: "string" },
         { name: "reference", type: "string" },
-        { name: "manufacturer", type: "string" },
+        { name: "brand", type: "string" },
         { name: "critical_quantity", type: "number"},
         { name: "consumable", type: "boolean" }]}
-        on:filter={(e) => editQueryParams({ filter: e.detail })}
     />
 
     <Table headers={[
@@ -101,8 +90,7 @@
         { label: "Total prix stock"}]}
         selectables={data.articles.map(a => a.id)}
         bind:selected={selected}
-        bind:sort={data.sort}
-        on:sort={(e) => editQueryParams({ sort: e.detail })}
+        bind:sort={sort}
     >
         {#each data.articles as article (article.id)}
 
@@ -151,7 +139,7 @@
         {/each}
     </Table>
 
-    <TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={data.page} on:change={(e) => editQueryParams({ page: e.detail })} />
+    <TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={tablePage} />
 {:else}
     <EmptyData on:click={() => createArticle = true } />
 {/if}

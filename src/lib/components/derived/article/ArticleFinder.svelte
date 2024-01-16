@@ -1,8 +1,8 @@
 <script lang="ts">
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
-    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Filter2 from "$lib/components/derived/filter/Filter.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter";
     import Button from "$lib/components/generics/Button.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
     import { createEventDispatcher } from "svelte";

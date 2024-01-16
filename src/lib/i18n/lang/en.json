@@ -94,6 +94,9 @@
             "s3_bucket": "S3 Bucket name",
             "s3_region": "S3 Server region",
             "title": "S3 Configuration"
+        },
+        "filter": {
+            "edit_filter": "Edit filter"
         }
     },
     "scm": {

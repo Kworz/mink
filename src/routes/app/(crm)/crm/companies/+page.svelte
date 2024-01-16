@@ -3,7 +3,7 @@
     import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter";
     import Button from "$lib/components/generics/Button.svelte";
     import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
     import Wrapper from "$lib/components/generics/containers/Wrapper.svelte";

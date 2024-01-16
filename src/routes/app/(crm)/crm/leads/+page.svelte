@@ -3,8 +3,8 @@
     import { goto, invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
     import EmptyData from "$lib/components/EmptyData.svelte";
-    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import Filter2 from "$lib/components/derived/filter/Filter.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter";
     import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";

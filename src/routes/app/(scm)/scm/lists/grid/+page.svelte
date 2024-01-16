@@ -2,8 +2,8 @@
     import { invalidateAll } from "$app/navigation";
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
     import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
-    import Filter2 from "$lib/components/derived/filter/Filter2.svelte";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter";
+    import Filter2 from "$lib/components/derived/filter/Filter.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";

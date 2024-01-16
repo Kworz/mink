@@ -112,6 +112,21 @@
             "s3_region": "Région serveur S3",
             "s3_bucket": "Nom du bucket S3",
             "title": "Configuration S3"
+        },
+        "filter": {
+            "operands": {
+                "contains": "Contient",
+                "not": "N'est pas",
+                "equals": "Est",
+                "gt": "Est supérieur à",
+                "lt": "Est inférieur à",
+                "gte": "Est supérieur ou égal à",
+                "lte": "Est inférieur ou égal à",
+                "in": "Est dans",
+                "notIn": "N'est pas dans"
+            },
+            "filter_condition": "{n, plural, =1 {Première} =2 {Deuxiemme} =3 {Troisiemme} =4 {Quatriemme} =5 {Cinquiemme} =6 {Sixiemme} =7 {Septiême} =8 {Huitiême} =9 {Neuviême} =10 {Dixiême} =11 {Onziême} =12 {Douziême} =13 {Treiziême} =14 {Quatorziême} =15 {Quinziême} =16 {Seiziême} =17 {Dix-septiême} =18 {Dix-huitiême} =19 {Dix-neuviême} =20 {Vingtiême} other {#ième}} condition de filtre",
+            "edit_filter": "Modifier le filtre"
         }
     },
     "scm": {

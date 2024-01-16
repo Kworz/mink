@@ -4,7 +4,7 @@
     import { page } from "$app/stores";
     import EmptyData from "$lib/components/EmptyData.svelte";
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
-    import type { FilterCondition } from "$lib/components/derived/filter/filter2";
+    import type { FilterCondition } from "$lib/components/derived/filter/filter";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import type { PageData } from "./$types";

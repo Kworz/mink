@@ -1,7 +1,7 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
-    import { type FilterCondition } from "$lib/components/derived/filter/filter2";
+    import { type FilterCondition } from "$lib/components/derived/filter/filter";
     import Button from "$lib/components/generics/Button.svelte";
     import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";

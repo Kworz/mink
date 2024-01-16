@@ -3,7 +3,6 @@
     import SortButton from "$lib/components/generics/table/SortButton.svelte";
     import { ArrowLeft, ArrowRight } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { createEventDispatcher } from "svelte";
     import { fade } from "svelte/transition";
     import { convertTableSortToPrismaSort, type TableSort } from "$lib/components/generics/table/tableSort";
 
@@ -22,11 +21,7 @@
 
     /// - OUTPUT DATA
 
-    /** Active sorting JSON Stringified & Base 64 Encoded */
-    export let sort: string = "";
-
-    /** Active sorts defined by the user */
-    export let sorts: Array<TableSort> = [];
+    export let sort = {};
 
     /** Are all fields selected ? */
     export let allSelected = false;
@@ -37,13 +32,14 @@
     /** Selected elements */
     export let selected: Array<string> = [];
 
-    const dispatch = createEventDispatcher<{ sort: string }>();
-
+    /** Active sorts defined by the user */
+    let sorts: Array<TableSort> = [];
+            
     let parentContainer: HTMLDivElement;
 
     const filterUndefined = (value: any): value is headerTypes => value !== undefined;
 
-    $: sort = btoa(JSON.stringify(sorts)), dispatch("sort", convertTableSortToPrismaSort(sorts));
+    $: sort = convertTableSortToPrismaSort(sorts);
 
     $: columns = headers === undefined ? cols : headers.filter(h => h !== undefined).length;
 
