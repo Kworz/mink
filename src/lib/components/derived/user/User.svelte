@@ -1,14 +1,13 @@
 <script lang="ts">
+    import type { user } from "@prisma/client";
     import { browser } from "$app/environment";
-    import type { User as UserDB } from "@prisma/client";
     import { User } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
 
-    export let user: UserDB | null | undefined;
-
+    export let user: user | null | undefined;
 </script>
 
-<a href="/app/users/{user?.id}" class="inline-flex shrink-0 flex-row items-center gap-3 p-1 pr-4 rounded-full bg-zinc-700 dark:bg-white text-white dark:text-zinc-700 hover:text-violet-400">
+<a href="/app/users/{user?.id}" class="inline-flex shrink-0 flex-row items-center gap-3 p-1 pr-4 rounded-full bg-zinc-900 ring-1 ring-zinc-400/25 text-white  hover:text-violet-400">
     {#if user?.avatar !== "" && user?.avatar !== undefined && browser}
         <img src={user.avatar} class="w-6 h-6 rounded-full" alt={user.username + " avatar"} />
     {:else}
