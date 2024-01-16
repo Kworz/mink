@@ -83,8 +83,6 @@
     $: suggestions = predictField(tempFilter, availableFilters), selectedSuggestion = 0;
 </script>
 
-{inputInvalid}
-
 {#if showCompleteFilter}
     <Modal title="Filter" on:close={() => showCompleteFilter = false}>
         {#each Object.keys(filter) as filterField, i}
