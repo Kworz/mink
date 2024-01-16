@@ -44,10 +44,7 @@ export const handle = (async ({ event, resolve }) => {
 
         event.locals.userSettings = getUserSettings(userSettings);
 
-        if(event.locals.userSettings.app_language){
-            console.log("set locale to " + event.locals.userSettings.app_language)
-            locale.set(event.locals.userSettings.app_language);
-        }
+        if(event.locals.userSettings.app_language) locale.set(event.locals.userSettings.app_language);
 
         if(event.route.id?.startsWith("/login") || event.route.id?.startsWith("/register"))
         {

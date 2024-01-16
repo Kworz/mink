@@ -27,8 +27,6 @@ export const actions: Actions = {
             if(Object.keys(user_settings_keys).indexOf(key) === -1)
                 throw "errors.app.user_settings.update.invalid_key";
 
-            console.log(value);
-
             await locals.prisma.user_settings.upsert({
                 where: { key: key as user_settings_keys, user_id: locals.session!.user.id },
                 create: { key: key as user_settings_keys, value, user_id: locals.session!.user.id },
