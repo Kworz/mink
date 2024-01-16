@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
     import ArticleFinder from "$lib/components/derived/article/ArticleFinder.svelte";
     import Button from "$lib/components/generics/Button.svelte";
@@ -22,6 +22,7 @@
     import Modal from "$lib/components/generics/modal/Modal.svelte";
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
     import { _ } from "svelte-i18n";
+    import { browser } from "$app/environment";
 
     let selectedArticle: scm_articleWithIncludes | undefined = undefined;
     let selectedArticleQuantity = 0;
@@ -31,6 +32,10 @@
 
     let selectedOrderRows: string[] = [];
 
+    let articleFilter = $page.url.searchParams.has("articleFilter") ? JSON.parse(atob($page.url.searchParams.get("articleFilter")!)) : undefined;
+
+    const refresh = () => { if(browser) goto(`?articleFilter=${btoa(JSON.stringify(articleFilter))}`); }
+
     export let data: PageData;
     export let form: ActionData;
 
@@ -39,8 +44,10 @@
     $: completeTotal = htTotal + tvaSubtotal;
 
     $: if(form?.deleteOrderRows !== undefined && "success" in form.deleteOrderRows) { deleteOrderRow = undefined; selectedOrderRows = []; }
-    
     $: if(form !== null) { invalidateAll(); selectedArticle = undefined; }
+
+    $: articleFilter, refresh();
+
 </script>
 
 <svelte:head>
@@ -247,7 +254,7 @@
         <h3 class="mb-3">{$_('app.action.add_article_to_order')}</h3>
         <form action="?/createOrderRow" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
             <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
-                <ArticleFinder articles={data.articles} bind:selectedArticle on:refreshArticles={() => invalidateAll()} />
+                <ArticleFinder articles={data.articles} bind:selectedArticle bind:filter={articleFilter} on:filter={() => invalidateAll()} />
             </div>     
              
             {#if selectedArticle !== undefined}

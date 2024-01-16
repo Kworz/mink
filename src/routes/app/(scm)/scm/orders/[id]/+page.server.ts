@@ -3,13 +3,15 @@ import { scm_order_state } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
 
-export const load = (async ({ params, locals }) => {
+export const load = (async ({ params, locals, url }) => {
 
-    const order = await locals.prisma.scm_order.findUniqueOrThrow({ where: { id: params.id }, include: { order_rows: { orderBy: { created: "desc" }, include: { article: true, project: true }}, supplier: true, issuer: true }});
+    const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(atob(url.searchParams.get("articleFilter")!)) : undefined;
+
+    const order = await locals.prisma.scm_order.findUniqueOrThrow({ where: { id: params.id }, include: { order_rows: { orderBy: { created: "asc" }, include: { article: true, project: true }}, supplier: true, issuer: true }});
 
     /// — Secondary data
     const projects = await locals.prisma.pr_project.findMany({ where: { closed: false }})
-    const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery });
+    const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery, where: articleFilter });
 
     return {
         order,
