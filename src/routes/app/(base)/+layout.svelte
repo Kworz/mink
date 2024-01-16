@@ -9,7 +9,7 @@
 
 </script>
 
-<Flex gap={0} class="h-screen w-screen overflow-hidden">
+<Flex gap={0} class="h-screen w-screen overflow-hidden" direction={$page.data.userSettings?.app_menu_left === false ? "rowReverse" : "row"}>
     <Menu>
         {#if $page.route.id !== "/app/(base)"}
             <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />

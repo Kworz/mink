@@ -8,12 +8,13 @@
     
     import type { LayoutData } from "./$types";
     import { _ } from "svelte-i18n";
+    import { page } from "$app/stores";
 
     export let data: LayoutData;
 
 </script>
 
-<Flex gap={0} class="h-screen w-screen overflow-hidden">
+<Flex gap={0} class="h-screen w-screen overflow-hidden" direction={$page.data.userSettings?.app_menu_left === false ? "rowReverse" : "row"}>
     <Menu>
         <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
 

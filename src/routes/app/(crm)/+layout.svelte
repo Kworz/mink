@@ -5,14 +5,15 @@
     import Menu from "$lib/components/generics/menu/Menu.svelte";
     import MenuItem from "$lib/components/generics/menu/MenuItem.svelte";
     import MenuSeparator from "$lib/components/generics/menu/MenuSeparator.svelte";
+    import { page } from "$app/stores";
 
 </script>
 
-<Flex gap={0} class="h-screen w-screen overflow-hidden">
+<Flex gap={0} class="h-screen w-screen overflow-hidden" direction={$page.data.userSettings?.app_menu_left === false ? "rowReverse" : "row"}>
     <Menu>
         <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
 
-        <MenuSeparator></MenuSeparator>
+        <MenuSeparator />
         <MenuItem icon={ListBullet} href="/app/crm/leads" label="Leads" />
         <MenuItem icon={UserGroup} href="/app/crm/companies" label="Sociétés & Contacts" />
         <MenuItem icon={Sparkles} href="/app/crm/interests" label="Interets" />

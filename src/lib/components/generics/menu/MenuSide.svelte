@@ -5,6 +5,7 @@
     import Portal from "svelte-portal";
 
     import { createEventDispatcher, onMount } from "svelte";
+    import { page } from "$app/stores";
 
     const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -25,7 +26,7 @@
 <svelte:window on:keydown={e => e.key === "Escape" && dispatch("close")} />
 
 <Portal target="body">
-    <div class="absolute z-50 top-4 right-4 bottom-4 rounded-xl shrink-0 ring-1 ring-zinc-400/25 bg-zinc-800 shadow-2xl duration-300 p-4 min-w-[25%] overflow-y-scroll">
+    <div class="absolute z-50 top-4 {$page.data.userSettings?.app_menu_left === false ? "left-4" : "right-5"} bottom-4 rounded-xl shrink-0 ring-1 ring-zinc-400/25 bg-zinc-800 shadow-2xl duration-300 p-4 min-w-[25%] overflow-y-scroll">
         <button class="absolute top-4 right-4" on:click={() => dispatch("close")}>
             <Icon src={XMark} class="h-4 w-4 text-red-500" />
         </button>
