@@ -4,7 +4,9 @@ import type { scm_assembly } from "@prisma/client";
 import type { PageServerLoad, Actions } from "./$types";
 import type { SCMAssemblyTree } from "$lib/components/derived/assemblies/assemblyTree";
 
-export const load = (async ({ locals, params }) => {
+export const load = (async ({ locals, params, url }) => {
+
+    const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(atob(url.searchParams.get("articleFilter")!)) : undefined;
 
     const assembly = await locals.prisma.scm_assembly.findUniqueOrThrow({ 
         where: { id: params.id }, 
@@ -12,7 +14,7 @@ export const load = (async ({ locals, params }) => {
     });
 
     const assemblies = await locals.prisma.scm_assembly.findMany({ select: { id: true, name: true}, where: { id: { notIn: [params.id, ...assembly.assembly_childrens.map(ac => ac.assembly_child_id)] }}});
-    const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery, take: 10, orderBy: { name: "asc" }});
+    const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery, take: 15, where: articleFilter });
 
     async function generateAssemblyTree(id: string): Promise<SCMAssemblyTree>
     {

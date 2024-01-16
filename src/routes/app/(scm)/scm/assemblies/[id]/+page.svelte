@@ -1,6 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import { invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import ArticleFinder from "$lib/components/derived/article/ArticleFinder.svelte";
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
@@ -24,9 +24,13 @@
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import { _ } from "svelte-i18n";
+    import { page } from "$app/stores";
+    import { browser } from "$app/environment";
 
     export let data: PageData;
     export let form: ActionData;
+
+    let articleFilter = $page.url.searchParams.has("articleFilter") ? JSON.parse(atob($page.url.searchParams.get("articleFilter")!)) : undefined;
 
     let editAssembly = false;
     let deleteAssembly = false;
@@ -43,9 +47,13 @@
     let selectedArticles: string[] = [];
     let selectedAssemblies: string[] = [];
 
+    const refresh = () => { if(browser) goto(`?articleFilter=${btoa(JSON.stringify(articleFilter))}`); }
+
     $: selectedRelations = [...selectedArticles, ...selectedAssemblies];
 
     $: if(form !== null) { invalidateAll(); editAssembly = false; copyAssembly = false; editAssemblyDeleteThumbnail = false; };
+
+    $: articleFilter, refresh();
 
 </script>
 
@@ -153,7 +161,7 @@
     </section>
 
     <Grid cols={1} gap={6} items="center" class="w-full">
-        <Table headers={["selectAll", { label: `${$_('app.generic.sub_assemblies')} (${data.assembly.assembly_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete') }]}>
+        <Table class="!mt-0" headers={["selectAll", { label: `${$_('app.generic.sub_assemblies')} (${data.assembly.assembly_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete') }]}>
             {#each data.assembly.assembly_childrens as subAssemblyRelation, index}
                 <TableCell class="items-center">                
                     <form action="?/updateAssemblyRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
@@ -203,7 +211,7 @@
             {/if}
         </Table>
 
-        <Table headers={["selectAll", { label: `${$_('app.generic.articles')} (${data.assembly.article_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete')}]}>
+        <Table class="!mt-0" headers={["selectAll", { label: `${$_('app.generic.articles')} (${data.assembly.article_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete')}]}>
             {#each data.assembly.article_childrens as subArticleRelation, index (subArticleRelation.id)}
                 <TableCell class="items-center">
                     <form action="?/updateAssemblyRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
@@ -242,7 +250,7 @@
                 <TableFootCell class="col-span-4">
                     <h3>{$_('app.action.add_article')}</h3>
                     <form action="?/addAssemblySubArticle" method="post" use:enhance class="flex flex-row gap-8 items-end mt-2">
-                        <ArticleFinder articles={data.articles} bind:selectedArticle={addArticleSelected} formFieldName="child_article_id" />
+                        <ArticleFinder articles={data.articles} bind:selectedArticle={addArticleSelected} bind:filter={articleFilter} formFieldName="child_article_id" />
                         {#if addArticleSelected !== undefined}
                             <FormInput name="quantity" label={$_('app.generic.quantity')} required type="number" />
                             <Button>{$_('app.action.add')}</Button>
