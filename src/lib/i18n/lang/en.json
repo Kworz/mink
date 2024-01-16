@@ -97,6 +97,11 @@
         },
         "filter": {
             "edit_filter": "Edit filter"
+        },
+        "empty_data": {
+            "title": "No data to display 🥲",
+            "description": "You need to create some data do to view it here!",
+            "action": "Create your first element!"
         }
     },
     "scm": {
