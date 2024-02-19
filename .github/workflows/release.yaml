@@ -51,5 +51,5 @@ jobs:
     if: needs.release.outputs.published == 'true'
 
     name: 🐳 Docker release
-    uses: kworz/mink/.github/workflows/docker-release.yml@main
+    uses: kworz/mink/.github/workflows/docker-release.yaml@main
     secrets: inherit
