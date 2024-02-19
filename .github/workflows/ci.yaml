@@ -1,0 +1,42 @@
+name: 🧪 CI
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: development
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: ⛏️ Setup PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: ⛏️ Setup node
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: '18.x'
+          cache: 'pnpm'
+
+      - name: 🗂️ Install packages 
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔄 Sync packages
+        run: pnpm run sync
+
+      - name: ✔️ Run linting
+        run: pnpm run lint
+
+      - name: 🧱 Build libraries
+        run: pnpm run build

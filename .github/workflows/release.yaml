@@ -1,0 +1,55 @@
+name: 🚀 Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: read
+
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+    
+    name: 📦 Final release
+    runs-on: ubuntu-latest
+
+    if: github.repository == 'kworz/mink'
+
+    steps:
+      - name: ↓ Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all history for changeset calculation
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: 📦 Setup node
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: '18.x'
+          cache: 'pnpm'
+      
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: 📝 Create Release Pull Request or keep building
+        id: changesets
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  docker-release:
+    needs: release
+    if: needs.release.outputs.published == 'true'
+
+    name: 🐳 Docker release
+    uses: kworz/mink/.github/workflows/docker-release.yml@main
+    secrets: inherit
