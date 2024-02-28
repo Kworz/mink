@@ -5,6 +5,7 @@ node_modules
 /data
 /package
 /static/uploads
+/src/lib/prisma-enums/
 .env
 .env.*
 !.env.example
