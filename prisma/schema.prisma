@@ -2,16 +2,22 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator enums {
+  provider = "node ./prisma/enum-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model user {
-  id                     String  @id @unique
+  id                     String  @id @unique @default(uuid())
 
   email                  String  @unique
   username               String  @unique
+
+  hashed_password        String
 
   avatar                 String?
 
@@ -19,7 +25,6 @@ model user {
   created                DateTime @default(now())
 
   auth_session           auth_session[]
-  key                    auth_key[]
 
   user_settings          user_settings[]
 
@@ -36,6 +41,13 @@ model user {
 
 }
 
+model auth_session {
+  id                String  @id
+  userId            String
+  expiresAt         DateTime
+  user              user @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
 model user_invitation {
 
   id                     String  @id @unique @default(uuid())
@@ -43,23 +55,6 @@ model user_invitation {
 
   created                DateTime @default(now())
   
-}
-
-model auth_session {
-  id                String  @id @unique
-  user_id           String  
-  active_expires    BigInt
-  idle_expires      BigInt
-  user              user @relation(references: [id], fields: [user_id], onDelete: Cascade)
-}
-
-model auth_key {
-  id                  String  @id @unique
-  hashed_password     String?
-  user_id             String
-  user                user    @relation(references: [id], fields: [user_id], onDelete: Cascade)
-
-  @@index([user_id])
 }
 
 model app_settings {
