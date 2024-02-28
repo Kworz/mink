@@ -1,5 +1,5 @@
 #Build step
-FROM node:20-alpine as builder
+FROM node:20-alpine as base
 
 #Enable pnpm
 ENV PNPM_HOME="/pnpm"
@@ -8,29 +8,34 @@ RUN corepack enable
 
 # Copy files
 WORKDIR /mink
+
+# Copy project files
 COPY package.json ./
 COPY pnpm-lock.yaml ./
+COPY prisma/ /mink/prisma
+
+# ——— install build project
+FROM base as builder
+
+# Install devDependencies
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY . . 
 
-RUN pnpm i
+# Sync sveltekit and build project
+RUN pnpm prisma generate
+RUN pnpm sync
 RUN pnpm build
-RUN pnpm prune --production
 
-# Runtime step
-FROM node:20-alpine
+#remove devDependencies
+RUN pnpm prune --prod
 
-#Enable pnpm
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+# ——— Production final image
+FROM base as production
 
 # Copy files from builder
-WORKDIR /mink
-COPY --from=builder /mink/build build/
-COPY --from=builder /mink/node_modules node_modules/
-COPY --from=builder /app/prisma /prisma
-COPY package.json .
-COPY entrypoint.sh .
+COPY --from=builder /mink/node_modules/ /mink/node_modules/
+COPY --from=builder /mink/build /mink/build
+COPY --from=builder /mink/prisma /mink/prisma
 
 #Final params
 EXPOSE 3000
