@@ -1,12 +1,11 @@
 import { redirect, type Actions, fail } from "@sveltejs/kit";
-import { auth } from "$lib/server/lucia";
+import { lucia } from "$lib/server/lucia";
+import { hash } from "argon2";
 
 export const actions: Actions = {
-    default: async ({ request, locals }) => {
+    default: async ({ request, locals, cookies }) => {
 
         const formData = await request.formData();
-
-        const authValidator = auth(locals.prisma);
 
         try {
             
@@ -19,18 +18,20 @@ export const actions: Actions = {
                 throw "invalid form data";
             }
 
-            await authValidator.createUser({
-				key: {
-					providerId: "username",
-					providerUserId: username.toLowerCase(),
-					password
-				},
-                //@ts-ignore
-				attributes: {
-					username,
-                    email
-				}
-			});
+            const hashedPassword = await hash(password);
+
+            const { id } = await locals.prisma.user.create({
+                data: {
+                    username,
+                    email,
+                    hashed_password: hashedPassword
+                }
+            });
+
+            const session = await lucia.createSession(id, {});
+            const sessionCookie = lucia.createSessionCookie(session.id);
+
+            cookies.set(sessionCookie.name, sessionCookie.value, { path: '.', ...sessionCookie.attributes });
 
         }
         catch(ex)

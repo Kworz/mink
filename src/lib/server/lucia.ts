@@ -1,32 +1,29 @@
-import { lucia } from "lucia";
-import { sveltekit } from "lucia/middleware";
-import { prisma } from "@lucia-auth/adapter-prisma";
+import { Lucia, TimeSpan } from "lucia";
+import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
+import { prisma } from "./prisma";
 import { dev } from "$app/environment";
-import type { PrismaClient } from "@prisma/client";
+import type { user } from "@prisma/client";
 
-export const auth = (prismaClient: PrismaClient) => {
-    return lucia({
-        adapter: prisma(prismaClient, {
-            user: "user",
-            session: "auth_session",
-            key: "auth_key"
-        }),
-        env: dev ? "DEV" : "PROD",
-        middleware: sveltekit(),
-    
-        getUserAttributes: (data) => {
-            return {
-                id: data.id,
-                username: data.username,
-                email: data.email,
-                
-                avatar: data.avatar,
+const prismaAdapter = new PrismaAdapter(prisma.auth_session, prisma.user);
 
-                created: data.created,
-                updated: data.updated
-            }
+export const lucia = new Lucia(prismaAdapter, {
+
+    sessionExpiresIn: new TimeSpan(7, "d"),
+    sessionCookie: {
+        attributes: {
+            secure: !dev,
         }
-    });
+    },
+
+    getUserAttributes: (attributes) => {
+        return { ...attributes, hashed_password: undefined };
+    } 
+});
+
+declare module "lucia" {
+    interface Register {
+        Lucia: typeof lucia;
+        DatabaseUserAttributes: Omit<user, "hashed_password">;
+    }
 }
-    
-export type Auth = ReturnType<typeof auth>;
+

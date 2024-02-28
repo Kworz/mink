@@ -1,16 +1,15 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { auth as authServer } from "$lib/server/lucia";
+import { lucia } from "$lib/server/lucia";
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ locals, cookies }) => {
 
-    const session = await locals.lucia.validate();
-    
-    if (!session)
+    if (!locals.session)
         throw redirect(302, "/login");
-
-    await authServer(locals.prisma).invalidateSession(session.sessionId);
-    locals.lucia.setSession(null);
+    
+    await lucia.invalidateSession(locals.session.id);
+    const sessionCookie = lucia.createBlankSessionCookie();
+    cookies.set(sessionCookie.name, sessionCookie.value, { path: '.', ...sessionCookie.attributes });
 
     throw redirect(302, "/login");
 
