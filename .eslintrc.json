@@ -2,6 +2,7 @@
     "extends": [
         "plugin:svelte/recommended"
     ],
+    "plugins": ["@typescript-eslint"],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "project": "./tsconfig.json",
@@ -21,6 +22,12 @@
         }
     ],
     "rules": {
-        "camelcase": ["warn", { "properties": "never" }]
+        "@typescript-eslint/naming-convention": [
+            "error",
+            {
+                "selector": "variableLike", "format": ["camelCase"]
+            }
+        ],
+        "@typescript-eslint/consistent-type-imports": "error"
     }
 }
