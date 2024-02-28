@@ -94,7 +94,7 @@
         {#each data.articles as article (article.id)}
 
             {@const price = computeArticlePrice(article.order_rows)}
-            {@const stock_quantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
+            {@const stockQuantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((c, p) => p.quantity + c, 0)}
 
                 <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
                 <TableCell>
@@ -106,13 +106,13 @@
                 <TableCell>
                     {#if article.critical_quantity}
                         <span
-                            class:text-red-500={stock_quantity <= article.critical_quantity}
-                            class:font-semibold={stock_quantity <= article.critical_quantity}
+                            class:text-red-500={stockQuantity <= article.critical_quantity}
+                            class:font-semibold={stockQuantity <= article.critical_quantity}
                         >
-                            {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stock_quantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
+                            {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stockQuantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
                         </span>         
                     {:else}               
-                        {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stock_quantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
+                        {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stockQuantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
                     {/if}
                 </TableCell>
                 <TableCell>
@@ -134,7 +134,7 @@
                 <TableCell>{(article.internal) ? $page.data.appSettings.company_name : article.brand}</TableCell>
                 
                 <TableCell><Price value={price} /></TableCell>
-                <TableCell><Price value={price * stock_quantity} /></TableCell>
+                <TableCell><Price value={price * stockQuantity} /></TableCell>
         {/each}
     </Table>
 

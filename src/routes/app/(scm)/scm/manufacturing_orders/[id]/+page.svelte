@@ -11,7 +11,8 @@
     import Modal from "$lib/components/generics/modal/Modal.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
-    import { scm_manufacturing_order_state, type scm_store } from "@prisma/client";
+    import type { scm_store } from "@prisma/client";
+    import { scm_manufacturing_order_state } from "$lib/prisma-enums";
     import { Trash, Wrench } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
     import { _ } from "svelte-i18n";

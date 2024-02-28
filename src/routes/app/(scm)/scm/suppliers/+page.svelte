@@ -11,11 +11,12 @@
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
-    import { payment_method, payment_rule, type scm_supplier } from "@prisma/client";
+    import type { scm_supplier } from "@prisma/client";
     import { Home, PlusCircle } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import { page } from "$app/stores";
+    import { payment_method, payment_rule } from "$lib/prisma-enums";
 
     export let data: PageData;
     export let form: ActionData;

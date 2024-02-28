@@ -1,7 +1,7 @@
 import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
-import { scm_manufacturing_order_state } from "@prisma/client";
+import Prisma from "@prisma/client";
 
 export const load = (async ({ locals }) => {
 
@@ -38,9 +38,9 @@ export const actions: Actions = {
         const manufacturingOrder = await locals.prisma.scm_manufacturing_order.create({
             data: {
                 article_id: articleId,
-                askedBy_id: locals.session!.user.id,
+                askedBy_id: locals.user!.id,
                 receiver_id: receiverId,
-                state: scm_manufacturing_order_state.draft,
+                state: Prisma.scm_manufacturing_order_state.draft,
                 end_date: endDate,
                 quantity
             }

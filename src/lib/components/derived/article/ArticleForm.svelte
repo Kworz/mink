@@ -1,8 +1,9 @@
 <script lang="ts">
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
-    import { type scm_article, unit_of_work } from "@prisma/client";
     import { page } from "$app/stores";
     import { _ } from "svelte-i18n";
+    import { unit_of_work } from "$lib/prisma-enums";
+    import type { scm_article } from "@prisma/client";
 
     export let article: scm_article = {
         id: "",

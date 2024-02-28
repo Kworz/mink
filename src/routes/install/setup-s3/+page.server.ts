@@ -1,12 +1,21 @@
 import { fail, redirect } from "@sveltejs/kit";
-import type { Actions } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { S3 } from "@aws-sdk/client-s3";
+
+export const load = (async ({ locals }) => {
+
+    const appS3Bucket = await locals.prisma.app_settings.findFirst({ where: { key: "app_s3_bucketname" }});
+
+    if(appS3Bucket !== null)
+        return redirect(303, "/install/setup-company");
+
+}) satisfies PageServerLoad;
 
 export const actions: Actions = {
 
     setupS3: async ({ locals, request }) => {
 
-        const S3Regions = [
+        const s3Regions = [
             "us-east-2",
             "us-east-1",
             "us-west-1",
@@ -34,16 +43,16 @@ export const actions: Actions = {
 
         const form = await request.formData();
 
-        const S3Bucket = form.get("s3_bucket")?.toString();
-        const S3Region = form.get("s3_region")?.toString();
+        const s3Bucket = form.get("s3_bucket")?.toString();
+        const s3Region = form.get("s3_region")?.toString();
 
-        if(S3Bucket === undefined || S3Bucket.length === 0)
+        if(s3Bucket === undefined || s3Bucket.length === 0)
             return fail(400, { setupS3: { error: "errors.app.setup_s3.bucket_name_invalid" }});
 
-        if(S3Region === undefined || S3Region.length === 0 || !S3Regions.includes(S3Region))
+        if(s3Region === undefined || s3Region.length === 0 || !s3Regions.includes(s3Region))
             return fail(400, { setupS3: { error: "errors.app.setup_s3.region_invalid" }});
 
-        const S3Client = new S3({ region: S3Region, 
+        const s3Client = new S3({ region: s3Region, 
             credentials: { 
                 accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
                 secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string
@@ -52,7 +61,7 @@ export const actions: Actions = {
         
         try
         {
-            await S3Client.headBucket({ Bucket: S3Bucket });
+            await s3Client.headBucket({ Bucket: s3Bucket });
         }
         catch(ex)
         {
@@ -63,11 +72,11 @@ export const actions: Actions = {
             data: [
                 {
                     key: "app_s3_bucketname",
-                    value: S3Bucket
+                    value: s3Bucket
                 },
                 {
                     key: "app_s3_region",
-                    value: S3Region
+                    value: s3Region
                 }
             ]
         });

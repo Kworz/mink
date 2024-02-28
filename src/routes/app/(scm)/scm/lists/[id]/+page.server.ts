@@ -93,7 +93,7 @@ export const actions: Actions = {
                 data: {
                     article_id: articleId,
                     quantity_update: articleQuantityDelta,
-                    user_id: locals.session!.user.id,
+                    user_id: locals.user!.id,
                     store_in_id: list.store_id,
                     store_out_id: storeToUseId
                 }
@@ -125,7 +125,7 @@ export const actions: Actions = {
                 data: {
                     article_id: articleId,
                     quantity_update: -articleQuantityDelta,
-                    user_id: locals.session!.user.id,
+                    user_id: locals.user!.id,
                     store_in_id: storeToUseId,
                     store_out_id: list.store_id,
                 }

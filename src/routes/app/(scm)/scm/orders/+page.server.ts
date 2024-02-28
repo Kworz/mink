@@ -44,12 +44,12 @@ export const actions: Actions = {
             
             const form = await request.formData();
             form.set("sub_id", subId);
-            form.set("issuer_id", locals.session?.user.userId);
+            form.set("issuer_id", String(locals.user?.id));
 
             createdOrder = await locals.prisma.scm_order.create({
                 data: {
                     ...Object.fromEntries(form.entries()) as unknown as scm_order, 
-                    vat: locals.appSettings.company_default_vat
+                    vat: locals.appSettings!.company_default_vat
                 }
             });
         }

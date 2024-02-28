@@ -1,5 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import Prisma from "@prisma/client";
+import { building } from "$app/environment";
 
-export const prisma = new PrismaClient();
+export const prisma = new Prisma.PrismaClient();
 
-prisma.$connect();
+// Do not connect to the database if we are building the app
+if(!building)
+    prisma.$connect();

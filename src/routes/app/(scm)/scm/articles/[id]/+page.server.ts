@@ -1,6 +1,7 @@
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import { redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
+import type { unit_of_work } from "@prisma/client";
 
 export const load = (async ({ params, locals }) => {
 
@@ -75,7 +76,7 @@ export const actions: Actions = {
                     order_quantity: orderQuantity ? orderQuantity : undefined,
                     critical_quantity: criticalQuantity ? criticalQuantity : undefined,
 
-                    unit: form.get("unit")?.toString(),
+                    unit: form.get("unit")?.toString() as unit_of_work,
                     unit_quantity: unitQuantity ? unitQuantity : undefined
 
                 }
@@ -151,7 +152,7 @@ export const actions: Actions = {
                 await locals.prisma.scm_article_movements.create({
                     data: {
                         article_id: params.id,
-                        user_id: locals.session.user.userId,
+                        user_id: locals.user!.id,
                         quantity_update: quantityDelta,
                         store_in_id: storeInID,
                         store_out_id: storeOutID
@@ -170,7 +171,7 @@ export const actions: Actions = {
                 await locals.prisma.scm_article_movements.create({
                     data: {
                         article_id: params.id,
-                        user_id: locals.session.user.userId,
+                        user_id: locals.user!.id,
                         quantity_update: quantityDelta,
                         store_in_id: storeInID,
                         store_out_id: storeOutID
@@ -196,7 +197,7 @@ export const actions: Actions = {
                 await locals.prisma.scm_article_movements.create({
                     data: {
                         article_id: params.id,
-                        user_id: locals.session.user.userId,
+                        user_id: locals.user!.id,
                         quantity_update: quantityDelta,
                         store_in_id: storeInID,
                         store_out_id: storeOutID

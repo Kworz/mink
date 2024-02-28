@@ -69,11 +69,11 @@
         <p>Parsing CSV file</p>
     {:then parsed}
         <Table headers={parsed.headers.map(h => ({ label: h }))}>
-            {#each parsed.headers as _, i}
+            {#each parsed.headers as _header, i}
                 <TableCell>
                     <FormInput type="select" name="column#{i}" bind:value={columns[i]}>
                         <option value={null}>Ignorer</option>
-                        {#each availableColumns.filter(ac => !(columns.filter((_, j) => i !== j).includes(ac))) as ac}
+                        {#each availableColumns.filter(ac => !(columns.filter((column, j) => i !== j).includes(ac))) as ac}
                             <option value={ac}>{ac}</option>
                         {/each}
                     </FormInput>

@@ -1,10 +1,10 @@
 <script lang="ts">
-    import type { user } from "@prisma/client";
+    import type { user as userType } from "@prisma/client";
     import { browser } from "$app/environment";
     import { User } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
 
-    export let user: user | null | undefined;
+    export let user: userType | null | undefined;
 </script>
 
 <a href="/app/users/{user?.id}" class="inline-flex shrink-0 flex-row items-center gap-3 p-1 pr-4 rounded-full bg-zinc-900 ring-1 ring-zinc-400/25 text-white  hover:text-violet-400">

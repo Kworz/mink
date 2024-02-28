@@ -107,7 +107,7 @@
     <Input bind:value={tempFilter} placeholder={"Filtre"} on:keydown={inputKeyUp} bind:input={inputElement} invalid={inputInvalid}>
         <svelte:fragment slot="before">
             {#if Object.keys(filter).length > 0}
-                <button role="button" on:click|preventDefault={() => showCompleteFilter = true} class="text-violet-500 hover:text-violet-500/75 duration-100 text-sm flex flex-row items-center gap-1 ml-2">
+                <button on:click|preventDefault={() => showCompleteFilter = true} class="text-violet-500 hover:text-violet-500/75 duration-100 text-sm flex flex-row items-center gap-1 ml-2">
                     <Icon src={Funnel} class="h-5 w-5"/>
                     {$_('app.filter.edit_filter')}
                 </button>

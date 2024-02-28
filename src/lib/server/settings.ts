@@ -1,4 +1,4 @@
-import { app_settings_keys, user_settings_keys, type app_settings, type user_settings } from "@prisma/client";
+import type { app_settings_keys, app_settings, user_settings_keys, user_settings } from "@prisma/client";
 
 const defaultSettings = {
 

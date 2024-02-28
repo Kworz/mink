@@ -18,11 +18,11 @@
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
     import Date from "$lib/components/generics/formatters/Date.svelte";
     import { enhance } from "$app/forms";
-    import { scm_order_state } from "@prisma/client";
     import Modal from "$lib/components/generics/modal/Modal.svelte";
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
     import { _ } from "svelte-i18n";
     import { browser } from "$app/environment";
+    import { scm_order_state } from "$lib/prisma-enums";
 
     let selectedArticle: scm_articleWithIncludes | undefined = undefined;
     let selectedArticleQuantity = 0;

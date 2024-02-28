@@ -7,14 +7,13 @@
     import { _ } from "svelte-i18n";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
 
-    export let data: PageData;
     export let form: ActionData;
 
     $: if(form !== null) { invalidateAll(); }
 
 </script>
 
-<h1>Profil de {$page.data.session?.user.username}</h1>
+<h1>Profil de {$page.data.user?.username}</h1>
 <p>Modifiez votre profil ici</p>
 
 <h2>Réglages personel de mink</h2>

@@ -1,7 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
-import { scm_manufacturing_order_state } from "@prisma/client";
+import Prisma, { type scm_manufacturing_order_state } from "@prisma/client";
 
 export const load = (async ({ params, locals }) => {
 
@@ -43,7 +43,7 @@ export const actions: Actions = {
             const state = form.get("state")?.toString(); 
                         
             if(Number.isNaN(quantity)) return fail(400, { editManufacturingOrder: { error: "error.manufacturing_order.edit.quantity_invalid" }});
-            if(state === undefined || state === "" || !Object.keys(scm_manufacturing_order_state).includes(state)) return fail(400, { editManufacturingOrder: { error: "error.manufacturing_order.edit.state_invalid" }});
+            if(state === undefined || state === "" || !Object.keys(Prisma.scm_manufacturing_order_state).includes(state)) return fail(400, { editManufacturingOrder: { error: "error.manufacturing_order.edit.state_invalid" }});
 
             const { state: oldState } = await locals.prisma.scm_manufacturing_order.findUniqueOrThrow({ where: { id: params.id }});
 
@@ -58,7 +58,7 @@ export const actions: Actions = {
             {
                 await locals.prisma.scm_manufacturing_oder_state_change.create({ data: {
                     manufacturing_order_id: params.id,
-                    user_id: locals.session!.user.id,
+                    user_id: locals.user!.id,
                     state: state as scm_manufacturing_order_state,
                 }})
             }
@@ -90,14 +90,14 @@ export const actions: Actions = {
                     return fail(400, { completeManufacturingOrder: { error: "error.scm.manufacturing_order.complete.missing_store_in", stores: await locals.prisma.scm_store.findMany({ where: { temporary: false }}) }});
             }
 
-            await locals.prisma.scm_manufacturing_oder_state_change.create({ data: { manufacturing_order_id: params.id, state: "completed", user_id: locals.session!.user.id }});
+            await locals.prisma.scm_manufacturing_oder_state_change.create({ data: { manufacturing_order_id: params.id, state: "completed", user_id: locals.user!.id }});
             const manufacturingOrder = await locals.prisma.scm_manufacturing_order.update({ where: { id: params.id }, data: { state: "completed" }});
 
             await locals.prisma.scm_article_movements.create({ data: { 
                 article_id: manufacturingOrder.article_id, 
                 store_in_id: storeIn, 
                 quantity_update: manufacturingOrder.quantity, 
-                user_id: locals.session!.user.id }
+                user_id: locals.user!.id }
             });
 
             await locals.prisma.scm_store_relation.upsert({ 

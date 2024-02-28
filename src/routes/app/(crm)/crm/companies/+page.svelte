@@ -13,10 +13,11 @@
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import PillMenu from "$lib/components/generics/pill/pillMenu.svelte";
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
-    import { crm_company_size, type crm_company, type crm_company_contact } from "@prisma/client";
+    import type { crm_company, crm_company_contact } from "@prisma/client";
     import { BuildingOffice, ChevronDown, ChevronUp, Wrench } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData, Snapshot } from "./$types";
+    import { crm_company_size } from "$lib/prisma-enums";
 
     export let data: PageData;
     export let form: ActionData;

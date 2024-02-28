@@ -3,6 +3,7 @@ import type { RequestHandler } from "@sveltejs/kit";
 import xlsx, { type WorkSheetOptions } from "node-xlsx";
 import { flatAssembly } from "$lib/components/derived/assemblies/flattenAssembly";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const GET: RequestHandler = async ({ params, locals }) => {
 
     try
@@ -35,7 +36,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
                 listRelationArticle?.quantity ?? 0,
                 far.quantity,
                 far.quantity <= (listRelationArticle?.quantity ?? 0) ? "Oui" : "Non",
-                far.article_child.internal ? locals.appSettings.company_name : (far.article_child.brand ?? ""),
+                far.article_child.internal ? locals.appSettings!.company_name : (far.article_child.brand ?? ""),
                 "Suppliers are empty for now",
                 far.article_child.reference ?? "",
                 "Article prices are empty for now"

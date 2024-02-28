@@ -1,10 +1,20 @@
 import { fail, redirect } from "@sveltejs/kit";
-import type { Actions } from "./$types";
-import { auth } from "$lib/server/lucia";
+import type { Actions, PageServerLoad } from "./$types";
+import { lucia } from "$lib/server/lucia";
+import { hash } from "argon2";
+
+export const load = (async ({ locals }) => {
+
+    const userCount = await locals.prisma.user.count();
+
+    if(userCount > 0)
+        return redirect(303, "/install/setup-s3");
+
+}) satisfies PageServerLoad;
 
 export const actions = {
 
-    createFirstAccount: async ({ locals, request }) => {
+    createFirstAccount: async ({ locals, request, cookies }) => {
         const form = await request.formData();
 
         try
@@ -23,33 +33,20 @@ export const actions = {
             if(username?.length < 3)
                 throw new Error("Username must be at least 3 characters long");
 
-            const luciaAuth = auth(locals.prisma);
+            const hashedPassword = await hash(password); // hash password using argon2
 
-            await luciaAuth.createUser({
-				key: {
-					providerId: "username", // auth method
-					providerUserId: username.toLowerCase(), // unique id when using "username" auth method
-					password // hashed by Lucia
-				},
-                //@ts-ignore
-				attributes: {
-					username,
-                    email
-				}
-			});
+            const { id } = await locals.prisma.user.create({
+                data: {
+                    username,
+                    email,
+                    hashed_password: hashedPassword
+                }
+            });
 
-            const key = await luciaAuth.useKey(
-				"username",
-				username.toLowerCase(),
-				password
-			);
-			const session = await luciaAuth.createSession({
-				userId: key.userId,
-                //@ts-ignore
-				attributes: {}
-			});
+            const session = await lucia.createSession(id, {});
+            const sessionCookie = lucia.createSessionCookie(session.id);
 
-            locals.lucia.setSession(session); // set session cookie
+            cookies.set(sessionCookie.name, sessionCookie.value, { path: '.', ...sessionCookie.attributes });
             
         }
         catch(ex)

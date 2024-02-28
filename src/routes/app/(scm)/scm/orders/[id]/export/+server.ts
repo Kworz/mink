@@ -4,6 +4,7 @@ import type jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { RequestHandler } from "./$types";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const GET: RequestHandler = async ({ params, locals }) => {
 
     try
@@ -54,18 +55,18 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
             doc.setFontSize(14);
             doc.text(order.supplier.name, 7.5, 35);
-            doc.text(locals.appSettings.company_name, 210 / 2 + 7.5, 35);
+            doc.text(locals.appSettings!.company_name, 210 / 2 + 7.5, 35);
             doc.setFontSize(12);
 
             const supplierAddress = [order.supplier.address_road, order.supplier.address_postal_code, order.supplier.address_city, order.supplier.address_city].filter(k => k !== null) as string[];
             if(supplierAddress.length > 0) doc.text(supplierAddress, 7.5, 52);
 
-            const companyAddress = [locals.appSettings.company_address_road, locals.appSettings.company_address_postal_code, locals.appSettings.company_address_city, locals.appSettings.company_address_country].filter(k => k !== null) as string[];
+            const companyAddress = [locals.appSettings!.company_address_road, locals.appSettings!.company_address_postal_code, locals.appSettings!.company_address_city, locals.appSettings!.company_address_country].filter(k => k !== null) as string[];
             if(companyAddress.length > 0) doc.text(companyAddress, 210 / 2 + 7.5, 52);
 
             doc.setTextColor(139, 92 ,246)
             if(order.supplier.email) doc.textWithLink(order.supplier.email, 7.5, 45, { url: `mailto:${order.supplier.email}` })
-            doc.textWithLink(`Suivi par ${locals.session?.user.email}`, 210 / 2 + 7.5, 45, { url: `mailto:${locals.session?.user.email}` })
+            doc.textWithLink(`Suivi par ${locals.user?.email}`, 210 / 2 + 7.5, 45, { url: `mailto:${locals.user?.email}` })
             doc.setTextColor(0x22, 0x22, 0x22);
 
             doc.setFontSize(10);

@@ -66,7 +66,7 @@ export const actions: Actions = {
                 data: {
                     article_id: articleId,
                     quantity_update: quantityReceived,
-                    user_id: locals.session.user.userId,
+                    user_id: locals.user!.id,
                     store_in_id: storeInId,
                 }
             });

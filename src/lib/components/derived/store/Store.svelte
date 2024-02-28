@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { SCMStore } from "@prisma/client";
+    import type { scm_store } from "@prisma/client";
 
-    export let store: SCMStore | undefined;
+    export let store: scm_store | undefined;
 
 </script>
 

@@ -1,8 +1,7 @@
-import { payment_method, payment_rule } from "@prisma/client";
+import Prisma, { type payment_method, type payment_rule } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
 import { DeleteObjectCommand, PutObjectAclCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { env } from "$env/dynamic/private";
 
 export const load = (async ({ locals }) => {
 
@@ -38,13 +37,13 @@ export const actions: Actions = {
             const paymentRule = form.get("payment_rule")?.toString();
             const paymentMethod = form.getAll("payment_method").map(m => m.toString());
 
-            if(paymentMethod !== undefined && !paymentMethod.every(m => Object.keys(payment_method).indexOf(m) !== -1))
+            if(paymentMethod !== undefined && !paymentMethod.every(m => Object.keys(Prisma.payment_method).indexOf(m) !== -1))
                 throw "scm.supplier.update.error.invalid_payment_method";
             
-            if(paymentRule !== undefined && Object.keys(payment_rule).indexOf(paymentRule) === -1)
+            if(paymentRule !== undefined && Object.keys(Prisma.payment_rule).indexOf(paymentRule) === -1)
                 throw "scm.supplier.update.error.invalid_payment_rule";
 
-            const { id, logo: Oldlogo } = await locals.prisma.scm_supplier.upsert({
+            const { id, logo: oldLogo } = await locals.prisma.scm_supplier.upsert({
                 where: { id: supplierId ?? "" },
                 create: {
                     name,
@@ -73,11 +72,11 @@ export const actions: Actions = {
             let logo: File | null | undefined = form.get("logo") as File | null;
             logo = (logo?.size ?? 0) === 0 ? undefined : logo;
 
-            if(Oldlogo !== null && (!form.has("logo") || logo === undefined))
+            if(oldLogo !== null && (!form.has("logo") || logo === undefined))
             {
                 const deleteObjectCommand = new DeleteObjectCommand({
-                    Bucket: locals.appSettings.app_s3_bucketname,
-                    Key: `scm/supplier/${id}/logo.${Oldlogo.split(".").at(-1)}`
+                    Bucket: locals.appSettings!.app_s3_bucketname,
+                    Key: `scm/supplier/${id}/logo.${oldLogo.split(".").at(-1)}`
                 });
 
                 const deleteResult = await locals.s3.send(deleteObjectCommand);
@@ -93,7 +92,7 @@ export const actions: Actions = {
                 const newLogoName = `logo.${logo.name.split(".").at(-1)}`;
 
                 const uploadCommand = new PutObjectCommand({
-                    Bucket: locals.appSettings.app_s3_bucketname,
+                    Bucket: locals.appSettings!.app_s3_bucketname,
                     Key: `scm/supplier/${id}/${newLogoName}`,
 
                     //@ts-ignore
@@ -106,7 +105,7 @@ export const actions: Actions = {
                     throw "scm.supplier.update.error.logo_upload_failed";
 
                 const aclCommand = new PutObjectAclCommand({
-                    Bucket: locals.appSettings.app_s3_bucketname,
+                    Bucket: locals.appSettings!.app_s3_bucketname,
                     Key: `scm/supplier/${id}/${newLogoName}`,
                     ACL: "public-read"
                 });

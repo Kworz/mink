@@ -1,12 +1,8 @@
-import { user_settings_keys } from "@prisma/client";
-import type { Actions, PageServerLoad } from "./$types";
+import type { user_settings_keys } from "@prisma/client";
+import type { Actions } from "./$types";
+
 import { fail } from "@sveltejs/kit";
-
-export const load = (async ({ locals }) => {
-
-    return { };
-
-}) satisfies PageServerLoad;
+import Prisma from "@prisma/client";
 
 export const actions: Actions = {
     updateUserSettings: async ({ request, locals }) => {
@@ -24,12 +20,12 @@ export const actions: Actions = {
             if(key === undefined || value === undefined)
                 throw "errors.app.user_settings.update.missing_key_or_value";
 
-            if(Object.keys(user_settings_keys).indexOf(key) === -1)
+            if(Object.keys(Prisma.user_settings_keys).indexOf(key) === -1)
                 throw "errors.app.user_settings.update.invalid_key";
 
             await locals.prisma.user_settings.upsert({
-                where: { key: key as user_settings_keys, user_id: locals.session!.user.id },
-                create: { key: key as user_settings_keys, value, user_id: locals.session!.user.id },
+                where: { user_id_key: { key: key as user_settings_keys, user_id: locals.user!.id }},
+                create: { key: key as user_settings_keys, value, user_id: locals.user!.id },
                 update: { value }
             });
 

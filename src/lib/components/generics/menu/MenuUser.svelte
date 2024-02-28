@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { User } from "@prisma/client";
+    import type { user as UserType } from "@prisma/client";
 
     import { ArrowRightOnRectangle, User as UserIcon } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { fade } from "svelte/transition";
 
-    export let user: User | null | undefined;
+    export let user: UserType | null | undefined;
 </script>
 
 <a href="/app/users/{user?.id}">

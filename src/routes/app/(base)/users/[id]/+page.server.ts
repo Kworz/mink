@@ -7,7 +7,7 @@ export const load = (async ({ locals, params }) => {
 
     if(user)
     {
-        if(user.id === locals.session?.user.id) return redirect(303, "/app/me");
+        if(user.id === locals.user?.id) return redirect(303, "/app/me");
 
         return { user };
     }

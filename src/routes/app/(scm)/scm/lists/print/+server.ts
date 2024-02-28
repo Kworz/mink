@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
 import { LabelDocument } from "$lib/label/labelDocument";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import type jsPDF from "jspdf";
 
 export const GET: RequestHandler = async ({ url, locals }) => {

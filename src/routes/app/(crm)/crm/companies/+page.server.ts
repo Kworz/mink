@@ -1,6 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { crm_company_size } from "@prisma/client";
+import type { crm_company_size } from "@prisma/client";
+import Prisma from "@prisma/client";
 
 export const load = (async ({ locals, url }) => {
 
@@ -28,7 +29,7 @@ export const actions: Actions = {
 
         const size = form.get("size")?.toString();
 
-        if(size === undefined || !(crm_company_size[size as (keyof typeof crm_company_size)] === undefined))
+        if(size === undefined || !(Prisma.crm_company_size[size as (keyof typeof crm_company_size)] === undefined))
             return fail(400, { createCompany: { error: "Invalid company size" }});
 
         const sector = form.get("sector")?.toString();
