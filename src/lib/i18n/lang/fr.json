@@ -109,7 +109,11 @@
             "article_in_stock": "{n} en stock.",
             "in_stock": "en stock.",
             "in_inbounds": "en approvisionement.",
-            "in_manufacturing": "en cours de fabrication."
+            "in_manufacturing": "en cours de fabrication.",
+            "supplier_name": "Nom du fournisseur",
+            "address": "Adresse",
+            "email_address": "Adresse email",
+            "actions": "Actions"
         },
         "time": {
             "hours": "Heures"
@@ -127,7 +131,8 @@
             "add_article_to_order": "Ajouter un article à la commande",
             "create_article": "Créer un article",
             "edit": "Modifier",
-            "update": "Modifier"
+            "update": "Modifier",
+            "confirm": "Confirmer"
         },
         "setup_s3": {
             "s3_region": "Région serveur S3",
@@ -270,6 +275,12 @@
                     "title": "Modifier l'article {name}"
                 }
             }
+        },
+        "suppliers": {
+            "list": {
+                "title": "Fournisseurs",
+                "desc": "Retrouvez ici la liste des fournisseurs de votre entreprise."
+            }
         }
     },
     "errors": {
@@ -285,6 +296,11 @@
                     "article_id_invalid": "La création de la ligne de commande n'as pas pu aboutir, l'identifiant de l'article founi n'est pas valide.",
                     "needed_quantity_invalid": "La création de la ligne de commande n'as pas pu aboutir, la quantité demandée n'est pas valide.",
                     "failed": "Une erreur est survenue lors de la création de la ligne de commande."
+                }
+            },
+            "supplier": {
+                "delete": {
+                    "has-dependencies": "Ce fournisseur posséde des dependances dans la base de données. Souhaitez vous supprimer ces dependances ?"
                 }
             }
         },

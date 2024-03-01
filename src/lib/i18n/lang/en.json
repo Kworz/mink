@@ -77,7 +77,11 @@
             "article_in_stock": "{n} in stock.",
             "in_stock": "in stock.",
             "in_inbounds": "to be received.",
-            "in_manufacturing": "to be manufactured."
+            "in_manufacturing": "to be manufactured.",
+            "supplier_name": "Supplier's name",
+            "address": "Address",
+            "email_address": "Email address",
+            "actions": "Actions"
         },
         "time": {
             "hours": "Hours"
@@ -94,7 +98,8 @@
             "complete": "Completed",
             "add_article_to_order": "Add an article to the order",
             "create_article": "Create an article",
-            "update": "Update"
+            "update": "Update",
+            "confirm": "Confirm"
         },
         "setup_s3": {
             "s3_bucket": "S3 Bucket name",
@@ -214,6 +219,12 @@
             "description": "Search in the articles database somes articles and manage them.",
             "action": {
                 "import_articles": "Import articles"
+            }
+        },
+        "suppliers": {
+            "list": {
+                "desc": "find here all the suppliers of your company.",
+                "title": "Suppliers"
             }
         }
     },
