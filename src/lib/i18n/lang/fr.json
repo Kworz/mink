@@ -113,7 +113,10 @@
             "supplier_name": "Nom du fournisseur",
             "address": "Adresse",
             "email_address": "Adresse email",
-            "actions": "Actions"
+            "actions": "Actions",
+            "store_name": "Nom de l'emplacement de stock",
+            "store_location": "Emplacement du stock",
+            "store": "Stock"
         },
         "time": {
             "hours": "Heures"
@@ -132,7 +135,9 @@
             "create_article": "Créer un article",
             "edit": "Modifier",
             "update": "Modifier",
-            "confirm": "Confirmer"
+            "confirm": "Confirmer",
+            "cancel": "Anuller",
+            "delete-force": "Supprimer quand même"
         },
         "setup_s3": {
             "s3_region": "Région serveur S3",
@@ -158,6 +163,15 @@
             "title": "Aucun élément à afficher 🥲",
             "description": "Vous n'avez pas encore créé d'élément ici!",
             "action": "Créer votre premier élément!"
+        },
+        "scm": {
+            "stores": {
+                "actions": {
+                    "create": "Créer un emplacement de stock"
+                },
+                "title": "Liste des stocks",
+                "desc": "Gérer la liste des vos stocks, créez plusieurs emplacements pour mieux vous y retrouver."
+            }
         }
     },
     "scm": {
@@ -301,6 +315,13 @@
             "supplier": {
                 "delete": {
                     "has-dependencies": "Ce fournisseur posséde des dependances dans la base de données. Souhaitez vous supprimer ces dependances ?"
+                }
+            },
+            "store": {
+                "delete": {
+                    "relations-exist": "Ce stock posséde des relations dans la base de données. Souhaitez vous supprimer ces relations ?",
+                    "store-relations-over-0": "Il y a {n} {n, plural, =1 {article référencé} other {articles référencés}} dans ce stock. La quantité de ces articles sera diminuée par la quantité présente dans le stock.",
+                    "article-movement-over-0": "Il y a {n} {n, plural, =1 {point} other {points}} d'historique de déplacement d'articles liés à ce stock. La stock sera remplacé par une valeur nulle."
                 }
             }
         },

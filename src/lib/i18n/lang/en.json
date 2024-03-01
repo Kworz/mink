@@ -81,7 +81,10 @@
             "supplier_name": "Supplier's name",
             "address": "Address",
             "email_address": "Email address",
-            "actions": "Actions"
+            "actions": "Actions",
+            "store_location": "Store location",
+            "store_name": "Store name",
+            "store": "Store"
         },
         "time": {
             "hours": "Hours"
@@ -99,7 +102,9 @@
             "add_article_to_order": "Add an article to the order",
             "create_article": "Create an article",
             "update": "Update",
-            "confirm": "Confirm"
+            "confirm": "Confirm",
+            "cancel": "Cancel",
+            "delete-force": "Confirm delete"
         },
         "setup_s3": {
             "s3_bucket": "S3 Bucket name",
@@ -113,6 +118,15 @@
             "title": "No data to display 🥲",
             "description": "You need to create some data do to view it here!",
             "action": "Create your first element!"
+        },
+        "scm": {
+            "stores": {
+                "actions": {
+                    "create": "Create a new store"
+                },
+                "title": "Stores list",
+                "desc": "Manage your stores, create multiple stores to get a clear view of your situation."
+            }
         }
     },
     "scm": {
@@ -241,6 +255,12 @@
                     "article_id_invalid": "Order row creation could not be done, article's unique identifier is invalid.",
                     "needed_quantity_invalid": "Order row creation could not be done, needed quantity is invalid.",
                     "failed": "An error has occured while creating the order row."
+                }
+            },
+            "store": {
+                "delete": {
+                    "store-relations-over-0": "There is {n} {n, plural, =1 {article} other {articles}} stored in this stock. Their quantity will be lowered by the amount available in this store.",
+                    "article-movement-over-0": "There is {n} {n, plural, =1 {article} other {articles}} movement history points linked to this stock. The store will be replaced by a null value."
                 }
             }
         },

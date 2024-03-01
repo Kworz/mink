@@ -214,10 +214,10 @@ model scm_article_movements {
   user user           @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   store_in_id         String?
-  store_in            scm_store? @relation("store_out", references: [id], fields: [store_in_id], onDelete: Cascade)
+  store_in            scm_store? @relation("store_out", references: [id], fields: [store_in_id], onDelete: SetNull)
 
   store_out_id        String?
-  store_out           scm_store? @relation("store_in", references: [id], fields: [store_out_id], onDelete: Cascade)
+  store_out           scm_store? @relation("store_in", references: [id], fields: [store_out_id], onDelete: SetNull)
 }
 
 model scm_store {

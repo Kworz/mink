@@ -11,9 +11,9 @@
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import type { scm_store } from "@prisma/client";
-    import { ExclamationTriangle, PlusCircle } from "@steeze-ui/heroicons";
-    import { Icon } from "@steeze-ui/svelte-icon";
+    import { PlusCircle } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
+    import { _ } from "svelte-i18n";
 
     export let data: PageData;
     export let form: ActionData;
@@ -29,29 +29,33 @@
 </script>
 
 <svelte:head>
-    <title>mink — Stocks</title>
+    <title>mink — {$_('app.generic.stores')}</title>
 </svelte:head>
 
-<h1>Emplacements de stock</h1>
-<p>Liste des emplacements de stocks</p>
+<h1>{$_('app.scm.stores.title')}</h1>
+<p>{$_('app.scm.stores.desc')}</p>
 
 <PillMenu>
-    <PillMenuButton click={() => createStore = !createStore} icon={PlusCircle}>Créer une liste</PillMenuButton>
+    <PillMenuButton click={() => createStore = !createStore} icon={PlusCircle}>{$_('app.scm.stores.actions.create')}</PillMenuButton>
 </PillMenu>
 
-{#if deleteStoreConfirm}
-    <Modal title="Supprimer {deleteStoreConfirm.name} ?" on:close={() => deleteStoreConfirm = undefined}>
+{#if form?.deleteStore?.error !== undefined}
+    <Modal title={$_('app.generic.error')} on:close={() => { deleteStoreConfirm = undefined; form = null; }}>
         
-        <p class="text-orange-500 font-semibold">
-            <Icon src={ExclamationTriangle} class="w-6 inline"/>
-            La supression d'un Stock entraine la disparition des éléments associés à ce stock.
-        </p>
+        <p>{$_(form.deleteStore.error)}</p>
 
-        <p class="mt-2">Confirmez la suppréssion de {deleteStoreConfirm.name} ?</p>
+        {#if form.deleteStore.error === "errors.scm.store.delete.relations-exist"}
+            <ul>
+                {#if form.deleteStore.storeRelations > 0}<li>{$_('errors.scm.store.delete.store-relations-over-0', { values: { n: form.deleteStore.storeRelations }})}</li>{/if}
+                {#if form.deleteStore.articleMovements > 0}<li>{$_('errors.scm.store.delete.article-movement-over-0', { values: { n: form.deleteStore.articleMovements }})}</li>{/if}
+            </ul>
+        {/if}
 
-        <form slot="form" action="?/deleteStore" method="post" use:enhance>
-            <Button role="danger" size="small">Supprimer</Button>
-            <Button role="tertiary" size="small" on:click={() => deleteStoreConfirm = undefined} preventSend>Annuler</Button>
+        <form slot="form" action="?/deleteStore" method="post" class="flex gap-2" use:enhance>
+            <Button role="danger" size="small">{$_('app.action.delete-force')}</Button>
+            <input type="hidden" name="id" value={deleteStoreConfirm?.id} />
+            <input type="hidden" name="force" value="true" />
+            <Button role="tertiary" size="small" on:click={() => { deleteStoreConfirm = undefined; form = null; }} preventSend>{$_('app.action.cancel')}</Button>
         </form>
     </Modal>
 {/if}
@@ -69,27 +73,27 @@
 
             <FormInput type="checkbox" name="temporary" label="Stock temporaire" checked={editStore?.temporary} />
 
-            <Button role={createStore ? "success" : "warning"}>{createStore ? "Créer" : "Modifier"}</Button>
+            <Button role={createStore ? "success" : "warning"}>{$_(`app.action.${createStore ? "create" : "update"}`)}</Button>
         </form>
     </MenuSide>
 {/if}
 
 {#if data.stores.length > 0}
-    <Table headers={[{ label: "Nom de l'emplacement" }, { label: "Localisation" }, { label: "Actions" }]} class="mt-6">
+    <Table headers={[{ label: $_('app.generic.store_name') }, { label: $_('app.generic.store_location') }, { label: $_('app.generic.actions') }]} class="mt-6">
         {#each data.stores as store}
             <TableCell><a href="/app/scm/stores/{store.id}">{store.name}</a></TableCell>
             <TableCell>{store.location}</TableCell>
             <TableCell>
                 <div class="flex flex-row gap-4 items-center">
                     <Button role="warning" size="small" on:click={() => editStore = store}>
-                        Modifier
+                        {$_('app.action.update')}
                     </Button>
                     <form action="?/deleteStore" method="post" use:enhance>
                         <input type="hidden" name="id" value={store.id} />
                         {#if deleteStoreConfirm?.id === store.id}
-                            <Button role="danger" size="small">Confirmer</Button>
+                            <Button role="danger" size="small" confirm>{$_('app.action.confirm')}</Button>
                         {:else}
-                            <Button role="danger" size="small" preventSend on:click={() => deleteStoreConfirm = store}>Supprimer</Button>
+                            <Button role="danger" size="small" preventSend on:click={() => deleteStoreConfirm = store}>{$_('app.action.delete')}</Button>
                         {/if}
                     </form>
                 </div>
@@ -99,5 +103,3 @@
 {:else}
     <EmptyData on:click={() => createStore = true} />
 {/if}
-
-
