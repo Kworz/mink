@@ -25,7 +25,7 @@ jobs:
         run: docker build -t mink .
 
       - name: 📝 Docker tag latest
-        run: docker tag mink ${{ secrets.DOCKER_USERNAME }}/mink
+        run: docker tag mink ${{ secrets.DOCKER_USERNAME }}/mink:latest
 
       - name: 📝 Docker tag version
         run: docker tag mink ${{ secrets.DOCKER_USERNAME }}/mink:${{ steps.get_version.outputs.version }}
