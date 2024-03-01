@@ -17,6 +17,8 @@
     import type { ActionData, PageData } from "./$types";
     import { page } from "$app/stores";
     import { payment_method, payment_rule } from "$lib/prisma-enums";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
+    import { _ } from "svelte-i18n";
 
     export let data: PageData;
     export let form: ActionData;
@@ -25,16 +27,16 @@
 
     let upsertSent = false;
 
-    let deleteConfirm: string | undefined = undefined;
+    let supplierToRemove: string | undefined = undefined;
     let createSupplier = false;
 
     $: if(form !== null) { editSupplier = undefined; createSupplier = false; upsertSent = false; invalidateAll(); };
-    $: if(deleteConfirm !== undefined) { setTimeout(() => deleteConfirm = undefined, 5000); }
+    $: if(supplierToRemove !== undefined) { setTimeout(() => supplierToRemove = undefined, 5000); }
 
 </script>
 
 <svelte:head>
-    <title>mink — Fournisseurs</title>
+    <title>mink — {$_('app.generic.suppliers')}</title>
 </svelte:head>
 
 {#if editSupplier !== undefined || createSupplier}
@@ -90,15 +92,43 @@
     </MenuSide>
 {/if}
 
-<h1>Liste des fournisseurs</h1>
-<p>Liste des fournisseurs disponibles.</p>
+{#if form?.deleteSupplier?.error !== undefined}
+    <Modal title={$_('app.generic.error')} on:close={() => form = null}>
+    
+        <form slot="form" action="?/deleteSupplier" method="post" use:enhance class="flex gap-2">
+            <Button role="danger" size="small">Supprimer avec les dépendances</Button>
+            <input type="hidden" name="force" value="true" />
+            <input type="hidden" name="id" value={supplierToRemove} />
+            <Button role="tertiary" size="small" on:click={() => { form = null; supplierToRemove = undefined }} preventSend>Annuler</Button>
+        </form>
+
+        <p>{$_(form?.deleteSupplier?.error)}</p>
+
+        <ul>
+            {#if form?.deleteSupplier?.error === "errors.scm.supplier.delete.has-dependencies"}
+                {#each form.deleteSupplier.payload as dependency}
+                    <li>{$_('app.generic.order')} : <a href="/app/scm/orders/{dependency.id}">{dependency.name}</a></li>
+                {/each}
+            {/if}
+        <ul>
+    </Modal>
+{/if}
+
+{#if form?.upsertSupplier?.error !== undefined}
+    <Modal title={$_('app.generic.error')} on:close={() => form = null}>
+        <p>{$_(form?.upsertSupplier?.error)}</p>
+    </Modal>
+{/if}
+
+<h1>{$_('scm.suppliers.list.title')}</h1>
+<p>{$_('scm.suppliers.list.desc')}</p>
 
 <PillMenu>
     <PillMenuButton icon={PlusCircle} click={() => createSupplier = true}>Créer un fournisseur</PillMenuButton>
 </PillMenu>
 
 {#if data.suppliers.length > 0}
-    <Table class="mt-6" headers={[{ label: "Nom du fournisseur"}, { label: "Adresse"}, { label: "Adresse mail"}, { label: "Actions" }]}>  
+    <Table class="mt-6" headers={[{ label: $_('app.generic.supplier_name')}, { label: $_('app.generic.address')}, { label: $_('app.generic.email_address') }, { label: $_('app.generic.actions') }]}>  
         {#each data.suppliers as supplier}
             <TableCell>
                 <Flex items="center">
@@ -129,15 +159,15 @@
             </TableCell>
             <TableCell>
                 <Flex>
-                    {#if deleteConfirm === supplier.id}
+                    {#if supplierToRemove === supplier.id}
                         <form action="?/deleteSupplier" method="post" use:enhance>
                             <input type="hidden" name="id" value={supplier.id} />
-                            <Button size="small" role="danger">Confirmer</Button>
+                            <Button size="small" role="danger" confirm>{$_('app.action.confirm')}</Button>
                         </form>
                     {:else}
-                        <Button size="small" role="danger" on:click={() => deleteConfirm = supplier.id}>Supprimer</Button>
+                        <Button size="small" role="danger" on:click={() => supplierToRemove = supplier.id}>{$_('app.action.delete')}</Button>
                     {/if}
-                    <Button size="small" role="warning" on:click={() => editSupplier = supplier}>Modifier</Button>
+                    <Button size="small" role="warning" on:click={() => editSupplier = supplier}>{$_('app.action.update')}</Button>
                 </Flex>
             </TableCell>
         {/each}

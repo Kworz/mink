@@ -1,4 +1,4 @@
-import Prisma, { type payment_method, type payment_rule } from "@prisma/client";
+import { payment_method, payment_rule } from "$lib/prisma-enums";
 import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
 import { DeleteObjectCommand, PutObjectAclCommand, PutObjectCommand } from "@aws-sdk/client-s3";
@@ -23,7 +23,7 @@ export const actions: Actions = {
             const supplierId = form.get("id")?.toString();
 
             const name = form.get("name")?.toString();
-            if(!name || name.length < 1) return fail(400, { error: "scm.supplier.update.error.no_name_given" });
+            if(!name || name.length < 1) return fail(400, { error: "errors.scm.supplier.upsert.no_name_given" });
 
             const internal = form.has("internal");
 
@@ -37,11 +37,11 @@ export const actions: Actions = {
             const paymentRule = form.get("payment_rule")?.toString();
             const paymentMethod = form.getAll("payment_method").map(m => m.toString());
 
-            if(paymentMethod !== undefined && !paymentMethod.every(m => Object.keys(Prisma.payment_method).indexOf(m) !== -1))
-                throw "scm.supplier.update.error.invalid_payment_method";
+            if(paymentMethod !== undefined && !paymentMethod.every(m => Object.keys(payment_method).indexOf(m) !== -1))
+                return fail(400, { upsertSupplier: { error: "errors.scm.supplier.upsert.invalid_payment_method" }});            
             
-            if(paymentRule !== undefined && Object.keys(Prisma.payment_rule).indexOf(paymentRule) === -1)
-                throw "scm.supplier.update.error.invalid_payment_rule";
+            if(paymentRule !== undefined && Object.keys(payment_rule).indexOf(paymentRule) === -1)
+                return fail(400, { upsertSupplier: { error: "errors.scm.supplier.upsert.invalid_payment_rule" }});
 
             const { id, logo: oldLogo } = await locals.prisma.scm_supplier.upsert({
                 where: { id: supplierId ?? "" },
@@ -84,7 +84,7 @@ export const actions: Actions = {
                 await locals.prisma.scm_supplier.update({ where: { id }, data: { logo: null }});
 
                 if(deleteResult.DeleteMarker === false)
-                    throw "scm.supplier.update.error.old_logo_delete_failed";
+                    return fail(500, { upsertSupplier: { error: "errors.scm.supplier.upsert.old_logo_delete_failed" }});
             }
 
             if(logo)
@@ -102,7 +102,7 @@ export const actions: Actions = {
                 const uploadResult = await locals.s3.send(uploadCommand);
 
                 if(uploadResult.$metadata.httpStatusCode !== 200)
-                    throw "scm.supplier.update.error.logo_upload_failed";
+                    return fail(500, { upsertSupplier: { error: "errors.scm.supplier.upsert.logo_upload_failed" }});
 
                 const aclCommand = new PutObjectAclCommand({
                     Bucket: locals.appSettings!.app_s3_bucketname,
@@ -113,19 +113,17 @@ export const actions: Actions = {
                 const aclResult = await locals.s3.send(aclCommand);
 
                 if(aclResult.$metadata.httpStatusCode !== 200)
-                    throw "scm.supplier.update.error.logo_upload_failed";
+                    return fail(500, { upsertSupplier: { error: "errors.scm.supplier.upsert.logo_acl_failed" }});
 
                 await locals.prisma.scm_supplier.update({ where: { id }, data: { logo: newLogoName }});
             }
 
-            return { upsertSupplier: { success: "scm.supplier.update.success" }};
+            return { upsertSupplier: { success: true }};
         }
         catch(ex)
         {
             console.log(ex);
-            return {
-                edit: { error: "scm.supplier.update.error" }
-            }
+            return fail(500, { upsertSupplier: { error: "errors.scm.supplier.upsert.generic" }});
         }
     },
     deleteSupplier: async ({ locals, request }) => {
@@ -133,21 +131,30 @@ export const actions: Actions = {
         try {
             const form = await request.formData();
             const deleteID = form.get("id")?.toString();
+            const deleteForce = form.has("force") && form.get("force") === "true";
 
             if(deleteID === null)
-                throw "scm.supplier.delete.error.no_id_given";
+                return fail(400, { deleteSupplier: { error: "errors.scm.supplier.delete.no_id_given" }});
 
-            await locals.prisma.scm_store.delete({
+            if(!deleteForce)
+            {
+                const orders = await locals.prisma.scm_order.findMany({ where: { supplier_id: deleteID }});
+
+                if(orders.length > 0)
+                    return fail(400, { deleteSupplier: { error: "errors.scm.supplier.delete.has-dependencies", payload: orders }});
+            }
+
+            await locals.prisma.scm_supplier.delete({
                 where: { id: deleteID }
-            })
+            });
 
-            return { delete: { success: "scm.supplier.delete.success" }};
+            return { deleteSupplier: { success: true }};
 
         }
         catch(ex)
         {
             console.log(ex);
-            return { delete: { error: ex }};
+            return fail(500, { deleteSupplier: { error: "errors.scm.supplier.delete.generic" }});
         }
     }
 }
