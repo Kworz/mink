@@ -27,6 +27,9 @@ code { @apply font-mono  bg-zinc-500 text-white ring-1 ring-zinc-700 px-1 rounde
 ul { @apply list-disc list-inside ml-1 my-2; }
 ul > li { @apply marker:text-violet-500; }
 
+ul > li > ul { @apply list-disc list-inside ml-4; }
+ul > li > ul > li { @apply marker:text-indigo-500 text-sm; }
+
 * {
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
     scrollbar-width: none;  /* Firefox */

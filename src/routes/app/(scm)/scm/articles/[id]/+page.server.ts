@@ -1,5 +1,5 @@
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
-import { redirect } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import type { unit_of_work } from "@prisma/client";
 
@@ -31,21 +31,37 @@ export const load = (async ({ params, locals }) => {
 
 export const actions: Actions = {
 
-    deleteArticle: async ({ params, locals }) => {
+    deleteArticle: async ({ params, locals, request }) => {
+
+        const form = await request.formData();
+        const force = form.has("force") && form.get("force") === "true";
+
         try
         {
+            if(!force)
+            {
+                // fetch all relations and check if there are any dependents
+                const storeRelations = await locals.prisma.scm_store_relation.findMany({ where: { article_id: params.id, quantity: { gt: 0} }, include: { store: true }});
+                const orders = await locals.prisma.scm_order.findMany({ where: { order_rows: { some: { article_id: params.id }}}});
+                const assembliesWithArticle = await locals.prisma.scm_assembly.findMany({ where: { article_childrens: { some: { article_child_id: params.id}}}});
+                const articleMovements = await locals.prisma.scm_article_movements.count({ where: { article_id: params.id }});
+
+                return fail(400, { deleteArticle: { error: "errors.scm.article.delete.has-dependents", storeRelations, orders, articleMovements, assembliesWithArticle }});
+            }
+
             await locals.prisma.scm_article.delete({
                 where: {
                     id: params.id
                 }
             });
+
+            return redirect(303, "/app/scm/articles");
         }
         catch(ex)
         {
-            return { delete: { error: "scm.article.delete.error" }};
+            console.error(ex);
+            return { deleteArticle: { error: "errors.generic" }};
         }
-
-        throw redirect(303, "/app/scm/articles");
     },
     
     editArticle: async ({ params, request, locals }) => {
@@ -93,38 +109,34 @@ export const actions: Actions = {
 
     copyArticle: async ({ params, locals }) => {
 
-        let newID = undefined;
-
         try
         {
             const article = await locals.prisma.scm_article.findFirstOrThrow({ where: { id: params.id }});
 
-            article.name = article.name + " — Copie";
+            article.name = article.name + " — Copie"; //TODO: i18n
 
-            let { id } = await locals.prisma.scm_article.create({
+            const { id } = await locals.prisma.scm_article.create({
                 data: {...article, id: undefined, thumbnail: undefined }
             });
 
-            newID = id;
+            return redirect(303, `/app/scm/articles/${id}`);
         }
         catch(ex)
         {
             console.log(ex);
-            return { copy: { error: "Failed to copy article" }};
+            return { copyArticle: { error: "errors.generic" }};
         }
-
-        throw redirect(303, "/app/scm/articles/" + newID);
     },
 
     updateStock: async ({ locals, params, request }) => {
+
+        if(locals.session === null)
+            return fail(403, { updateStock: { error: "generic.unauthed" }});
 
         const form = await request.formData();
 
         try
         {
-            if(locals.session === null)
-                throw "app.user.error.no_auth";
-
             const direction = form.get("direction")?.toString();
 
             const storeInID = form.get("store_in")?.toString();
@@ -132,22 +144,25 @@ export const actions: Actions = {
 
             const quantityDelta = Number(form.get("quantity_update")?.toString());
 
-            const storeOut = await locals.prisma.scm_store_relation.findFirst({ where: { article_id: params.id, store_id: storeOutID }});
-            const storeIn = await locals.prisma.scm_store_relation.findFirst({ where: { article_id: params.id, store_id: storeInID }});
+            if(isNaN(quantityDelta))
+                return fail(400, { updateStock: { error: "errors.scm.article.movement.quantity_not_number" }});
+
+            const storeOut = await locals.prisma.scm_store_relation.findFirst({ where: { store_id: storeOutID, article_id: params.id }});
+            const storeIn = await locals.prisma.scm_store.findFirst({ where: { id: storeInID }});
 
             if(direction === "outward" && storeOut === null)
-                throw "scm.article.movement.error.store_out_not_defined"; //"L'emplacement de provenance n'est pas défini";
+                return fail(404, { updateStock: { error: "errors.scm.article.movement.store_out_not_defined" }});
 
             if(direction === "inward" && storeIn === null)
-                throw "scm.article.movement.error.store_in_not_defined"; //"L'emplacement de destination n'est pas défini";
+                return fail(400, { updateStock: { error: "errors.scm.article.movement.store_in_not_defined" }});
 
             if(direction === "moved" && (storeIn === null || storeOut === null))
-                throw "scm.article.movement.error.stores_undefined"; //"L'emplacement de provenance ou de destination n'est pas défini";
+                return fail(400, { updateStock: { error: "errors.scm.article.movement.stores_undefined" }});
 
             if(direction === "inward")
             {
-                const upsertWhere = (storeIn === null) ? undefined : { article_id: params.id, store_id: storeIn?.store_id };
-                await locals.prisma.scm_store_relation.upsert({ where: { article_id_store_id: upsertWhere }, create: { article_id: params.id, store_id: storeIn!.store_id, quantity: quantityDelta }, update: { quantity: { increment: quantityDelta }}});
+                const upsertWhere = (storeIn === null) ? undefined : { article_id: params.id, store_id: storeIn?.id };
+                await locals.prisma.scm_store_relation.upsert({ where: { article_id_store_id: upsertWhere }, create: { article_id: params.id, store_id: storeIn!.id, quantity: quantityDelta }, update: { quantity: { increment: quantityDelta }}});
 
                 await locals.prisma.scm_article_movements.create({
                     data: {
@@ -162,10 +177,10 @@ export const actions: Actions = {
             else if (direction === "outward")
             {
                 if(storeOut === null)
-                    throw "scm.article.movement.error.store_missing_item"; //"L'article n'est pas présent dans l'emplacement de provenance";
+                    return fail(404, { updateStock: { error: "errors.scm.article.movement.store_out_not_defined" }});
                 
                 if(storeOut.quantity < quantityDelta)
-                    throw "scm.article.movement.error.store_not_enough_items"; //"La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
+                    return fail(404, { udpateStock: { error: "errors.scm.article.movement.store_out_not_enough_items" }});
                 
                 await locals.prisma.scm_store_relation.update({ where: { article_id_store_id: { article_id: params.id, store_id: storeOut.store_id }}, data: { quantity: { decrement: quantityDelta }}});
                 await locals.prisma.scm_article_movements.create({
@@ -181,16 +196,16 @@ export const actions: Actions = {
             else if (direction === "moved")
             {
                 if(storeOut === null)
-                    throw "scm.article.movement.error.store_missing_item"; //"L'article n'est pas présent dans l'emplacement de provenance";
+                    return fail(404, { updateStock: { error: "errors.scm.article.movement.store_out_not_defined" }});
                 
                 if(storeInID === storeOutID)
-                    throw "scm.article.movement.error.same_stores"; //"L'emplacement de provenance et de destination sont identiques";
+                    return fail(400, { updateStock: { error: "errors.scm.article.movement.same_stores" }});
 
                 if(storeOut.quantity < quantityDelta)
-                    throw "scm.article.movement.error.out_store_not_enough_items"; //"La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance";
+                    return fail(404, { udpateStock: { error: "errors.scm.article.movement.store_out_not_enough_items" }});
 
-                const upsertWhere = (storeIn === null) ? undefined : { article_id: params.id, store_id: storeIn?.store_id };
-                await locals.prisma.scm_store_relation.upsert({ where: { article_id_store_id: upsertWhere }, create: { article_id: params.id, store_id: storeIn!.store_id, quantity: quantityDelta }, update: { quantity: { increment: quantityDelta }}});
+                const upsertWhere = (storeIn === null) ? undefined : { article_id: params.id, store_id: storeIn?.id };
+                await locals.prisma.scm_store_relation.upsert({ where: { article_id_store_id: upsertWhere }, create: { article_id: params.id, store_id: storeIn!.id, quantity: quantityDelta }, update: { quantity: { increment: quantityDelta }}});
 
                 await locals.prisma.scm_store_relation.update({ where: { article_id_store_id: { article_id: params.id, store_id: storeOut.store_id }}, data: { quantity: { decrement: quantityDelta }}});
 
@@ -205,11 +220,12 @@ export const actions: Actions = {
                 });
             }
 
-            return { updateStock: { success: "scm.article.movement.success" }};
+            return { updateStock: { success: true }};
         }
         catch(ex)
         {
-            return { updateStock: { error: String(ex) }};
+            console.error(ex);
+            return { updateStock: { error: "errors.generic" }};
         }
     }
 }

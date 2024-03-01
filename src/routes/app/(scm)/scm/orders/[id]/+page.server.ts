@@ -5,7 +5,7 @@ import { fail, redirect } from "@sveltejs/kit";
 
 export const load = (async ({ params, locals, url }) => {
 
-    const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(atob(url.searchParams.get("articleFilter")!)) : undefined;
+    const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(atob(url.searchParams.get("articleFilter") as string)) : undefined;
 
     const order = await locals.prisma.scm_order.findUniqueOrThrow({ where: { id: params.id }, include: { order_rows: { orderBy: { created: "asc" }, include: { article: true, project: true }}, supplier: true, issuer: true }});
 

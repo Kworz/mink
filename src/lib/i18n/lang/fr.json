@@ -287,7 +287,8 @@
             "action": {
                 "edit_article": {
                     "title": "Modifier l'article {name}"
-                }
+                },
+                "delete-article-confirmation": "Souhaitez vous supprimer l'article {name} ?"
             }
         },
         "suppliers": {
@@ -323,6 +324,23 @@
                     "store-relations-over-0": "Il y a {n} {n, plural, =1 {article référencé} other {articles référencés}} dans ce stock. La quantité de ces articles sera diminuée par la quantité présente dans le stock.",
                     "article-movement-over-0": "Il y a {n} {n, plural, =1 {point} other {points}} d'historique de déplacement d'articles liés à ce stock. La stock sera remplacé par une valeur nulle."
                 }
+            },
+            "article": {
+                "movement": {
+                    "store_out_not_defined": "L'emplacement de provenance n'est pas défini.",
+                    "store_in_not_defined": "L'emplacement de destination n'est pas défini.",
+                    "stores_undefined": "L'emplacement de provenance ou de destination n'est pas défini.",
+                    "store_out_not_enough_items": "La quantité à sortir est supérieure à la quantité présente dans l'emplacement de provenance.",
+                    "same_stores": "L'emplacement de provenance et de destination sont identiques.",
+                    "quantity_not_number": "La quantité fournie n'est pas un nombre valide."
+                },
+                "delete": {
+                    "store-relations-over-0": "Cet article est référencé dans {n} {n, plural, =1 {stock} other {stocks}}.",
+                    "orders-over-0": "Cet article est référencé dans {n} {n, plural, =1 {commande} other {commandes}}.",
+                    "article-movements-over-0": "Cet article possède {n} {n, plural, =1 {point} other {points}} d'historique.",
+                    "assemblies-with-article-over-0": "Cet article est présent dans {n} {n, plural, =1 {assemblage} other {assemblages}}.",
+                    "has-dependents": "La suppression de cet article entrainera la suppression des éléments suivants. Souhaitez vous continuer ?"
+                }
             }
         },
         "app": {
@@ -331,7 +349,9 @@
                 "bucket_name_invalid": "Le nom du bucket fourni n'est pas valide.",
                 "region_invalid": "La région S3 donnée n'est pas valide."
             }
-        }
+        },
+        "generic": "Une erreur est survenue. Consulter la console serveur pour avoir plus de détails.",
+        "unauthed": "Action interdite, vous devez vous authentifier."
     },
     "add": {
         "generic": {}

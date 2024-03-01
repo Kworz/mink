@@ -39,7 +39,7 @@
     let articleStoreDirection: "inward" | "outward" | "moved" = "inward";
     
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
-    $: if(form !== null) { setTimeout(() => form = null, 3000); }
+    $: if(form !== null && form.deleteArticle === undefined) { setTimeout(() => form = null, 3000); }
         
     $: articleQuantity = data.article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
     $: articlePrice = computeArticlePrice(data.article.order_rows);
@@ -61,16 +61,70 @@
     </MenuSide>
 {/if}
 
-{#if deleteArticle}
-    <Modal title="Confimer" on:close={() => deleteArticle = false}>
-        <p>Souhaitez vous supprimer l'article <strong>{data.article.name}</strong> ?</p>
+{#if deleteArticle || form?.deleteArticle?.error === "errors.scm.article.delete.has-dependents"}
+    <Modal title={form?.deleteArticle?.error !== undefined ? $_('app.action.confirm') : $_('app.generic.error')} on:close={() => { deleteArticle = false; form = null; }}>
+        
+        {#if form?.deleteArticle?.error}
+            <p>{$_(form.deleteArticle.error)}</p>
 
-        <div class="flex flex-row gap-4 mt-3">            
-            <form action="?/deleteArticle" method="post" use:enhanceNoReset>
-                <Button role="danger" size="small">Oui</Button>
-            </form>
-            <Button role="tertiary" size="small" on:click={() => deleteArticle = false}>Non</Button>
-        </div>
+            {#if form.deleteArticle.error === "errors.scm.article.delete.has-dependents"}
+                <ul>
+                    {#if form.deleteArticle.articleMovements > 0}
+                        <li>{$_('errors.scm.article.delete.article-movements-over-0', { values: { n: form.deleteArticle.articleMovements }})}</li>
+                    {/if}
+
+                    {#if form.deleteArticle.storeRelations.length > 0}
+                        <li>
+                            {$_('errors.scm.article.delete.store-relations-over-0', { values: { n: form.deleteArticle.storeRelations.length }})}
+                            <ul>
+                                {#each form.deleteArticle.storeRelations as storeRelation}
+                                    <li>{storeRelation.store.name} / {storeRelation.store.location} ({storeRelation.quantity})</li>
+                                {/each}
+                            </ul>
+                        </li>
+                    {/if}
+
+                    {#if form.deleteArticle.orders.length > 0}
+                        <li>
+                            {$_('errors.scm.article.delete.orders-over-0', { values: { n: form.deleteArticle.orders.length }})}
+                            <ul>
+                                {#each form.deleteArticle.orders as order}
+                                    <li>{order.name} / {order.sub_id}</li>
+                                {/each}
+                            </ul>
+                        </li>
+                    {/if}
+
+                    {#if form.deleteArticle.assembliesWithArticle.length > 0}
+                        <li>
+                            {$_('errors.scm.article.delete.assemblies-with-article-over-0', { values: { n: form.deleteArticle.assembliesWithArticle.length }})
+                            }
+                            <ul>
+                                {#each form.deleteArticle.assembliesWithArticle as assembly}
+                                    <li>{assembly.name}</li>
+                                {/each}
+                            </ul>
+                        </li>
+                    {/if}
+                </ul>   
+            {/if}
+        {:else}
+            <p>{$_('scm.article.action.delete-article-confirmation', { values: { name: data.article.name }})}</p>
+        {/if}
+
+        <form slot="form" action="?/deleteArticle" method="post" class="flex gap-2" use:enhanceNoReset>
+            {#if form?.deleteArticle?.error === "errors.scm.article.delete.has-dependents"}
+                 <input type="hidden" name="force" value="true" />
+            {/if}
+            <Button role="danger" size="small" confirm={form?.deleteArticle?.error === "errors.scm.article.delete.has-dependents"}>
+                {#if form?.deleteArticle?.error === "errors.scm.article.delete.has-dependents"}
+                    {$_('app.action.delete-force')}
+                {:else}
+                    {$_('app.action.delete')}
+                {/if}
+            </Button>
+            <Button role="tertiary" size="small" on:click={() => { deleteArticle = false; form = null }} preventSend>{$_('app.action.cancel')}</Button>
+        </form>
     </Modal>
 {/if}
 
@@ -168,7 +222,7 @@
             <Wrapper class="mt-6">
                 <h4 class="mb-2">Sortie / Entrée de stock</h4>
 
-                {#if form?.updateStock?.error}<p class="my-2 text-red-500">{form.updateStock.error}</p>{/if}
+                {#if form?.updateStock?.error}<p class="my-2 text-red-500">{$_(form.updateStock.error)}</p>{/if}
 
                 {#if form?.updateStock?.success}<p class="my-2 text-emerald-500">{form.updateStock.success}</p>{/if}
 

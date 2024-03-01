@@ -240,6 +240,11 @@
                 "desc": "find here all the suppliers of your company.",
                 "title": "Suppliers"
             }
+        },
+        "article": {
+            "action": {
+                "delete-article-confirmation": "Would you like to delete article {name} ?"
+            }
         }
     },
     "errors": {
