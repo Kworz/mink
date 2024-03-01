@@ -31,8 +31,19 @@ export const actions: Actions = {
 
         try
         {
-            if(locals.session === null)
-                throw "app.user.error.no_auth";
+            if(locals.user === null)
+                return fail(403, { createdOrder: { error: "app.user.error.no_auth" }});
+
+            const form = await request.formData();
+
+            const supplierId = form.get("supplier_id")?.toString();
+            const orderName = form.get("name")?.toString();
+
+            if(supplierId === undefined)    
+                return fail(400, { createOrder: { error : "errors.scm.order.create.no-supplier-given" }});
+
+            if(orderName === undefined || orderName.length === 0)
+                return fail(400, { createOrder: { error : "errors.scm.order.create.no-name-given" }});
 
             const creationDate = new Date().toISOString().split("T")[0];
 
@@ -40,15 +51,15 @@ export const actions: Actions = {
             nextDay.setDate(nextDay.getDate() + 1);
 
             const currentDayLastOrder = await locals.prisma.scm_order.findMany({ where: { created: { gte: new Date(creationDate), lt: nextDay }}, orderBy: { created: "desc" }});
-            const subId = `${currentDayLastOrder.length+1}-${creationDate?.replaceAll("-", "")}`;
-            
-            const form = await request.formData();
-            form.set("sub_id", subId);
-            form.set("issuer_id", String(locals.user?.id));
+            const orderSubId = `${currentDayLastOrder.length+1}-${creationDate?.replaceAll("-", "")}`;
 
             createdOrder = await locals.prisma.scm_order.create({
                 data: {
-                    ...Object.fromEntries(form.entries()) as unknown as scm_order, 
+                    name: orderName,
+                    supplier_id: supplierId,
+                    issuer_id: locals.user?.id,
+                    sub_id: orderSubId,
+
                     vat: locals.appSettings!.company_default_vat
                 }
             });
@@ -56,8 +67,9 @@ export const actions: Actions = {
         catch(ex)
         {
             console.log(ex);
-            return fail(400, { create: { error: String(ex) }});
+            return fail(400, { create: { error: "errors.scm.order.create.generic" }});
         }
+        
         throw redirect(303, `/app/scm/orders/${createdOrder.id}`);
     }
 }
