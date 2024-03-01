@@ -32,7 +32,7 @@
 
     let selectedOrderRows: string[] = [];
 
-    let articleFilter = $page.url.searchParams.has("articleFilter") ? JSON.parse(atob($page.url.searchParams.get("articleFilter")!)) : undefined;
+    let articleFilter = $page.url.searchParams.has("articleFilter") ? JSON.parse(atob($page.url.searchParams.get("articleFilter") as string)) : {};
 
     const refresh = () => { if(browser) goto(`?articleFilter=${btoa(JSON.stringify(articleFilter))}`); }
 
