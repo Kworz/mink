@@ -12,7 +12,7 @@
     import PillMenuButton from "$lib/components/generics/pill/pillMenuButton.svelte";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
-    import { PlusCircle, Printer, Squares2x2 } from "@steeze-ui/heroicons";
+    import { PlusCircle, Printer, Squares2x2, Trash } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import EmptyData from "$lib/components/EmptyData.svelte";
@@ -29,12 +29,16 @@
     let showClosedLists = false;
     let createMultipleLists = false;
 
+    let confirmDelete = false;
+
     let selected: string[] = [];
 
     const refresh = () => { if(browser) goto(`?sort=${btoa(JSON.stringify(sort))}&filter=${btoa(JSON.stringify(filter))}`, { noScroll: true }); }
 
     $: filter, sort, refresh();
     $: lists = data.lists.filter(list => !showClosedLists ? (list.closed === false) : true);
+
+    $: if(form?.deleteList?.success === true) { selected = []; confirmDelete = false; form = null; }
 
 </script>
 
@@ -45,6 +49,18 @@
         <div slot="form">
             <Button role="primary" size="small">{$_('app.generic.ok')}</Button>
         </div>
+    </Modal>
+{/if}
+
+{#if confirmDelete}
+    <Modal title={$_('app.scm.lists.action.delete', { values: { n: selected.length }})} on:close={() => confirmDelete = false}>
+        <p>{$_('app.scm.lists.action.delete-confirm', { values: { n: selected.length }})}</p>
+
+        <form slot="form" method="post" action="?/deleteList" use:enhance class="flex gap-2">
+            <input type="hidden" name="ids" value={selected.join(",")} />
+            <Button role="danger" size="small">{$_('app.action.delete')}</Button>
+            <Button role="tertiary" size="small" preventSend on:click={() => confirmDelete = false}>{$_('app.generic.cancel')}</Button>
+        </form>
     </Modal>
 {/if}
 
@@ -86,6 +102,8 @@
         {/if}
 
         <PillMenuButton role="secondary" icon={Printer} click={() => window.open(`/app/scm/lists/print?lists=${selected.join(",")}`, '_blank')}>Imprimer</PillMenuButton>
+
+        <PillMenuButton role="danger" icon={Trash} click={() => confirmDelete = true}>{$_('app.scm.lists.action.delete', { values: { n: selected.length }})}</PillMenuButton>
     {/if}
 </PillMenu>
 

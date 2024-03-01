@@ -41,7 +41,9 @@ export const actions = {
         if(assembly === null)
             return fail(400, { createList: { error: "errors.scm.lists.create.assembly-not-found" }});
 
-        const projectId = form.get("project_id")?.toString();
+        let projectId = form.get("project_id")?.toString();
+
+        if(projectId === "") projectId = undefined; // If empty, set to undefined
 
         const listAmountStr = form.get("list_amount")?.toString();
         const listAmount = Number(listAmountStr);
@@ -51,10 +53,9 @@ export const actions = {
             const store = await locals.prisma.scm_store.create({
                 data: { 
                     name,
-                    temporary: true,
                     location: storeLocation,
 
-                    assemblies_buylists: {
+                    assemblies_buylist: {
                         create: {
                             name,
                             assembly_id: assembly.id,
@@ -62,10 +63,10 @@ export const actions = {
                         }
                     }
                 },
-                include: { assemblies_buylists: true },
+                include: { assemblies_buylist: true },
             });
 
-            const listId = store.assemblies_buylists.find(k => k.store_id === store.id)?.id;
+            const listId = store.assemblies_buylist?.id;
 
             if(listId === undefined)
             {
@@ -80,23 +81,24 @@ export const actions = {
             const createdLists = [];
             for(let i = 0; i < listAmount; i++)
             {
+                const listName = `${name} #${i+1}`;
                 const store = await locals.prisma.scm_store.create({
                     data: { 
-                        name,
-                        temporary: true,
+                        name: listName,
                         location: storeLocation,
 
-                        assemblies_buylists: {
+                        assemblies_buylist: {
                             create: {
-                                name,
+                                name: listName,
                                 assembly_id: assembly.id,
                                 project_id: projectId,
                             }
                         }
                     },
-                    include: { assemblies_buylists: true },
+                    include: { assemblies_buylist: true },
                 });
-                const listId = store.assemblies_buylists.find(k => k.store_id === store.id)?.id;
+
+                const listId = store.assemblies_buylist?.id;
 
                 if(listId === undefined)
                 {
@@ -108,5 +110,27 @@ export const actions = {
 
             return redirect(302, `/app/scm/lists/grid/?ids=${createdLists.join(",")}`);
         }
+    },
+
+    deleteList: async ({ locals, request }) => {
+
+        const form = await request.formData();
+        const listsIds = form.get("ids")?.toString();
+
+        if(listsIds === undefined || listsIds === "")
+            return fail(400, { deleteList: { error: "errors.scm.lists.delete.ids-invalid" }});
+
+        try {
+            await locals.prisma.scm_assembly_buylist.deleteMany({ where: { id: { in: listsIds.split(",") }}});
+
+            return { deleteList: { success: true }};
+        }
+        catch(ex)
+        {
+            console.error(ex);
+            return fail(500, { deleteList: { error: "errors.generic" }});
+        }
+
+
     }
 } satisfies Actions;

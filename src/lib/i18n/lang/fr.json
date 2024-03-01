@@ -182,6 +182,12 @@
                 "title": "Liste des stocks",
                 "desc": "Gérer la liste des vos stocks, créez plusieurs emplacements pour mieux vous y retrouver.",
                 "show-linked-list": "Afficher les stocks liés à une liste d'achat."
+            },
+            "lists": {
+                "action": {
+                    "delete": "Supprimer {n} {n, plural, =1 {liste} other {listes}}",
+                    "delete-confirm": "Souhaitez vous supprimer {n, plural, =1 {la liste sélectionnée} other {les {n} listes sélectionnées}} ?"
+                }
             }
         }
     },
