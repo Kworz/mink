@@ -10,7 +10,11 @@ export const articleIncludeQuery = {
     },
     store_relations: {
         include: {
-            store: true
+            store: {
+                include: {
+                    assemblies_buylist: true
+                }
+            }
         }
     },
     order_rows: {

@@ -28,7 +28,7 @@
     /** Wether the manufacturer and reference are displayed */
     export let displayManufacturer = true;
 
-    $: articleQuantity = article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
+    $: articleQuantity = article.store_relations.filter(sr => sr.store.assemblies_buylist === null).reduce((p, c) => p = p + c.quantity, 0);
     $: inboundQuantity = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).reduce((p, c) => p = p + (c.needed_quantity - c.received_quantity), 0);
     $: articlePrice = article.order_rows.filter(or => !(["draft", "canceled"].includes(or.order.state))).filter(or => or.ack_price !== null).reduce((p, c) => p = p + (c.ack_price as number) * c.received_quantity, 0);
     $: manufacturingQuantity = 0;

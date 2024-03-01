@@ -41,9 +41,9 @@
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(form !== null && form.deleteArticle === undefined) { setTimeout(() => form = null, 3000); }
         
-    $: articleQuantity = data.article.store_relations.filter(sr => !sr.store.temporary).reduce((p, c) => p = p + c.quantity, 0);
+    $: articleQuantity = data.article.store_relations.filter(sr => sr.store.assemblies_buylist === null).reduce((p, c) => p = p + c.quantity, 0);
     $: articlePrice = computeArticlePrice(data.article.order_rows);
-    $: exploitableStoreRelations = data.article.store_relations.filter(sr => !sr.store.temporary && sr.quantity > 0);
+    $: exploitableStoreRelations = data.article.store_relations.filter(sr => sr.store.assemblies_buylist === null && sr.quantity > 0);
     $: articlePreffedStores = data.article.store_relations.filter(sr => sr.quantity > 0).map(sr => sr.store_id);
     $: suppliers = data.article.order_rows.reduce((p, c) => [...p, c.order.supplier], new Array());
 </script>
