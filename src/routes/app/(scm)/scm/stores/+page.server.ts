@@ -37,16 +37,17 @@ export const actions: Actions = {
 
         try {
             if(!id)
-                throw "scm.store.delete.error";
+                return fail(400, { deleteStore: { error: "errors.scm.store.delete.no-id-given" }});
             
             await locals.prisma.scm_store.delete({
                 where: { id }
             });
-            return { deleteStore: { success: "scm.store.delete.success" }};
+
+            return { deleteStore: { success: true }};
         }
         catch(e)
         {
-            return { deleteStore: { error: "scm.store.delete.error" }}
+            return fail(500, { deleteStore: { error: "errors.scm.store.delete.error" }});
         }
     }
 }
