@@ -67,7 +67,7 @@
                 in:fade
                 out:fade
                 on:click={() => parentContainer.scroll({ left: parentContainer.scrollWidth, behavior: "smooth" })}
-                class="absolute flex flex-col items-center p-4 w-16 h-16 top-0 bottom-0 rounded-xl right-0 bg-gradient-to-r from-transparent via-zinc-200/50 to-zinc-400/75 hover:via-zinc-200/75 hover:to-zinc-400">
+                class="absolute flex flex-col items-center p-4 w-12 h-12 top-0 bottom-0 rounded-md right-0 bg-gradient-to-r from-transparent via-zinc-200/50 to-zinc-400/75 hover:via-zinc-200/75 hover:to-zinc-400">
                 <Icon src={ArrowRight} class="h-5 w-5 text-zinc-900 my-auto" />
             </button>     
         {/if}
@@ -77,7 +77,7 @@
                 in:fade
                 out:fade
                 on:click={() => parentContainer.scroll({ left: 0, behavior: "smooth" })}
-                class="absolute flex flex-col items-center p-4 w-16 h-16 top-0 bottom-0 rounded-xl left-0 bg-gradient-to-l from-transparent via-zinc-200/50 to-zinc-400/75 hover:via-zinc-200/75 hover:to-zinc-400">
+                class="absolute flex flex-col items-center p-4 w-12 h-12 top-0 bottom-0 rounded-md left-0 bg-gradient-to-l from-transparent via-zinc-200/50 to-zinc-400/75 hover:via-zinc-200/75 hover:to-zinc-400">
                 <Icon src={ArrowLeft} class="h-5 w-5 text-zinc-900 my-auto" />
             </button>
         {/if}
