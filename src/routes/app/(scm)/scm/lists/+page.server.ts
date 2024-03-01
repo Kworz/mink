@@ -23,64 +23,90 @@ export const load = (async ({ locals, url }) => {
 
 export const actions = {
 
-    createBuyList: async ({ locals, request }) => {
-
-        let createdList: scm_assembly_buylist | scm_assembly_buylist[] = [];
+    createList: async ({ locals, request }) => {
 
         const form = await request.formData();
 
-        try {
+        const name = form.get("name")?.toString();
 
-            const name = form.get("name")?.toString();
-            const assembly_id = form.get("assembly_id")?.toString();
-            const project_id = form.get("project_id")?.toString();
+        const storeLocation = form.get("store_location")?.toString();
 
-            const listAmountStr = form.get("list_amount")?.toString();
-            const listAmount = Number(listAmountStr);
+        if(name === undefined || name.length < 4)
+            return fail(400, { createList: { error: "errors.scm.lists.create.name-invalid" }});
 
-            if(!name || !assembly_id || !project_id || !listAmountStr) {
-                throw new Error("Missing required fields");
-            }
+        const assemblyId = form.get("assembly_id")?.toString();
 
-            if(isNaN(listAmount))
-            {
-                createdList = await locals.prisma.scm_assembly_buylist.create({
-                    data: {
-                        name,
-                        assembly_id,
-                        project_id
-                    }
-                });
-            }
-            else
-            {
-                createdList = [];
-                for(let i = 0; i < listAmount; i++)
-                {
-                    const list = await locals.prisma.scm_assembly_buylist.create({
-                        data: {
-                            name: `${name} ${i + 1}`,
-                            assembly_id,
-                            project_id
+        const assembly = await locals.prisma.scm_assembly.findUnique({ where: { id: assemblyId }});
+    
+        if(assembly === null)
+            return fail(400, { createList: { error: "errors.scm.lists.create.assembly-not-found" }});
+
+        const projectId = form.get("project_id")?.toString();
+
+        const listAmountStr = form.get("list_amount")?.toString();
+        const listAmount = Number(listAmountStr);
+
+        if(isNaN(listAmount))
+        {
+            const store = await locals.prisma.scm_store.create({
+                data: { 
+                    name,
+                    temporary: true,
+                    location: storeLocation,
+
+                    assemblies_buylists: {
+                        create: {
+                            name,
+                            assembly_id: assembly.id,
+                            project_id: projectId,
                         }
-                    });
-                    createdList.push(list);
-                }
-            }
-        }
-        catch(ex)
-        {
-            return fail(400, { createLists: { error: "Failed to create lists" }});
-        }
+                    }
+                },
+                include: { assemblies_buylists: true },
+            });
 
-        if(createdList instanceof Array)
-        {
-            throw redirect(302, `/app/scm/lists/grid/?ids=${createdList.map(k => k.id).join(",")}`);
+            const listId = store.assemblies_buylists.find(k => k.store_id === store.id)?.id;
+
+            if(listId === undefined)
+            {
+                console.error("Failed to find created list store");
+                return fail(500, { createList: { error: "errors.generic" }});
+            }
+
+            return redirect(302, `/app/scm/lists/${listId}`);
         }
         else
         {
-            throw redirect(302, `/app/scm/lists/${createdList.id}`)
+            const createdLists = [];
+            for(let i = 0; i < listAmount; i++)
+            {
+                const store = await locals.prisma.scm_store.create({
+                    data: { 
+                        name,
+                        temporary: true,
+                        location: storeLocation,
+
+                        assemblies_buylists: {
+                            create: {
+                                name,
+                                assembly_id: assembly.id,
+                                project_id: projectId,
+                            }
+                        }
+                    },
+                    include: { assemblies_buylists: true },
+                });
+                const listId = store.assemblies_buylists.find(k => k.store_id === store.id)?.id;
+
+                if(listId === undefined)
+                {
+                    console.error("Failed to find created list store");
+                    return fail(500, { createList: { error: "errors.generic" }});
+                }
+                createdLists.push(listId);
+            }
+
+            return redirect(302, `/app/scm/lists/grid/?ids=${createdLists.join(",")}`);
         }
     }
-
 } satisfies Actions;

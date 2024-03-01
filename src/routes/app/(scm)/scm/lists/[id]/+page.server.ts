@@ -144,20 +144,29 @@ export const actions: Actions = {
     editList: async ({ locals, request, params }) => {
 
         const form = await request.formData();
-
         const name = form.get("name")?.toString();
+
+        if(name === undefined || name.length < 4)
+            return fail(400, { editList: { error: "errors.scm.lists.create.name-invalid" }});
+
         const assemblyId = form.get("assembly")?.toString();
+
+        if(assemblyId === undefined)
+            return fail(400, { editList: { error: "errors.scm.lists.create.assembly-invalid" }});
+
         const projectId = form.get("list")?.toString();
         const closed = form.has("closed");
-
+        
         try
         {
-            await locals.prisma.scm_assembly_buylist.update({ where: { id: params.id }, data: { name, closed, assembly_id: assemblyId, project_id: projectId }});
-            return { editList: { success: "Successfully updated row" }};
+            const buyList = await locals.prisma.scm_assembly_buylist.update({ where: { id: params.id }, data: { name, closed, assembly_id: assemblyId, project_id: projectId }});
+            await locals.prisma.scm_store.update({ where: { id: buyList.store_id }, data: { name }});
+
+            return { editList: { success: true }};
         }
         catch(e)
         {
-            return fail(400, { editList: { error: String(e) }});
+            return fail(500, { editList: { error: "errors.generic" }});
         }
     }
 };

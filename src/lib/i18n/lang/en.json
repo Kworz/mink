@@ -84,7 +84,8 @@
             "actions": "Actions",
             "store_location": "Store location",
             "store_name": "Store name",
-            "store": "Store"
+            "store": "Store",
+            "store_list_linked": "List linked store"
         },
         "time": {
             "hours": "Hours"
@@ -125,7 +126,8 @@
                     "create": "Create a new store"
                 },
                 "title": "Stores list",
-                "desc": "Manage your stores, create multiple stores to get a clear view of your situation."
+                "desc": "Manage your stores, create multiple stores to get a clear view of your situation.",
+                "show-linked-list": "Display stores that are linked to an assembly buy list."
             }
         }
     },
@@ -265,7 +267,8 @@
             "store": {
                 "delete": {
                     "store-relations-over-0": "There is {n} {n, plural, =1 {article} other {articles}} stored in this stock. Their quantity will be lowered by the amount available in this store.",
-                    "article-movement-over-0": "There is {n} {n, plural, =1 {article} other {articles}} movement history points linked to this stock. The store will be replaced by a null value."
+                    "article-movement-over-0": "There is {n} {n, plural, =1 {article} other {articles}} movement history points linked to this stock. The store will be replaced by a null value.",
+                    "store-relations-has-linked-list": "This store in linked to a buylist."
                 }
             }
         },

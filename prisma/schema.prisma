@@ -222,15 +222,19 @@ model scm_article_movements {
 
 model scm_store {
   id                  String @id @default(uuid()) @unique
-  location            String @default("")
-  name                String @default("")
-  updated             String @default("")
-  temporary           Boolean @default(false)
+
+  name                String
+  location            String?
+
+  created             DateTime @default(now())
+  updated             DateTime @updatedAt
 
   store_in_article_movements    scm_article_movements[] @relation("store_in")
   store_out_article_movements   scm_article_movements[] @relation("store_out")
 
   store_relations               scm_store_relation[]
+
+  assemblies_buylist           scm_assembly_buylist?
 }
 
 model scm_store_relation {
@@ -300,19 +304,20 @@ model scm_assembly_relation_article {
 
 model scm_assembly_buylist {
 
-  id            String  @id @default(uuid()) @unique
-  name          String  @default("")
+  id                    String @id @default(uuid()) @unique
+  name                  String
 
-  assembly_id   String  @default("")
-  assembly      scm_assembly @relation(references: [id], fields: [assembly_id], onDelete: Cascade)
+  assembly_id           String
+  assembly              scm_assembly @relation(references: [id], fields: [assembly_id], onDelete: Cascade)
 
-  project_id    String?  @default("")
-  project       pr_project? @relation(references: [id], fields: [project_id], onDelete: Cascade)
-  
-  store_id      String  @default("")
+  project_id            String?
+  project               pr_project? @relation(references: [id], fields: [project_id], onDelete: Cascade)
 
-  created       DateTime   @default(now())
-  closed        Boolean @default(false)
+  store_id              String @unique
+  store                 scm_store @relation(references: [id], fields: [store_id], onDelete: Cascade)
+
+  created               DateTime @default(now())
+  closed                Boolean @default(false)
 
 }
 

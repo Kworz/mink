@@ -36,7 +36,6 @@
 
 <h1>Stock: {data.store.name}</h1>
 <p>Emplacement: {data.store.location}</p>
-<p>Stock temporaire: {data.store.temporary ? "Oui" : "Non"}</p>
 
 {#if data.store.store_relations.length > 0}
     <Table headers={[{ label: "Article", colname: "article.name" }, { label: "Quantité", colname: "quantity" }]} bind:sorts={activeSort} class="mt-6">

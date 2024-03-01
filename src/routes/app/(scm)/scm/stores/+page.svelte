@@ -1,6 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import { invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import EmptyData from "$lib/components/EmptyData.svelte";
     import Button from "$lib/components/generics/Button.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
@@ -14,17 +14,25 @@
     import { PlusCircle } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
     import { _ } from "svelte-i18n";
+    import { page } from "$app/stores";
+    import { browser } from "$app/environment";
 
     export let data: PageData;
     export let form: ActionData;
+
+    let showListLinkedStores = $page.url.searchParams.has("showListLinkedStores") ? $page.url.searchParams.get("showListLinkedStores") === "true" : false;
 
     let createStore = false;
     let editStore: scm_store | undefined = undefined;
     let deleteStoreConfirm: scm_store | undefined = undefined;
 
+    const refresh = () => { if(browser) { goto(`?showListLinkedStores=${showListLinkedStores}`, { noScroll: true }); }}
+
     $: if(form?.upsertStore !== undefined && "error" in form.upsertStore) { setTimeout(() => form = null, 3000); }
     $: if(form?.upsertStore !== undefined && "success" in form.upsertStore) { createStore = false; editStore = undefined; invalidateAll();}
     $: if(form?.deleteStore !== undefined && "success" in form.deleteStore) { deleteStoreConfirm = undefined; invalidateAll(); }
+
+    $: showListLinkedStores, refresh();
 
 </script>
 
@@ -34,6 +42,8 @@
 
 <h1>{$_('app.scm.stores.title')}</h1>
 <p>{$_('app.scm.stores.desc')}</p>
+
+<FormInput type="checkbox" name="showLinkedListStores" label="{$_('app.scm.stores.show-linked-list')}" bind:checked={showListLinkedStores} />
 
 <PillMenu>
     <PillMenuButton click={() => createStore = !createStore} icon={PlusCircle}>{$_('app.scm.stores.actions.create')}</PillMenuButton>
@@ -48,6 +58,7 @@
             <ul>
                 {#if form.deleteStore.storeRelations > 0}<li>{$_('errors.scm.store.delete.store-relations-over-0', { values: { n: form.deleteStore.storeRelations }})}</li>{/if}
                 {#if form.deleteStore.articleMovements > 0}<li>{$_('errors.scm.store.delete.article-movement-over-0', { values: { n: form.deleteStore.articleMovements }})}</li>{/if}
+                {#if form.deleteStore.linkedList !== null}<li>{$_('errors.scm.store.delete.store-relations-has-linked-list')}</li>{/if}
             </ul>
         {/if}
 
@@ -71,18 +82,17 @@
             <FormInput name="name" label="Nom" required value={editStore?.name} />
             <FormInput name="location" label="Emplacement" value={editStore?.location} />
 
-            <FormInput type="checkbox" name="temporary" label="Stock temporaire" checked={editStore?.temporary} />
-
             <Button role={createStore ? "success" : "warning"}>{$_(`app.action.${createStore ? "create" : "update"}`)}</Button>
         </form>
     </MenuSide>
 {/if}
 
 {#if data.stores.length > 0}
-    <Table headers={[{ label: $_('app.generic.store_name') }, { label: $_('app.generic.store_location') }, { label: $_('app.generic.actions') }]} class="mt-6">
+    <Table headers={[{ label: $_('app.generic.store_name') }, { label: $_('app.generic.store_location') }, {label: $_('app.generic.store_list_linked')}, { label: $_('app.generic.actions') }]} class="mt-6">
         {#each data.stores as store}
             <TableCell><a href="/app/scm/stores/{store.id}">{store.name}</a></TableCell>
             <TableCell>{store.location}</TableCell>
+            <TableCell>{$_(`app.generic.boolean-other.${store.assemblies_buylist !== null}`)}</TableCell>
             <TableCell>
                 <div class="flex flex-row gap-4 items-center">
                     <Button role="warning" size="small" on:click={() => editStore = store}>

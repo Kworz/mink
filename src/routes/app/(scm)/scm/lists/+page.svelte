@@ -13,11 +13,14 @@
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { PlusCircle, Printer, Squares2x2 } from "@steeze-ui/heroicons";
-    import type { PageData } from "./$types";
+    import type { ActionData, PageData } from "./$types";
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import EmptyData from "$lib/components/EmptyData.svelte";
+    import { _ } from "svelte-i18n";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
 
     export let data: PageData;
+    export let form: ActionData;
 
     let filter = $page.url.searchParams.has("filter") ? JSON.parse(atob($page.url.searchParams.get("filter")!)) : {};
     let sort = $page.url.searchParams.has("sort") ? JSON.parse(atob($page.url.searchParams.get("sort")!)) : {};
@@ -35,17 +38,27 @@
 
 </script>
 
+{#if form?.createList?.error !== undefined}
+    <Modal title={$_('app.generic.error')} on:close={() => form = null}>
+        <p>{$_(form.createList.error)}</p>
+
+        <div slot="form">
+            <Button role="primary" size="small">{$_('app.generic.ok')}</Button>
+        </div>
+    </Modal>
+{/if}
+
 {#if createList}
     <MenuSide on:close={() => createList = false} title="Créer une liste">
-        <form action="?/createBuyList" method="post" use:enhance class="flex flex-col gap-4">
-            <FormInput name="name" label="Nom de la liste" required />
-            <FormInput name="assembly_id" type="select" label="Assemblage" required >
+        <form action="?/createList" method="post" use:enhance class="flex flex-col gap-4">
+            <FormInput name="name" label="Nom de la liste" required min={3} />
+            <FormInput name="assembly_id" type="select" label="Assemblage" required>
                 <option value={undefined}>—</option>
                     {#each data.assemblies as assembly}
                         <option value={assembly.id}>{assembly.name}</option>
                     {/each}
             </FormInput>
-            <FormInput name="project_id" type="select" label="Affaire" required>
+            <FormInput name="project_id" type="select" label="Affaire">
                 <option value={undefined}>—</option>
                 {#each data.projects as project}
                     <option value={project.id}>{project.name}</option>

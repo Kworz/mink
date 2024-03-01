@@ -27,7 +27,7 @@
     let editList = false;
 
     //$: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; editList = false; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
-    //$: if(form?.editList?.success) { editList = false; invalidateAll(); };
+    $: if(form?.editList?.success) { editList = false; };
     //$: if(form?.generateFabOrders) { alert(form?.generateFabOrders.error ?? "no error given"); invalidateAll(); }
 
     export const snapshot: Snapshot<FilterCondition[]> = {

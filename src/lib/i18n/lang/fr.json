@@ -116,7 +116,17 @@
             "actions": "Actions",
             "store_name": "Nom de l'emplacement de stock",
             "store_location": "Emplacement du stock",
-            "store": "Stock"
+            "store": "Stock",
+            "store_list_linked": "Stock lié à une liste",
+            "boolean": {
+                "true": "Vrai",
+                "false": "Faux"
+            },
+            "boolean-other": {
+                "true": "Oui",
+                "false": "Non"
+            },
+            "ok": "Ok"
         },
         "time": {
             "hours": "Heures"
@@ -170,7 +180,8 @@
                     "create": "Créer un emplacement de stock"
                 },
                 "title": "Liste des stocks",
-                "desc": "Gérer la liste des vos stocks, créez plusieurs emplacements pour mieux vous y retrouver."
+                "desc": "Gérer la liste des vos stocks, créez plusieurs emplacements pour mieux vous y retrouver.",
+                "show-linked-list": "Afficher les stocks liés à une liste d'achat."
             }
         }
     },
@@ -322,7 +333,8 @@
                 "delete": {
                     "relations-exist": "Ce stock posséde des relations dans la base de données. Souhaitez vous supprimer ces relations ?",
                     "store-relations-over-0": "Il y a {n} {n, plural, =1 {article référencé} other {articles référencés}} dans ce stock. La quantité de ces articles sera diminuée par la quantité présente dans le stock.",
-                    "article-movement-over-0": "Il y a {n} {n, plural, =1 {point} other {points}} d'historique de déplacement d'articles liés à ce stock. La stock sera remplacé par une valeur nulle."
+                    "article-movement-over-0": "Il y a {n} {n, plural, =1 {point} other {points}} d'historique de déplacement d'articles liés à ce stock. La stock sera remplacé par une valeur nulle.",
+                    "store-relations-has-linked-list": "Ce stock est lié à une liste d'achat."
                 }
             },
             "article": {
@@ -341,6 +353,12 @@
                     "assemblies-with-article-over-0": "Cet article est présent dans {n} {n, plural, =1 {assemblage} other {assemblages}}.",
                     "has-dependents": "La suppression de cet article entrainera la suppression des éléments suivants. Souhaitez vous continuer ?"
                 }
+            },
+            "lists": {
+                "create": {
+                    "name-invalid": "Le nom de la liste est invalide.",
+                    "assembly-not-found": "L'assemblage cible pour cette liste est introuvable."
+                }
             }
         },
         "app": {
@@ -352,8 +370,5 @@
         },
         "generic": "Une erreur est survenue. Consulter la console serveur pour avoir plus de détails.",
         "unauthed": "Action interdite, vous devez vous authentifier."
-    },
-    "add": {
-        "generic": {}
     }
 }

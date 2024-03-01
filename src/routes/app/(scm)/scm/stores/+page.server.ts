@@ -1,8 +1,12 @@
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load = (async ({ locals }) => {
-    const stores = await locals.prisma.scm_store.findMany();
+export const load = (async ({ locals, url }) => {
+
+    const showListLinkedStores = url.searchParams.get("showListLinkedStores") === "true";
+    const where = showListLinkedStores ? {} : { assemblies_buylist: { is: null }};
+
+    const stores = await locals.prisma.scm_store.findMany({ where, include: { assemblies_buylist: true }});
 
     return { 
         stores
@@ -14,17 +18,16 @@ export const actions: Actions = {
         const form = await request.formData();
 
         const id = form.get("id")?.toString();
-
         const name = form.get("name")?.toString();
         const location = form.get("location")?.toString();
         const temporary = form.has("temporary") && form.get("temporary") === "true";
-        
-        if(name === undefined || name.length === 0) return fail(400, { upsertStore: { error : "scm.store.upsert.error.name_null", name, location, temporary }});
+
+        if(name === undefined || name.length < 4) return fail(400, { upsertStore: { error: "errors.scm.store.upsert.name-invalid", name, location, temporary }});
 
         await locals.prisma.scm_store.upsert({
             where: { id },
-            create: { name, location, temporary },
-            update: { name, location, temporary }
+            create: { name, location },
+            update: { name, location }
         });
 
         return { upsertStore: { success: true }};
@@ -45,9 +48,10 @@ export const actions: Actions = {
             {
                 const storeRelations = await locals.prisma.scm_store_relation.count({ where: { store_id: id, quantity: { gt: 0 }}});
                 const articleMovements = await locals.prisma.scm_article_movements.count({ where: { OR: [{ store_in_id: id }, { store_out_id: id }] }});
+                const linkedList = await locals.prisma.scm_assembly_buylist.findFirst({ where: { store_id: id }});
 
-                if(storeRelations > 0 || articleMovements > 0)
-                    return fail(400, { deleteStore: { error: "errors.scm.store.delete.relations-exist", storeRelations, articleMovements }});
+                if(storeRelations > 0 || articleMovements > 0 || linkedList !== null)
+                    return fail(400, { deleteStore: { error: "errors.scm.store.delete.relations-exist", storeRelations, articleMovements, linkedList }});
             }
             
             await locals.prisma.scm_store.delete({
