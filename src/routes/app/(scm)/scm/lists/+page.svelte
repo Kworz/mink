@@ -22,8 +22,8 @@
     export let data: PageData;
     export let form: ActionData;
 
-    let filter = $page.url.searchParams.has("filter") ? JSON.parse(atob($page.url.searchParams.get("filter")!)) : {};
-    let sort = $page.url.searchParams.has("sort") ? JSON.parse(atob($page.url.searchParams.get("sort")!)) : {};
+    let filter = $page.url.searchParams.has("filter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("filter")!)) : {};
+    let sort = $page.url.searchParams.has("sort") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("sort")!)) : {};
 
     let createList = false;
     let showClosedLists = false;
@@ -33,7 +33,7 @@
 
     let selected: string[] = [];
 
-    const refresh = () => { if(browser) goto(`?sort=${btoa(JSON.stringify(sort))}&filter=${btoa(JSON.stringify(filter))}`, { noScroll: true }); }
+    const refresh = () => { if(browser) goto(`?sort=${encodeURIComponent(JSON.stringify(sort))}&filter=${encodeURIComponent(JSON.stringify(filter))}`, { noScroll: true }); }
 
     $: filter, sort, refresh();
     $: lists = data.lists.filter(list => !showClosedLists ? (list.closed === false) : true);

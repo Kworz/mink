@@ -31,7 +31,7 @@
     export let form: ActionData;
 
     let urlArticleFilter  = $page.url.searchParams.get("articleFilter");
-    let articleFilter = urlArticleFilter !== null ? JSON.parse(atob(urlArticleFilter)) : {};
+    let articleFilter = urlArticleFilter !== null ? JSON.parse(decodeURIComponent(urlArticleFilter)) : {};
 
     let editAssembly = false;
     let deleteAssembly = false;
@@ -48,7 +48,7 @@
     let selectedArticles: string[] = [];
     let selectedAssemblies: string[] = [];
 
-    const refresh = () => { if(browser) goto(`?articleFilter=${btoa(JSON.stringify(articleFilter))}`); }
+    const refresh = () => { if(browser) goto(`?articleFilter=${encodeURIComponent(JSON.stringify(articleFilter))}`); }
 
     $: selectedRelations = [...selectedArticles, ...selectedAssemblies];
 

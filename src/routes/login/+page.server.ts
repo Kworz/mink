@@ -47,6 +47,6 @@ export const actions: Actions = {
             return fail(500, { error: 'errors.app.login.generic' });
         }
 
-        throw redirect(303, targetPage ? atob(targetPage) : '/app');
+        throw redirect(303, targetPage ? decodeURIComponent(targetPage) : '/app');
     }
 }

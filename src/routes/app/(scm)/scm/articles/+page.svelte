@@ -26,14 +26,14 @@
 
     export let data: PageData;
 
-    let filter = $page.url.searchParams.has("filter") ? JSON.parse(atob($page.url.searchParams.get("filter") as string)) : {};
-    let sort = $page.url.searchParams.has("sort") ? JSON.parse(atob($page.url.searchParams.get("sort") as string)) : {};
+    let filter = $page.url.searchParams.has("filter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("filter") as string)) : {};
+    let sort = $page.url.searchParams.has("sort") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("sort") as string)) : {};
     let tablePage = $page.url.searchParams.has("page") ? parseInt($page.url.searchParams.get("page") as string) : 0;
     
     let selected: Array<string> = [];
     let createArticle = false;
 
-    const refresh = () => { if(browser) goto(`?filter=${btoa(JSON.stringify(filter))}&sort=${btoa(JSON.stringify(sort))}&page=${tablePage}`); }
+    const refresh = () => { if(browser) goto(`?filter=${encodeURIComponent(JSON.stringify(filter))}&sort=${encodeURIComponent(JSON.stringify(sort))}&page=${tablePage}`); }
 
     $: filter, sort, tablePage, refresh();
 

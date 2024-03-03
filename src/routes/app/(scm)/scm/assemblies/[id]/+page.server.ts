@@ -6,7 +6,7 @@ import type { SCMAssemblyTree } from "$lib/components/derived/assemblies/assembl
 
 export const load = (async ({ locals, params, url }) => {
 
-    const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(atob(url.searchParams.get("articleFilter") as string)) : undefined;
+    const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(decodeURIComponent(url.searchParams.get("articleFilter") as string)) : undefined;
 
     const assembly = await locals.prisma.scm_assembly.findUniqueOrThrow({ 
         where: { id: params.id }, 

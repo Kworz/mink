@@ -20,12 +20,12 @@
     export let data: PageData;
     export let form: ActionData;
 
-    let filter = $page.url.searchParams.has("filter") ? JSON.parse(atob($page.url.searchParams.get("filter")!)) : {};
+    let filter = $page.url.searchParams.has("filter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("filter")!)) : {};
 
     let createAssembly = false;
     let createFormSent = false;
 
-    const refresh = () => { if(browser) goto(`/app/scm/assemblies/?filter=${btoa(JSON.stringify(filter))}`); }
+    const refresh = () => { if(browser) goto(`/app/scm/assemblies/?filter=${encodeURIComponent(JSON.stringify(filter))}`); }
 
     $: filter, refresh();
 

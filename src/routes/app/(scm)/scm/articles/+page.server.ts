@@ -4,8 +4,8 @@ import { articleIncludeQuery } from "$lib/components/derived/article/article";
 
 export const load = (async ({ locals, url }) => {
 
-    const sort = url.searchParams.has("sort") ? JSON.parse(atob(url.searchParams.get("sort") as string)) : undefined;
-    const filter = url.searchParams.has("filter") ? JSON.parse(atob(url.searchParams.get("filter") as string)) : undefined;
+    const sort = url.searchParams.has("sort") ? JSON.parse(decodeURIComponent(url.searchParams.get("sort") as string)) : undefined;
+    const filter = url.searchParams.has("filter") ? JSON.parse(decodeURIComponent(url.searchParams.get("filter") as string)) : undefined;
     const page = Number(url.searchParams.get("page")) || 1;
 
     const articles = await locals.prisma.scm_article.findMany({

@@ -57,7 +57,7 @@ export const handle = (async ({ event, resolve }) => {
     {
         if(event.route.id?.startsWith("/app"))
         {
-            const target = event.url.pathname === "/app" ? "" : `?target=${btoa(event.url.pathname)}`;
+            const target = event.url.pathname === "/app" ? "" : `?target=${encodeURIComponent(event.url.pathname)}`;
             return new Response(null, {status: 303, headers: { 'location': `/login${target}` }});
         }
         else

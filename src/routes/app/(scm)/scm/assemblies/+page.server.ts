@@ -3,7 +3,7 @@ import type { PageServerLoad } from "./$types";
 
 export const load = (async ({ locals, url }) => {
 
-    const filter = url.searchParams.has("filter") ? JSON.parse(atob(url.searchParams.get("filter") as string)) : undefined;
+    const filter = url.searchParams.has("filter") ? JSON.parse(decodeURIComponent(url.searchParams.get("filter") as string)) : undefined;
 
     const assemblies = await locals.prisma.scm_assembly.findMany({
         where: filter,
