@@ -30,7 +30,8 @@
     export let data: PageData;
     export let form: ActionData;
 
-    let articleFilter = $page.url.searchParams.has("articleFilter") ? JSON.parse(atob($page.url.searchParams.get("articleFilter")!)) : undefined;
+    let urlArticleFilter  = $page.url.searchParams.get("articleFilter");
+    let articleFilter = urlArticleFilter !== null ? JSON.parse(atob(urlArticleFilter)) : {};
 
     let editAssembly = false;
     let deleteAssembly = false;

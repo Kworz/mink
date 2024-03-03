@@ -6,7 +6,7 @@ import type { SCMAssemblyTree } from "$lib/components/derived/assemblies/assembl
 
 export const load = (async ({ locals, params, url }) => {
 
-    const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(atob(url.searchParams.get("articleFilter")!)) : undefined;
+    const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(atob(url.searchParams.get("articleFilter") as string)) : undefined;
 
     const assembly = await locals.prisma.scm_assembly.findUniqueOrThrow({ 
         where: { id: params.id }, 
@@ -43,7 +43,7 @@ export const actions: Actions = {
 
             const name = form.get("name")?.toString();
             const description = form.get("description")?.toString();
-            const assembly_time = Number(form.get("assembly_time")?.toString()) ?? 0;
+            const assemblyTime = Number(form.get("assembly_time")?.toString()) ?? 0;
 
             const thumbnail = form.get("thumbnail") as Blob;
 
@@ -62,7 +62,7 @@ export const actions: Actions = {
                 ...query,
                 name,
                 description,
-                assembly_time
+                assembly_time: assemblyTime
             }});
 
             return { editAssembly: { success: "Successfully updated assembly" }};
