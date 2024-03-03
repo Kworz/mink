@@ -78,16 +78,16 @@ export const actions: Actions = {
         let storeIn = form.get("store_in")?.toString();
         storeIn = storeIn === "" ? undefined : storeIn;
 
-        const singleStorePolicy = await locals.prisma.scm_store.count({ where: { temporary: false }}) === 1;
+        const singleStorePolicy = await locals.prisma.scm_store.count({ where: { assemblies_buylist: null }}) === 1;
 
         try
         {
             if(storeIn === undefined)
             {
                 if(singleStorePolicy)
-                    storeIn = (await locals.prisma.scm_store.findFirst({ where: { temporary: false }}))!.id;
+                    storeIn = (await locals.prisma.scm_store.findFirst({ where: { assemblies_buylist: null }}))!.id;
                 else
-                    return fail(400, { completeManufacturingOrder: { error: "error.scm.manufacturing_order.complete.missing_store_in", stores: await locals.prisma.scm_store.findMany({ where: { temporary: false }}) }});
+                    return fail(400, { completeManufacturingOrder: { error: "error.scm.manufacturing_order.complete.missing_store_in", stores: await locals.prisma.scm_store.findMany({ where: { assemblies_buylist: null }}) }});
             }
 
             await locals.prisma.scm_manufacturing_oder_state_change.create({ data: { manufacturing_order_id: params.id, state: "completed", user_id: locals.user!.id }});

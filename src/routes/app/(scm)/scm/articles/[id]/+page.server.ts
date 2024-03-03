@@ -14,7 +14,7 @@ export const load = (async ({ params, locals }) => {
             include: articleIncludeQuery
         });
 
-        const stores = await locals.prisma.scm_store.findMany({ where: { temporary: false }});
+        const stores = await locals.prisma.scm_store.findMany({ where: { assemblies_buylist: { is: null }}});
 
         return {
             article,

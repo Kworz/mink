@@ -55,7 +55,7 @@ export const actions: Actions = {
 
         /// — Quantity data to check with
         const buylistArticleStoreRelation = await locals.prisma.scm_store_relation.findUnique({ where: { article_id_store_id: { article_id: articleId, store_id: list.store_id} }});
-        const articleAvailableStores = await locals.prisma.scm_store_relation.findMany({ where: { article_id: articleId, quantity: { gt: 0 }, store: { temporary: false }}, orderBy: { quantity: "desc" }, include: { store: true }});
+        const articleAvailableStores = await locals.prisma.scm_store_relation.findMany({ where: { article_id: articleId, quantity: { gt: 0 }, store: { assemblies_buylist: null }}, orderBy: { quantity: "desc" }, include: { store: true }});
 
         let storeToUseId: string | undefined = undefined;
 

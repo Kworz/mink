@@ -64,7 +64,7 @@
 
 {#if editAssembly}
     <MenuSide on:close={() => editAssembly = false} title={$_('scm.assembly.action.edit.title')}>
-        <form action="?/editAssembly" method="post" use:enhanceNoReset class="flex flex-col gap-4 mt-6">
+        <form action="?/editAssembly" method="post" use:enhanceNoReset class="flex flex-col gap-4 mt-6" enctype="multipart/form-data">
             
             <FormInput type="text" name="name" label={$_('scm.assembly.name')} value={data.assembly.name} required />
             <FormInput type="text" name="description" label={$_('app.generic.description')} value={data.assembly.description} />

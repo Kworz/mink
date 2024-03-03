@@ -20,9 +20,8 @@ export const actions: Actions = {
         const id = form.get("id")?.toString();
         const name = form.get("name")?.toString();
         const location = form.get("location")?.toString();
-        const temporary = form.has("temporary") && form.get("temporary") === "true";
 
-        if(name === undefined || name.length < 4) return fail(400, { upsertStore: { error: "errors.scm.store.upsert.name-invalid", name, location, temporary }});
+        if(name === undefined || name.length < 4) return fail(400, { upsertStore: { error: "errors.scm.store.upsert.name-invalid", name, location }});
 
         await locals.prisma.scm_store.upsert({
             where: { id },

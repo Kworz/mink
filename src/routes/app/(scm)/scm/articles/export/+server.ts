@@ -31,7 +31,7 @@ export const GET: RequestHandler = async ({ locals }) => {
                 article.name || "",
                 article.brand || "",
                 "No supplier exported",
-                article.store_relations.filter(sr => sr.store.temporary === false).reduce((p, c) => p + c.quantity, 0),
+                article.store_relations.filter(sr => sr.store.assemblies_buylist === null).reduce((p, c) => p + c.quantity, 0),
                 article.reference || "",
                 "Article PUMP not computed",
                 "Article total price not computed"
