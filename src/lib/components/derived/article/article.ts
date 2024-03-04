@@ -35,5 +35,6 @@ export type scm_articleWithIncludes = Prisma.scm_articleGetPayload<{
 }>;
 
 export const computeArticlePrice = (orderRows: scm_articleWithIncludes["order_rows"]): number => {
-    return orderRows.reduce((p, c) => p + (c.ack_price ?? 0) * c.needed_quantity, 0) / orderRows.reduce((p, c) => p + c.needed_quantity, 0);
+    const articlePrice = orderRows.reduce((p, c) => p + (c.ack_price ?? 0) * c.needed_quantity, 0) / orderRows.reduce((p, c) => p + c.needed_quantity, 0);
+    return isNaN(articlePrice) ? 0 : articlePrice;
 }
