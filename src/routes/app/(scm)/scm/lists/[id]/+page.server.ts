@@ -1,27 +1,37 @@
-import type { PageServerLoad, Actions, Action } from "./$types";
+import type { PageServerLoad, Actions } from "./$types";
 
 import { fail, redirect } from "@sveltejs/kit";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
-import { flatAssembly } from "$lib/components/derived/assemblies/flattenAssembly";
 import type { scm_store } from "@prisma/client";
+import { flattenAssembly } from "$lib/components/derived/assemblies/flattenAssembly";
 
-export const load = (async ({ locals, params }) => {
+export const load = (async ({ locals, params, url }) => {
 
     const list = await locals.prisma.scm_assembly_buylist.findUnique({ where: { id: params.id }, include: { assembly: true, project: true }});
-    if(list === null) return redirect(303, "/app/scm/lists");
+    if(list === null) return redirect(303, "/app/scm/lists?listNotFound=true");
+    
+    const articleFilter = url.searchParams.get("articleFilter") ? JSON.parse(decodeURIComponent(url.searchParams.get("articleFilter") as string)) : undefined;
+    const articleSort = url.searchParams.get("articleSort") ? JSON.parse(decodeURIComponent(url.searchParams.get("articleSort") as string)) : undefined;
+
+    console.log(articleSort);
 
     const listStoreRelations = await locals.prisma.scm_store_relation.findMany({ where: { store_id: list.store_id }, include: { article: { include: articleIncludeQuery }}});
-    const assemblyRows = await flatAssembly(list.assembly_id, locals.prisma);
 
+    const flattenedAssembly = await flattenAssembly(list.assembly_id, locals.prisma);
+
+    const articles = await locals.prisma.scm_article.findMany({ where: {...{ id: { in: Object.keys(flattenedAssembly) }}, ...articleFilter }, include: articleIncludeQuery, orderBy: articleSort });
+    
     /// - Secondary data
 
-    const assemblies = await locals.prisma.scm_assembly.findMany({});
+    const assemblies = await locals.prisma.scm_assembly.findMany({ where: { id: { in: [...Object.keys(flattenedAssembly).flatMap(k => flattenedAssembly[k].parentAssemblies).reduce((p, c) => new Set([...p, ...c]), new Set<string>()).keys()]}}});
     const projects = await locals.prisma.pr_project.findMany({});
 
     return {
         list,
-        assemblyRows,
         listStoreRelations,
+
+        flattenedAssembly,
+        articles,
 
         assemblies,
         projects

@@ -1,7 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import ArticleRow from "$lib/components/derived/article/ArticleRow.svelte";
-    import { type FilterCondition } from "$lib/components/derived/filter/filter";
     import Button from "$lib/components/generics/Button.svelte";
     import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
     import RoundedLabel from "$lib/components/generics/RoundedLabel.svelte";
@@ -15,25 +14,30 @@
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { Check, DocumentChartBar, DocumentPlus, QrCode, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import type { ActionData, PageData, Snapshot } from "./$types";
+    import type { ActionData, PageData } from "./$types";
     import type { scm_store } from "@prisma/client";
+    import { computeArticlePrice } from "$lib/components/derived/article/article";
+    import { page } from "$app/stores";
+    import Filter from "$lib/components/derived/filter/Filter.svelte";
+    import { goto } from "$app/navigation";
+    import { browser } from "$app/environment";
+    import { _ } from "svelte-i18n";
     
     export let data: PageData;
     export let form: ActionData | { buyListRelationEdit: { article: { [x:string]: ({ storesToGetFrom: scm_store[] } | { storesToSendTo: scm_store[]})}}}; // issue in sveltekit because of typescript https://github.com/sveltejs/kit/issues/9727
 
-    let filters: Array<FilterCondition> = [];
-    let filter: string = "";
+    let filter = $page.url.searchParams.has("articleFilter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("articleFilter")!)) : {};
+    let sort = $page.url.searchParams.has("articleSort") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("articleSort") as string)) : {};
 
     let editList = false;
 
     //$: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; editList = false; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
-    $: if(form?.editList?.success) { editList = false; };
     //$: if(form?.generateFabOrders) { alert(form?.generateFabOrders.error ?? "no error given"); invalidateAll(); }
+    $: if(form?.editList?.success) { editList = false; };
 
-    export const snapshot: Snapshot<FilterCondition[]> = {
-        capture: () => filters,
-        restore: (value) => { filters = value; }
-    }
+    const refresh = () => { if(browser) goto(`?articleFilter=${encodeURIComponent(JSON.stringify(filter))}&articleSort=${encodeURIComponent(JSON.stringify(sort))}`); }
+
+    $: filter, sort, refresh();
 
 </script>
 
@@ -81,27 +85,37 @@
 
 <p>Affaire: <DetailLabel>{data.list.project?.name}</DetailLabel>.</p>
 <p>Assemblage de base: <DetailLabel>{data.list.assembly.name}</DetailLabel>.</p>
-<p>Terminée: <DetailLabel>{data.list.closed ? "Oui" : "Non"}</DetailLabel>.</p>
+<p>Terminée: <DetailLabel>{$_(`app.generic.boolean-other.${data.list.closed}`)}</DetailLabel>.</p>
+
+<Filter class="my-6" bind:filter availableFilters={[
+    { name: "name", default: true, type: "string" },
+    { name: "reference", type: "string" },
+    { name: "brand", type: "string" },
+    { name: "critical_quantity", type: "number" },
+    { name: "consumable", type: "boolean" }]}
+/>
     
 <Table
-    class="mt-6"
-    headers={[{ label: `Article (${data.assemblyRows.length})`, colname: "name" }, { label: "Quantité" }, { label: "Quantité nécessaire" }, { label: "Prix restant / total" }, { label: "Validé ?" }]}
+    headers={[{ label: `${$_('app.generic.article')} (${data.articles.length})`, colname: "name" }, { label: $_('app.generic.quantity') }, { label: $_('app.generic.required_quantity') }, { label: "Prix restant / total" }, { label: "Validé ?" }]}
+    bind:sort={sort}
 >
-    {#each data.assemblyRows as assemblyRelation}
+    {#each data.articles as article}
 
-        {@const associatedStoreRelation = data.listStoreRelations.find(lsr => lsr.article_id === assemblyRelation.article_child_id)}
+        {@const associatedStoreRelation = data.listStoreRelations.find(lsr => lsr.article_id === article.id)}
 
-        {@const requiredQuantity = assemblyRelation.quantity - (associatedStoreRelation?.quantity ?? 0)}
-        {@const requiredPrice = requiredQuantity * assemblyRelation.article_child.order_rows.reduce((p, c) => p = (c.ack_price ?? 0) + p, 0)}        
-        {@const totalPrice = assemblyRelation.quantity * assemblyRelation.article_child.order_rows.reduce((p, c) => p = (c.ack_price ?? 0) + p, 0)}
-        {@const isValid = assemblyRelation.quantity <= (associatedStoreRelation?.quantity ?? 0)}
+        {@const storeQuantity = associatedStoreRelation?.quantity ?? 0}
+        {@const requiredQuantity = data.flattenedAssembly[article.id].requiredQuantity - storeQuantity}
 
-        <TableCell><ArticleRow article={assemblyRelation.article_child} displayStock displayInboundSupplies /></TableCell>
+        {@const requiredPrice = (requiredQuantity - storeQuantity) * computeArticlePrice(article.order_rows)}        
+        {@const totalPrice = requiredQuantity * computeArticlePrice(article.order_rows)}
+        {@const isValid = requiredQuantity <= storeQuantity}
+
+        <TableCell><ArticleRow article={article} displayStock displayInboundSupplies /></TableCell>
         <TableCell>
             <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
 
                 {#if form?.buyListRelationEdit !== undefined && "article" in form.buyListRelationEdit}
-                    {@const data = form.buyListRelationEdit.article[assemblyRelation.article_child_id]}
+                    {@const data = form.buyListRelationEdit.article[article.id]}
 
                     {#if "storesToGetFrom" in data}
                         <FormInput type="select" name="store" label="Choisir un stock de provenance" required>
@@ -120,18 +134,18 @@
                     {/if}
                 {/if}
 
-                <input type="hidden" name="article" value={assemblyRelation.article_child_id} />
+                <input type="hidden" name="article" value={article.id} />
                 <input type="hidden" name="buylist" value={data.list.id} />
-                <FormInput name="quantity" type="number" step={assemblyRelation.article_child.unit ? 1 : 0.01} 
-                    max={assemblyRelation.quantity} 
-                    value={form?.buyListRelationEdit?.article[`${assemblyRelation.article_child_id}`]?.quantity ?? associatedStoreRelation?.quantity ?? 0}
-                    invalid={form?.buyListRelationEdit?.article[`${assemblyRelation.article_child_id}`]?.error !== undefined} 
-                    label={form?.buyListRelationEdit?.article[`${assemblyRelation.article_child_id}`]?.error ?? (form?.buyListRelationEdit?.article[`${assemblyRelation.article_child_id}`]?.success ?? undefined)} 
+                <FormInput name="quantity" type="number" step={article.unit_quantity} 
+                    max={requiredQuantity} 
+                    value={form?.buyListRelationEdit?.article[`${article.id}`]?.quantity ?? associatedStoreRelation?.quantity ?? 0}
+                    invalid={form?.buyListRelationEdit?.article[`${article.id}`]?.error !== undefined} 
+                    label={form?.buyListRelationEdit?.article[`${article.id}`]?.error ?? (form?.buyListRelationEdit?.article[`${article.id}`]?.success ?? undefined)} 
                 />
                 <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
             </form>
         </TableCell>
-        <TableCell>{assemblyRelation.quantity}</TableCell>
+        <TableCell>{requiredQuantity}</TableCell>
         <TableCell><Price value={requiredPrice} /> / <Price value={totalPrice} /></TableCell>
         <TableCell><RoundedLabel role={isValid ? "success" : "danger"}>{isValid ? "Oui" : "Non"}</RoundedLabel></TableCell>
     {/each}
