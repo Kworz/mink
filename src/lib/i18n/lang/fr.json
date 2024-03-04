@@ -126,7 +126,8 @@
                 "true": "Oui",
                 "false": "Non"
             },
-            "ok": "Ok"
+            "ok": "Ok",
+            "required_quantity": "Quantité nécéssaire"
         },
         "time": {
             "hours": "Heures"
