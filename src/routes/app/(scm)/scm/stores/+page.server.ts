@@ -24,7 +24,7 @@ export const actions: Actions = {
         if(name === undefined || name.length < 4) return fail(400, { upsertStore: { error: "errors.scm.store.upsert.name-invalid", name, location }});
 
         await locals.prisma.scm_store.upsert({
-            where: { id },
+            where: { id: id ?? '' },
             create: { name, location },
             update: { name, location }
         });
