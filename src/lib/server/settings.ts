@@ -51,7 +51,8 @@ export const getSettings = (storedAppSettings: Array<app_settings>): typeof defa
 const defaultUserSettings = {
 
     app_language: "en",
-    app_menu_left: true as boolean
+    app_menu_left: true as boolean,
+    app_pages_top_of_table: false as boolean    
 
 } satisfies Record<user_settings_keys, boolean | string | number>;
 
@@ -66,9 +67,11 @@ export type UserSettings = typeof defaultUserSettings;
 export const getUserSettings = (storedUserSettings: Array<user_settings>): typeof defaultUserSettings => {
 
     const appLeftMenu = storedUserSettings.find(s => s.key === "app_menu_left")?.value;
+    const appPagesTopOfTable = storedUserSettings.find(s => s.key === "app_pages_top_of_table")?.value;
 
     return {
         app_language: storedUserSettings.find(s => s.key === "app_language")?.value ?? defaultUserSettings.app_language,
         app_menu_left: appLeftMenu !== undefined ? (appLeftMenu === "true") : defaultUserSettings.app_menu_left,
+        app_pages_top_of_table: appPagesTopOfTable !== undefined ? (appPagesTopOfTable === "true") : defaultUserSettings.app_pages_top_of_table
     }
 }

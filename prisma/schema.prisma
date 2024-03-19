@@ -97,6 +97,7 @@ enum user_settings_keys {
 
   app_language
   app_menu_left
+  app_pages_top_of_table
 
 }
 
