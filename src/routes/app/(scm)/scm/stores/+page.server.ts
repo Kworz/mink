@@ -32,37 +32,46 @@ export const actions: Actions = {
         return { upsertStore: { success: true }};
     },
 
-    deleteStore: async ({ locals, request }) => {
+    delete: async ({ locals, request }) => {
 
         const form = await request.formData();
-        const id = form.get("id")?.toString();
+        let ids = form.get("ids")?.toString();
 
         const forceDelete = form.has("force") && form.get("force") === "true";
 
         try {
-            if(!id)
-                return fail(400, { deleteStore: { error: "errors.scm.store.delete.no-id-given" }});
+            if(!ids)
+                return fail(400, { delete: { error: "errors.scm.store.delete.no-id-given" }});
 
             if(!forceDelete)
             {
-                const storeRelations = await locals.prisma.scm_store_relation.count({ where: { store_id: id, quantity: { gt: 0 }}});
-                const articleMovements = await locals.prisma.scm_article_movements.count({ where: { OR: [{ store_in_id: id }, { store_out_id: id }] }});
-                const linkedList = await locals.prisma.scm_assembly_buylist.findFirst({ where: { store_id: id }});
+                const warnings = [];
 
-                if(storeRelations > 0 || articleMovements > 0 || linkedList !== null)
-                    return fail(400, { deleteStore: { error: "errors.scm.store.delete.relations-exist", storeRelations, articleMovements, linkedList }});
+                for(const id of ids.split(","))
+                {
+                    const store = await locals.prisma.scm_store.findUnique({ where: { id }});
+                    const storeRelations = await locals.prisma.scm_store_relation.count({ where: { store_id: id, quantity: { gt: 0 }}});
+                    const articleMovements = await locals.prisma.scm_article_movements.count({ where: { OR: [{ store_in_id: id }, { store_out_id: id }] }});
+                    const linkedList = await locals.prisma.scm_assembly_buylist.findFirst({ where: { store_id: id }});
+    
+                    if(storeRelations > 0 || articleMovements > 0 || linkedList !== null)
+                        warnings.push({ store, storeRelations, articleMovements, linkedList });
+                }
+
+                if(warnings.length > 0)
+                    return fail(400, { delete: { error: "errors.scm.store.delete.relations-exist", warnings }});
             }
             
-            await locals.prisma.scm_store.delete({
-                where: { id }
+            await locals.prisma.scm_store.deleteMany({
+                where: { id: { in: ids.split(",") }}
             });
 
-            return { deleteStore: { success: true }};
+            return { delete: { success: true }};
         }
         catch(e)
         {
             console.error(e);
-            return fail(500, { deleteStore: { error: "errors.scm.store.delete.generic" }});
+            return fail(500, { delete: { error: "errors.scm.store.delete.generic" }});
         }
     }
 }

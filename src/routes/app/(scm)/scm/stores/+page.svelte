@@ -1,7 +1,11 @@
 <script lang="ts">
+
+    // TODO: find out why selected has reactivity issues
+    
     import { enhance } from "$app/forms";
     import { goto, invalidateAll } from "$app/navigation";
     import EmptyData from "$lib/components/EmptyData.svelte";
+    import Store from "$lib/components/derived/store/Store.svelte";
     import Button from "$lib/components/generics/Button.svelte";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
@@ -11,26 +15,32 @@
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import type { scm_store } from "@prisma/client";
-    import { PlusCircle } from "@steeze-ui/heroicons";
+    import { PlusCircle, Trash } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import { browser } from "$app/environment";
+    import TableCellCheckbox from "$lib/components/generics/table/TableCellCheckbox.svelte";
 
     export let data: PageData;
     export let form: ActionData;
 
     let showListLinkedStores = $page.url.searchParams.has("showListLinkedStores") ? $page.url.searchParams.get("showListLinkedStores") === "true" : false;
 
+    let selected: Array<string> = [];
+
     let createStore = false;
     let editStore: scm_store | undefined = undefined;
-    let deleteStoreConfirm: scm_store | undefined = undefined;
+
+    let deleteStores = false;
+    let deleteStoreSuspense = false;
 
     const refresh = () => { if(browser) { goto(`?showListLinkedStores=${showListLinkedStores}`, { noScroll: true }); }}
 
     $: if(form?.upsertStore !== undefined && "error" in form.upsertStore) { setTimeout(() => form = null, 3000); }
     $: if(form?.upsertStore !== undefined && "success" in form.upsertStore) { createStore = false; editStore = undefined; invalidateAll();}
-    $: if(form?.deleteStore !== undefined && "success" in form.deleteStore) { deleteStoreConfirm = undefined; invalidateAll(); }
+    $: if(form?.delete !== undefined) { deleteStoreSuspense = false; }
+    $: if(form?.delete !== undefined && "success" in form.delete) { deleteStores = false; invalidateAll(); }
 
     $: showListLinkedStores, refresh();
 
@@ -45,28 +55,46 @@
 
 <FormInput type="checkbox" name="showLinkedListStores" label="{$_('app.scm.stores.show-linked-list')}" bind:checked={showListLinkedStores} />
 
-<PillMenu>
+<PillMenu message={selected.length > 0 ? $_('scm.stores.selected', { values: { n: selected.length }}) : undefined}>
     <PillMenuButton click={() => createStore = !createStore} icon={PlusCircle}>{$_('app.scm.stores.actions.create')}</PillMenuButton>
+    {#if selected.length > 0}
+        <PillMenuButton icon={Trash} role="danger" click={() => deleteStores = true}>{$_('scm.stores.action.delete_batch', { values: { n: selected.length }})}</PillMenuButton>
+    {/if}
 </PillMenu>
 
-{#if form?.deleteStore?.error !== undefined}
-    <Modal title={$_('app.generic.error')} on:close={() => { deleteStoreConfirm = undefined; form = null; }}>
-        
-        <p>{$_(form.deleteStore.error)}</p>
+{#if deleteStores}
+    <Modal title={$_('app.action.delete')} on:close={() => { deleteStores = false; form = null; }}>
 
-        {#if form.deleteStore.error === "errors.scm.store.delete.relations-exist"}
-            <ul>
-                {#if form.deleteStore.storeRelations > 0}<li>{$_('errors.scm.store.delete.store-relations-over-0', { values: { n: form.deleteStore.storeRelations }})}</li>{/if}
-                {#if form.deleteStore.articleMovements > 0}<li>{$_('errors.scm.store.delete.article-movement-over-0', { values: { n: form.deleteStore.articleMovements }})}</li>{/if}
-                {#if form.deleteStore.linkedList !== null}<li>{$_('errors.scm.store.delete.store-relations-has-linked-list')}</li>{/if}
-            </ul>
+        {#if form?.delete !== undefined && "error" in form.delete}
+            <p>{$_(form.delete.error)}</p>
+
+            {#if "warnings" in form.delete}
+                {#each form.delete.warnings as warning}
+                    <details class="mb-2 last-of-type:mb-[1px]">
+                        <summary><Store store={warning.store} /></summary>
+                        <ul>
+                            {#if warning.storeRelations > 0}<li>{$_('errors.scm.store.delete.store-relations-over-0', { values: { n: warning.storeRelations }})}</li>{/if}
+                            {#if warning.articleMovements > 0}<li>{$_('errors.scm.store.delete.article-movement-over-0', { values: { n: warning.articleMovements }})}</li>{/if}
+                            {#if warning.linkedList !== null}<li>{$_('errors.scm.store.delete.store-relations-has-linked-list')}</li>{/if}
+                        </ul>
+                    </details>
+                {/each}
+            {/if}
+        {:else}
+            <p>{$_('scm.store.action.delete_batch', { values: { n: selected.length }})}</p>
         {/if}
 
-        <form slot="form" action="?/deleteStore" method="post" class="flex gap-2" use:enhance>
-            <Button role="danger" size="small">{$_('app.action.delete-force')}</Button>
-            <input type="hidden" name="id" value={deleteStoreConfirm?.id} />
+        <form slot="form" action="?/delete" method="post" class="flex gap-2" use:enhance on:submit={() => deleteStoreSuspense = true}>
+
+            <input type="hidden" name="ids" value={selected.join(",")} />
+
+            {#if form?.delete?.error === undefined}
+                <Button role="danger" size="small" suspense={deleteStoreSuspense}>{$_('app.action.delete')}</Button>
+            {:else}
             <input type="hidden" name="force" value="true" />
-            <Button role="tertiary" size="small" on:click={() => { deleteStoreConfirm = undefined; form = null; }} preventSend>{$_('app.action.cancel')}</Button>
+                <Button role="danger" size="small" suspense={deleteStoreSuspense}>{$_('app.action.delete-force')}</Button>
+            {/if}
+            <Button role="tertiary" size="small" on:click={() => { deleteStores = false; form = null; }} preventSend>{$_('app.action.cancel')}</Button>
         </form>
     </Modal>
 {/if}
@@ -88,8 +116,9 @@
 {/if}
 
 {#if data.stores.length > 0}
-    <Table headers={[{ label: $_('app.generic.store_name') }, { label: $_('app.generic.store_location') }, {label: $_('app.generic.store_list_linked')}, { label: $_('app.generic.actions') }]} class="mt-6">
-        {#each data.stores as store}
+    <Table bind:selected selectables={data.stores.map(s => s.id)} headers={["selectAll", { label: $_('app.generic.store_name') }, { label: $_('app.generic.store_location') }, {label: $_('app.generic.store_list_linked')}, { label: $_('app.generic.actions') }]} class="mt-6">
+        {#each data.stores as store (store.id)}
+            <TableCellCheckbox bind:group={selected} value={store.id} />
             <TableCell><a href="/app/scm/stores/{store.id}">{store.name}</a></TableCell>
             <TableCell>{store.location}</TableCell>
             <TableCell>{$_(`app.generic.boolean-other.${store.assemblies_buylist !== null}`)}</TableCell>
@@ -98,14 +127,6 @@
                     <Button role="warning" size="small" on:click={() => editStore = store}>
                         {$_('app.action.update')}
                     </Button>
-                    <form action="?/deleteStore" method="post" use:enhance>
-                        <input type="hidden" name="id" value={store.id} />
-                        {#if deleteStoreConfirm?.id === store.id}
-                            <Button role="danger" size="small" confirm>{$_('app.action.confirm')}</Button>
-                        {:else}
-                            <Button role="danger" size="small" preventSend on:click={() => deleteStoreConfirm = store}>{$_('app.action.delete')}</Button>
-                        {/if}
-                    </form>
                 </div>
             </TableCell>
         {/each}
