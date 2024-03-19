@@ -8,11 +8,13 @@ export const load = (async ({ locals, url }) => {
     const filter = url.searchParams.has("filter") ? JSON.parse(decodeURIComponent(url.searchParams.get("filter") as string)) : undefined;
     const page = Number(url.searchParams.get("page")) || 1;
 
+    const itemsPerPage = Number(url.searchParams.get("itemsPerPage") || 50);
+
     const articles = await locals.prisma.scm_article.findMany({
         orderBy: sort,
         where: filter,
-        skip: (page - 1) * 50,
-        take: 50,
+        skip: (page - 1) * itemsPerPage,
+        take: itemsPerPage,
         include: articleIncludeQuery,
     });
 

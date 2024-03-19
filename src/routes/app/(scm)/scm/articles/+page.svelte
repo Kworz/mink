@@ -32,6 +32,7 @@
     let filter = $page.url.searchParams.has("filter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("filter") as string)) : {};
     let sort = $page.url.searchParams.has("sort") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("sort") as string)) : {};
     let tablePage = $page.url.searchParams.has("page") ? parseInt($page.url.searchParams.get("page") as string) : 0;
+    let itemsPerPage = $page.url.searchParams.has("itemsPerPage") ? parseInt($page.url.searchParams.get("itemsPerPage") as string) : 50;
     
     let selected: Array<string> = [];
 
@@ -39,9 +40,9 @@
     let deleteArticles = false;
     let deleteArticleSuspense = false;
 
-    const refresh = () => { if(browser) goto(`?filter=${encodeURIComponent(JSON.stringify(filter))}&sort=${encodeURIComponent(JSON.stringify(sort))}&page=${tablePage}`); }
+    const refresh = () => { if(browser) goto(`?filter=${encodeURIComponent(JSON.stringify(filter))}&sort=${encodeURIComponent(JSON.stringify(sort))}&page=${tablePage}&itemsPerPage=${itemsPerPage}`); }
 
-    $: filter, sort, tablePage, refresh();
+    $: filter, sort, tablePage, itemsPerPage, refresh();
 
     $: if(form?.delete) { deleteArticleSuspense = false; }
     $: if(form?.delete !== undefined && "success" in form.delete) { deleteArticles = false; selected = []; }
@@ -107,6 +108,10 @@
         { name: "consumable", type: "boolean" }]}
     />
 
+    {#if $page.data.userSettings?.app_pages_top_of_table}
+        <TablePages class="mb-6" totalPages={Math.floor(data.totalItems / itemsPerPage) + 1} bind:currentPage={tablePage} bind:itemsPerPage={itemsPerPage} />
+    {/if}
+
     <Table headers={[
         "selectAll", 
         { label: `${$_('app.generic.article')} (${data.totalItems})`, colname: "name" }, 
@@ -169,7 +174,7 @@
         {/each}
     </Table>
 
-    <TablePages totalPages={Math.floor(data.totalItems / 50) + 1} bind:currentPage={tablePage} />
+    <TablePages totalPages={Math.floor(data.totalItems / itemsPerPage) + 1} bind:currentPage={tablePage} bind:itemsPerPage={itemsPerPage} />
 {:else}
     <EmptyData on:click={() => createArticle = true } />
 {/if}
