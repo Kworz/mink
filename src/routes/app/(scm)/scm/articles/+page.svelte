@@ -17,25 +17,34 @@
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import TablePages from "$lib/components/generics/table/TablePages.svelte";
-    import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode } from "@steeze-ui/heroicons";
-    import type { PageData } from "./$types";
+    import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode, Trash } from "@steeze-ui/heroicons";
+    import type { ActionData, PageData } from "./$types";
     import EmptyData from "$lib/components/EmptyData.svelte";
     import { computeArticlePrice } from "$lib/components/derived/article/article";
     import { _ } from "svelte-i18n";
     import { browser } from "$app/environment";
+    import Modal from "$lib/components/generics/modal/Modal.svelte";
+    import TableCellCheckbox from "$lib/components/generics/table/TableCellCheckbox.svelte";
 
     export let data: PageData;
+    export let form: ActionData;
 
     let filter = $page.url.searchParams.has("filter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("filter") as string)) : {};
     let sort = $page.url.searchParams.has("sort") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("sort") as string)) : {};
     let tablePage = $page.url.searchParams.has("page") ? parseInt($page.url.searchParams.get("page") as string) : 0;
     
     let selected: Array<string> = [];
+
     let createArticle = false;
+    let deleteArticles = false;
+    let deleteArticleSuspense = false;
 
     const refresh = () => { if(browser) goto(`?filter=${encodeURIComponent(JSON.stringify(filter))}&sort=${encodeURIComponent(JSON.stringify(sort))}&page=${tablePage}`); }
 
     $: filter, sort, tablePage, refresh();
+
+    $: if(form?.delete) { deleteArticleSuspense = false; }
+    $: if(form?.delete !== undefined && "success" in form.delete) { deleteArticles = false; selected = []; }
 
 </script>
 
@@ -55,6 +64,27 @@
     </MenuSide>
 {/if}
 
+{#if deleteArticles}
+    <Modal title={$_('app.action.delete')} on:close={() => deleteArticles = false}>
+        {#if form?.delete?.error !== undefined}
+            <p>{$_(form.delete.error)}</p>
+        {:else}
+            <p>{$_('scm.article.delete_batch', { values: { n: selected.length }})}</p>
+        {/if}
+
+        <form class="flex flex-row gap-4" action="?/delete" slot="form" method="post" use:enhance on:submit={() => deleteArticleSuspense = true}>
+            {#if form?.delete?.error !== undefined}
+                <Button size="small" preventSend role="tertiary" click={() => deleteArticles = false}>{$_('app.generic.close')}</Button>
+            {:else}
+                <input type="hidden" value={selected.join(',')} name="articles" />
+                <Button size="small" role="danger" suspense={deleteArticleSuspense}>{$_('app.action.delete')}</Button>
+                <Button size="small" preventSend role="tertiary" click={() => deleteArticles = false}>{$_('app.generic.cancel')}</Button>
+            {/if}
+            
+        </form>
+    </Modal>
+{/if}
+
 <h1>{$_('app.generic.articles')}</h1>
 <p>{$_('scm.articles.description')}</p>
 
@@ -64,6 +94,7 @@
     <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/?articles=${selected.join(',')}`, '_blank')?.focus()} role="secondary">{$_('scm.articles.action.export_articles', { values: { n: selected.length }})}</PillMenuButton>
     {#if selected.length > 0}
         <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>{$_('scm.articles.action.print_label', { values: { n: selected.length }})}</PillMenuButton>
+        <PillMenuButton icon={Trash} click={() => deleteArticles = true}>{$_('scm.article.actions.delete', { values: { n: selected.length }})}</PillMenuButton>
     {/if}
 </PillMenu>
 
@@ -96,7 +127,7 @@
             {@const price = computeArticlePrice(article.order_rows)}
             {@const stockQuantity = article.store_relations.filter(sr => sr.store.assemblies_buylist === null).reduce((c, p) => p.quantity + c, 0)}
 
-                <TableCell class="items-center"><input type="checkbox" bind:group={selected} value={article.id} /></TableCell>
+                <TableCellCheckbox bind:group={selected} value={article.id} />
                 <TableCell>
                     <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayInboundSupplies />
                 </TableCell>

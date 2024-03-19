@@ -131,7 +131,8 @@
             "warning": "Attention",
             "order_quantity": "Quantité de commande minimum",
             "unit_of_work_quantity": "Quantité d'unité d'oeuvre",
-            "non_physical": "Article non physique"
+            "non_physical": "Article non physique",
+            "close": "Fermer"
         },
         "time": {
             "hours": "Heures"
@@ -311,7 +312,11 @@
                     "title": "Modifier l'article {name}"
                 },
                 "delete-article-confirmation": "Souhaitez vous supprimer l'article {name} ?"
-            }
+            },
+            "actions": {
+                "delete": "Supprimer {n, plural, =1 {un article} other {des articles}}"
+            },
+            "delete_batch": "Souhaitez vous vraiment supprimer {n, plural, =1 {cet articles} other {ces {n} articles}} ? Aucune sécurité sur les dépendances n'est vérifiée ici."
         },
         "suppliers": {
             "list": {

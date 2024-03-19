@@ -53,9 +53,21 @@ export const actions: Actions = {
         catch(ex)
         {
             console.log(ex);
-            return fail(400, { create: { error: "scm.article.create.error.generic" }})
+            return fail(400, { create: { error: "errors.scm.article.create.generic" }})
         }
 
         throw redirect(303, `/app/scm/articles/${createdArticle.id}`);
+    },
+    delete: async ({ params, locals, request }) => {
+
+        const form = await request.formData();
+        const articles = form.get("articles")?.toString();
+
+        if(!articles)
+            return fail(400, { delete: { error: "errors.scm.article.delete.no-articles" }});
+
+        await locals.prisma.scm_article.deleteMany({ where: { id: { in: articles.split(",") }}});
+
+        return { delete: { success: true }}
     }
 };
