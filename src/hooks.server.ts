@@ -5,7 +5,6 @@ import { prisma } from "$lib/server/prisma";
 import { getSettings, getUserSettings } from '$lib/server/settings';
 import { getS3Client } from '$lib/server/s3';
 import { locale } from 'svelte-i18n';
-import { hash } from 'argon2';
 
 export const handle = (async ({ event, resolve }) => {
 
