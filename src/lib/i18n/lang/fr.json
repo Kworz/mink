@@ -127,7 +127,11 @@
                 "false": "Non"
             },
             "ok": "Ok",
-            "required_quantity": "Quantité nécéssaire"
+            "required_quantity": "Quantité nécéssaire",
+            "warning": "Attention",
+            "order_quantity": "Quantité de commande minimum",
+            "unit_of_work_quantity": "Quantité d'unité d'oeuvre",
+            "non_physical": "Article non physique"
         },
         "time": {
             "hours": "Heures"
@@ -377,5 +381,6 @@
         },
         "generic": "Une erreur est survenue. Consulter la console serveur pour avoir plus de détails.",
         "unauthed": "Action interdite, vous devez vous authentifier."
-    }
+    },
+    "internal": "Article interne"
 }

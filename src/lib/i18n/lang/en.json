@@ -85,7 +85,8 @@
             "store_location": "Store location",
             "store_name": "Store name",
             "store": "Store",
-            "store_list_linked": "List linked store"
+            "store_list_linked": "List linked store",
+            "warning": "Warning"
         },
         "time": {
             "hours": "Hours"
