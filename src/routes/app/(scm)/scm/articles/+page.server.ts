@@ -16,7 +16,10 @@ export const load = (async ({ locals, url }) => {
         include: articleIncludeQuery,
     });
 
-    const totalItems = await locals.prisma.scm_article.count();
+    const totalItems = await locals.prisma.scm_article.count({
+        orderBy: sort,
+        where: filter,
+    });
             
     return {
         articles: articles,
