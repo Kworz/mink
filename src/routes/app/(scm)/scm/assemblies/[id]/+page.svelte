@@ -251,7 +251,7 @@
                 <TableFootCell class="col-span-4">
                     <h3>{$_('app.action.add_article')}</h3>
                     <form action="?/addAssemblySubArticle" method="post" use:enhance class="flex flex-row gap-8 items-end mt-2">
-                        <ArticleFinder articles={data.articles} bind:selectedArticle={addArticleSelected} bind:filter={articleFilter} formFieldName="child_article_id" />
+                        <ArticleFinder articles={data.articles.slice(-3)} bind:selectedArticle={addArticleSelected} bind:filter={articleFilter} formFieldName="child_article_id" />
                         {#if addArticleSelected !== undefined}
                             <FormInput name="quantity" label={$_('app.generic.quantity')} required type="number" />
                             <Button>{$_('app.action.add')}</Button>
