@@ -1,5 +1,5 @@
 import { unit_of_work } from "$lib/prisma-enums";
-import type { scm_article } from "@prisma/client";
+import type { scm_article, scm_store } from "@prisma/client";
 import { fail, redirect, type Actions } from "@sveltejs/kit";
 
 export const actions: Actions = {
@@ -37,6 +37,13 @@ export const actions: Actions = {
             const lineSplitter = rowSplitter === "rn" ? "\r\n" : "\n";
 
             const lines = fileContent.split(lineSplitter).map(line => line.split(colSplitter));
+
+
+            let importStore: scm_store | undefined = undefined;
+            if(columns.includes("quantity"))
+            {
+                importStore = await locals.prisma.scm_store.create({ data: { name: `Import — ${new Date().toISOString().split(".")[0].replace("T", " ")}`}})
+            }
 
             for(const line of lines.slice(1))
             {
@@ -76,9 +83,10 @@ export const actions: Actions = {
                 if(article.brand === undefined || article.name === undefined || article.reference === undefined) // skip rows with missing data
                     continue;
 
-                console.log("dry-run", article);
+                const createdArticle = await locals.prisma.scm_article.create({ data: article });
 
-                await locals.prisma.scm_article.create({ data: article });
+                if(importStore !== undefined)
+                    await locals.prisma.scm_store_relation.create({ data: { article_id: createdArticle.id, store_id: importStore.id, quantity: Number(line[columns.indexOf("quantity")]) || 0 }});
             }
 
             if(warnings.length > 0)

@@ -7,6 +7,8 @@
     import { _ } from "svelte-i18n";
     import type { ActionData } from "./$types";
     import Modal from "$lib/components/generics/modal/Modal.svelte";
+    import { ExclamationTriangle } from "@steeze-ui/heroicons";
+    import { Icon } from "@steeze-ui/svelte-icon";
 
     export let form: ActionData;
 
@@ -18,7 +20,7 @@
 
     let importSuspense = false;
 
-    const availableColumns = ["sku", "name", "brand", "non_physical", "consumable", "internal", "unit_of_work", "unit_of_work_quantity", "order_quantity", "critical_quantity"];
+    const availableColumns = ["sku", "name", "brand", "quantity", "non_physical", "consumable", "internal", "unit_of_work", "unit_of_work_quantity", "order_quantity", "critical_quantity"];
 
     const parseCSV = async (file: File, splitter: "," | ";" = ",", lineSplitter: "n" | "rn" = "n"): Promise<{ headers: string[], lines: string[][]}> => {
 
@@ -120,6 +122,9 @@
                             <option value={ac} disabled={columns.includes(ac)}>{$_('app.generic.' + ac)}</option>
                         {/each}
                     </FormInput>
+                    {#if columns[i] === "quantity"}
+                        <span class="mt-2 text-orange-500 font-bold"><Icon src={ExclamationTriangle} class="h-6 w-6 inline-block mr-2" />La quantité importée sera assigné à un stock temporaire</span>
+                    {/if}
                 </TableCell>
             {/each}
 
