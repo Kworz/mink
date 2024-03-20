@@ -130,7 +130,7 @@
         {#each data.articles as article (article.id)}
 
             {@const price = computeArticlePrice(article.order_rows)}
-            {@const stockQuantity = article.store_relations.filter(sr => sr.store.assemblies_buylist === null).reduce((c, p) => p.quantity + c, 0)}
+            {@const stockQuantity = article.store_relations.reduce((c, p) => p.quantity + c, 0)}
 
                 <TableCellCheckbox bind:group={selected} value={article.id} />
                 <TableCell>

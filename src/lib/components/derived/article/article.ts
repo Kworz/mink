@@ -9,12 +9,16 @@ export const articleIncludeQuery = {
         }
     },
     store_relations: {
-        include: {
+        where: {
             store: {
-                include: {
-                    assemblies_buylist: true
-                }
+                assemblies_buylist: { is: null }
+            },
+            quantity: {
+                gt: 0
             }
+        },
+        include: {
+            store: true
         }
     },
     order_rows: {

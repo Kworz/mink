@@ -41,9 +41,8 @@
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(form !== null && form.deleteArticle === undefined) { setTimeout(() => form = null, 3000); }
         
-    $: articleQuantity = data.article.store_relations.filter(sr => sr.store.assemblies_buylist === null).reduce((p, c) => p = p + c.quantity, 0);
+    $: articleQuantity = data.article.store_relations.reduce((p, c) => p = p + c.quantity, 0);
     $: articlePrice = computeArticlePrice(data.article.order_rows);
-    $: exploitableStoreRelations = data.article.store_relations.filter(sr => sr.store.assemblies_buylist === null && sr.quantity > 0);
     $: articlePreffedStores = data.article.store_relations.filter(sr => sr.quantity > 0).map(sr => sr.store_id);
     $: suppliers = data.article.order_rows.reduce((p, c) => [...p, c.order.supplier], new Array());
 </script>
@@ -278,9 +277,9 @@
             </Wrapper>
 
             <Flex direction="col" gap={6} class="mt-6">
-                {#if exploitableStoreRelations.length > 0}
+                {#if data.article.store_relations.length > 0}
                     <Table headers={[{ label: "Emplacement" }, { label: "Quantité" }]}>
-                        {#each exploitableStoreRelations as storeRelation}
+                        {#each data.article.store_relations as storeRelation}
                             <TableCell><Store store={storeRelation.store} /></TableCell>
                             <TableCell>{storeRelation.quantity}</TableCell>
                         {/each}
