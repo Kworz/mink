@@ -132,7 +132,9 @@
             "order_quantity": "Quantité de commande minimum",
             "unit_of_work_quantity": "Quantité d'unité d'oeuvre",
             "non_physical": "Article non physique",
-            "close": "Fermer"
+            "close": "Fermer",
+            "name": "Nom",
+            "terminated": "Terminé"
         },
         "time": {
             "hours": "Heures"
@@ -322,6 +324,17 @@
             "list": {
                 "title": "Fournisseurs",
                 "desc": "Retrouvez ici la liste des fournisseurs de votre entreprise."
+            }
+        },
+        "stores": {
+            "selected": "{n} {n, plural, =1 {emplacement de stock sélectionné} other {emplacements de stock selectionnés}}",
+            "action": {
+                "delete_batch": "Supprimer {n, plural, =1 {cet emplacement de stock} other {ces {n} emplacements de stock}}"
+            }
+        },
+        "store": {
+            "action": {
+                "delete_batch": "Souhaitez vous supprimer {n, plural, =1 {cet emplacement de stock} other {ces {n} empalcements de stock}}"
             }
         }
     },

@@ -87,7 +87,9 @@
             "store": "Store",
             "store_list_linked": "List linked store",
             "warning": "Warning",
-            "close": "Close"
+            "close": "Close",
+            "name": "Name",
+            "terminated": "Ended"
         },
         "time": {
             "hours": "Hours"
