@@ -56,7 +56,7 @@
     <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>{$_('scm.assemblies.actions.create')}</PillMenuButton>
 </PillMenu>
 
-{#if data.assemblies.length > 0}
+{#if data.assemblies.length > 0 || Object.keys(filter).length != 0 }
     <Filter bind:filter availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }]} class="mt-6" />
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:cols-4 gap-6 mt-6">
@@ -80,6 +80,11 @@
                         </div>
                     </Flex>
                 </a>    
+            </Wrapper>
+        {:else}
+            <Wrapper>
+                <h2>Aucun élément trouvé 🥲</h2>
+                <p class="mt-2">Les paramètres de filtre n'ont permis de trouver aucun élément.</p>
             </Wrapper>
         {/each}
     </div>
