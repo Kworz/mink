@@ -1,13 +1,23 @@
-import { articleIncludeQuery } from "$lib/components/derived/article/article";
+import { articleIncludeQuery, computeArticlePrice } from "$lib/components/derived/article/article";
 import type { RequestHandler } from "@sveltejs/kit";
 
 import xlsx from "node-xlsx";
 
-export const GET: RequestHandler = async ({ locals }) => {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export const GET: RequestHandler = async ({ url, locals }) => {
 
     try
     {        
-        const articles = await locals.prisma.scm_article.findMany({ include:  articleIncludeQuery });
+        const articleIds = url.searchParams.has("articles") ? url.searchParams.get("articles") : undefined;
+
+        let filter = {};
+
+        if(articleIds !== null && articleIds !== undefined && articleIds !== "")
+            filter = { where: { id: { in: articleIds.split(",") }}};
+
+        const articles = await locals.prisma.scm_article.findMany({ include:  articleIncludeQuery, ...filter });
+
+        console.log(articles, filter);
 
         const excel: (string | number)[][] = [];
 
@@ -26,15 +36,19 @@ export const GET: RequestHandler = async ({ locals }) => {
 
         for(const article of articles)
         {
+
+            const articleQuantity = article.store_relations.reduce((p, c) => p + c.quantity, 0);
+            const articlePrice = computeArticlePrice(article.order_rows);
+
             excel.push([
                 article.id,
                 article.name || "",
                 article.brand || "",
                 "No supplier exported",
-                article.store_relations.reduce((p, c) => p + c.quantity, 0),
+                articleQuantity,
                 article.reference || "",
-                "Article PUMP not computed",
-                "Article total price not computed"
+                articlePrice,
+                articlePrice * articleQuantity
             ]);
         }
 
