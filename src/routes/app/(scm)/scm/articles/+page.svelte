@@ -17,7 +17,7 @@
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import TablePages from "$lib/components/generics/table/TablePages.svelte";
-    import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode, Trash } from "@steeze-ui/heroicons";
+    import { ArrowDownTray, ArrowUpTray, PlusCircle, QrCode, Square2Stack, Trash } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
     import EmptyData from "$lib/components/EmptyData.svelte";
     import { computeArticlePrice } from "$lib/components/derived/article/article";
