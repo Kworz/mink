@@ -16,6 +16,7 @@
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
+    import AssemblyPreview2 from "$lib/components/derived/assemblies/AssemblyPreview2.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -56,33 +57,15 @@
     <PillMenuButton icon={PlusCircle} click={() => createAssembly = !createAssembly}>{$_('scm.assemblies.actions.create')}</PillMenuButton>
 </PillMenu>
 
-{#if data.assemblies.length > 0 || Object.keys(filter).length != 0 }
+{#if data.assemblies.length > 0 || Object.keys(filter).length != 0}
     <Filter bind:filter availableFilters={[{ name: "name", default: true, type: "string" }, { name:"description", type: "string" }]} class="mt-6" />
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:cols-4 gap-6 mt-6">
         {#each data.assemblies as assembly}
-            <Wrapper>
-    
-                <a href="/app/scm/assemblies/{assembly.id}">
-                    <Flex items="center">
-                    
-                        {#if assembly.thumbnail !== null}
-                            <img src={assembly.thumbnail} alt={$_('scm.assembly.thumbnail', { values: { name: assembly.name }})} class="aspect-square object-cover h-24 duration-100 rounded-md ring-1 ring-zinc-400/25" />
-                        {:else}
-                            <div class="aspect-square object-cover rounded-md border h-24 border-zinc-500/50">
-                                <Icon src={VideoCameraSlash} class="h-full w-8 m-auto text-red-500" />
-                            </div>
-                        {/if}
-    
-                        <div>
-                            <p>{assembly.name}</p>
-                            <p class="text-zinc-500 text-base font-normal">{assembly.description || $_('app.generic.decription_null')}</p>
-                        </div>
-                    </Flex>
-                </a>    
-            </Wrapper>
+            <Wrapper><AssemblyPreview2 {assembly} /></Wrapper>
         {:else}
             <Wrapper>
+                <!-- TODO: Replace with a component -->
                 <h2>Aucun élément trouvé 🥲</h2>
                 <p class="mt-2">Les paramètres de filtre n'ont permis de trouver aucun élément.</p>
             </Wrapper>
