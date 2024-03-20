@@ -197,6 +197,10 @@
                     "delete-confirm": "Souhaitez vous supprimer {n, plural, =1 {la liste sélectionnée} other {les {n} listes sélectionnées}} ?"
                 }
             }
+        },
+        "empty-data-filter": {
+            "title": "Aucun élément trouvé 🥲 ",
+            "description": "À la suite de votre recherche, aucun élément n'as été trouvé. Les filtres sont possiblement trop strics."
         }
     },
     "scm": {
