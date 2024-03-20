@@ -10,16 +10,18 @@ export const load = (async ({ locals, params, url }) => {
 
     const assembly = await locals.prisma.scm_assembly.findUniqueOrThrow({ 
         where: { id: params.id }, 
-        include: { article_childrens: { include: { article_child: { include: articleIncludeQuery }}}, assembly_childrens: { include: { assembly_child: true }}}
+        include: { article_childrens: { orderBy: { order: "asc" }, include: { article_child: { include: articleIncludeQuery }}}, assembly_childrens: { orderBy: { order: "asc" }, include: { assembly_child: true }}}
     });
 
-    const assemblies = await locals.prisma.scm_assembly.findMany({ select: { id: true, name: true}, where: { id: { notIn: [params.id, ...assembly.assembly_childrens.map(ac => ac.assembly_child_id)] }}});
+    // Get all assemblies that are not the current assembly or any of its children
+    // TODO: Check for parent-children relations loops, you can not add an assembly to its own children
+    const assemblies = await locals.prisma.scm_assembly.findMany({ where: { id: { notIn: [params.id, ...assembly.assembly_childrens.map(ac => ac.assembly_child_id)] }}});
     const articles = await locals.prisma.scm_article.findMany({ include: articleIncludeQuery, take: 15, where: articleFilter });
 
     async function generateAssemblyTree(id: string): Promise<SCMAssemblyTree>
     {
         const assembly = await locals.prisma.scm_assembly.findUniqueOrThrow({ where: { id }, include: { assembly_childrens: true }});
-        const subAssemblies = await Promise.all(assembly.assembly_childrens.map(relation => generateAssemblyTree(relation.assembly_child_id))).then();
+        const subAssemblies = await Promise.all(assembly.assembly_childrens.filter(ac => ac.id !== params.id).map(relation => generateAssemblyTree(relation.assembly_child_id))).then();
         return { ...assembly, subAssemblies };
     }
 
@@ -133,18 +135,21 @@ export const actions: Actions = {
 
         try
         {
-            const article_id = form.get("child_article_id")?.toString();
+            const articleId = form.get("child_article_id")?.toString();
+            const parentId = params.id;
             const quantity = form.get("quantity")?.toString();
-            const parent_id = params.id;
 
-            if(article_id === undefined || quantity === undefined)
+            if(articleId === undefined || quantity === undefined)
                 throw "Article and quantity is required";
+
+            const lastRelation = await locals.prisma.scm_assembly_relation_article.findFirst({ where: { parent_id: parentId }, orderBy: { order: "desc" }});
 
             await locals.prisma.scm_assembly_relation_article.create({ data: {
 
-                parent_id,
-                article_child_id: article_id,
-                quantity: parseInt(quantity)
+                parent_id: parentId,
+                article_child_id: articleId,
+                quantity: parseInt(quantity),
+                order: (lastRelation?.order !== undefined ? lastRelation.order + 1 : 0),
 
             }});
 
@@ -156,24 +161,142 @@ export const actions: Actions = {
             return fail(500, { addAssemblySubArticle: { error: "Failed to add article to assembly" }});
         }
     },
+    updateAssemblySubArticleRelation: async ({ locals, params, request }) => {
+        const form = await request.formData();
+
+        const relationId = form.get("relation_id")?.toString();
+
+        if(relationId === undefined)
+            return fail(400, { updateAssemblySubArticleRelation: { error: "Relation id is required" }});
+
+        const quantity = Number(form.get("quantity")?.toString());
+
+        if(isNaN(quantity))
+            return fail(400, { updateAssemblySubArticleRelation: { error: "Article and quantity is required" }});
+
+        try
+        {
+            await locals.prisma.scm_assembly_relation_article.update({ where: { id: relationId }, data: {
+                quantity
+            }});
+
+            return { updateAssemblySubArticleRelation: { success: "Successfully updated article relation" }};
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return fail(500, { updateAssemblySubArticleRelation: { error: "Failed to update article relation" }});
+        }
+    },
+    updateAssemblySubArticleRelationOrder: async ({ locals, params, request }) => {
+
+        const form = await request.formData();
+
+        const order = Number(form.get("order")?.toString());
+
+        if(isNaN(order))
+            return fail(400, { updateAssemblySubArticleRelationOrder: { error: "Order is required" }});
+
+        const direction = form.get("direction")?.toString();
+        
+        if(direction !== undefined && !(["up", "down"].includes(direction)))
+            return fail(400, { updateAssemblySubArticleRelationOrder: { error: "Direction is required" }});
+    
+        const newOrder = direction === "up" ? order - 1 : order + 1;
+
+        const existingRelations = await locals.prisma.scm_assembly_relation_article.findMany({ where: { parent_id: params.id }, orderBy: { order: "asc" }});
+
+        const relationToLower = existingRelations.find(r => r.order === newOrder);
+        const relationToRaise = existingRelations.find(r => r.order === order);
+
+        if(relationToLower === undefined || relationToRaise === undefined)
+            return fail(400, { updateAssemblySubArticleRelationOrder: { error: "Relation not found" }});
+
+        await locals.prisma.scm_assembly_relation_article.updateMany({ where: { id: relationToLower.id }, data: { order: order }});
+        await locals.prisma.scm_assembly_relation_article.updateMany({ where: { id: relationToRaise.id }, data: { order: newOrder }});
+
+        return { updateAssemblySubArticleRelationOrder: { success: "Successfully updated article relation order" }};
+
+    },
+    updateAssemblySubAssemblyRelation: async ({ locals, params, request }) => {
+
+        const form = await request.formData();
+
+        const relationId = form.get("relation_id")?.toString();
+
+        if(relationId === undefined)
+            return fail(400, { updateAssemblySubAssemblyRelation: { error: "Relation id is required" }});
+
+        const quantity = Number(form.get("quantity")?.toString());
+
+        if(isNaN(quantity))
+            return fail(400, { updateAssemblySubAssemblyRelation: { error: "Article and quantity is required" }});
+
+        try
+        {
+            await locals.prisma.scm_assembly_relation_sub_assembly.update({ where: { id: relationId }, data: {
+                quantity
+            }});
+
+            return { updateAssemblySubAssemblyRelation: { success: "Successfully updated assembly relation" }};
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return fail(500, { updateAssemblySubAssemblyRelation: { error: "Failed to update assembly relation" }});
+        }
+    },
+    updateAssemblySubAssemblyRelationOrder: async ({ locals, params, request }) => {
+
+        const form = await request.formData();
+
+        const order = Number(form.get("order")?.toString());
+
+        if(isNaN(order))
+            return fail(400, { updateAssemblySubAssemblyRelationOrder: { error: "Order is required" }});
+
+        const direction = form.get("direction")?.toString();
+        
+        if(direction !== undefined && !(["up", "down"].includes(direction)))
+            return fail(400, { updateAssemblySubAssemblyRelationOrder: { error: "Direction is required" }});
+    
+        const newOrder = direction === "up" ? order - 1 : order + 1;
+
+        const existingRelations = await locals.prisma.scm_assembly_relation_sub_assembly.findMany({ where: { parent_id: params.id }, orderBy: { order: "asc" }});
+
+        const relationToLower = existingRelations.find(r => r.order === newOrder);
+        const relationToRaise = existingRelations.find(r => r.order === order);
+
+        if(relationToLower === undefined || relationToRaise === undefined)
+            return fail(400, { updateAssemblySubAssemblyRelationOrder: { error: "Relation not found" }});
+
+        await locals.prisma.scm_assembly_relation_sub_assembly.updateMany({ where: { id: relationToLower.id }, data: { order: order }});
+        await locals.prisma.scm_assembly_relation_sub_assembly.updateMany({ where: { id: relationToRaise.id }, data: { order: newOrder }});
+
+        return { updateAssemblySubAssemblyRelationOrder: { success: "Successfully updated assembly relation order" }};
+
+    },
     addAssemblySubAssembly: async ({ locals, params, request }) => {
             
         const form = await request.formData();
 
         try
         {
-            const assembly_id = form.get("child_assembly_id")?.toString();
+            const assemblyId = form.get("child_assembly_id")?.toString();
+            const parentId = params.id;
             const quantity = form.get("quantity")?.toString();
-            const parent_id = params.id;
 
-            if(assembly_id === undefined || quantity === undefined)
+            if(assemblyId === undefined || quantity === undefined)
                 throw "Assembly and quantity is required";
+
+            const lastRelation = await locals.prisma.scm_assembly_relation_sub_assembly.findFirst({ where: { parent_id: parentId }, orderBy: { order: "desc" }});
 
             await locals.prisma.scm_assembly_relation_sub_assembly.create({ data: {
 
-                parent_id,
-                assembly_child_id: assembly_id,
-                quantity: parseInt(quantity)
+                parent_id: parentId,
+                assembly_child_id: assemblyId,
+                quantity: parseInt(quantity),
+                order: (lastRelation?.order !== undefined ? lastRelation.order + 1 : 0),
 
             }});
 
@@ -235,8 +358,6 @@ export const actions: Actions = {
                 console.log(ex);
                 return fail(500, { moveRelations: { error: "Failed to move assembly" }});
             }
-    
-            throw redirect(302, `/app/scm/assemblies/${params.id}`);
     },
     deleteRelation: async ({ locals, request }) => {
 

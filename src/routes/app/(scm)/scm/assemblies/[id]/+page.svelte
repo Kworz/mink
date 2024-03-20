@@ -19,19 +19,21 @@
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
-    import type { scm_assembly_relation_article, scm_assembly_relation_sub_assembly } from "@prisma/client";
+    import type { scm_assembly, scm_assembly_relation_article, scm_assembly_relation_sub_assembly } from "@prisma/client";
     import { ChevronDown, ChevronUp, DocumentChartBar, DocumentDuplicate, Trash, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import { browser } from "$app/environment";
+    import AssemblyFinder from "$lib/components/derived/assemblies/AssemblyFinder.svelte";
 
     export let data: PageData;
     export let form: ActionData;
 
-    let urlArticleFilter  = $page.url.searchParams.get("articleFilter");
-    let articleFilter = urlArticleFilter !== null ? JSON.parse(decodeURIComponent(urlArticleFilter)) : {};
+    // filters
+    let articleFilter = $page.url.searchParams.has("articleFilter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("articleFilter")!)) : {};
+    let assemblyFilter = $page.url.searchParams.has("assemblyFilter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("assemblyFilter")!)) : {};
 
     let editAssembly = false;
     let deleteAssembly = false;
@@ -41,6 +43,7 @@
     let moveRelationsToSubAssembly = false;
 
     let addArticleSelected: scm_articleWithIncludes | undefined = undefined;
+    let addAssemblySelected: scm_assembly | undefined = undefined;
 
     let deleteArticleRelation: scm_assembly_relation_article | undefined = undefined;
     let deleteSubAssemblyRelation: scm_assembly_relation_sub_assembly | undefined = undefined;
@@ -111,14 +114,12 @@
 
         <p>{$_('scm.assembly.action.delete_relation.body')}</p>
 
-        <slot name="form">
-            <form action="?/deleteRelation" method="post" use:enhance>
-                <input type="hidden" name="subassembly_relation_id" value={deleteArticleRelation?.id} />
-                <input type="hidden" name="article_relation_id" value={deleteSubAssemblyRelation?.id} />
-                <Button role="danger" size="small">{$_('app.generic.yes')}</Button>
-                <Button role="tertiary" size="small" preventSend on:click={() => {deleteArticleRelation = undefined; deleteSubAssemblyRelation = undefined}}>{$_('app.generic.cancel')}</Button>
-            </form>
-        </slot>
+        <form action="?/deleteRelation" method="post" use:enhance slot="form" class="flex gap-2">
+            <input type="hidden" name="subassembly_relation_id" value={deleteArticleRelation?.id} />
+            <input type="hidden" name="article_relation_id" value={deleteSubAssemblyRelation?.id} />
+            <Button role="danger" size="small">{$_('app.generic.yes')}</Button>
+            <Button role="tertiary" size="small" preventSend on:click={() => {deleteArticleRelation = undefined; deleteSubAssemblyRelation = undefined}}>{$_('app.generic.cancel')}</Button>
+        </form>
     </Modal>
 {/if}
 
@@ -165,7 +166,7 @@
         <Table class="!mt-0" headers={["selectAll", { label: `${$_('app.generic.sub_assemblies')} (${data.assembly.assembly_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete') }]}>
             {#each data.assembly.assembly_childrens as subAssemblyRelation, index}
                 <TableCell class="items-center">                
-                    <form action="?/updateAssemblyRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
+                    <form action="?/updateAssemblySubAssemblyRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
                         <input type="hidden" name="id" value={subAssemblyRelation.id} />
                         <input type="hidden" name="order" value={subAssemblyRelation.order} />
                         {#if index !== 0}
@@ -187,8 +188,8 @@
                     <AssemblyPreview assembly={subAssemblyRelation.assembly_child} />
                 </TableCell>
                 <TableCell>
-                    <form action="?/updateAssemblyRelationSubassembly" method="post" use:enhanceNoReset>
-                        <input type="hidden" name="id" value={subAssemblyRelation.id} />
+                    <form action="?/updateAssemblySubAssemblyRelation" method="post" use:enhanceNoReset>
+                        <input type="hidden" name="relation_id" value={subAssemblyRelation.id} />
                         <FormInput name="quantity" type="number" label={$_('app.generic.quantity')} bind:value={subAssemblyRelation.quantity} validateOnChange />
                     </form>
                 </TableCell>
@@ -201,11 +202,7 @@
                 <TableFootCell class="col-span-4">
                     <h3>{$_('app.action.add_subassembly')}</h3>
                     <form action="?/addAssemblySubAssembly" method="post" use:enhance class="flex flex-row items-end gap-4 mt-2">
-                        <FormInput name="child_assembly_id" label={$_('app.generic.sub_assembly')} required type="select">
-                            {#each data.assemblies as assembly}
-                                <option value={assembly.id}>{assembly.name}</option>
-                            {/each}
-                        </FormInput>
+                        <AssemblyFinder assemblies={data.assemblies.slice(-3)} bind:selectedAssembly={addAssemblySelected} bind:filter={assemblyFilter} formFieldName="child_assembly_id" />
                         <FormInput name="quantity" label={$_('app.generic.quantity')} required type="number" min={1} />
                         <Button>{$_('app.action.add')}</Button>
                 </TableFootCell>
@@ -215,7 +212,7 @@
         <Table class="!mt-0" headers={["selectAll", { label: `${$_('app.generic.articles')} (${data.assembly.article_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete')}]}>
             {#each data.assembly.article_childrens as subArticleRelation, index (subArticleRelation.id)}
                 <TableCell class="items-center">
-                    <form action="?/updateAssemblyRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
+                    <form action="?/updateAssemblySubArticleRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
                         <input type="hidden" name="id" value={subArticleRelation.id} />
                         <input type="hidden" name="order" value={subArticleRelation.order} />
                         {#if index !== 0}
@@ -237,8 +234,8 @@
                     <ArticleRow article={subArticleRelation.article_child} displayStock displayInboundSupplies />
                 </TableCell>
                 <TableCell>
-                    <form action="?/updateAssemblyRelation" method="post" use:enhanceNoReset>
-                        <input type="hidden" name="id" value={subArticleRelation.id} />
+                    <form action="?/updateAssemblySubArticleRelation" method="post" use:enhanceNoReset>
+                        <input type="hidden" name="relation_id" value={subArticleRelation.id} />
                         <FormInput name="quantity" type="number" bind:value={subArticleRelation.quantity} validateOnChange />
                     </form>
                 </TableCell>
