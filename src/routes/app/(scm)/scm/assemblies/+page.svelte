@@ -17,6 +17,7 @@
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import AssemblyPreview2 from "$lib/components/derived/assemblies/AssemblyPreview2.svelte";
+    import EmptyDataFilter from "$lib/components/EmptyDataFilter.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -64,11 +65,7 @@
         {#each data.assemblies as assembly}
             <Wrapper><AssemblyPreview2 {assembly} /></Wrapper>
         {:else}
-            <Wrapper>
-                <!-- TODO: Replace with a component -->
-                <h2>Aucun élément trouvé 🥲</h2>
-                <p class="mt-2">Les paramètres de filtre n'ont permis de trouver aucun élément.</p>
-            </Wrapper>
+            <EmptyDataFilter />
         {/each}
     </div>
 {:else}
