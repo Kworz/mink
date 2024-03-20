@@ -73,7 +73,7 @@
             {/each}
         </ul>
         <div slot="form">
-            <Button size="small" role="warning">{$_('app.action.validate')}</Button>
+            <Button size="small" role="warning" on:click={() => form = null}>{$_('app.action.validate')}</Button>
         </div>
     </Modal>
 {/if}

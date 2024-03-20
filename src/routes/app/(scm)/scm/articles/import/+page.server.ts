@@ -60,7 +60,7 @@ export const actions: Actions = {
 
                 // Parse article unit
                 const articleUnit = line[columns.indexOf("unit_of_work")];
-                if(articleUnit !== "")
+                if(articleUnit !== "" && articleUnit !== "0" && articleUnit !== undefined)
                 {
                     if(Object.keys(unit_of_work).includes(articleUnit))
                     {
