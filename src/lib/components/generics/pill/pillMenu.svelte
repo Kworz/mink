@@ -14,7 +14,7 @@
         {#if message}
             <span in:fade={{ duration: 100 }} out:fade={{ duration: 100 }} class="inline-block text-sm text-zinc-200">{message}</span>
         {/if}
-        <RoundButton icon={EllipsisHorizontal} on:click={() => $open = !$open}>actions</RoundButton>
+        <RoundButton icon={EllipsisHorizontal} on:click={() => $open = !$open} />
     </div>
 
     {#if $open}
