@@ -25,6 +25,7 @@
     import { browser } from "$app/environment";
     import Modal from "$lib/components/generics/modal/Modal.svelte";
     import TableCellCheckbox from "$lib/components/generics/table/TableCellCheckbox.svelte";
+    import EmptyDataFilter from "$lib/components/EmptyDataFilter.svelte";
 
     export let data: PageData;
     export let form: ActionData;
@@ -99,7 +100,7 @@
     {/if}
 </PillMenu>
 
-{#if data.articles.length > 0 || data.totalItems > 0}
+{#if data.articles.length > 0 || data.totalItems > 0 || Object.keys(filter).length > 0}
     <Filter2 class="my-6" bind:filter availableFilters={[
         { name: "name", default: true, type: "string" },
         { name: "reference", type: "string" },
@@ -108,73 +109,77 @@
         { name: "consumable", type: "boolean" }]}
     />
 
-    {#if $page.data.userSettings?.app_pages_top_of_table}
-        <TablePages class="mb-6" totalPages={Math.floor(data.totalItems / itemsPerPage) + 1} bind:currentPage={tablePage} bind:itemsPerPage={itemsPerPage} />
-    {/if}
+    {#if data.articles.length > 0}
+        {#if $page.data.userSettings?.app_pages_top_of_table}
+            <TablePages class="mb-6" totalPages={Math.floor(data.totalItems / itemsPerPage) + 1} bind:currentPage={tablePage} bind:itemsPerPage={itemsPerPage} />
+        {/if}
 
-    <Table headers={[
-        "selectAll", 
-        { label: `${$_('app.generic.article')} (${data.totalItems})`, colname: "name" }, 
-        { label: $_('app.generic.consumable'), colname: "consumable" }, 
-        { label: $_('app.generic.available_quantity') }, 
-        { label: $_('app.generic.stores') }, 
-        { label: $_('app.generic.sku'), colname: "reference" }, 
-        { label: $_('app.generic.suppliers') }, 
-        { label: $_('app.generic.brand'), colname: "brand" },    
-        { label: $_('app.generic.wap_short') }, 
-        { label: "Total prix stock"}]}
-        selectables={data.articles.map(a => a.id)}
-        bind:selected={selected}
-        bind:sort={sort}
-    >
-        {#each data.articles as article (article.id)}
+        <Table headers={[
+            "selectAll", 
+            { label: `${$_('app.generic.article')} (${data.totalItems})`, colname: "name" }, 
+            { label: $_('app.generic.consumable'), colname: "consumable" }, 
+            { label: $_('app.generic.available_quantity') }, 
+            { label: $_('app.generic.stores') }, 
+            { label: $_('app.generic.sku'), colname: "reference" }, 
+            { label: $_('app.generic.suppliers') }, 
+            { label: $_('app.generic.brand'), colname: "brand" },    
+            { label: $_('app.generic.wap_short') }, 
+            { label: "Total prix stock"}]}
+            selectables={data.articles.map(a => a.id)}
+            bind:selected={selected}
+            bind:sort={sort}
+        >
+            {#each data.articles as article (article.id)}
 
-            {@const price = computeArticlePrice(article.order_rows)}
-            {@const stockQuantity = article.store_relations.reduce((c, p) => p.quantity + c, 0)}
+                {@const price = computeArticlePrice(article.order_rows)}
+                {@const stockQuantity = article.store_relations.reduce((c, p) => p.quantity + c, 0)}
 
-                <TableCellCheckbox bind:group={selected} value={article.id} />
-                <TableCell>
-                    <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayInboundSupplies />
-                </TableCell>
-                <TableCell>
-                    <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? $_('app.generic.yes') : $_('app.generic.no')}</RoundedLabel>
-                </TableCell>
-                <TableCell>
-                    {#if article.critical_quantity}
-                        <span
-                            class:text-red-500={stockQuantity <= article.critical_quantity}
-                            class:font-semibold={stockQuantity <= article.critical_quantity}
-                        >
+                    <TableCellCheckbox bind:group={selected} value={article.id} />
+                    <TableCell>
+                        <ArticleRow {article} displayPrice={false} displayManufacturer={false} displayInboundSupplies />
+                    </TableCell>
+                    <TableCell>
+                        <RoundedLabel role={article.consumable ? "success" : "danger"}>{article.consumable ? $_('app.generic.yes') : $_('app.generic.no')}</RoundedLabel>
+                    </TableCell>
+                    <TableCell>
+                        {#if article.critical_quantity}
+                            <span
+                                class:text-red-500={stockQuantity <= article.critical_quantity}
+                                class:font-semibold={stockQuantity <= article.critical_quantity}
+                            >
+                                {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stockQuantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
+                            </span>         
+                        {:else}               
                             {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stockQuantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
-                        </span>         
-                    {:else}               
-                        {$_(`app.generic.units_of_work_number.${article.unit}`, {values: { n: stockQuantity / (article.unit_quantity ?? 1), b: article.unit_quantity }})}
-                    {/if}
-                </TableCell>
-                <TableCell>
-                    {#each article.store_relations.reduce((c, p) => [...c, p.store], new Array()) as store}
-                        <Store {store} />
-                    {/each}
-                </TableCell>
-                <TableCell>{article.reference}</TableCell>
-                <TableCell>
-                    <Flex gap={2} direction="row" wrap="wrap">
-                        {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.find(s => s.id === p.id) ? c : [...c, p], new Array())}
-                        {#each suppliers as supplier}
-                            <Supplier {supplier} />
-                        {:else}
-                            <span class="text-sm text-zinc-200">{$_('app.generic.suppliers_null')}</span>
+                        {/if}
+                    </TableCell>
+                    <TableCell>
+                        {#each article.store_relations.reduce((c, p) => [...c, p.store], new Array()) as store}
+                            <Store {store} />
                         {/each}
-                    </Flex>
-                </TableCell>
-                <TableCell>{(article.internal) ? $page.data.appSettings.company_name : article.brand}</TableCell>
-                
-                <TableCell><Price value={price} /></TableCell>
-                <TableCell><Price value={price * stockQuantity} /></TableCell>
-        {/each}
-    </Table>
+                    </TableCell>
+                    <TableCell>{article.reference}</TableCell>
+                    <TableCell>
+                        <Flex gap={2} direction="row" wrap="wrap">
+                            {@const suppliers = article.order_rows.map(or => or.order.supplier).reduce((c, p) => c.find(s => s.id === p.id) ? c : [...c, p], new Array())}
+                            {#each suppliers as supplier}
+                                <Supplier {supplier} />
+                            {:else}
+                                <span class="text-sm text-zinc-200">{$_('app.generic.suppliers_null')}</span>
+                            {/each}
+                        </Flex>
+                    </TableCell>
+                    <TableCell>{(article.internal) ? $page.data.appSettings.company_name : article.brand}</TableCell>
+                    
+                    <TableCell><Price value={price} /></TableCell>
+                    <TableCell><Price value={price * stockQuantity} /></TableCell>
+            {/each}
+        </Table>
 
-    <TablePages totalPages={Math.floor(data.totalItems / itemsPerPage) + 1} bind:currentPage={tablePage} bind:itemsPerPage={itemsPerPage} />
+        <TablePages totalPages={Math.floor(data.totalItems / itemsPerPage) + 1} bind:currentPage={tablePage} bind:itemsPerPage={itemsPerPage} />
+    {:else}
+        <EmptyDataFilter />
+    {/if}
 {:else}
     <EmptyData on:click={() => createArticle = true } />
 {/if}
