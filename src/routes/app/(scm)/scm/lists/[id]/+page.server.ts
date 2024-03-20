@@ -51,7 +51,6 @@ export const actions: Actions = {
         const form = await request.formData();
         const articleId = form.get("article")?.toString();
         const quantity = Number(form.get("quantity")?.toString());
-        const buylist = form.get("buylist")?.toString();
         let storeToUse = form.get('store')?.toString();
 
         if(articleId === undefined)
@@ -60,8 +59,6 @@ export const actions: Actions = {
         if(Number.isNaN(quantity))
             return fail(400, { buyListRelationEdit: { error: "Quantity is not a number" }});
 
-        if(buylist === undefined)
-            return fail(400, { buyListRelationEdit: { error: "Missing buylist ID" }});
 
         /// — Quantity data to check with
         const buylistArticleStoreRelation = await locals.prisma.scm_store_relation.findUnique({ where: { article_id_store_id: { article_id: articleId, store_id: list.store_id} }});
@@ -70,13 +67,25 @@ export const actions: Actions = {
         let storeToUseId: string | undefined = undefined;
 
         if(storeToUse === undefined && articleAvailableStores.length > 1)
-            return fail(400, { buyListRelationEdit: { article: { [articleId]: { error: "Multiple stores available for this article, please specify one", storesToGetFrom: articleAvailableStores.map(aas => aas.store) as scm_store[], quantity }}}});
+            return fail(400, { buyListRelationEdit: { 
+                error: "Multiple stores available for this article, please specify one", 
+                
+                article: articleId,
+                list: list.id,
+                storesToGetFrom: articleAvailableStores.map(aas => aas.store) as scm_store[], 
+                quantity 
+            }});
         else if(storeToUse === undefined && articleAvailableStores.length === 1)
             storeToUseId = articleAvailableStores.at(0)!.store_id;
         else if(storeToUse !== undefined)
             storeToUseId = storeToUse;
         else
-            return fail(500, { buyListRelationEdit: { error: "Something went wrong during store checking" }});
+            return fail(400, { buyListRelationEdit: { 
+                error: "No stores with the specified article", 
+
+                article: articleId,
+                list: list.id,
+            }});
 
         const articleQuantityDelta = quantity - (buylistArticleStoreRelation?.quantity ?? 0);
 
@@ -86,7 +95,13 @@ export const actions: Actions = {
             const availableQuantity = articleAvailableStores.find(storeRelation => storeRelation.store_id === storeToUseId)?.quantity;
 
             if(availableQuantity === undefined || availableQuantity < articleQuantityDelta)
-                return fail(400, { buyListRelationEdit: { article: { [articleId]: { error: "Not enough quantity in store", quantity }}}});
+                return fail(400, { buyListRelationEdit: { 
+                    error: "Not enough quantity in store", 
+                    
+                    article: articleId,
+                    list: list.id,
+                    quantity 
+                }});
 
             // update relations
 
@@ -112,13 +127,26 @@ export const actions: Actions = {
         else // Removing article from the list to the specied store if given
         {
             if(storeToUse === undefined && articleAvailableStores.length > 1)
-                return fail(400, { buyListRelationEdit: { article: { [articleId]: { error: "Multiple stores available for this article, please specify one", storesToSendTo: articleAvailableStores.map(aas => aas.store), quantity }}}});
+                return fail(400, { buyListRelationEdit: { 
+                    error: "Multiple stores available for this article, please specify one", 
+
+                    article: articleId,
+                    list: list.id,
+                    storesToSendTo: articleAvailableStores.map(aas => aas.store), 
+                    quantity 
+                }});
 
             // check if store has enough quantity (choose either from the specified store or the first available one as it is the default one)
             const availableQuantity = buylistArticleStoreRelation?.quantity;
 
             if(availableQuantity === undefined || availableQuantity < -articleQuantityDelta)
-                return fail(400, { buyListRelationEdit: { article: { [articleId]: { error: "Not enough quantity in list's store", quantity }}}});
+                return fail(400, { buyListRelationEdit: { 
+                    error: "Not enough quantity in list's store", 
+
+                    article: articleId,
+                    list: list.id, 
+                    quantity
+                }});
 
             // update relations
 
@@ -144,9 +172,10 @@ export const actions: Actions = {
 
         return {
             buyListRelationEdit: { 
-                article: {
-                    [articleId]: { success: true }
-                }
+                success: true,
+                
+                article: articleId,
+                list: list.id
             }
         };
     },

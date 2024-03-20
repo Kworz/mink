@@ -15,7 +15,6 @@
     import { Check, DocumentChartBar, DocumentPlus, QrCode, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData } from "./$types";
-    import type { scm_store } from "@prisma/client";
     import { computeArticlePrice } from "$lib/components/derived/article/article";
     import { page } from "$app/stores";
     import Filter from "$lib/components/derived/filter/Filter.svelte";
@@ -24,14 +23,14 @@
     import { _ } from "svelte-i18n";
     
     export let data: PageData;
-    export let form: ActionData | { buyListRelationEdit: { article: { [x:string]: ({ storesToGetFrom: scm_store[] } | { storesToSendTo: scm_store[]})}}}; // issue in sveltekit because of typescript https://github.com/sveltejs/kit/issues/9727
+    export let form: ActionData;
 
     let filter = $page.url.searchParams.has("articleFilter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("articleFilter")!)) : {};
     let sort = $page.url.searchParams.has("articleSort") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("articleSort") as string)) : {};
 
     let editList = false;
 
-    //$: if(form !== null && form.buyListRelationEdit?.success) { filter = ""; editList = false; invalidateAll(); setTimeout(() => { form = null; }, 2500) };
+    $: if(form !== null && form.buyListRelationEdit?.success) { setTimeout(() => { form = null; }, 3000) };
     //$: if(form?.generateFabOrders) { alert(form?.generateFabOrders.error ?? "no error given"); invalidateAll(); }
     $: if(form?.editList?.success) { editList = false; };
 
@@ -50,24 +49,24 @@
 
         <form action="?/editList" use:enhanceNoReset method="post" class="flex flex-col gap-4">
 
-            <FormInput name="name" type="text" label="Nom" required value={data.list.name} />
+            <FormInput name="name" type="text" label={$_('app.generic.name')} required value={data.list.name} />
 
-            <FormInput name="assembly" type="select" label="Assemblage" required value={data.list.assembly_id}>
+            <FormInput name="assembly" type="select" label={$_('app.generic.assembly')} required value={data.list.assembly_id}>
                 {#each data.assemblies as assembly}
                     <option value={assembly.id}>{assembly.name}</option>
                 {/each}
             </FormInput>
 
-            <FormInput name="project" type="select" label="Affaire" value={data.list.project_id}>
+            <FormInput name="project" type="select" label={$_('app.generic.project')} value={data.list.project_id}>
                 <option value="">—</option>
                 {#each data.projects as project}
                     <option value={project.id}>{project.name}</option>
                 {/each}
             </FormInput>
 
-            <FormInput name="closed" type="checkbox" label="Terminée" checked={data.list.closed} />
+            <FormInput name="closed" type="checkbox" label={$_('app.generic.terminated')} checked={data.list.closed} />
 
-            <Button role="warning">Modifier</Button>
+            <Button role="warning">{$_('app.action.update')}</Button>
         </form>
     </MenuSide>
 {/if}
@@ -83,9 +82,9 @@
 
 <h1>{data.list.name}</h1>
 
-<p>Affaire: <DetailLabel>{data.list.project?.name}</DetailLabel>.</p>
+<p>Affaire: <DetailLabel>{data.list.project?.name ?? "—"}</DetailLabel>.</p>
 <p>Assemblage de base: <DetailLabel>{data.list.assembly.name}</DetailLabel>.</p>
-<p>Terminée: <DetailLabel>{$_(`app.generic.boolean-other.${data.list.closed}`)}</DetailLabel>.</p>
+<p>Terminée: <DetailLabel>{$_('app.generic.boolean-other.' + data.list.closed)}</DetailLabel>.</p>
 
 <Filter class="my-6" bind:filter availableFilters={[
     { name: "name", default: true, type: "string" },
@@ -110,16 +109,16 @@
         {@const totalPrice = requiredQuantity * computeArticlePrice(article.order_rows)}
         {@const isValid = requiredQuantity <= storeQuantity}
 
+        {@const formData = (form?.buyListRelationEdit?.article === article.id) ? form.buyListRelationEdit : undefined}
+
         <TableCell><ArticleRow article={article} displayStock displayInboundSupplies /></TableCell>
         <TableCell>
             <form action="?/buyListRelationEdit" method="post" use:enhanceNoReset class="flex gap-4 items-center">
 
-                {#if form?.buyListRelationEdit !== undefined && "article" in form.buyListRelationEdit}
-                    {@const data = form.buyListRelationEdit.article[article.id]}
-
+                {#if data}
                     {#if "storesToGetFrom" in data}
                         <FormInput type="select" name="store" label="Choisir un stock de provenance" required>
-                            {#each data.storesToGetFrom as store}
+                            {#each formData.storesToGetFrom as store}
                                 <option value={store.id}>{store.name}</option>
                             {/each}
                         </FormInput>
@@ -127,7 +126,7 @@
 
                     {#if "storesToSendTo" in data}
                         <FormInput type="select" name="store" label="Choisir un stock de destination">
-                            {#each data.storesToSendTo as store}
+                            {#each formData.storesToSendTo as store}
                                 <option value={store.id}>{store.name}</option>
                             {/each}
                         </FormInput>
@@ -135,18 +134,17 @@
                 {/if}
 
                 <input type="hidden" name="article" value={article.id} />
-                <input type="hidden" name="buylist" value={data.list.id} />
                 <FormInput name="quantity" type="number" step={article.unit_quantity} 
                     max={requiredQuantity} 
-                    value={form?.buyListRelationEdit?.article[`${article.id}`]?.quantity ?? associatedStoreRelation?.quantity ?? 0}
-                    invalid={form?.buyListRelationEdit?.article[`${article.id}`]?.error !== undefined} 
-                    label={form?.buyListRelationEdit?.article[`${article.id}`]?.error ?? (form?.buyListRelationEdit?.article[`${article.id}`]?.success ?? undefined)} 
+                    value={formData?.quantity ?? associatedStoreRelation?.quantity ?? 0}
+                    invalid={formData?.error !== undefined} 
+                    label={formData?.error ?? formData?.success ?? undefined} 
                 />
                 <Button size="small"><Icon src={Check} class="h-4 w-4"/></Button>
             </form>
         </TableCell>
         <TableCell>{requiredQuantity}</TableCell>
         <TableCell><Price value={requiredPrice} /> / <Price value={totalPrice} /></TableCell>
-        <TableCell><RoundedLabel role={isValid ? "success" : "danger"}>{isValid ? "Oui" : "Non"}</RoundedLabel></TableCell>
+        <TableCell><RoundedLabel role={isValid ? "success" : "danger"}>{$_('app.generic.boolean-other.' + isValid)}</RoundedLabel></TableCell>
     {/each}
 </Table>
