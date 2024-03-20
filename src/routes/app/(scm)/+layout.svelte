@@ -4,7 +4,7 @@
     import Menu from "$lib/components/generics/menu/Menu.svelte";
     import MenuItem from "$lib/components/generics/menu/MenuItem.svelte";
     import MenuSeparator from "$lib/components/generics/menu/MenuSeparator.svelte";
-    import { ArchiveBox, ChevronLeft, CircleStack, ClipboardDocumentCheck, DocumentChartBar, DocumentText, PuzzlePiece, QueueList, Truck, Wrench } from "@steeze-ui/heroicons";
+    import { ArchiveBox, ChevronLeft, ChevronRight, CircleStack, ClipboardDocumentCheck, DocumentChartBar, DocumentText, PuzzlePiece, QueueList, Truck, Wrench } from "@steeze-ui/heroicons";
     
     import type { LayoutData } from "./$types";
     import { _ } from "svelte-i18n";
@@ -16,7 +16,7 @@
 
 <Flex gap={0} class="h-screen w-screen overflow-hidden" direction={$page.data.userSettings?.app_menu_left === false ? "rowReverse" : "row"}>
     <Menu>
-        <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
+        <MenuItem icon={$page.data.userSettings?.app_menu_left ? ChevronLeft : ChevronRight} href="/app" label="Accueil" />
 
         <MenuSeparator>Articles</MenuSeparator>
         <MenuItem icon={CircleStack} href="/app/scm/articles" label="Base articles" />

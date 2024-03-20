@@ -1,6 +1,6 @@
 <script lang="ts">
     
-    import { ChevronLeft, ListBullet, UserGroup, Sparkles } from "@steeze-ui/heroicons";
+    import { ChevronLeft, ListBullet, UserGroup, Sparkles, ChevronRight } from "@steeze-ui/heroicons";
     import Flex from "$lib/components/generics/layout/flex.svelte";
     import Menu from "$lib/components/generics/menu/Menu.svelte";
     import MenuItem from "$lib/components/generics/menu/MenuItem.svelte";
@@ -11,7 +11,7 @@
 
 <Flex gap={0} class="h-screen w-screen overflow-hidden" direction={$page.data.userSettings?.app_menu_left === false ? "rowReverse" : "row"}>
     <Menu>
-        <MenuItem icon={ChevronLeft} href="/app" label="Accueil" />
+        <MenuItem icon={$page.data.userSettings?.app_menu_left ? ChevronLeft : ChevronRight} href="/app" label="Accueil" />
 
         <MenuSeparator />
         <MenuItem icon={ListBullet} href="/app/crm/leads" label="Leads" />
