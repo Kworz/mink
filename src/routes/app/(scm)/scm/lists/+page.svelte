@@ -68,14 +68,17 @@
     <MenuSide on:close={() => createList = false} title="Créer une liste">
         <form action="?/createList" method="post" use:enhance class="flex flex-col gap-4">
             <FormInput name="name" label="Nom de la liste" required min={3} />
-            <FormInput name="assembly_id" type="select" label="Assemblage" required>
-                <option value={undefined}>—</option>
+
+            <FormInput name="store_location" label="Emplacement de stockage" />
+
+            <FormInput name="assembly_id" type="select" label="Assemblage" required value="">
+                <option value="">—</option>
                     {#each data.assemblies as assembly}
                         <option value={assembly.id}>{assembly.name}</option>
                     {/each}
             </FormInput>
-            <FormInput name="project_id" type="select" label="Affaire">
-                <option value={undefined}>—</option>
+            <FormInput name="project_id" type="select" label="Affaire" value="">
+                <option value="">—</option>
                 {#each data.projects as project}
                     <option value={project.id}>{project.name}</option>
                 {/each}
@@ -83,7 +86,7 @@
 
             <FormInput name="multipleCreate" label="Créer plusieurs listes" type="checkbox" bind:checked={createMultipleLists} />
 
-            {#if createMultipleLists}<FormInput name="list_amount" type="number" label="Nombre de listes" min={2} step={1} />{/if}
+            {#if createMultipleLists}<FormInput name="list_amount" type="number" label="Nombre de listes" min={2} step={1} value={2} />{/if}
 
             <Button>Créer</Button>
         </form>
@@ -97,7 +100,7 @@
     <PillMenuButton icon={PlusCircle} click={() => createList = !createList}>Créer une liste</PillMenuButton>
     {#if selected.length > 0}
         {@const firstList = data.lists.find(list => list.id === selected[0])}
-        {#if !selected.some(s => data.lists.find(l => l.id === s)?.assembly !== firstList?.assembly)}
+        {#if !selected.some(s => data.lists.find(l => l.id === s)?.assembly_id !== firstList?.assembly_id)}
             <PillMenuButton role="primary" icon={Squares2x2} click={() => goto(`/app/scm/lists/grid?ids=${selected.join(",")}`)}>Ouvrir la grille</PillMenuButton>
         {/if}
 

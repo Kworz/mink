@@ -82,32 +82,40 @@ export const actions = {
             for(let i = 0; i < listAmount; i++)
             {
                 const listName = `${name} #${i+1}`;
-                const store = await locals.prisma.scm_store.create({
-                    data: { 
-                        name: listName,
-                        location: storeLocation,
 
-                        assemblies_buylist: {
-                            create: {
-                                name: listName,
-                                assembly_id: assembly.id,
-                                project_id: projectId,
-                            }
-                        }
-                    },
-                    include: { assemblies_buylist: true },
-                });
-
-                const listId = store.assemblies_buylist?.id;
-
-                if(listId === undefined)
+                try
                 {
-                    console.error("Failed to find created list store");
+                    const store = await locals.prisma.scm_store.create({
+                        data: { 
+                            name: listName,
+                            location: storeLocation,
+    
+                            assemblies_buylist: {
+                                create: {
+                                    name: listName,
+                                    assembly_id: assembly.id,
+                                    project_id: projectId,
+                                }
+                            }
+                        },
+                        include: { assemblies_buylist: true },
+                    });
+    
+                    const listId = store.assemblies_buylist?.id;
+    
+                    if(listId === undefined)
+                    {
+                        console.error("Failed to find created list store");
+                        return fail(500, { createList: { error: "errors.generic" }});
+                    }
+                    createdLists.push(listId);
+                }
+                catch(ex)
+                {
+                    console.error(ex);
                     return fail(500, { createList: { error: "errors.generic" }});
                 }
-                createdLists.push(listId);
             }
-
             return redirect(302, `/app/scm/lists/grid/?ids=${createdLists.join(",")}`);
         }
     },
@@ -121,6 +129,7 @@ export const actions = {
             return fail(400, { deleteList: { error: "errors.scm.lists.delete.ids-invalid" }});
 
         try {
+            await locals.prisma.scm_store.deleteMany({ where: { assemblies_buylist: { id: { in: listsIds.split(",") }}}});
             await locals.prisma.scm_assembly_buylist.deleteMany({ where: { id: { in: listsIds.split(",") }}});
 
             return { deleteList: { success: true }};
