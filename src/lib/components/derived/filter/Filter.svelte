@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { appendFilter, predictField, type Filter, type FilterSuggestion, type PrismaFilter } from "$lib/components/derived/filter/filter";
-    import Button from "$lib/components/generics/Button.svelte";
+    import { appendFilter, predictField, type Filter, type FilterSuggestion, type PrismaFilter, type PrismaFilterType } from "$lib/components/derived/filter/filter";
     import Input from "$lib/components/generics/inputs/Input.svelte";
     import Flex from "$lib/components/generics/layout/flex.svelte";
-    import Modal from "$lib/components/generics/modal/Modal.svelte";
-    import { Check, Funnel } from "@steeze-ui/heroicons";
+    import { Check } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import { _ } from "svelte-i18n";
+    import FilterLabel from "./FilterLabel.svelte";
+    import FilterType from "./FilterType.svelte";
     
     /// — INPUT DATA
 
@@ -18,18 +18,18 @@
     /** Base 64 Encoded & Stringified JSON filter */
     export let filter: PrismaFilter = {};
 
+    let filterMode: PrismaFilterType = "AND";
+
     let inputElement: HTMLInputElement | undefined = undefined;
     let inputInvalid = false;
     let tempFilter: string = "";
     let suggestions: FilterSuggestion = { values: [] };
     let selectedSuggestion = 0;
 
-    let showCompleteFilter = false;
-
     const convertFilter = () => {
         try
         {
-            filter = appendFilter(tempFilter, filter, availableFilters);
+            filter = appendFilter(tempFilter, filter, availableFilters, filterMode);
             tempFilter = "";
         }
         catch(ex)
@@ -76,6 +76,11 @@
             selectedSuggestion = (suggestions.values.length - 1 > selectedSuggestion) ? selectedSuggestion + 1 : (suggestions.values.length - 1);
             e.preventDefault();
         }
+        else if(e.key === "Backspace" && tempFilter.length === 0)
+        {
+            filter[filterMode]?.pop();
+            filter = filter;
+        }
     }
 
     $: if(inputInvalid) { setTimeout(() => inputInvalid = false, 2500); }
@@ -83,36 +88,28 @@
     $: suggestions = predictField(tempFilter, availableFilters), selectedSuggestion = 0;
 </script>
 
-{#if showCompleteFilter}
-    <Modal title="Filter" on:close={() => showCompleteFilter = false}>
-        {#each Object.keys(filter) as filterField, i}
-            <h3>{$_('app.filter.filter_condition', { values: { n: i + 1 }})}: <code>{filterField}</code>.</h3>
-            <ul>
-                {#if filter[filterField] instanceof Object && !(filter[filterField] instanceof Array)}
-                    {#each Object.entries(filter[filterField]) as [key, value]}
-                        <li class="flex flex-row justify-between">
-                            <span>{$_('app.filter.operands.' + key)}: <code>{value}</code>.</span>
-                            <Button size="small" role="danger" on:click={() => { delete filter[filterField][key]; if(Object.keys(filter[filterField]).length === 0) { delete filter[filterField]; } filter = filter; showCompleteFilter = !(Object.keys(filter).length === 0) } }>{$_('app.action.delete')}</Button>
-                        </li>
-                    {/each}
-                {:else}
-                    <li>{filterField} {filter[filterField]}</li>
-                {/if}
-            </ul>
-        {/each}
-    </Modal>
-{/if}
-
 <Flex direction="col" gap={2} class={$$props.class}>
     <Input bind:value={tempFilter} placeholder={"Filtre"} on:keydown={inputKeyUp} bind:input={inputElement} invalid={inputInvalid}>
         <svelte:fragment slot="before">
-            {#if Object.keys(filter).length > 0}
-                <button on:click|preventDefault={() => showCompleteFilter = true} class="text-violet-500 hover:text-violet-500/75 duration-100 text-sm flex flex-row items-center gap-1 ml-2">
-                    <Icon src={Funnel} class="h-5 w-5"/>
-                    {$_('app.filter.edit_filter')}
-                </button>
-            {/if}
+
+            <select bind:value={filterMode} class="text-sm bg-transparent ml-2">
+                <option value="OR">{$_('app.filter.or')}</option>
+                <option value="AND">{$_('app.filter.and')}</option>
+                <option value="NOT">{$_('app.filter.not')}</option>
+            </select>
+
+            {#each ["OR", "AND"] as key}
+                {#if filter[key] !== undefined}
+                    {#each filter[key] as filterElement, index}
+                        {#if index !== 0}
+                            <FilterType filterType="AND" />
+                        {/if}
+                        <FilterLabel filter={filterElement} />
+                    {/each}
+                {/if}
+            {/each}
         </svelte:fragment>
+
         <Flex gap={2} class="mr-2">
             <button on:click|preventDefault={convertFilter}>
                 <Icon src={Check}  class="h-6 w-6 text-emerald-500 hover:text-emerald-500/75 duration-300"/>

@@ -35,10 +35,19 @@ export type FilterSuggestion = {
     type?: "field" | "operands" | "value" 
 };
 
-/** Base prisma filter type */
 export type PrismaFilter = {
-    [x: string]: PrismaFilter | string | number | boolean | string[] | undefined
+    'OR'?: PropsPrismaFilter[],
+    'AND'?: PropsPrismaFilter[],
+    'NOT'?: PropsPrismaFilter,
 }
+
+/** Base prisma filter type */
+export type PropsPrismaFilter = {
+    [x: string]: PropsPrismaFilter | string | number | boolean | string[] | undefined,
+    mode?: "insensitive"
+}
+
+export type PrismaFilterType = "AND" | "OR" | "NOT";
 
 /**
  * Convert an unknown values with string type to a value with its inferred type
@@ -102,45 +111,47 @@ function validateFilterValue(filterValue: any, expectedType: Filter["type"]): bo
  * @param availableFilters avaialble filters we can rely on
  * @returns The modified filter
  */
-export function appendFilter(filterQuery: string, filter: PrismaFilter, availableFilters: Array<Filter>): PrismaFilter
+export function appendFilter(filterQuery: string, filter: PrismaFilter, availableFilters: Array<Filter>, filterType: PrismaFilterType): PrismaFilter
 {
     if(filterQuery.length === 0)
         throw "Filter length too small";
 
     const defaultFilter = availableFilters.find(k => k.default === true);
-    const regexMatches = filterQuery.match(/([\w|.]*) (\w*) (.*)/);
+    const advancedFilterRegex = filterQuery.match(/([\w|.]*) (gt|lt|gte|lte|contains|not|equals|) (.*)/);
 
-    if(regexMatches === null) /// Only a text is given
+    if(advancedFilterRegex === null) /// Only a text is given
     {
         if(defaultFilter === undefined)
             throw "No default filter found";
 
         const filterValue = defaultFilter.type === "string" ? filterQuery : convertUnknownValue(filterQuery);
 
-        if(filter[defaultFilter.name])
-            filter[defaultFilter.name] = { ...filter[defaultFilter.name] as Object, [(typeof filterValue === "string") ? "contains" : "equals"]: filterValue } as PrismaFilter;
-        else
-            filter[defaultFilter.name] = { [defaultFilter.type === "string" ? "contains" : "equals"]: filterValue };
+        if(filter[filterType] === undefined && ["OR", "AND"].includes(filterType))
+            filter[filterType] = [];
 
+        if(filter[filterType] !== undefined && ["OR", "AND"].includes(filterType))
+            filter[filterType].push({ [defaultFilter.name]: { [(typeof filterValue === "string") ? "contains" : "equals"]: filterValue, mode: "insensitive" } });
+        else
+            filter[filterType] = { [defaultFilter.name]: { [(typeof filterValue === "string") ? "contains" : "equals"]: filterValue, mode: "insensitive" } };
     }
-    else if(regexMatches.length === 4) /// Enough parts to create a filter
+    else if(advancedFilterRegex.length === 4) /// Enough parts to create a filter
     {
-        const field = regexMatches[1];
+        const field = advancedFilterRegex[1];
         const expectedType = availableFilters.find(k => k.name === field)?.type || "string";
 
-        const filterValue = expectedType === "string" ? regexMatches[3] : convertUnknownValue(regexMatches[3]);
-        const operator = regexMatches[2] as FilterCondition["operator"];
+        const filterValue = expectedType === "string" ? advancedFilterRegex[3] : convertUnknownValue(advancedFilterRegex[3]);
+        let operator = advancedFilterRegex[2] as FilterCondition["operator"];
 
         if(!validateFilterValue(filterValue, expectedType))
             throw "Invalid filter value";
 
-        if(validateFilterOperator(filterValue, operator))
-            if(filter[field] === undefined)
-                filter[field] = { [operator]: filterValue };
-            else
-                filter[field] = { ...filter[field] as Object, [operator]: filterValue } as PrismaFilter;
+        if(filter[filterType] === undefined && ["OR", "AND"].includes(filterType))
+            filter[filterType] = [];
+
+        if(filter[filterType] !== undefined && ["OR", "AND"].includes(filterType))
+            filter[filterType].push({ [field]: { [operator]: filterValue, mode: "insensitive" } });
         else
-            throw "Invalid filter operator";
+            filter[filterType] = { [field]: { [operator]: filterValue, mode: "insensitive" } };
     }
     else
         throw "no default filter found";
