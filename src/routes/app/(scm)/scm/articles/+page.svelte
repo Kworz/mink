@@ -32,7 +32,7 @@
 
     let filter = $page.url.searchParams.has("filter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("filter") as string)) : {};
     let sort = $page.url.searchParams.has("sort") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("sort") as string)) : {};
-    let tablePage = $page.url.searchParams.has("page") ? parseInt($page.url.searchParams.get("page") as string) : 0;
+    let tablePage = $page.url.searchParams.has("page") ? parseInt($page.url.searchParams.get("page") as string) : 1;
     let itemsPerPage = $page.url.searchParams.has("itemsPerPage") ? parseInt($page.url.searchParams.get("itemsPerPage") as string) : 50;
     
     let selected: Array<string> = [];
@@ -82,7 +82,6 @@
                 <Button size="small" role="danger" suspense={deleteArticleSuspense}>{$_('app.action.delete')}</Button>
                 <Button size="small" preventSend role="tertiary" click={() => deleteArticles = false}>{$_('app.generic.cancel')}</Button>
             {/if}
-            
         </form>
     </Modal>
 {/if}
@@ -90,14 +89,15 @@
 <h1>{$_('app.generic.articles')}</h1>
 <p>{$_('scm.articles.description')}</p>
 
-<PillMenu message={selected.length > 0 ? $_('scm.articles.selected', { values: { n: selected.length }}) : undefined}>
+<PillMenu message={selected.length > 0 ? $_('scm.articles.selected', { values: { n: selected.length }}) : undefined} selection={selected.length}>
     <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>{$_('app.action.create_article')}</PillMenuButton>
     <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">{$_('scm.articles.action.import_articles')}</PillMenuButton>
     <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/?articles=${selected.join(',')}`, '_blank')?.focus()} role="secondary">{$_('scm.articles.action.export_articles', { values: { n: selected.length }})}</PillMenuButton>
-    {#if selected.length > 0}
+    
+    <svelte:fragment slot="selection">
         <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>{$_('scm.articles.action.print_label', { values: { n: selected.length }})}</PillMenuButton>
         <PillMenuButton icon={Trash} click={() => deleteArticles = true}>{$_('scm.article.actions.delete', { values: { n: selected.length }})}</PillMenuButton>
-    {/if}
+    </svelte:fragment>
 </PillMenu>
 
 {#if data.articles.length > 0 || data.totalItems > 0 || Object.keys(filter).length > 0}
@@ -176,7 +176,7 @@
             {/each}
         </Table>
 
-        <TablePages totalPages={Math.floor(data.totalItems / itemsPerPage) + 1} bind:currentPage={tablePage} bind:itemsPerPage={itemsPerPage} />
+        <TablePages class="mt-6" totalPages={Math.floor(data.totalItems / itemsPerPage) + 1} bind:currentPage={tablePage} bind:itemsPerPage={itemsPerPage} />
     {:else}
         <EmptyDataFilter />
     {/if}
