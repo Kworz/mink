@@ -12,7 +12,7 @@
 </script>
 
 <a href="/app/scm/assemblies/{id}">
-    <button class="{id === $page.params.id ? "hover:bg-violet-200 hover:text-violet-800 bg-violet-500 text-white" : "hover:bg-violet-200 hover:text-violet-900 bg-zinc-700"} rounded-md py-2 px-3 font-medium duration-200 relative text-left {lines}" style:z-index={zIndex}>
+    <button class="{id === $page.params.id ? "hover:bg-violet-200 hover:text-violet-800 bg-violet-500 text-white" : "hover:bg-violet-200 hover:text-violet-900 bg-zinc-700"} rounded-md py-2 px-3 flex items-center font-medium duration-200 relative text-left {lines}" style:z-index={zIndex}>
         <slot />
     </button>
 </a>
