@@ -137,10 +137,13 @@ export const actions: Actions = {
         {
             const articleId = form.get("child_article_id")?.toString();
             const parentId = params.id;
-            const quantity = form.get("quantity")?.toString();
+            const quantity = Number(form.get("quantity"));
 
             if(articleId === undefined || quantity === undefined)
                 throw "Article and quantity is required";
+
+            if(isNaN(quantity))
+                return fail(400, { addAssemblySubArticle: { error: "Article and quantity is not a number" }})
 
             const lastRelation = await locals.prisma.scm_assembly_relation_article.findFirst({ where: { parent_id: parentId }, orderBy: { order: "desc" }});
 
@@ -148,7 +151,7 @@ export const actions: Actions = {
 
                 parent_id: parentId,
                 article_child_id: articleId,
-                quantity: parseInt(quantity),
+                quantity,
                 order: (lastRelation?.order !== undefined ? lastRelation.order + 1 : 0),
 
             }});
@@ -360,8 +363,6 @@ export const actions: Actions = {
             }
     },
     deleteRelation: async ({ locals, request }) => {
-
-        //TODO: Figure out the cascade rule that prevent deletion of relations
         
         const form = await request.formData();
 
@@ -371,10 +372,16 @@ export const actions: Actions = {
             const subAssemblyRelationId = form.get("subassembly_relation_id")?.toString();
 
             if(articleRelationId !== undefined)
+            {
                 await locals.prisma.scm_assembly_relation_article.delete({ where: { id: articleRelationId }});
-            
+                return { deleteRelation: { success: "Successfully deleted relation" }};
+            }
+                
             if(subAssemblyRelationId !== undefined)
+            {
                 await locals.prisma.scm_assembly_relation_sub_assembly.delete({ where: { id: subAssemblyRelationId }});
+                return { deleteRelation: { success: "Successfully deleted relation" }};
+            }
             
         }
         catch(ex)
@@ -382,7 +389,5 @@ export const actions: Actions = {
             console.error(ex);
             return fail(500, { deleteAssembly: { error: "Failed to delete assembly" }});
         }
-
-        return { deleteRelation: { success: "Successfully deleted relation" }};
     }
 }

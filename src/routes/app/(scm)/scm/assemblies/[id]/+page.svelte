@@ -27,6 +27,7 @@
     import { page } from "$app/stores";
     import { browser } from "$app/environment";
     import AssemblyFinder from "$lib/components/derived/assemblies/AssemblyFinder.svelte";
+    import { unitOfWork } from "$lib/units/unitOfWork";
 
     export let data: PageData;
     export let form: ActionData;
@@ -55,7 +56,10 @@
 
     $: selectedRelations = [...selectedArticles, ...selectedAssemblies];
 
-    $: if(form !== null) { invalidateAll(); editAssembly = false; copyAssembly = false; editAssemblyDeleteThumbnail = false; };
+    $: if(form !== null) { editAssembly = false; copyAssembly = false; editAssemblyDeleteThumbnail = false; };
+    $: if(form !== null && form.addAssemblySubArticle !== undefined && "success" in form.addAssemblySubArticle) { addArticleSelected = undefined; articleFilter = {}; }
+    $: if(form !== null && form.deleteRelation !== undefined && "success" in form.deleteRelation) { deleteArticleRelation = undefined; deleteSubAssemblyRelation = undefined; }
+    $: if(form !== null && form.moveRelations !== undefined && "success" in form.moveRelations) { selectedArticles = []; selectedAssemblies = []; moveRelationsToSubAssembly = false; }
 
     $: articleFilter, refresh();
 
@@ -83,7 +87,7 @@
             {/if}
 
             <Flex>
-                <Button>Valider les modifications</Button>
+                <Button>{$_('app.action.validate')}</Button>
                 <Button role="warning" on:click={() => editAssembly = false}>{$_('app.generic.cancel')}</Button>
             </Flex>
         
@@ -115,8 +119,8 @@
         <p>{$_('scm.assembly.action.delete_relation.body')}</p>
 
         <form action="?/deleteRelation" method="post" use:enhance slot="form" class="flex gap-2">
-            <input type="hidden" name="subassembly_relation_id" value={deleteArticleRelation?.id} />
-            <input type="hidden" name="article_relation_id" value={deleteSubAssemblyRelation?.id} />
+            <input type="hidden" name="article_relation_id" value={deleteArticleRelation?.id} />
+            <input type="hidden" name="subassembly_relation_id" value={deleteSubAssemblyRelation?.id} />
             <Button role="danger" size="small">{$_('app.generic.yes')}</Button>
             <Button role="tertiary" size="small" preventSend on:click={() => {deleteArticleRelation = undefined; deleteSubAssemblyRelation = undefined}}>{$_('app.generic.cancel')}</Button>
         </form>
@@ -144,13 +148,14 @@
 {#if data.assembly.description} <p>{data.assembly.description}</p> {/if}  
 <p>{$_('scm.assembly.assembly_time')}: <DetailLabel>{data.assembly.assembly_time} {$_('app.time.hours')}</DetailLabel>.</p>
 
-<PillMenu message={(selectedRelations.length > 0) ? `${selectedRelations.length} Éléments selectionnés` : undefined}>
+<PillMenu message={(selectedRelations.length > 0) ? `${selectedRelations.length} Éléments selectionnés` : undefined} selection={selectedRelations.length}>
     <PillMenuButton icon={WrenchScrewdriver} click={() => editAssembly = !editAssembly}>Modifier l'assemblage</PillMenuButton>
     <PillMenuButton icon={DocumentDuplicate} click={() => copyAssembly = true}>Copier l'assemblage</PillMenuButton>
     <PillMenuButton icon={Trash} click={() => deleteAssembly = true}>Supprimer l'assemblage"</PillMenuButton>
-    {#if selectedRelations.length > 0}
+    
+    <svelte:fragment slot="selection">
         <PillMenuButton icon={DocumentChartBar} click={() => moveRelationsToSubAssembly = true}>Déplacer les éléments vers un sous-assemblage</PillMenuButton>
-    {/if}
+    </svelte:fragment>
 </PillMenu>
 
 <Flex class="mt-6" gap={6}>
@@ -212,6 +217,7 @@
         <Table class="!mt-0" headers={["selectAll", { label: `${$_('app.generic.articles')} (${data.assembly.article_childrens.length})`}, { label: $_('app.generic.quantity') }, { label: $_('app.action.delete')}]}>
             {#each data.assembly.article_childrens as subArticleRelation, index (subArticleRelation.id)}
                 <TableCell class="items-center">
+                    
                     <form action="?/updateAssemblySubArticleRelationOrder" method="post" use:enhance class="flex flex-col gap-2">
                         <input type="hidden" name="id" value={subArticleRelation.id} />
                         <input type="hidden" name="order" value={subArticleRelation.order} />
@@ -234,9 +240,10 @@
                     <ArticleRow article={subArticleRelation.article_child} displayStock displayInboundSupplies />
                 </TableCell>
                 <TableCell>
+                    {@const { step, min } = unitOfWork(subArticleRelation.article_child)}
                     <form action="?/updateAssemblySubArticleRelation" method="post" use:enhanceNoReset>
                         <input type="hidden" name="relation_id" value={subArticleRelation.id} />
-                        <FormInput name="quantity" type="number" bind:value={subArticleRelation.quantity} validateOnChange />
+                        <FormInput name="quantity" type="number" bind:value={subArticleRelation.quantity} validateOnChange {step} {min} />
                     </form>
                 </TableCell>
                 <TableCell>
@@ -244,13 +251,14 @@
                 </TableCell>
             {/each}
 
-            {#if data.articles.length > 0}
+            {#if data.articles.length > 0 || Object.keys(articleFilter).length > 0}
                 <TableFootCell class="col-span-4">
                     <h3>{$_('app.action.add_article')}</h3>
                     <form action="?/addAssemblySubArticle" method="post" use:enhance class="flex flex-row gap-8 items-end mt-2">
                         <ArticleFinder articles={data.articles.slice(-3)} bind:selectedArticle={addArticleSelected} bind:filter={articleFilter} formFieldName="child_article_id" />
                         {#if addArticleSelected !== undefined}
-                            <FormInput name="quantity" label={$_('app.generic.quantity')} required type="number" />
+                            {@const { step, min } = unitOfWork(addArticleSelected)}
+                            <FormInput name="quantity" label={$_('app.generic.quantity')} required type="number" value={addArticleSelected.unit_quantity ?? 1} {step} {min} />
                             <Button>{$_('app.action.add')}</Button>
                         {/if}
                     </form>
