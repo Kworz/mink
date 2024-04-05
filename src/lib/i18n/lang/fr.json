@@ -175,7 +175,10 @@
                 "notIn": "N'est pas dans"
             },
             "filter_condition": "{n, plural, =1 {Première} =2 {Deuxiemme} =3 {Troisiemme} =4 {Quatriemme} =5 {Cinquiemme} =6 {Sixiemme} =7 {Septiême} =8 {Huitiême} =9 {Neuviême} =10 {Dixiême} =11 {Onziême} =12 {Douziême} =13 {Treiziême} =14 {Quatorziême} =15 {Quinziême} =16 {Seiziême} =17 {Dix-septiême} =18 {Dix-huitiême} =19 {Dix-neuviême} =20 {Vingtiême} other {#ième}} condition de filtre",
-            "edit_filter": "Modifier le filtre"
+            "edit_filter": "Modifier le filtre",
+            "or": "Ou",
+            "and": "Et",
+            "not": "N'est pas"
         },
         "empty_data": {
             "title": "Aucun élément à afficher 🥲",

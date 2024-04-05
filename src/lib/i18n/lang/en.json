@@ -117,7 +117,10 @@
             "title": "S3 Configuration"
         },
         "filter": {
-            "edit_filter": "Edit filter"
+            "edit_filter": "Edit filter",
+            "or": "Or",
+            "and": "And",
+            "not": "Is not"
         },
         "empty_data": {
             "title": "No data to display 🥲",
