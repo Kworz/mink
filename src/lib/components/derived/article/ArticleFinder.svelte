@@ -13,6 +13,8 @@
 
     export let formFieldName: string | undefined = undefined;
 
+    $: if(articles.length === 1 && Object.keys(filter).length > 0) { selectedArticle = articles.at(0); }
+
 </script>
 
 <Flex direction="col" items="start" gap={4} class="w-full">
