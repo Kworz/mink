@@ -64,13 +64,6 @@ model app_settings {
 
 enum app_settings_keys {
 
-  // mink settings
-  app_configured
-
-  // mink s3 settings
-  app_s3_region
-  app_s3_bucketname
-
   // company settings
   company_name
 
