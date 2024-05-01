@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PageData, ActionData } from "./$types";
+    import type { ActionData } from "./$types";
 
     import { page } from "$app/stores";
     import { invalidateAll } from "$app/navigation";
@@ -16,9 +16,9 @@
 <h1>Profil de {$page.data.user?.username}</h1>
 <p>Modifiez votre profil ici</p>
 
-<h2>Réglages personel de mink</h2>
+<h2 class="mt-4">Réglages personel de mink</h2>
 
-<div class="grid grid-cols-2 gap-4 mt-6">
+<div class="grid grid-cols-2 gap-4 mt-2">
     {#each Object.entries($page.data.userSettings ?? []) as [key, value]}
         <form action="?/updateUserSettings" method="post" use:enhanceNoReset>
             <input name="key" value={key} type="hidden" />

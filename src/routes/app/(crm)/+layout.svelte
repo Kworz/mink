@@ -14,14 +14,13 @@
         <MenuItem icon={$page.data.userSettings?.app_menu_left ? ChevronLeft : ChevronRight} href="/app" label="Accueil" />
 
         <MenuSeparator />
+
         <MenuItem icon={ListBullet} href="/app/crm/leads" label="Leads" />
         <MenuItem icon={UserGroup} href="/app/crm/companies" label="Sociétés & Contacts" />
         <MenuItem icon={Sparkles} href="/app/crm/interests" label="Interets" />
-
     </Menu>
 
     <div class="grow overflow-x-hidden overflow-y-scroll">
-
         <div class="relative w-full p-10 pl-6" id="main_content">
             <slot />
         </div>
