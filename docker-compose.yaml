@@ -16,10 +16,10 @@ services:
       - DATABASE_URL=postgres://mink:password@pg_database:5432/mink
       - S3_ENDPOINT=http://s3:9000/
       - S3_BUCKET_NAME=mink
-      - S3_ACCESS_KEY_ID=EKDR0I2OQgPdQQ6WASfR
-      - S3_SECRET_ACCESS_KEY=zdFcLrKTLosNaUKcPnny16gKKTHwv0gacbqzJDTw
-      - BRIDGEAPI_CLIENTID=SECRET
-      - BRIDGEAPI_CLIENTSECRET=SECRET2
+      - S3_ACCESS_KEY_ID=S3_SECRET
+      - S3_SECRET_ACCESS_KEY=S3_SECRET
+      - BRIDGEAPI_CLIENTID=BAPI_SECRET
+      - BRIDGEAPI_CLIENTSECRET=BAPI_SECRET
     depends_on:
       - pg_database
       - s3
