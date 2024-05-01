@@ -75,24 +75,24 @@ export const actions: Actions = {
             if(oldLogo !== null && (!form.has("logo") || logo === undefined))
             {
                 const deleteObjectCommand = new DeleteObjectCommand({
-                    Bucket: locals.appSettings!.app_s3_bucketname,
-                    Key: `scm/supplier/${id}/logo.${oldLogo.split(".").at(-1)}`
+                    Bucket: process.env.S3_BUCKET_NAME as string,
+                    Key: `scm/supplier/${id}/logo.${oldLogo.split(".").at(-1)}`,
                 });
 
                 const deleteResult = await locals.s3.send(deleteObjectCommand);
-
                 await locals.prisma.scm_supplier.update({ where: { id }, data: { logo: null }});
-
                 if(deleteResult.DeleteMarker === false)
-                    return fail(500, { upsertSupplier: { error: "errors.scm.supplier.upsert.old_logo_delete_failed" }});
+                    console.error("Failed deleting old image, might have been moved already");
             }
 
             if(logo)
             {
                 const newLogoName = `logo.${logo.name.split(".").at(-1)}`;
 
+                console.log(newLogoName);
+
                 const uploadCommand = new PutObjectCommand({
-                    Bucket: locals.appSettings!.app_s3_bucketname,
+                    Bucket: process.env.S3_BUCKET_NAME as string,
                     Key: `scm/supplier/${id}/${newLogoName}`,
 
                     //@ts-ignore
@@ -103,17 +103,6 @@ export const actions: Actions = {
 
                 if(uploadResult.$metadata.httpStatusCode !== 200)
                     return fail(500, { upsertSupplier: { error: "errors.scm.supplier.upsert.logo_upload_failed" }});
-
-                const aclCommand = new PutObjectAclCommand({
-                    Bucket: locals.appSettings!.app_s3_bucketname,
-                    Key: `scm/supplier/${id}/${newLogoName}`,
-                    ACL: "public-read"
-                });
-
-                const aclResult = await locals.s3.send(aclCommand);
-
-                if(aclResult.$metadata.httpStatusCode !== 200)
-                    return fail(500, { upsertSupplier: { error: "errors.scm.supplier.upsert.logo_acl_failed" }});
 
                 await locals.prisma.scm_supplier.update({ where: { id }, data: { logo: newLogoName }});
             }
