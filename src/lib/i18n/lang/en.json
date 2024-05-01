@@ -136,6 +136,9 @@
                 "title": "Stores list",
                 "desc": "Manage your stores, create multiple stores to get a clear view of your situation.",
                 "show-linked-list": "Display stores that are linked to an assembly buy list."
+            },
+            "lists": {
+                "description": "Easily track your assembly buy-list."
             }
         }
     },
@@ -287,5 +290,8 @@
                 "region_invalid": "S3 Region given is not valid."
             }
         }
+    },
+    "projects": {
+        "title": "Projects"
     }
 }

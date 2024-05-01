@@ -47,7 +47,7 @@
 </script>
 
 <svelte:head>
-    <title>mink — {$_('app.generic.stores')}</title>
+    <title>{$_('app.generic.stores')} — mink</title>
 </svelte:head>
 
 <h1>{$_('app.scm.stores.title')}</h1>

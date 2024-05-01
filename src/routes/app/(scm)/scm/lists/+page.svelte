@@ -42,6 +42,10 @@
 
 </script>
 
+<svelte:head>
+    <title>{$_('app.scm.lists.title')} — mink</title>
+</svelte:head>
+
 {#if form?.createList?.error !== undefined}
     <Modal title={$_('app.generic.error')} on:close={() => form = null}>
         <p>{$_(form.createList.error)}</p>
@@ -93,8 +97,8 @@
     </MenuSide>
 {/if}
 
-<h1>Listes d'achat d'assemblages</h1>
-<p>Suivez précisément les achats pour votre nomenclature.</p>
+<h1>{$_('app.scm.lists.title')}</h1>
+<p>{$_('app.scm.lists.description')}</p>
 
 <PillMenu message={(selected.length > 0 ? `${selected.length} éléments sélectionnés` : undefined)}>
     <PillMenuButton icon={PlusCircle} click={() => createList = !createList}>Créer une liste</PillMenuButton>

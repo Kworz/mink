@@ -36,7 +36,7 @@
 </script>
 
 <svelte:head>
-    <title>mink — {$_('app.generic.suppliers')}</title>
+    <title>{$_('app.generic.suppliers')} — mink</title>
 </svelte:head>
 
 {#if editSupplier !== undefined || createSupplier}

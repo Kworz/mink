@@ -199,7 +199,9 @@
                 "action": {
                     "delete": "Supprimer {n} {n, plural, =1 {liste} other {listes}}",
                     "delete-confirm": "Souhaitez vous supprimer {n, plural, =1 {la liste sélectionnée} other {les {n} listes sélectionnées}} ?"
-                }
+                },
+                "title": "Liste d'achats",
+                "description": "Suivez précisément les achats pour votre nomenclature."
             }
         },
         "empty-data-filter": {
@@ -408,5 +410,8 @@
         "generic": "Une erreur est survenue. Consulter la console serveur pour avoir plus de détails.",
         "unauthed": "Action interdite, vous devez vous authentifier."
     },
-    "internal": "Article interne"
+    "internal": "Article interne",
+    "projects": {
+        "title": "Affaires"
+    }
 }

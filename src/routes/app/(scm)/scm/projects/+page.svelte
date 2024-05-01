@@ -15,6 +15,7 @@
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { PlusCircle } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
+    import { _ } from "svelte-i18n";
 
     export let data: PageData;
 
@@ -25,7 +26,9 @@
 
 </script>
 
-<svelte:head><title>mink — Affaires</title></svelte:head>
+<svelte:head>
+    <title>{$_('projects.title')} — mink</title>
+</svelte:head>
 
 {#if createProject}
     <MenuSide on:close={() => createProject = false} title="Créer une affaire">
@@ -39,12 +42,12 @@
                     <option value={user.id}>{user.username} ({user.email})</option>
                 {/each}
             </FormInput>
-            <Button role="success">Créer</Button>
+            <Button role="success">{$_('app.action.create')}</Button>
         </form>
     </MenuSide>
 {/if}
 
-<h1>Affaires</h1>
+<h1>{$_('projects.title')}</h1>
 <p>Créez des affaires, assignez des commandes, lists d'achats et ordres de manufacturing.</p>
 
 <PillMenu>
