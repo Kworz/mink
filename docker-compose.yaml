@@ -1,0 +1,59 @@
+version: "3"
+
+volumes:
+  db_data:
+  s3_data:
+
+services:
+  mink:
+    container_name: 'mink'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgres://mink:password@pg_database:5432/mink
+      - S3_ENDPOINT=http://s3:9000/
+      - S3_BUCKET_NAME=mink
+      - S3_ACCESS_KEY_ID=EKDR0I2OQgPdQQ6WASfR
+      - S3_SECRET_ACCESS_KEY=zdFcLrKTLosNaUKcPnny16gKKTHwv0gacbqzJDTw
+      - BRIDGEAPI_CLIENTID=SECRET
+      - BRIDGEAPI_CLIENTSECRET=SECRET2
+    depends_on:
+      - pg_database
+      - s3
+      
+    networks:
+      - mink
+  
+  pg_database:
+    container_name: 'postgres'
+    image: postgres:latest
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: 'mink'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: 'mink'
+    networks:
+      - mink
+  
+  s3:
+    container_name: 'minio_s3'
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - s3_data:/data
+    environment:
+      MINIO_ROOT_USER: 'mink'
+      MINIO_ROOT_PASSWORD: 'password'
+    command: server /data --console-address ":9001"
+    networks:
+      - mink
+
+networks:
+  mink:
+    driver: bridge
