@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-    <title>mink - {$_('scm.inbound_supplies.lead')}</title>
+    <title>{$_('scm.inbound_supplies.lead')} — mink</title>
 </svelte:head>
 
 <h1>{$_('scm.inbound_supplies.lead')}</h1>
