@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "start": "pnpm run start:prisma && pnpm run start:node",
     "start:node": "node ./build/index.js",
-    "start:prisma": "prisma db push",
+    "start:prisma": "prisma db push --accept-data-loss",
     "sync": "svelte-kit sync",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
