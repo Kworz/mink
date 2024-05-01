@@ -49,7 +49,7 @@
 
                 {#if (editSupplier?.logo ?? "") !== "" && browser}
                     <Flex items="center" gap={2}>
-                        <img src={editSupplier?.logo} class="h-8 inline-block mr-4 rounded-md" alt="logo" />
+                        <img src="/api/file/scm/supplier/{editSupplier?.id}/{editSupplier?.logo}" class="h-8 inline-block mr-4 rounded-md" alt="logo" />
                         <Button size="small" role="danger" on:click={() => { if(editSupplier) { editSupplier.logo = "" }}}>Supprimer l'image</Button>
                     </Flex>
                 {:else}
