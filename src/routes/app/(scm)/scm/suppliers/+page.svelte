@@ -137,7 +137,7 @@
                     {/if}
                     <a href={supplier.website ?? "#"}>
                         {#if supplier.logo !== null}
-                            <img src="https://{$page.data.appSettings.app_s3_bucketname}.s3.{$page.data.appSettings.app_s3_region}.amazonaws.com/scm/supplier/{supplier.id}/{supplier.logo}" alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
+                            <img src="/api/file/scm/supplier/{supplier.id}/{supplier.logo}" alt="Logo {supplier.name}" class="h-8 inline-block mr-4 rounded-md" />
                         {/if}
                         <span>
                             {supplier.name}
