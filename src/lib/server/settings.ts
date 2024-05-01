@@ -1,23 +1,6 @@
 import type { app_settings_keys, app_settings, user_settings_keys, user_settings } from "@prisma/client";
 
-const defaultSettings = {
-
-    app_configured: true,
-
-    app_s3_bucketname: "mink",
-    app_s3_region: "eu-west-1",
-
-    company_name: "Your Company Name",
-    company_address_road: "",
-    company_address_city: "",
-    company_address_postal_code: "",
-    company_address_country: "",
-
-    company_default_vat: 20,
-
-} satisfies Record<app_settings_keys, boolean | string | number>;
-
-export type AppSettings = typeof defaultSettings;
+export type AppSettings = Record<app_settings_keys, boolean | string | number>;
 
 /**
  * Convert stored app settings to app settings with defaults for unset values
@@ -25,26 +8,24 @@ export type AppSettings = typeof defaultSettings;
  * @throws
  * @returns Exploitable app settings
  */
-export const getSettings = (storedAppSettings: Array<app_settings>): typeof defaultSettings | undefined => {
+export const getSettings = (storedAppSettings: Array<app_settings>): AppSettings | undefined => {
 
-    const appIsConfigured = storedAppSettings.find(s => s.key === "app_configured")?.value === "true";
+    const companyName = storedAppSettings.find(s => s.key === "company_name")?.value;
+    const companyAddressRoad = storedAppSettings.find(s => s.key === "company_address_road")?.value;
+    const companyAddressCity = storedAppSettings.find(s => s.key === "company_address_city")?.value;
+    const companyAddressPostalCode = storedAppSettings.find(s => s.key === "company_address_postal_code")?.value;
+    const companyAddressCountry = storedAppSettings.find(s => s.key === "company_address_country")?.value;
+    const companyDefaultVat = storedAppSettings.find(s => s.key === "company_default_vat")?.value;
 
-    if(appIsConfigured === false) return undefined;
+    if(companyName === undefined || companyAddressRoad === undefined || companyAddressCity === undefined || companyAddressPostalCode === undefined || companyAddressCountry === undefined || companyDefaultVat === undefined) return undefined;
 
     return {
-        app_configured: true,
-
-        app_s3_bucketname: storedAppSettings.find(s => s.key === "app_s3_bucketname")?.value ?? defaultSettings.app_s3_bucketname,
-        app_s3_region: storedAppSettings.find(s => s.key === "app_s3_region")?.value ?? defaultSettings.app_s3_region,
-
-        company_name: storedAppSettings.find(s => s.key === "company_name")?.value ?? defaultSettings.company_name,
-
-        company_address_road: storedAppSettings.find(s => s.key === "company_address_road")?.value ?? defaultSettings.company_address_road,
-        company_address_city: storedAppSettings.find(s => s.key === "company_address_city")?.value ?? defaultSettings.company_address_city,
-        company_address_postal_code: storedAppSettings.find(s => s.key === "company_address_postal_code")?.value ?? defaultSettings.company_address_postal_code,
-        company_address_country: storedAppSettings.find(s => s.key === "company_address_country")?.value ?? defaultSettings.company_address_country,
-
-        company_default_vat: Number(storedAppSettings.find(s => s.key === "company_default_vat")?.value ?? defaultSettings.company_default_vat),
+        company_name: companyName,
+        company_address_road: companyAddressRoad,
+        company_address_city: companyAddressCity,
+        company_address_postal_code: companyAddressPostalCode,
+        company_address_country: companyAddressCountry,
+        company_default_vat: Number(companyDefaultVat)
     }
 }
 
