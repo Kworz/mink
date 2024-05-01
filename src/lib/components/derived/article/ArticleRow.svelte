@@ -47,7 +47,7 @@
 
     <div>
         <a href="/app/scm/articles/{article.id}" class="block">{article.name}</a>
-        {#if displayManufacturer}<span class="text-sm block">{(article.internal) ? $page.data.appSettings.company_name : article.brand}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
+        {#if displayManufacturer}<span class="text-sm block">{(article.internal) ? $page.data.appSettings?.company_name : article.brand}: <DetailLabel>{article.reference}</DetailLabel></span>{/if}
         {#if displayPrice}<span class="text-sm block"><DetailLabel><Price value={articlePrice} /></DetailLabel></span>{/if}
         {#if articleQuantity > 0 && displayStock === true}
             {@const shouldOrder = articleQuantity < (article.critical_quantity ?? 0)}
