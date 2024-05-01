@@ -134,7 +134,8 @@
             "non_physical": "Article non physique",
             "close": "Fermer",
             "name": "Nom",
-            "terminated": "Terminé"
+            "terminated": "Terminé",
+            "unknown": "Inconnu"
         },
         "time": {
             "hours": "Heures"

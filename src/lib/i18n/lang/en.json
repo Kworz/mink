@@ -89,7 +89,8 @@
             "warning": "Warning",
             "close": "Close",
             "name": "Name",
-            "terminated": "Ended"
+            "terminated": "Ended",
+            "unknown": "Unknown"
         },
         "time": {
             "hours": "Hours"
