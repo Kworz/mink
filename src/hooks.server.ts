@@ -1,12 +1,24 @@
 import type { Handle } from '@sveltejs/kit';
-import type { PrismaClient } from '@prisma/client';
 import { lucia } from "$lib/server/lucia";
 import { prisma } from "$lib/server/prisma";
 import { getSettings, getUserSettings } from '$lib/server/settings';
 import { getS3Client } from '$lib/server/s3';
 import { locale } from 'svelte-i18n';
+import { isEnvironementValid } from '$lib/server/environment';
 
 export const handle = (async ({ event, resolve }) => {
+
+    const lang = event.request.headers.get('accept-language')?.split(',')[0];
+    if(lang) locale.set(lang);
+
+    if(event.route.id?.startsWith("/error"))
+        return await resolve(event); 
+
+    if(!isEnvironementValid())
+        return new Response(null, { status: 303, headers: { 'Location': `/error?error=${encodeURIComponent(JSON.stringify({ error: "Environment invalid", message: "Missing environment variables" }))}` }});
+
+    // locals hydration
+    event.locals.prisma = prisma;
 
     const sessionId = event.cookies.get(lucia.sessionCookieName);
 
@@ -29,44 +41,36 @@ export const handle = (async ({ event, resolve }) => {
         event.locals.user = user;
     }
 
-    // locals hydration
-    event.locals.prisma = prisma as unknown as PrismaClient;
-
-    const lang = event.request.headers.get('accept-language')?.split(',')[0];
-    if(lang) locale.set(lang);
-
     const appSettings = getSettings(await event.locals.prisma.app_settings.findMany());
 
-    // Handles install redirect
-    if(appSettings === undefined && !event.route.id?.startsWith("/install"))
-        return new Response(null, {status: 303, headers: { 'location': `/install` }});
-    else if(appSettings !== undefined && event.route.id?.startsWith("/install"))
-        return new Response(null, {status: 303, headers: { 'location': `/app` }});
-    else if(appSettings === undefined && event.route.id?.startsWith("/install"))
-        return await resolve(event);
-    else if(appSettings === undefined)
-        throw new Error("App settings are undefined");
+    if(appSettings === undefined)
+    {
+        if(event.route.id?.startsWith("/app"))
+            return new Response(null, { status: 303, headers: { 'Location': '/install' }});
+        else
+            return await resolve(event);
+    }
+    else if(event.route.id?.startsWith("/install"))
+        return new Response(null, { status: 303, headers: { 'Location': '/app' }});
 
     event.locals.appSettings = appSettings;
 
     // set S3 after gettings the settings
-    event.locals.s3 = getS3Client(appSettings.app_s3_region);
+    event.locals.s3 = getS3Client();
 
     if(event.locals.session === null)
     {
         if(event.route.id?.startsWith("/app"))
         {
             const target = event.url.pathname === "/app" ? "" : `?target=${encodeURIComponent(event.url.pathname)}`;
-            return new Response(null, {status: 303, headers: { 'location': `/login${target}` }});
+            return new Response(null, {status: 303, headers: { 'Location': `/login${target}` }});
         }
         else
-            return (await resolve(event));
-
+            return await resolve(event);
     }
     else
     {
         // if session is defined get user preferences
-
         const userSettings = await event.locals.prisma.user_settings.findMany({ where: { user_id: event.locals.user?.id }});
         event.locals.userSettings = getUserSettings(userSettings);
         if(event.locals.userSettings.app_language) locale.set(event.locals.userSettings.app_language);
@@ -76,7 +80,6 @@ export const handle = (async ({ event, resolve }) => {
             return new Response(null, {status: 303, headers: { 'location': `/app` }});
         }
         else
-            return (await resolve(event));
+            return await resolve(event);
     }
-
 }) satisfies Handle;
