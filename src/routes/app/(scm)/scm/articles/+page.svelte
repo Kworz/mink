@@ -92,10 +92,10 @@
 <PillMenu message={selected.length > 0 ? $_('scm.articles.selected', { values: { n: selected.length }}) : undefined} selection={selected.length}>
     <PillMenuButton icon={PlusCircle} click={() => createArticle = true}>{$_('app.action.create_article')}</PillMenuButton>
     <PillMenuButton icon={ArrowDownTray} href="/app/scm/articles/import" role="secondary">{$_('scm.articles.action.import_articles')}</PillMenuButton>
-    <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export/?articles=${selected.join(',')}`, '_blank')?.focus()} role="secondary">{$_('scm.articles.action.export_articles', { values: { n: selected.length }})}</PillMenuButton>
+    <PillMenuButton icon={ArrowUpTray} click={() => window.open(`/app/scm/articles/export?articles=${selected.join(',')}`, '_blank')?.focus()} role="secondary">{$_('scm.articles.action.export_articles', { values: { n: selected.length }})}</PillMenuButton>
     
     <svelte:fragment slot="selection">
-        <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print/?articles=${selected.join(',')}`, '_blank')?.focus()}>{$_('scm.articles.action.print_label', { values: { n: selected.length }})}</PillMenuButton>
+        <PillMenuButton icon={QrCode} click={() => window.open(`/app/scm/articles/print?articles=${selected.join(',')}`, '_blank')?.focus()}>{$_('scm.articles.action.print_label', { values: { n: selected.length }})}</PillMenuButton>
         <PillMenuButton icon={Trash} click={() => deleteArticles = true}>{$_('scm.article.actions.delete', { values: { n: selected.length }})}</PillMenuButton>
     </svelte:fragment>
 </PillMenu>
