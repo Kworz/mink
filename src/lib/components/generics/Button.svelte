@@ -4,7 +4,6 @@
 
     export let size: "base" | "small" | "tiny" = "base";
     export let role: "primary" | "secondary" | "tertiary" | "danger" | "warning" | "success" = "primary";
-
     
     export let form: string | undefined = undefined;
     export let preventSend = false;

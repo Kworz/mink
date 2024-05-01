@@ -119,8 +119,6 @@ model scm_article {
 
   article_assembly_relations  scm_assembly_relation_article[]
 
-  files                       scm_article_file[]
-
   manufacturing_orders          scm_manufacturing_order[]
 
 }
@@ -141,15 +139,6 @@ enum unit_of_work {
   c_bottle_liter
   c_bottle_centiliter
   c_bottle_milliliter
-}
-
-model scm_article_file {
-  id                String @id @default(uuid()) @unique
-
-  article_id        String
-  article           scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
-
-  file              String
 }
 
 model scm_supplier {

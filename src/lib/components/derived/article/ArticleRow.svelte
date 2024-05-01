@@ -38,7 +38,7 @@
 <Flex items="center" class="min-w-[10em] 2xl:min-w-[30em]">
 
     {#if displayThumb === true && article.thumbnail && browser}
-        <img src={article.thumbnail} alt={`Miniature ${article.name}`} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
+        <img src={"/api/file/" + article.thumbnail} alt={`Miniature ${article.name}`} class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50" />
     {:else}
         <div class="aspect-square object-cover h-20 rounded-md border border-zinc-500/50">
             <Icon src={VideoCameraSlash} class="h-10 w-10 m-5 text-red-500" />

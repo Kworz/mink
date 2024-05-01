@@ -156,7 +156,8 @@
             "update": "Modifier",
             "confirm": "Confirmer",
             "cancel": "Anuller",
-            "delete-force": "Supprimer quand même"
+            "delete-force": "Supprimer quand même",
+            "add_file": "Ajouter le fichier"
         },
         "setup_s3": {
             "s3_region": "Région serveur S3",

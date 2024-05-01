@@ -30,8 +30,7 @@ export const articleIncludeQuery = {
             }
         },
         where: { order: { state: { in: ["completed", "acknowledged"] }}}
-    },
-    files: true
+    }
 } satisfies Prisma.scm_articleInclude;
 
 export type scm_articleWithIncludes = Prisma.scm_articleGetPayload<{

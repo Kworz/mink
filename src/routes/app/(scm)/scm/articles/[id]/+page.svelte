@@ -28,6 +28,7 @@
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { computeArticlePrice } from "$lib/components/derived/article/article";
     import { _ } from "svelte-i18n";
+    import { niceBytes } from "$lib/i18n/niceBytes";
 
     export let data: PageData;
     export let form: ActionData;
@@ -36,15 +37,20 @@
     let deleteArticle = false;
     let deleteThumbnail = false;
 
+    let addFileSuspense = false;
+
     let articleStoreDirection: "inward" | "outward" | "moved" = "inward";
     
     $: if(form !== null && browser) { invalidateAll(); editArticle = false; }
     $: if(form !== null && form.deleteArticle === undefined) { setTimeout(() => form = null, 3000); }
+    $: if(form !== null && form.addAttachedFile !== undefined) { addFileSuspense = false; }
+    $: if(form !== null && form.removeThumbnail !== undefined && form.removeThumbnail.success) { deleteThumbnail = false; }
         
     $: articleQuantity = data.article.store_relations.reduce((p, c) => p = p + c.quantity, 0);
     $: articlePrice = computeArticlePrice(data.article.order_rows);
     $: articlePreffedStores = data.article.store_relations.filter(sr => sr.quantity > 0).map(sr => sr.store_id);
     $: suppliers = data.article.order_rows.reduce((p, c) => [...p, c.order.supplier], new Array());
+    $: compatibleThumbnails = data.files.filter(f => (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i).test(f.Key?.split("/").at(-1)));
 </script>
 
 <svelte:head>
@@ -133,7 +139,7 @@
         <p>Souhaitez vous supprimer la miniature ?</p>
 
         <div class="flex flex-row gap-4 mt-3">            
-            <form action="?/editThumbnail" method="post" use:enhanceNoReset>
+            <form action="?/removeThumbnail" method="post" use:enhanceNoReset>
                 <Button role="danger" size="small">Oui</Button>
             </form>
             <Button role="tertiary" size="small" on:click={() => deleteThumbnail = false}>Non</Button>
@@ -143,32 +149,50 @@
 
 <div class="flex flex-row items-start gap-6 mb-6">
     <div class="w-1/5 flex flex-col gap-6">
-        <Wrapper class="aspect-square relative flex flex-col justify-center">
-            {#if data.article.thumbnail !== null}
-                <RoundButton icon={Trash} class="absolute top-4 right-4" on:click={() => deleteThumbnail = true }/>
-                <img src={data.article.thumbnail} alt="Miniature" class="aspect-square object-cover"/>
-            {:else}
-                <Icon src={PlusCircle} class="hover:scale-95 h-24 duration-100" />
-                <p class="text-center font-bold text-lg">Pas de miniature</p>
-                <p class="text-center">Glisser un fichier</p>
+        {#if data.files.length > 0}
+            <Wrapper class="aspect-square relative flex flex-col justify-center">
+                {#if data.article.thumbnail !== null}
+                    <RoundButton icon={Trash} class="absolute top-4 right-4" on:click={() => deleteThumbnail = true }/>
+                    <img src={"/api/file/" + data.article.thumbnail} alt="Miniature" class="aspect-square object-cover"/>
+                {:else}
+                    <Icon src={PlusCircle} class="hover:scale-95 h-24 duration-100" />
+                    <p class="text-center font-bold text-lg">Pas de miniature</p>
+                    <form action="?/selectThumbnail" method="post" use:enhance class="mt-4">
+                        <FormInput type="select" name="file_key" label="Selectionner une miniature" validateOnChange>
+                            <option value="">—</option>
+                            {#each compatibleThumbnails as file}
+                                <option value={file.Key}>{file.Key?.split("/").at(-1)}</option>
+                            {/each}
+                        </FormInput>
+                    </form>
+                {/if}
+            </Wrapper>
+
+            <h3 class="text-center">Fichiers additionels</h3>
+        {:else}
+            <h3 class="text-center">Fichiers</h3>
         {/if}
-        </Wrapper>
 
-        <h3 class="text-center">Fichiers additionels</h3>
-
-        {#each data.article.files as file}
-            <div class="bg-zinc-800 p-3 rounded-md">{file}</div>
+        {#each data.files ?? [] as file}
+            {@const fileName = file.Key?.split("/").at(-1)}
+            <Wrapper class="flex justify-between items-center gap-4">
+                <span>
+                    <a href="/api/file/{file.Key}" target="_blank" class="text-violet-500">{fileName}</a>
+                    ({niceBytes(file.Size)})
+                </span>
+                <form action="?/deleteAttachedFile" method="post" use:enhanceNoReset>
+                    <input type="hidden" name="file_key" value={file.Key} />
+                    <Button role="danger" size="small">{$_('app.action.delete')}</Button>
+                </form>
+            </Wrapper>
         {/each}
 
         <Wrapper>
-            <form action="?/addAttachedFile" method="post" use:enhance>
-                <Flex direction="col" justify="between">
-                    <FormInput type="file" name="attached_files" required  />
-                    <Button>Ajouter le fichier</Button>
-                </Flex>
+            <form action="?/addAttachedFile" method="post" use:enhance on:submit={() => addFileSuspense = true} enctype="multipart/form-data" class="flex flex-col gap-4">
+                <FormInput type="file" name="attached_file" required />
+                <Button suspense={addFileSuspense}>{$_('app.action.add_file')}</Button>
             </form>
         </Wrapper>
-
     </div>
 
     <div class="grow">
@@ -222,7 +246,6 @@
                 <h4 class="mb-2">Sortie / Entrée de stock</h4>
 
                 {#if form?.updateStock?.error}<p class="my-2 text-red-500">{$_(form.updateStock.error)}</p>{/if}
-
                 {#if form?.updateStock?.success}<p class="my-2 text-emerald-500">{form.updateStock.success}</p>{/if}
 
                 <form action="?/updateStock" method="post" use:enhance class="flex flex-col md:flex-row gap-4 md:items-end">

@@ -2,6 +2,7 @@ import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import type { unit_of_work } from "@prisma/client";
+import { DeleteObjectCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 
 export const load = (async ({ params, locals }) => {
 
@@ -14,11 +15,19 @@ export const load = (async ({ params, locals }) => {
             include: articleIncludeQuery
         });
 
+        const fileRequest = new ListObjectsV2Command({
+            Bucket: process.env.S3_BUCKET_NAME as string,
+            "Prefix": `scm/article/${articleID}/`
+        });
+
+        const fileResult = await locals.s3.send(fileRequest);
+
         const stores = await locals.prisma.scm_store.findMany({ where: { assemblies_buylist: { is: null }}});
 
         return {
             article,
-            stores
+            stores,
+            files: fileResult.Contents || []
         }
     }
     catch(ex) 
@@ -227,5 +236,93 @@ export const actions: Actions = {
             console.error(ex);
             return { updateStock: { error: "errors.generic" }};
         }
+    },
+
+    addAttachedFile: async ({ locals, params, request }) => {
+
+        const form = await request.formData();
+
+        const file = form.get("attached_file") as File;
+
+        const uploadCommand = new PutObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME as string,
+            Key: `scm/article/${params.id}/${file.name}`,
+
+            //@ts-ignore
+            Body: await file.arrayBuffer() 
+        });
+
+        const uploadResult = await locals.s3.send(uploadCommand);
+
+        if(uploadResult.$metadata.httpStatusCode !== 200)
+            return fail(500, { addAttachedFile: { error: "errors.scm.supplier.upsert.logo_upload_failed" }});
+
+        return { addAttachedFile: { success: true }};
+    },
+
+    deleteAttachedFile: async ({ locals, params, request}) => {
+
+        const form = await request.formData();
+
+        const fileKey = form.get("file_key")?.toString();
+
+        if(fileKey === undefined || fileKey.startsWith("scm/article/") == false)
+            return fail(400, { deleteAttachedFile: { error: "errors.scm.article.file_id_not_defined" }});
+
+        const deleteCommand = new DeleteObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME as string,
+            Key: fileKey
+        });
+
+        const { $metadata: { httpStatusCode }} = await locals.s3.send(deleteCommand);
+
+        if(httpStatusCode !== 204)
+            return fail(500, { deleteAttachedFile: { error: "errors.scm.article.file_delete_failed" }});
+
+        const article = await locals.prisma.scm_article.findFirst({ where: { thumbnail: fileKey }});
+
+        if(article?.thumbnail === fileKey)
+            await locals.prisma.scm_article.update({ where: { id: params.id }, data: { thumbnail: null }});
+
+        return { deleteAttachedFile: { success: true }};
+    },
+
+    selectThumbnail: async ({ locals, params, request }) => {
+
+        const form = await request.formData();
+
+        const fileKey = form.get("file_key")?.toString();
+
+        if(fileKey === undefined || fileKey.startsWith("scm/article/") == false)
+            return fail(400, { selectThumbnail: { error: "errors.scm.article.file_id_not_defined" }});
+        
+        const checkExist = new GetObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME as string,
+            Key: fileKey
+        });
+
+        const checkResult = await locals.s3.send(checkExist);
+
+        if(checkResult.$metadata.httpStatusCode !== 200)
+            return fail(404, { selectThumbnail: { error: "errors.scm.article.file_not_found" }});
+
+        await locals.prisma.scm_article.update({
+            where: { id: params.id },
+            data: { thumbnail: fileKey }
+        });
+
+        return { selectThumbnail: { success: true }};
+
+    },
+
+    removeThumbnail: async ({ locals, params }) => {
+
+        await locals.prisma.scm_article.update({
+            where: { id: params.id },
+            data: { thumbnail: null }
+        });
+
+        return { removeThumbnail: { success: true }};
+
     }
 }

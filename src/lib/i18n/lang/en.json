@@ -110,7 +110,8 @@
             "update": "Update",
             "confirm": "Confirm",
             "cancel": "Cancel",
-            "delete-force": "Confirm delete"
+            "delete-force": "Confirm delete",
+            "add_file": "Add file"
         },
         "setup_s3": {
             "s3_bucket": "S3 Bucket name",
