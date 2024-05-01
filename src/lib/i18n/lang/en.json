@@ -90,7 +90,9 @@
             "close": "Close",
             "name": "Name",
             "terminated": "Ended",
-            "unknown": "Unknown"
+            "unknown": "Unknown",
+            "users": "Users",
+            "users_groups": "Users groups"
         },
         "time": {
             "hours": "Hours"

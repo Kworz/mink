@@ -5,6 +5,7 @@ import { getSettings, getUserSettings } from '$lib/server/settings';
 import { getS3Client } from '$lib/server/s3';
 import { locale } from 'svelte-i18n';
 import { isEnvironementValid } from '$lib/server/environment';
+import { validatePermission, validateRoute } from '$lib/server/permission';
 
 export const handle = (async ({ event, resolve }) => {
 
@@ -38,7 +39,7 @@ export const handle = (async ({ event, resolve }) => {
             event.cookies.set(sessionCookie.name, sessionCookie.value, { path: '.', ...sessionCookie.attributes });
         }
         event.locals.session = session;
-        event.locals.user = user;
+        event.locals.user = await event.locals.prisma.user.findUniqueOrThrow({ where: { id: user?.id }, include: { group: true }});
     }
 
     const appSettings = getSettings(await event.locals.prisma.app_settings.findMany());
@@ -77,9 +78,16 @@ export const handle = (async ({ event, resolve }) => {
 
         if(event.route.id?.startsWith("/login") || event.route.id?.startsWith("/register"))
         {
-            return new Response(null, {status: 303, headers: { 'location': `/app` }});
+            return new Response(null, { status: 303, headers: { 'location': `/app` }});
         }
         else
+        {    
+            if(!validateRoute(event.route.id, event.locals.user))
+            {
+                return new Response(null, { status: 303, headers: { 'Location': `/error?error=${encodeURIComponent(JSON.stringify({ error: "Permission denied", message: "You don't have enough permission to access this ressource" }))}` }});
+            }
+
             return await resolve(event);
+        }
     }
 }) satisfies Handle;

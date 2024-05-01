@@ -135,7 +135,9 @@
             "close": "Fermer",
             "name": "Nom",
             "terminated": "Terminé",
-            "unknown": "Inconnu"
+            "unknown": "Inconnu",
+            "users": "Utilisateurs",
+            "users_groups": "Groupes d'utilisateurs"
         },
         "time": {
             "hours": "Heures"

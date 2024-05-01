@@ -6,7 +6,7 @@
 
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { _ } from "svelte-i18n";
-    import type { PageData } from "./$types";
+    import type { PageData } from "../$types";
 
     export let data: PageData;
 

@@ -1,5 +1,5 @@
 import { fail, redirect } from "@sveltejs/kit";
-import type { Actions, PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "../$types";
 import { getSettings } from "$lib/server/settings";
 import type { app_settings_keys } from "@prisma/client";
 import Prisma from "@prisma/client";

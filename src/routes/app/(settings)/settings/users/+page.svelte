@@ -70,11 +70,11 @@
     <PillMenuButton click={() => showInvitations = !showInvitations} icon={Envelope}>Invitations</PillMenuButton>
 </PillMenu>
 
-<Table headers={[{ label: "Nom d'utilisateur" }, { label: "Email" }, { label: "Rôle" }]} class="mt-6">
+<Table headers={[{ label: "Nom d'utilisateur" }, { label: "Email" }, { label: "Groupe" }]} class="mt-6">
     {#each data.users as user}
-        <TableCell><a href="/app/users/{user.id}">{user.username}</a></TableCell>
+        <TableCell><a href="/app/settings/users/{user.id}">{user.username}</a></TableCell>
         <TableCell>{user.email}</TableCell>
-        <TableCell>{user.role}</TableCell>
+        <TableCell><a href="/app/settings/users_groups/{user.group?.id}">{user.group?.name}</a></TableCell>
     {/each}
 </Table>
 

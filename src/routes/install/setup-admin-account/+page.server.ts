@@ -35,11 +35,19 @@ export const actions = {
 
             const hashedPassword = await hash(password); // hash password using argon2
 
+            const { id: group_id } = await locals.prisma.user_group.create({
+                data: {
+                    name: "Admin",
+                    admin: true
+                }
+            });
+
             const { id } = await locals.prisma.user.create({
                 data: {
                     username,
                     email,
-                    hashed_password: hashedPassword
+                    hashed_password: hashedPassword,
+                    group_id
                 }
             });
 

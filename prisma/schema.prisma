@@ -21,6 +21,9 @@ model user {
 
   avatar                 String?
 
+  group_id               String?
+  group                  user_group? @relation(references: [id], fields: [group_id], onDelete: SetNull)
+
   updated                DateTime @updatedAt
   created                DateTime @default(now())
 
@@ -38,6 +41,50 @@ model user {
   manufacturing_orders_asked            scm_manufacturing_order[] @relation("manufacturing_order_asked")
   manufacturing_orders_received         scm_manufacturing_order[] @relation("manufacturing_order_received")
   manufacturing_orders_state_changes    scm_manufacturing_oder_state_change[]
+
+}
+
+model user_group {
+
+  id          String @id @unique @default(uuid())
+  admin       Boolean @default(false)
+  name        String
+
+  scm                   permission?
+
+  article               permission?
+  supplier              permission?
+  store                 permission?
+  buylist               permission?
+  assembly              permission?
+  inbound_supplies      permission?
+  fabrication_orders    permission?
+
+  crm                   permission?
+
+  leads                 permission?
+  companies             permission?
+  contacts              permission?
+  interests             permission?
+
+  finance               permission?
+
+  orders                permission?
+  invoices              permission?
+  payments              permission?
+  transactions          permission?
+  
+  users       user[]
+
+}
+
+enum permission {
+
+  r // Can read
+  rc // Can read and create
+  ru // Can read and update
+  rcu // Can read, create and update
+  rcud // can read, create, update and delete
 
 }
 

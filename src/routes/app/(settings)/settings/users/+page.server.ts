@@ -3,7 +3,7 @@ import { fail, type Actions } from "@sveltejs/kit";
 
 export const load = (async ({ locals }) => {
     
-    const users = await locals.prisma.user.findMany();
+    const users = await locals.prisma.user.findMany({ include: { group: true }});
     const invitations = await locals.prisma.user_invitation.findMany();
 
     return { users, invitations };
