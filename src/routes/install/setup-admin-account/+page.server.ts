@@ -8,7 +8,7 @@ export const load = (async ({ locals }) => {
     const userCount = await locals.prisma.user.count();
 
     if(userCount > 0)
-        return redirect(303, "/install/setup-s3");
+        return redirect(303, "/install/setup-company");
 
 }) satisfies PageServerLoad;
 
