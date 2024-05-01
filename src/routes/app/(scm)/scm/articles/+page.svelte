@@ -58,9 +58,9 @@
     <MenuSide title={$_('app.action.create_article')} on:close={() => createArticle = false}>
         <form action="?/create" method="POST" use:enhance>
             <ArticleForm />
-            <div class="flex flex-row gap-6 mt-4">
+            <div class="flex flex-row gap-4 mt-4">
                 <Button size="small">{$_('app.action.create')}</Button>
-                <Button size="small" preventSend role="tertiary" click={() => createArticle = false}>{$_('app.generic.cancel')}</Button>
+                <Button size="small" preventSend role="tertiary" on:click={() => createArticle = false}>{$_('app.generic.cancel')}</Button>
             </div>
         </form>
     </MenuSide>
