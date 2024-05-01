@@ -41,7 +41,7 @@
         {#if article.internal === false}
             <FormInput name="brand" label={$_('app.generic.brand')} bind:value={article.brand} />
         {:else}
-            <p>{$_('app.generic.brand')}: {$page.data.appSettings.company_name}</p>
+            <p>{$_('app.generic.brand')}: {$page.data.appSettings?.company_name}</p>
         {/if}
 
         <h3 class="mb-2 mt-3">{$_('app.generic.ordering_data')}</h3>
