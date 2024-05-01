@@ -1,7 +1,7 @@
 <script lang="ts">
     
     import Flex from "$lib/components/generics/layout/flex.svelte";
-    import { CircleStack, ChevronLeft, UserCircle, Users, QrCode, ChevronRight } from "@steeze-ui/heroicons";
+    import { CircleStack, ChevronLeft, UserCircle, Users, QrCode, ChevronRight, Banknotes } from "@steeze-ui/heroicons";
     import Menu from "$lib/components/generics/menu/Menu.svelte";
     import MenuItem from "$lib/components/generics/menu/MenuItem.svelte";
     import MenuSeparator from "$lib/components/generics/menu/MenuSeparator.svelte";
@@ -18,6 +18,7 @@
         <MenuSeparator class={$page.route.id === "/app/(base)" ? "mt-0" : ""}>Modules</MenuSeparator>
         <MenuItem icon={CircleStack} href="/app/scm/articles" label="Gestion logistique (SCM)" />
         <MenuItem icon={UserCircle} href="/app/crm/" label="Gestion base clients (CRM)" />
+        <MenuItem icon={Banknotes} href="/app/accounting/" label="Gestion comptable" />
 
         <MenuSeparator>Outils</MenuSeparator>
         <MenuItem icon={QrCode} href="/app/scanner" label="Scanner QRCode" />
