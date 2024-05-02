@@ -76,11 +76,11 @@
 
         <form class="flex flex-row gap-4" action="?/delete" slot="form" method="post" use:enhance on:submit={() => deleteArticleSuspense = true}>
             {#if form?.delete?.error !== undefined}
-                <Button size="small" preventSend role="tertiary" click={() => deleteArticles = false}>{$_('app.generic.close')}</Button>
+                <Button size="small" preventSend role="tertiary" on:click={() => { deleteArticles = false; form = null; }}>{$_('app.generic.close')}</Button>
             {:else}
                 <input type="hidden" value={selected.join(',')} name="articles" />
                 <Button size="small" role="danger" suspense={deleteArticleSuspense}>{$_('app.action.delete')}</Button>
-                <Button size="small" preventSend role="tertiary" click={() => deleteArticles = false}>{$_('app.generic.cancel')}</Button>
+                <Button size="small" preventSend role="tertiary" on:click={() => deleteArticles = false}>{$_('app.generic.cancel')}</Button>
             {/if}
         </form>
     </Modal>

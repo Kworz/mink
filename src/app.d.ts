@@ -10,6 +10,7 @@ import type { Auth } from "$lib/server/lucia";
 import type { AppSettings, UserSettings } from "$lib/server/settings";
 import type { S3Client } from "@aws-sdk/client-s3";
 import type { User, Session } from "lucia";
+import type { userWithIncludes } from "$lib/components/derived/user/user";
 
 declare global {
 
@@ -24,7 +25,7 @@ declare global {
 			prisma: PrismaClient;
 			s3: S3Client;
 			
-			user: User | null;
+			user: userWithIncludes | null;
 			session: Session | null;
 
 			appSettings?: AppSettings;

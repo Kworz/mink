@@ -1,6 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
+import { validatePermission } from "$lib/permission";
 
 export const load = (async ({ locals, url }) => {
 
@@ -31,8 +32,12 @@ export const load = (async ({ locals, url }) => {
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-    create: async ({ request, locals }) =>
+    create: async ({ locals, request }) =>
     {
+
+        if(!validatePermission(locals.user, "article", "c"))
+            return fail(403, { create: { error: "errors.scm.article.create.permission" }});
+
         const form = await request.formData();
 
         let createdArticle = undefined;
@@ -60,7 +65,10 @@ export const actions: Actions = {
 
         throw redirect(303, `/app/scm/articles/${createdArticle.id}`);
     },
-    delete: async ({ params, locals, request }) => {
+    delete: async ({ locals, request }) => {
+
+        if(!validatePermission(locals.user, "article", "d"))
+            return fail(403, { delete: { error: "errors.scm.article.delete.permission" }});
 
         const form = await request.formData();
         const articles = form.get("articles")?.toString();

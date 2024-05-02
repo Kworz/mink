@@ -3,6 +3,7 @@ import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import type { unit_of_work } from "@prisma/client";
 import { DeleteObjectCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
+import { validatePermission } from "$lib/permission";
 
 export const load = (async ({ params, locals }) => {
 
@@ -42,6 +43,9 @@ export const actions: Actions = {
 
     deleteArticle: async ({ params, locals, request }) => {
 
+        if(!validatePermission(locals.user, "article", "d"))
+            return fail(403, { deleteArticle: { error: "errors.scm.article.delete.permission" }});
+
         const form = await request.formData();
         const force = form.has("force") && form.get("force") === "true";
 
@@ -74,6 +78,10 @@ export const actions: Actions = {
     },
     
     editArticle: async ({ params, request, locals }) => {
+
+        if(!validatePermission(locals.user, "article", "u"))
+            return fail(403, { edit: { error: "errors.scm.article.edit.permission" }});
+
         try
         {
             //TODO: typecheck form data
@@ -118,6 +126,9 @@ export const actions: Actions = {
 
     copyArticle: async ({ params, locals }) => {
 
+        if(!validatePermission(locals.user, "article", "c"))
+            return fail(403, { copyArticle: { error: "errors.scm.article.copy.permission" }});
+
         try
         {
             const article = await locals.prisma.scm_article.findFirstOrThrow({ where: { id: params.id }});
@@ -138,6 +149,9 @@ export const actions: Actions = {
     },
 
     updateStock: async ({ locals, params, request }) => {
+
+        if(!validatePermission(locals.user, "article", "u"))
+            return fail(403, { updateStock: { error: "errors.scm.article.movement.permission" }});
 
         if(locals.session === null)
             return fail(403, { updateStock: { error: "generic.unauthed" }});
@@ -240,6 +254,9 @@ export const actions: Actions = {
 
     addAttachedFile: async ({ locals, params, request }) => {
 
+        if(!validatePermission(locals.user, "article", "u"))
+            return fail(403, { addAttachedFile: { error: "errors.scm.article.add_attached_file.permission" }});
+
         const form = await request.formData();
 
         const file = form.get("attached_file") as File;
@@ -261,6 +278,9 @@ export const actions: Actions = {
     },
 
     deleteAttachedFile: async ({ locals, params, request}) => {
+
+        if(!validatePermission(locals.user, "article", "u"))
+            return fail(403, { deleteAttachedFile: { error: "errors.scm.article.delete_attached_file.permission" }});
 
         const form = await request.formData();
 
@@ -289,6 +309,9 @@ export const actions: Actions = {
 
     selectThumbnail: async ({ locals, params, request }) => {
 
+        if(!validatePermission(locals.user, "article", "u"))
+            return fail(403, { selectThumbnail: { error: "errors.scm.article.select_thumbnail.permission" }});
+
         const form = await request.formData();
 
         const fileKey = form.get("file_key")?.toString();
@@ -316,6 +339,9 @@ export const actions: Actions = {
     },
 
     removeThumbnail: async ({ locals, params }) => {
+
+        if(!validatePermission(locals.user, "article", "u"))
+            return fail(403, { removeThumbnail: { error: "errors.scm.article.remove_thumbnail.permission" }});
 
         await locals.prisma.scm_article.update({
             where: { id: params.id },

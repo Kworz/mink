@@ -1,11 +1,20 @@
-import { groupPermissions } from './../permissions';
 import type { userWithIncludes } from "$lib/components/derived/user/user";
-import type { permission } from "@prisma/client";
+import type { permission, user_group } from "@prisma/client";
 
-export const validatePermission = (user: userWithIncludes, path: keyof typeof groupPermissions, neededLevel: keyof typeof permission): boolean => {
+export type GroupPermissions = keyof Omit<user_group, "admin" | "id" | "name">;
+export const groupPermissions: Array<GroupPermissions> = ["scm", "article", "supplier", "store", "buylist", "assembly", "inbound_supplies", "fabrication_orders", "crm", "leads", "companies", "contacts", "interests", "finance", "orders", "invoices", "payments", "transactions"];
 
+/**
+ * Check if the given user has the needed permission to access the given path
+ * @param user with its given group
+ * @param path path you want to access
+ * @param neededLevel needed permission level
+ * @returns Can user access the ressource
+ */
+export const validatePermission = (user: userWithIncludes | null, path: GroupPermissions, neededLevel: "r" | "c" | "u" | "d"): boolean => {
+
+    if(user === null) { console.error("User is not authenticated"); return false; }
     if(user.group === null) { console.error("User has no group assigned"); return false; }
-
     if(user.group.admin) { console.warn("User is admin, bypassing permission check"); return true; }
 
     // @ts-ignore WARN: fuck typescript
@@ -20,7 +29,13 @@ export const validatePermission = (user: userWithIncludes, path: keyof typeof gr
 
 } 
 
-export const validateRoute = (routeId: string, user: userWithIncludes): boolean => {
+/**
+ * Gets if user can access specified route
+ * @param routeId route you want to validate
+ * @param user with its given group
+ * @returns can user access the specified route
+ */
+export const validateRoute = (routeId: string, user: userWithIncludes | null): boolean => {
 
     if(routeId === "/app/(base)") return true;
     if(routeId === "/api/file/[...filePath]") return true;
@@ -46,15 +61,14 @@ export const validateRoute = (routeId: string, user: userWithIncludes): boolean 
     
     };
 
-    const route = Object.keys(associatedPermissionForRoute).find(apfr => routeId === apfr);
-
-    console.log(route);
+    const route = Object.keys(associatedPermissionForRoute).find(apfr => routeId === apfr) as keyof typeof associatedPermissionForRoute | undefined;
 
     if(route === undefined) throw new Error(`No permission associated with route ${routeId}`);
 
+    // @ts-ignore
     const validation = validatePermission(user, associatedPermissionForRoute[route], "r");
 
-    if(!validation) console.error(`User's group ${user.group?.name} does not have enough permission to access ${routeId}`);
+    if(!validation) console.error(`User's group ${user?.group?.name || "—"} does not have enough permission to access ${routeId}`);
 
     return validation;
 

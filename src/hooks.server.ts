@@ -5,7 +5,7 @@ import { getSettings, getUserSettings } from '$lib/server/settings';
 import { getS3Client } from '$lib/server/s3';
 import { locale } from 'svelte-i18n';
 import { isEnvironementValid } from '$lib/server/environment';
-import { validatePermission, validateRoute } from '$lib/server/permission';
+import { validateRoute } from '$lib/permission';
 
 export const handle = (async ({ event, resolve }) => {
 
@@ -82,7 +82,7 @@ export const handle = (async ({ event, resolve }) => {
         }
         else
         {    
-            if(!validateRoute(event.route.id, event.locals.user))
+            if(event.route.id === null || !validateRoute(event.route.id, event.locals.user))
             {
                 return new Response(null, { status: 303, headers: { 'Location': `/error?error=${encodeURIComponent(JSON.stringify({ error: "Permission denied", message: "You don't have enough permission to access this ressource" }))}` }});
             }
