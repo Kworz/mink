@@ -20,7 +20,7 @@ export const validatePermission = (user: userWithIncludes | null, path: GroupPer
     // @ts-ignore WARN: fuck typescript
     const neededFieldPermission = user.group[path];
 
-    if(neededFieldPermission === null) { console.error("User's group does not have any permission in this path"); return false; }
+    if(neededFieldPermission === undefined || neededFieldPermission === null) { console.error("User's group does not have any permission in this path"); return false; }
 
     if(neededFieldPermission.includes(neededLevel)) return true; 
 
@@ -37,6 +37,7 @@ export const validatePermission = (user: userWithIncludes | null, path: GroupPer
  */
 export const validateRoute = (routeId: string, user: userWithIncludes | null): boolean => {
 
+    if(routeId === "/") return true;
     if(routeId === "/app/(base)") return true;
     if(routeId === "/api/file/[...filePath]") return true;
 
@@ -58,6 +59,8 @@ export const validateRoute = (routeId: string, user: userWithIncludes | null): b
         "/app/(scm)/scm/manufacturing_orders": "manufacturing_orders",
         "/app/(scm)/scm/orders": "orders",
         "/app/(scm)/scm/suppliers": "supplier",
+
+        "/app/(settings)/settings": "settings"
     
     };
 
