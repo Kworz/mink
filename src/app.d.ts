@@ -35,7 +35,7 @@ declare global {
 		/** Page data populated by layouts load function */
 		interface PageData
 		{
-			user: User | null;
+			user: userWithIncludes | null;
 			session: Session | null;
 			
 			appSettings?: AppSettings
