@@ -8,7 +8,7 @@
     export let user: UserType | null | undefined;
 </script>
 
-<a href="/app/users/{user?.id}">
+<a href="/app/me/">
     <div 
         class="flex gap-2 rounded-md relative group-hover:px-4 p-2 items-center duration-200 font-medium base group-hover:base-hover"
     >
