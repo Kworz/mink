@@ -10,6 +10,16 @@
                 "company_address_postal_code": "Company postal code",
                 "company_address_country": "Company country",
                 "company_default_vat": "Company tax number"
+            },
+            "users_groups": {
+                "admin_group_warning": "⚠️ This group has no restrictions as it is defined as a mink administrator.",
+                "modal_title": "{group} permissions",
+                "update_permission": "Update on the fly {group}'s permissions. Theese permissions updates are instantaneous.",
+                "see_permissions": "See permissions"
+            },
+            "users_list": {
+                "lead": "Users list",
+                "description": "Users in your organisation"
             }
         },
         "generic": {
@@ -95,7 +105,22 @@
             "users_groups": "Users groups",
             "bom": "Bill of materials",
             "buylist": "Bill of materials buy list",
-            "home": "Homepage"
+            "home": "Homepage",
+            "scm": "Supply chain management (SCM)",
+            "crm": "Customer relashionship manager (CRM)",
+            "accounting": "Accountability",
+            "others": "Others",
+            "modules": "Modules",
+            "tools": "Tools",
+            "user_group": "Users group",
+            "permissions": "Permissions",
+            "username": "Username",
+            "creation_date": "Creation date",
+            "permission": "Permission",
+            "permission_zone": "Permission zone",
+            "user": "User",
+            "user_count": "Users count",
+            "generic": "Generic"
         },
         "time": {
             "hours": "Hours"
@@ -146,6 +171,21 @@
             "lists": {
                 "description": "Easily track your assembly buy-list."
             }
+        },
+        "permission": {
+            "solo_values": {
+                "r": "Read",
+                "c": "Create",
+                "u": "Update",
+                "d": "Delete"
+            },
+            "null": "Unautorized access",
+            "r": "Read only",
+            "ru": "Read and update",
+            "rc": "Read and create",
+            "rcu": "Read, create and update",
+            "rcud": "Read, create, update and delete",
+            "is_admin": "Is administrator"
         }
     },
     "scm": {

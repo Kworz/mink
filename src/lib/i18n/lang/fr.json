@@ -10,6 +10,19 @@
                 "company_address_postal_code": "Code postal de la société",
                 "company_address_country": "Pays de la société",
                 "company_name": "Nom de la société"
+            },
+            "users_groups": {
+                "lead": "Groupes d'utilisateurs",
+                "description": "Définissez vos groupes d'utilisateurs en fonctions de vos besoins, associez des permissions à chacun des groupes pour restreindres leurs usages.",
+                "admin_group_warning": "⚠️ Ce groupe possède toutes les permissions car il est défini comme administrateur mink.",
+                "modal_description": "Retrouvez ci dessous toutes les permissions du groupe {group}. Vous pouvez modifier les permissions de ce groupe sur sa page.",
+                "modal_title": "Permissions de {group}",
+                "update_permission": "Modifiez à votre guise les permissions du groupe {group}. Ces permissions s'appliquent a tout les utilisateurs de ce groupe et sont instantanées.",
+                "see_permissions": "Voir les permissions"
+            },
+            "users_list": {
+                "lead": "Liste des utilisateurs",
+                "description": "Liste des utilisateurs de votre organisation"
             }
         },
         "generic": {
@@ -140,7 +153,23 @@
             "users_groups": "Groupes d'utilisateurs",
             "bom": "Nomenclature",
             "buylist": "Liste d'achats",
-            "home": "Accueil"
+            "home": "Accueil",
+            "scm": "Gestion logistique (SCM)",
+            "crm": "Gestion base clients (CRM)",
+            "accounting": "Gestion comptable",
+            "other": "Autres",
+            "others": "Autres",
+            "modules": "Modules",
+            "tools": "Outils",
+            "user_group": "Groupe d'utilisateurs",
+            "permissions": "Permissions",
+            "username": "Nom d'utilisateur",
+            "creation_date": "Date de création",
+            "permission": "Permission",
+            "permission_zone": "Zone de permission",
+            "user": "Utilisateur",
+            "user_count": "Nombre d'utilisateurs",
+            "generic": "Général"
         },
         "time": {
             "hours": "Heures"
@@ -213,6 +242,25 @@
         "empty-data-filter": {
             "title": "Aucun élément trouvé 🥲 ",
             "description": "À la suite de votre recherche, aucun élément n'as été trouvé. Les filtres sont possiblement trop strics."
+        },
+        "tools": {
+            "lead": "Outils",
+            "description": "Retrouvez ici tout les outils indispensables à l'utilisation complète de mink."
+        },
+        "permission": {
+            "solo_values": {
+                "r": "Lire",
+                "c": "Créer",
+                "u": "Modifier",
+                "d": "Supprimer"
+            },
+            "null": "Aucune permission",
+            "r": "Lire uniquement",
+            "rc": "Lire et créer",
+            "ru": "Lire et modifier",
+            "rcu": "Lire, créer et modifier",
+            "rcud": "Lire, créer, modifier et supprimer",
+            "is_admin": "Est administrateur"
         }
     },
     "scm": {

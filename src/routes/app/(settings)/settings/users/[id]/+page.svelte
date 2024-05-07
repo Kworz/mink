@@ -1,14 +1,17 @@
 <script lang="ts">
 
-    import DetailLabel from "$lib/components/generics/DetailLabel.svelte";
+    import { _ } from "svelte-i18n";
     import type { PageData } from "./$types";
     export let data: PageData;
 
 </script>
 
-<h1>Utilisateur: {data.user?.username}</h1>
-<p>{data.user?.email}</p>
+<svelte:head>
+    <title>{data.user.username} — {$_('app.generic.user')} - mink</title>
+</svelte:head>
 
-<p>Groupe: <DetailLabel>{data.user.group?.name}</DetailLabel></p>
+<h1>{$_('app.generic.user')}: {data.user.username}</h1>
+<p>{$_('app.generic.email_address')}: {data.user.email}</p>
+<p>{$_('app.generic.user_group')} : {data.user.group?.name || '-'}</p>
 
 <!-- TODO: Add all stuff affected by this user -->

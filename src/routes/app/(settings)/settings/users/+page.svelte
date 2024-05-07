@@ -13,6 +13,7 @@
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import { Envelope, UserPlus } from "@steeze-ui/heroicons";
     import type { ActionData, PageData } from "./$types";
+    import { _ } from "svelte-i18n";
 
     let createUser = false;
     let showInvitations = false;
@@ -23,6 +24,10 @@
     $: if(form != null) { invalidateAll(); setTimeout(() => form = null, 5000); }
 
 </script>
+
+<svelte:head>
+    <title>{$_('app.settings.users_list.lead')} - mink</title>
+</svelte:head>
 
 {#if createUser}
     <MenuSide title="Créer un utilisateur" on:close={() => createUser = false}>
@@ -62,15 +67,15 @@
         </MenuSide>
 {/if}
 
-<h1>Liste des utilisateurs</h1>
-<p>Liste des utilisateurs de votre organisation</p>
+<h1>{$_('app.settings.users_list.lead')}</h1>
+<p>{$_('app.settings.users_list.description')}</p>
 
 <PillMenu>
     <PillMenuButton click={() => createUser = !createUser} icon={UserPlus}>Créer un utilisateur</PillMenuButton>
     <PillMenuButton click={() => showInvitations = !showInvitations} icon={Envelope}>Invitations</PillMenuButton>
 </PillMenu>
 
-<Table headers={[{ label: "Nom d'utilisateur" }, { label: "Email" }, { label: "Groupe" }]} class="mt-6">
+<Table headers={[{ label: $_('app.generic.username') }, { label: $_('app.generic.email_address') }, { label: $_('app.generic.user_group') }]} class="mt-6">
     {#each data.users as user}
         <TableCell><a href="/app/settings/users/{user.id}">{user.username}</a></TableCell>
         <TableCell>{user.email}</TableCell>

@@ -6,11 +6,15 @@
 
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { _ } from "svelte-i18n";
-    import type { PageData } from "../$types";
+    import type { PageData } from "./$types";
 
     export let data: PageData;
 
 </script>
+
+<svelte:head>
+    <title>{$_('app.settings.lead')} - mink</title>
+</svelte:head>
 
 <h1>{$_('app.settings.lead')}</h1>
 <p>{$_('app.settings.description')}</p>
