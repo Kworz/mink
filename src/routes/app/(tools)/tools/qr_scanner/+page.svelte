@@ -26,7 +26,7 @@
     onDestroy(() => {
         stream?.getTracks().forEach(t => {
             t.stop();
-        })
+        });
     });
 
     function analyzeFrame()
