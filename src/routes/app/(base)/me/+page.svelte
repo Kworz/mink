@@ -1,34 +1,47 @@
 <script lang="ts">
     import type { ActionData } from "./$types";
-
     import { page } from "$app/stores";
-    import { invalidateAll } from "$app/navigation";
     import { enhanceNoReset } from "$lib/enhanceNoReset"; 
     import { _ } from "svelte-i18n";
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
+    import Button from "$lib/components/generics/Button.svelte";
 
     export let form: ActionData;
 
-    $: if(form !== null) { invalidateAll(); }
-
+    $: if(form?.updateUser?.success !== undefined) { setTimeout(() => form = null, 3000) };
+    $: if(form?.updateUserSettings?.success !== undefined) { setTimeout(() => form = null, 3000) };
 </script>
 
-<h1>Profil de {$page.data.user?.username}</h1>
-<p>Modifiez votre profil ici</p>
+<svelte:head><title>{$page.data.user?.username} - {$_('app.generic.user')} - mink</title></svelte:head>
 
-<h2 class="mt-4">Réglages personel de mink</h2>
+<h1>{$_('app.generic.user')}: {$page.data.user?.username}</h1>
 
-<div class="grid grid-cols-2 gap-4 mt-2">
-    {#each Object.entries($page.data.userSettings ?? []) as [key, value]}
-        <form action="?/updateUserSettings" method="post" use:enhanceNoReset>
-            <input name="key" value={key} type="hidden" />
-            {#if typeof value === "boolean"}
-                <input name="checkbox" type="hidden" value="true" />
-                <FormInput name="value" checked={value} label={key} type="checkbox" validateOnChange />
-            {:else}
-                <FormInput name="value" value={value} label={$_("app.settings.keys." + key)} type={(typeof value === "string") ? "text" : "number"} validateOnBlur />
-            {/if}
+<h2>{$_('app.user.personal_parameters')}</h2>
 
-        </form>
-    {/each}
-</div>
+{#if form !== null && form.updateUser !== undefined}
+    {#if "error" in form.updateUser}
+        <p class="text-red-500 font-medium">{$_(form.updateUser.error)}</p>
+    {:else}
+        <p class="text-emerald-500">{$_('app.user.updated_personal_parameters')}</p>
+    {/if}
+{/if}
+
+<form action="?/updateUser" method="post" use:enhanceNoReset class="*:mt-4">
+    <FormInput name="username" value={$page.data.user?.username} label={$_('app.generic.username')} required />
+    <FormInput name="email" value={$page.data.user?.email} label={$_('app.generic.email_address')} type="email" autocomplete="current_email" required />
+
+    <Button role="warning" size="small">{$_('app.user.update_personal_parameters')}</Button> 
+</form>
+
+<h2 class="mt-4">{$_('app.user.mink_personal_parameters')}</h2>
+
+<form action="?/updateUserSettings" method="post" use:enhanceNoReset class="w-fit *:mt-4">
+
+    <FormInput type="select" name="app_language" value={$page.data.userSettings?.app_language} label={$_('app.generic.lang')} required validateOnChange>
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+    </FormInput>
+
+    <FormInput name="app_menu_left" checked={$page.data.userSettings?.app_menu_left} label={$_('app.settings.keys.app_menu_left')} type="checkbox" validateOnChange />
+    <FormInput name="app_pages_top_of_table" checked={$page.data.userSettings?.app_pages_top_of_table} label={$_('app.settings.keys.app_pages_top_of_table')} type="checkbox" validateOnChange />
+</form>

@@ -9,7 +9,9 @@
                 "company_address_city": "Company city",
                 "company_address_postal_code": "Company postal code",
                 "company_address_country": "Company country",
-                "company_default_vat": "Company tax number"
+                "company_default_vat": "Company tax number",
+                "app_menu_left": "Menu on the left",
+                "app_pages_top_of_table": "Display pages on top of tables"
             },
             "users_groups": {
                 "admin_group_warning": "⚠️ This group has no restrictions as it is defined as a mink administrator.",
@@ -120,7 +122,8 @@
             "permission_zone": "Permission zone",
             "user": "User",
             "user_count": "Users count",
-            "generic": "Generic"
+            "generic": "Generic",
+            "lang": "Language"
         },
         "time": {
             "hours": "Hours"
@@ -186,6 +189,12 @@
             "rcu": "Read, create and update",
             "rcud": "Read, create, update and delete",
             "is_admin": "Is administrator"
+        },
+        "user": {
+            "update_personal_parameters": "Update my profile parameters",
+            "personal_parameters": "My profile parameters",
+            "mink_personal_parameters": "Personal mink parameters",
+            "updated_personal_parameters": "Updated settings"
         }
     },
     "scm": {

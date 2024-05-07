@@ -9,7 +9,9 @@
                 "company_default_vat": "TVA Appliquée par défaut",
                 "company_address_postal_code": "Code postal de la société",
                 "company_address_country": "Pays de la société",
-                "company_name": "Nom de la société"
+                "company_name": "Nom de la société",
+                "app_menu_left": "Menu à gauche",
+                "app_pages_top_of_table": "Affichage des pages en haut des tables"
             },
             "users_groups": {
                 "lead": "Groupes d'utilisateurs",
@@ -169,7 +171,8 @@
             "permission_zone": "Zone de permission",
             "user": "Utilisateur",
             "user_count": "Nombre d'utilisateurs",
-            "generic": "Général"
+            "generic": "Général",
+            "lang": "Langue"
         },
         "time": {
             "hours": "Heures"
@@ -261,6 +264,12 @@
             "rcu": "Lire, créer et modifier",
             "rcud": "Lire, créer, modifier et supprimer",
             "is_admin": "Est administrateur"
+        },
+        "user": {
+            "update_personal_parameters": "Modifier les paramètres de mon profil",
+            "personal_parameters": "Paramètres de mon profil",
+            "mink_personal_parameters": "Paramètres personels de mink",
+            "updated_personal_parameters": "Paramètres mis à jour"
         }
     },
     "scm": {
