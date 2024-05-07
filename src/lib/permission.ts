@@ -1,8 +1,8 @@
 import type { userWithIncludes } from "$lib/components/derived/user/user";
-import type { permission, user_group } from "@prisma/client";
+import type { user_group } from "@prisma/client";
 
 export type GroupPermissions = keyof Omit<user_group, "admin" | "id" | "name">;
-export const groupPermissions: Array<GroupPermissions> = ["scm", "article", "supplier", "store", "buylist", "assembly", "inbound_supplies", "fabrication_orders", "crm", "leads", "companies", "contacts", "interests", "finance", "orders", "invoices", "payments", "transactions"];
+export const groupPermissions: Array<GroupPermissions> = ["scm", "article", "supplier", "store", "buylist", "assembly", "inbound_supplies", "fabrication_orders", "crm", "leads", "companies", "contacts", "interests", "accounting", "orders", "invoices", "payments", "transactions", "tools", "qr_code_scanner"];
 
 /**
  * Check if the given user has the needed permission to access the given path
@@ -17,7 +17,6 @@ export const validatePermission = (user: userWithIncludes | null, path: GroupPer
     if(user.group === null) { console.error("User has no group assigned"); return false; }
     if(user.group.admin) { console.warn("User is admin, bypassing permission check"); return true; }
 
-    // @ts-ignore WARN: fuck typescript
     const neededFieldPermission = user.group[path];
 
     if(neededFieldPermission === undefined || neededFieldPermission === null) { console.error("User's group does not have any permission in this path"); return false; }
@@ -37,10 +36,13 @@ export const validatePermission = (user: userWithIncludes | null, path: GroupPer
  */
 export const validateRoute = (routeId: string, user: userWithIncludes | null): boolean => {
 
-    if(routeId === "/") return true;
-    if(routeId === "/app/(base)") return true;
-    if(routeId === "/api/file/[...filePath]") return true;
+    // Theses routes are always enabled for any user
+    const alwaysAccessibleRoutes = ["/", "/app/(base)", "/app/(base)/me", "/api/file/[...filePath]"];
+    if(alwaysAccessibleRoutes.includes(routeId)) return true;
 
+    if(routeId === "/app/(settings)/settings/mink") return user?.group?.admin || false;
+
+    /** @todo Complete this list as each route is created */
     const associatedPermissionForRoute = {
 
         "/app/(scm)/scm": "scm",
@@ -60,13 +62,24 @@ export const validateRoute = (routeId: string, user: userWithIncludes | null): b
         "/app/(scm)/scm/orders": "orders",
         "/app/(scm)/scm/suppliers": "supplier",
 
-        "/app/(settings)/settings": "settings"
+        "/app/(crm)/crm": "crm",
+
+        "/app/(accounting)/accounting": "accounting",
+
+        "/app/(settings)/settings": "settings",
+        "/app/(settings)/settings/users": "users",
+        "/app/(settings)/settings/users/[id]": "users",
+        "/app/(settings)/settings/users_groups": "users_groups",
+        "/app/(settings)/settings/users_groups/[id]": "users_groups",
+
+        "/app/(tools)/tools": "tools",
+        "/app/(tools)/tools/qr_scanner": "qr_code_scanner",
     
     };
 
     const route = Object.keys(associatedPermissionForRoute).find(apfr => routeId === apfr) as keyof typeof associatedPermissionForRoute | undefined;
 
-    if(route === undefined) throw new Error(`No permission associated with route ${routeId}`);
+    if(route === undefined) { throw new Error(`No permission associated with route ${routeId}`); } 
 
     // @ts-ignore
     const validation = validatePermission(user, associatedPermissionForRoute[route], "r");
