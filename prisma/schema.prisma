@@ -372,6 +372,8 @@ model scm_order {
   delivery_fees       Float @default(0)
 
   order_rows          scm_order_rows[]
+  text_rows           scm_order_text_rows[]
+  
   state_changes       scm_order_state_change[]
 }
 
@@ -415,6 +417,31 @@ model scm_order_rows {
 
   article_id          String
   article             scm_article @relation(references: [id], fields: [article_id], onDelete: Cascade)
+
+  needed_date         DateTime?
+  needed_quantity     Float  @default(0)
+
+  ack_date            DateTime?
+  ack_price           Float?  @default(0)
+
+  received_quantity   Float  @default(0)
+}
+
+// Order text rows are rows that are not linked with an article
+model scm_order_text_rows {
+
+  id                  String   @id @default(uuid()) @unique
+
+  created             DateTime @default(now()) 
+  updated             DateTime @updatedAt
+
+  order_id            String
+  order               scm_order @relation(references: [id], fields: [order_id], onDelete: Cascade)
+
+  project_id          String?
+  project             pr_project? @relation(references: [id], fields: [project_id], onDelete: Cascade)
+  
+  text                String @default("")
 
   needed_date         DateTime?
   needed_quantity     Float  @default(0)
@@ -605,6 +632,7 @@ model pr_project {
 
   assembly_buylists   scm_assembly_buylist[]
   order_rows          scm_order_rows[]
+  text_order_rows     scm_order_text_rows[]
   
   attached_users      pr_project_attached_user[]
 

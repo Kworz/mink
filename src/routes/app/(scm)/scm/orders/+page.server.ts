@@ -12,7 +12,7 @@ export const load = (async ({ locals, url }) => {
     if(showCancelledOrders) stateFilter.push("cancelled");
     if(showCompletedOrders) stateFilter.push("completed");
 
-    const orders = await locals.prisma.scm_order.findMany({ where: { state: { in: stateFilter }}, include: { order_rows: true, supplier: true, issuer: true }});
+    const orders = await locals.prisma.scm_order.findMany({ where: { state: { in: stateFilter }}, include: { order_rows: true, text_rows: true, supplier: true, issuer: true }});
     const orderCount = await locals.prisma.scm_order.count();
     const suppliers = await locals.prisma.scm_supplier.findMany();
     

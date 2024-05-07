@@ -137,7 +137,10 @@
             "terminated": "Terminé",
             "unknown": "Inconnu",
             "users": "Utilisateurs",
-            "users_groups": "Groupes d'utilisateurs"
+            "users_groups": "Groupes d'utilisateurs",
+            "bom": "Nomenclature",
+            "buylist": "Liste d'achats",
+            "home": "Accueil"
         },
         "time": {
             "hours": "Heures"

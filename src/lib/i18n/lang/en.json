@@ -92,7 +92,10 @@
             "terminated": "Ended",
             "unknown": "Unknown",
             "users": "Users",
-            "users_groups": "Users groups"
+            "users_groups": "Users groups",
+            "bom": "Bill of materials",
+            "buylist": "Bill of materials buy list",
+            "home": "Homepage"
         },
         "time": {
             "hours": "Hours"
