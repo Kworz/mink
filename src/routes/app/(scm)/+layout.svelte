@@ -3,35 +3,32 @@
     import Flex from "$lib/components/generics/layout/flex.svelte";
     import Menu from "$lib/components/generics/menu/Menu.svelte";
     import MenuItem from "$lib/components/generics/menu/MenuItem.svelte";
-    import MenuSeparator from "$lib/components/generics/menu/MenuSeparator.svelte";
-    import { ArchiveBox, ChevronLeft, ChevronRight, CircleStack, ClipboardDocumentCheck, DocumentChartBar, DocumentText, PuzzlePiece, QueueList, Truck, Wrench } from "@steeze-ui/heroicons";
+    import MenuSeparator from "$lib/components/generics/menu/MenuGroup.svelte";
+    import { ArchiveBox, ChevronLeft, ChevronRight, CircleStack, ClipboardDocumentCheck, PuzzlePiece, QueueList, Truck } from "@steeze-ui/heroicons";
     
     import type { LayoutData } from "./$types";
     import { _ } from "svelte-i18n";
-    import { page } from "$app/stores";
+    import { validatePermission } from "$lib/permission";
 
     export let data: LayoutData;
 
 </script>
 
-<Flex gap={0} class="h-screen w-screen overflow-hidden" direction={$page.data.userSettings?.app_menu_left === false ? "rowReverse" : "row"}>
+<Flex gap={0} class="h-screen w-screen overflow-hidden" direction={data.userSettings?.app_menu_left === false ? "rowReverse" : "row"}>
     <Menu>
-        <MenuItem icon={$page.data.userSettings?.app_menu_left ? ChevronLeft : ChevronRight} href="/app" label="Accueil" />
+        <MenuItem icon={data.userSettings?.app_menu_left ? ChevronLeft : ChevronRight} href="/app" label={$_('app.generic.home')} />
 
-        <MenuSeparator>Articles</MenuSeparator>
-        <MenuItem icon={CircleStack} href="/app/scm/articles" label="Base articles" />
-        <MenuItem icon={Truck} href="/app/scm/suppliers" label="Fournisseurs" />
-        <MenuItem icon={ArchiveBox} href="/app/scm/stores" label={$_('app.generic.stores')} />
-        <MenuItem icon={QueueList} href="/app/scm/inbound_supplies" label={$_('app.generic.inbound_supplies')} dotNumber={data.inboundSuppliesCount} />
+        <MenuSeparator items={[
+            !validatePermission(data.user, "article", "r") ? undefined : { icon: CircleStack, href: "/app/scm/articles", label: $_('app.generic.articles') },
+            !validatePermission(data.user, "supplier", "r") ? undefined : { icon: Truck, href: "/app/scm/suppliers", label: $_('app.generic.suppliers') },
+            !validatePermission(data.user, "store", "r") ? undefined : { icon: ArchiveBox, href: "/app/scm/stores", label: $_('app.generic.stores') },
+            !validatePermission(data.user, "inbound_supplies", "r") ? undefined : { icon: QueueList, href: "/app/scm/inbound_supplies", label: $_('app.generic.inbound_supplies'), dotNumber: data.inboundSuppliesCount },
+        ]}>{$_('app.generic.articles')}</MenuSeparator>
 
-        <MenuSeparator>Nomenclatures</MenuSeparator>
-        <MenuItem icon={ClipboardDocumentCheck} href="/app/scm/lists" label="Listes d'achats" />
-        <MenuItem icon={PuzzlePiece} href="/app/scm/assemblies" label={$_('app.generic.assemblies')} />
-
-        <MenuSeparator>Gestion</MenuSeparator>
-        <MenuItem icon={DocumentText} href="/app/scm/projects" label={$_('app.generic.projects')} />
-        <MenuItem icon={DocumentChartBar} href="/app/scm/orders" label="Commandes" />
-        <MenuItem icon={Wrench} href="/app/scm/manufacturing_orders" label={$_('app.generic.manufacturing_orders')} />
+        <MenuSeparator items={[
+            !validatePermission(data.user, "buylist", "r") ? undefined : { icon: ClipboardDocumentCheck, href: "/app/scm/lists", label: $_('app.generic.buylist') },
+            !validatePermission(data.user, "assembly", "r") ? undefined : { icon: PuzzlePiece, href: "/app/scm/assemblies", label: $_('app.generic.assemblies') },
+        ]}>{$_('app.generic.bom')}</MenuSeparator>
 
     </Menu>
 

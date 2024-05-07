@@ -4,7 +4,7 @@
     import { CircleStack, ChevronLeft, UserCircle, Users, QrCode, ChevronRight, Banknotes } from "@steeze-ui/heroicons";
     import Menu from "$lib/components/generics/menu/Menu.svelte";
     import MenuItem from "$lib/components/generics/menu/MenuItem.svelte";
-    import MenuSeparator from "$lib/components/generics/menu/MenuSeparator.svelte";
+    import MenuSeparator from "$lib/components/generics/menu/MenuGroup.svelte";
     import { page } from "$app/stores";
 
 </script>
