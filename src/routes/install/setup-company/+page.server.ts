@@ -29,7 +29,6 @@ export const actions: Actions = {
 
             await locals.prisma.app_settings.createMany({
                 data: [
-                    { key: "app_configured", value: "true" },
                     { key: "company_name", value: companyName },
                     { key: "company_address_road", value: companyAddressRoad },
                     { key: "company_address_postal_code", value: companyAddressPostalCode },

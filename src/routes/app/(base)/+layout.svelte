@@ -1,7 +1,7 @@
 <script lang="ts">
     
     import Flex from "$lib/components/generics/layout/flex.svelte";
-    import { CircleStack, ChevronLeft, UserCircle, ChevronRight, Banknotes, Camera, WrenchScrewdriver } from "@steeze-ui/heroicons";
+    import { CircleStack, ChevronLeft, UserCircle, ChevronRight, Banknotes, WrenchScrewdriver } from "@steeze-ui/heroicons";
     import Menu from "$lib/components/generics/menu/Menu.svelte";
     import MenuItem from "$lib/components/generics/menu/MenuItem.svelte";
     import MenuSeparator from "$lib/components/generics/menu/MenuGroup.svelte";
