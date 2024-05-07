@@ -67,12 +67,15 @@ model user_group {
   contacts              permission?
   interests             permission?
 
-  finance               permission?
+  accounting            permission?
 
   orders                permission?
   invoices              permission?
   payments              permission?
   transactions          permission?
+
+  tools                 permission?
+  qr_code_scanner       permission?
   
   users       user[]
 
