@@ -23,14 +23,14 @@
     import { _ } from "svelte-i18n";
     import { browser } from "$app/environment";
     import { scm_order_state } from "$lib/prisma-enums";
-    import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
+    import { LCMArray } from "$lib/LCM";
 
     let orderRowMode: "article" | "text" = "article";
 
     let selectedArticle: scm_articleWithIncludes | undefined = undefined;
     let selectedArticleQuantity = 0;
 
-    let deleteOrderRow: PageData["order"]["order_rows"][number][] | undefined = undefined;
+    let deleteOrderRow: (typeof order_rows)[number][] | undefined = undefined;
     let deleteOrder = false;
 
     let selectedOrderRows: string[] = [];
@@ -42,7 +42,9 @@
     export let data: PageData;
     export let form: ActionData;
 
-    $: htTotal = (data.order.order_rows.map(k => k.needed_quantity * (k.ack_price ?? 0)).reduce((p, c) => p + c, 0) ?? 0) + (data.order.delivery_fees ?? 0);
+    $: order_rows = [...data.order.order_rows, ...data.order.text_rows].sort((a, b) => a.created.getTime() - b.created.getTime());
+
+    $: htTotal = (order_rows.map(k => k.needed_quantity * (k.ack_price ?? 0)).reduce((p, c) => p + c, 0) ?? 0) + (data.order.delivery_fees ?? 0);
     $: tvaSubtotal = Math.floor(((htTotal * (1 + (data.order.vat ?? 20) / 100)) - htTotal) * 100) / 100;
     $: completeTotal = htTotal + tvaSubtotal;
 
@@ -85,7 +87,7 @@
         
         <ul>
             {#each deleteOrderRow as order_row}
-                <li>{order_row.needed_quantity} x {order_row.article.name}</li>
+                <li>{order_row.needed_quantity} x {order_row.text !== undefined ? order_row.text : order_row.article.name}</li>
             {/each}
         </ul>
 
@@ -135,7 +137,7 @@
     </Wrapper>
 </Grid>
 
-{#if data.order.order_rows}
+{#if order_rows}
     <Table headers={[
             "selectAll",
             { label: $_('app.generic.project') },
@@ -147,7 +149,7 @@
             { label: $_('app.generic.total') },
             (data.order.state === scm_order_state.draft) ? { label: $_('app.action.delete') } : undefined
         ]}
-        selectables={data.order.order_rows.map(or => or.id)}
+        selectables={order_rows.map(or => or.id)}
         bind:selected={selectedOrderRows}
         class="mt-6"
     >
@@ -164,13 +166,13 @@
                     </FormInput>
                 </form>
             </TableCell>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
+            <TableCell colspan={2} />
             <TableCell>
                 {#if data.order.state === scm_order_state.draft}
+                    {@const lcm = LCMArray(order_rows.reduce((p, c) => [...p, c.text !== undefined ? (c.needed_quantity || 1) : c.article.order_quantity], new Array()))}
                     <form action="?/editOrderRows" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={selectedOrderRows.join(",")} />
-                        <FormInput type="number" name="needed_quantity" value={0} validateOnChange min={0} step={0} />
+                        <FormInput type="number" name="needed_quantity" value={0} validateOnChange min={0} step={lcm} />
                     </form>
                 {/if}
             </TableCell>
@@ -182,16 +184,15 @@
                     </form>
                 {/if}
             </TableCell>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
+            <TableCell colspan={2} />
             {#if data.order.state === scm_order_state.draft}
                 <TableCell>
-                    <Button size="small" role="danger" on:click={() => deleteOrderRow = data.order.order_rows.filter(or => selectedOrderRows.includes(or.id))} preventSend>{$_('scm.order.action.delete_order_row.title', { values: { n: selectedOrderRows.length }})}</Button>
+                    <Button size="small" role="danger" on:click={() => deleteOrderRow = order_rows.filter(or => selectedOrderRows.includes(or.id))} preventSend>{$_('scm.order.action.delete_order_row.title', { values: { n: selectedOrderRows.length }})}</Button>
                 </TableCell>
             {/if}
         {/if}
 
-        {#each [...data.order.order_rows, ...data.order.text_rows] as order_row (order_row.id)}
+        {#each order_rows as order_row (order_row.id)}
 
             {@const isTextRow = order_row.text !== undefined}
 
@@ -217,8 +218,26 @@
                 <TableCell><a href="/app/scm/articles/{order_row.article.id}">{order_row.article.name}</a></TableCell>
                 <TableCell>{order_row.article.reference}</TableCell>
             {:else}
-                <TableCell>{order_row.text}</TableCell>
-                <TableCell>{order_row.reference}</TableCell>
+                <TableCell>
+                    {#if data.order.state === scm_order_state.draft}
+                        <form action="?/editTextOrderRow" method="post" use:enhanceNoReset>
+                            <input type="hidden" name="id" value={order_row.id} />
+                            <FormInput type="text" required name="text" bind:value={order_row.text} validateOnChange />
+                        </form>
+                    {:else}
+                        {order_row.text}
+                    {/if}
+                </TableCell>
+                <TableCell>
+                    {#if data.order.state === scm_order_state.draft}
+                        <form action="?/editTextOrderRow" method="post" use:enhanceNoReset>
+                            <input type="hidden" name="id" value={order_row.id} />
+                            <FormInput type="text" name="reference" bind:value={order_row.reference} validateOnChange />
+                        </form>
+                    {:else}
+                        {order_row.reference}
+                    {/if}
+                </TableCell>
             {/if}
             
             <TableCell>

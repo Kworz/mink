@@ -140,7 +140,7 @@ export const actions = {
     },
 
     /** Update an article order row */
-    editArticleOrderRow: async ({ request, locals }) => {
+    editOrderRows: async ({ request, locals }) => {
 
         if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { editArticleOrderRow: { error: "errors.permission.u" }});
@@ -159,13 +159,19 @@ export const actions = {
             const ackPrice = form.has("ack_price") ? Number(form.get("ack_price")) : undefined;
             const ackDate = form.has("ack_date") ? form.get("ack_date")?.toString() : undefined;
 
-            const { count } = await locals.prisma.scm_order_rows.updateMany({ where: { id: { in: rowsId }}, data: {
+            const { count: countArticleRows } = await locals.prisma.scm_order_rows.updateMany({ where: { id: { in: rowsId }}, data: {
                 needed_quantity: neededQuantity,
                 ack_price: ackPrice,
                 ack_date: ackDate,
             }});
 
-            if(count !== rowsId.length)
+            const { count: countTextRows } = await locals.prisma.scm_order_text_rows.updateMany({ where: { id: { in: rowsId }}, data: {
+                needed_quantity: neededQuantity,
+                ack_price: ackPrice,
+                ack_date: ackDate
+            }});
+
+            if((countArticleRows + countTextRows) !== rowsId.length)
                 return fail(400, { editArticleOrderRow: { error: "errors.scm.order.edit_order_row.failed" }});
 
             return { editArticleOrderRow: { success: "scm.order.edit_row.success" }};
@@ -186,23 +192,22 @@ export const actions = {
         try
         {
             const form = await request.formData();
-            let rowsId: string[] | string | undefined = form.get("id")?.toString();
+            let rowId = form.get("id")?.toString();
 
-            if(rowsId !== undefined)
-                rowsId = rowsId.split(',');
-            else
+            if(rowId === undefined)
                 return fail(400, { editTextOrderRow: { error: "errors.scm.order.edit_order_row.row_id_not_found" }});
 
             const neededQuantity = form.has("needed_quantity") ? Number(form.get("needed_quantity")) : undefined;
             const ackDate = form.has("ack_date") ? form.get("ack_date")?.toString() : undefined;
+            const text = form.has("text") ? form.get("text")?.toString() : undefined;
+            const reference = form.has("reference") ? form.get("reference")?.toString() : undefined;
 
-            const { count } = await locals.prisma.scm_order_text_rows.updateMany({ where: { id: { in: rowsId }}, data: {
+            await locals.prisma.scm_order_text_rows.updateMany({ where: { id: rowId }, data: {
+                text,
+                reference,
                 needed_quantity: neededQuantity,
                 ack_date: ackDate,
             }});
-
-            if(count !== rowsId.length)
-                return fail(400, { editTextOrderRow: { error: "errors.scm.order.edit_order_row.failed" }});
 
             return { editTextOrderRow: { success: "scm.order.edit_row.success" }};
         }
@@ -214,35 +219,9 @@ export const actions = {
     },
 
     /** 
-     * Delete one or many article order rows
-     * @info Nearly identical to deleteTextOrderRows
+     * Delete one or many text/article order rows
      */
-    deleteArticleOrderRows: async ({ request, locals }) => {
-
-        if(!validatePermission(locals.user, "order", "u"))
-            return fail(403, { deleteArticleOrderRows: { error: "errors.permission.u" }});
-
-        const form = await request.formData();
-        let orderRowsIds: string | string[] | undefined = form.get("id")?.toString();
-
-        if(orderRowsIds === undefined || orderRowsIds.length === 0) 
-            return fail(400, { deleteArticleOrderRows: { error: "errors.scm.order.delete_rows.row_id_undefined" }});
-
-        orderRowsIds = orderRowsIds.split(',');
-
-        const { count } = await locals.prisma.scm_order_rows.deleteMany({ where: { id: { in: orderRowsIds }}});
-
-        if(count !== orderRowsIds.length)
-            return fail(400, { deleteArticleOrderRows: { error: "errors.scm.order.delete_rows.failed" }});
-
-        return { deleteArticleOrderRows: { success: true }};
-    },
-
-    /** 
-     * Delete one or many text order rows
-     * @info Nearly identical to deleteArticleOrderRows
-     */
-    deleteTextOrderRows: async ({ request, locals }) => {
+    deleteOrderRows: async ({ request, locals }) => {
 
         if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { deleteTextOrderRows: { error: "errors.permission.u" }});
@@ -255,10 +234,11 @@ export const actions = {
 
         orderRowsIds = orderRowsIds.split(',');
 
-        const { count } = await locals.prisma.scm_order_text_rows.deleteMany({ where: { id: { in: orderRowsIds }}});
+        const { count: countTextRows } = await locals.prisma.scm_order_text_rows.deleteMany({ where: { id: { in: orderRowsIds }}});
+        const { count: countArticleRows } = await locals.prisma.scm_order_rows.deleteMany({ where: { id: { in: orderRowsIds }}});
 
-        if(count !== orderRowsIds.length)
-            return fail(400, { deleteTextOrderRows: { error: "errors.scm.order.delete_rows.failed" }});
+        if((countTextRows + countArticleRows) !== orderRowsIds.length)
+            return fail(400, { deleteOrderRows: { error: "errors.scm.order.delete_rows.failed" }});
 
         return { deleteTextOrderRows: { success: true }};
     },
