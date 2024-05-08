@@ -18,8 +18,8 @@
         {/if}
 
         <MenuSeparator class={$page.route.id === "/app/(base)" ? "mt-0" : ""} items={[
-            !validatePermission($page.data.user, 'users', 'r') ? undefined : { icon: Users, href: "/app/settings/users", label: $_('app.generic.users') },
-            !validatePermission($page.data.user, 'users_groups', 'r') ? undefined : { icon: UserCircle, href: "/app/settings/users_groups", label: $_('app.generic.users_groups') },
+            !validatePermission($page.data.user, 'user', 'r') ? undefined : { icon: Users, href: "/app/settings/users", label: $_('app.generic.users') },
+            !validatePermission($page.data.user, 'user_group', 'r') ? undefined : { icon: UserCircle, href: "/app/settings/users_groups", label: $_('app.generic.users_groups') },
         ]}>{$_('app.generic.users')}</MenuSeparator>
 
         <MenuSeparator items={[

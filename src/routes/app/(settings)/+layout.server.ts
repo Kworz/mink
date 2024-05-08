@@ -1,4 +1,4 @@
-import type { LayoutServerLoad } from "./$types";
+import type { LayoutServerLoad } from "./settings/$types";
 
 export const ssr = true;
 

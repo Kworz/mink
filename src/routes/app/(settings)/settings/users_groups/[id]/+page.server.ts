@@ -13,7 +13,7 @@ export const actions = {
 
     updatePermission: async ({ locals, params, request }) => {
 
-        if(locals.user!.group.admin !== true) return fail(403, { updatePermission: { error: "Forbidden" }});
+        if(locals.user?.group?.admin !== true) return fail(403, { updatePermission: { error: "Forbidden" }});
 
         const form = await request.formData();
 

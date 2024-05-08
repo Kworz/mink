@@ -60,7 +60,7 @@ export const actions: Actions = {
                     issuer_id: locals.user?.id,
                     sub_id: orderSubId,
 
-                    vat: locals.appSettings!.company_default_vat
+                    vat: Number(locals.appSettings?.company_default_vat || 0)
                 }
             });
         }

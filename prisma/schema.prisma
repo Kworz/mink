@@ -79,6 +79,7 @@ model user_group {
 
   order                 permission?
   invoice               permission?
+  quotation             permission?
   transaction           permission?
 
   /// Tools permission zone

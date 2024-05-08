@@ -21,13 +21,13 @@
         <MenuItem icon={ChartPie} href="/app/accounting/" label={$_('app.generic.accounting')} />
 
         <MenuGroup items={[
-            !validatePermission(data.user, "transactions", "r") ? undefined : { icon: ArrowUpOnSquareStack, href: "/app/accounting/transactions/", label: $_('app.generic.transactions') },
+            !validatePermission(data.user, "transaction", "r") ? undefined : { icon: ArrowUpOnSquareStack, href: "/app/accounting/transactions/", label: $_('app.generic.transactions') },
         ]}>{$_('app.generic.financial_flows')} </MenuGroup>
 
         <MenuGroup items={[
-            !validatePermission(data.user, "quotations", "r") ? undefined : { icon: DocumentMagnifyingGlass, href: "/app/accounting/quotations", label: $_('app.generic.quotations') },
-            !validatePermission(data.user, "invoices", "r") ? undefined : { icon: Banknotes, href: "/app/accounting/invoices", label: $_('app.generic.invoices') },
-            !validatePermission(data.user, "orders", "r") ? undefined : { icon: Document, href: "/app/accounting/orders", label: $_('app.generic.orders') },
+            !validatePermission(data.user, "quotation", "r") ? undefined : { icon: DocumentMagnifyingGlass, href: "/app/accounting/quotations", label: $_('app.generic.quotations') },
+            !validatePermission(data.user, "invoice", "r") ? undefined : { icon: Banknotes, href: "/app/accounting/invoices", label: $_('app.generic.invoices') },
+            !validatePermission(data.user, "order", "r") ? undefined : { icon: Document, href: "/app/accounting/orders", label: $_('app.generic.orders') },
         ]}>{$_('app.generic.accounting')}</MenuGroup>
 
     </Menu>

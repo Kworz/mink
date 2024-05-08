@@ -32,7 +32,7 @@ export const actions: Actions = {
     /** Update order with the specified body */
     editOrder: async ({ params, request, locals }) => {
 
-        if(!validatePermission(locals.user, "orders", "u"))
+        if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { editOrder: { error: "errors.permission.u" }});
 
         try
@@ -66,7 +66,7 @@ export const actions: Actions = {
     /** Create an order Row with a linked article  */
     createArticleOrderRow: async ({ request, locals, params }) => {
 
-        if(!validatePermission(locals.user, "orders", "u"))
+        if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { createArticleOrderRow: { error: "errors.permission.u" }});
 
         try
@@ -102,7 +102,7 @@ export const actions: Actions = {
     /** Create an order row with text instead of an article */
     createTextOrderRow: async ({ request, locals, params }) => {
 
-        if(!validatePermission(locals.user, "orders", "u"))
+        if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { createTextOrderRow: { error: "errors.permission.u" }});
 
         try
@@ -135,7 +135,7 @@ export const actions: Actions = {
     /** Update an article order row */
     editArticleOrderRow: async ({ request, locals }) => {
 
-        if(!validatePermission(locals.user, "orders", "u"))
+        if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { editArticleOrderRow: { error: "errors.permission.u" }});
 
         try
@@ -176,7 +176,7 @@ export const actions: Actions = {
      */
     deleteArticleOrderRows: async ({ request, locals }) => {
 
-        if(!validatePermission(locals.user, "orders", "u"))
+        if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { deleteArticleOrderRows: { error: "errors.permission.u" }});
 
         const form = await request.formData();
@@ -201,7 +201,7 @@ export const actions: Actions = {
      */
     deleteTextOrderRows: async ({ request, locals }) => {
 
-        if(!validatePermission(locals.user, "orders", "u"))
+        if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { deleteTextOrderRows: { error: "errors.permission.u" }});
 
         const form = await request.formData();
@@ -223,7 +223,7 @@ export const actions: Actions = {
     /** Remove order */
     deleteOrder: async ({ params, locals }) => {
 
-        if(!validatePermission(locals.user, "orders", "d"))
+        if(!validatePermission(locals.user, "order", "d"))
             return fail(403, { delete: { error: "errors.permission.d" }});
 
         try
@@ -240,7 +240,7 @@ export const actions: Actions = {
     /** Add a linked file to this order */
     addLinkedFile: async ({ params, locals, request }) => {
 
-        if(!validatePermission(locals.user, "orders", "u"))
+        if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { addLinkedFile: { error: "errors.permission.u" }});
 
         const form = await request.formData();
@@ -268,7 +268,7 @@ export const actions: Actions = {
     /** Remove order linked file */
     removeLinkedFile: async ({ params, locals, request }) => {
 
-        if(!validatePermission(locals.user, "orders", "u"))
+        if(!validatePermission(locals.user, "order", "u"))
             return fail(403, { removeLinkedFile: { error: "errors.permission.u" }});
 
         const form = await request.formData();
