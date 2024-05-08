@@ -1,5 +1,5 @@
 import type { userWithIncludes } from "$lib/components/derived/user/user";
-import type { GroupPermissions } from "$lib/permission";
+import { validatePermission, type GroupPermissions } from "$lib/permission";
 
 /**
  * Gets if user can access specified route
