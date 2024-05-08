@@ -4,7 +4,7 @@
     import type { PageData } from "./$types";
     import Table from "$lib/components/generics/table/Table.svelte";
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
-    import BooleanLabel from "$lib/components/derived/BooleanLabel.svelte";
+    import BooleanLabel from "$lib/components/derived/labels/BooleanLabel.svelte";
     import Modal from "$lib/components/generics/modal/Modal.svelte";
     import Button from "$lib/components/generics/Button.svelte";
     import { groupPermissions } from "$lib/permission";

@@ -10,7 +10,7 @@
     import { invalidateAll } from "$app/navigation";
     import { enhanceNoReset } from "$lib/enhanceNoReset";
     import { groupPermissions } from "$lib/permission";
-    import BooleanLabel from "$lib/components/derived/BooleanLabel.svelte";
+    import BooleanLabel from "$lib/components/derived/labels/BooleanLabel.svelte";
 
     export let data: PageData;
     export let form: ActionData;

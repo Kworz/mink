@@ -12,7 +12,7 @@
     import TableCell from "$lib/components/generics/table/TableCell.svelte";
     import { DocumentCheck, DocumentMinus, PlusCircle } from "@steeze-ui/heroicons";
     import type { PageData } from "./$types";
-    import OrderState from "./OrderState.svelte";
+    import OrderState from "../../../../../lib/components/derived/labels/OrderStateLabel.svelte";
     import EmptyData from "$lib/components/EmptyData.svelte";
     import MenuSide from "$lib/components/generics/menu/MenuSide.svelte";
     import { page } from "$app/stores";

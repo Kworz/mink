@@ -1,6 +1,6 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
-    import RoundedLabel from "../generics/RoundedLabel.svelte";
+    import RoundedLabel from "../../generics/RoundedLabel.svelte";
     import type { ComponentProps } from "svelte";
 
     export let value: boolean;

@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { permission } from "$lib/prisma-enums";
     import { _ } from "svelte-i18n";
-    import RoundedLabel, { type Roles } from "../generics/RoundedLabel.svelte";
-    import Flex from "../generics/layout/flex.svelte";
+    import RoundedLabel, { type Roles } from "$lib/components/generics/RoundedLabel.svelte";
+    import Flex from "$lib/components/generics/layout/flex.svelte";
 
     export let permission: permission | null;
 
