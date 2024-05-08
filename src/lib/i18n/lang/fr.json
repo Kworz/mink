@@ -172,7 +172,12 @@
             "user": "Utilisateur",
             "user_count": "Nombre d'utilisateurs",
             "generic": "Général",
-            "lang": "Langue"
+            "lang": "Langue",
+            "financial_flows": "Fluxs financiers",
+            "transactions": "Transactions",
+            "invoices": "Factures",
+            "quotations": "Devis",
+            "project_manager": "Gestionnaire d'affaires"
         },
         "time": {
             "hours": "Heures"
@@ -270,6 +275,12 @@
             "personal_parameters": "Paramètres de mon profil",
             "mink_personal_parameters": "Paramètres personels de mink",
             "updated_personal_parameters": "Paramètres mis à jour"
+        },
+        "accounting": {
+            "description": "Évaluez la santé comptable de votre société, retrouvez ici le résumé des flux jours par jours."
+        },
+        "pm": {
+            "description": "Gerez les divers projets de votre société"
         }
     },
     "scm": {

@@ -69,7 +69,7 @@
         {#each data.orders as order}
             {@const orderGrossPrice = order.order_rows.reduce((p, c) => p = p + c.needed_quantity * (c.ack_price ?? 0), 0)}
             <TableCell>
-                <a href="/app/scm/orders/{order.id}">
+                <a href="/app/accounting/orders/{order.id}">
                     <Flex direction="col" gap={1}>
                         <span>{order.name}</span>
                         <span class="text-sm text-zinc-200">{order.sub_id}</span>

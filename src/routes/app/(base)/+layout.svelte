@@ -24,6 +24,7 @@
             !validatePermission(data.user, "article", "r") ? undefined : { icon: CircleStack, href: "/app/scm/articles", label: $_('app.generic.scm') },
             !validatePermission(data.user, "crm", "r") ? undefined : { icon: UserCircle, href: "/app/crm/", label: $_('app.generic.crm') },
             !validatePermission(data.user, "accounting", "r") ? undefined : { icon: Banknotes, href: "/app/accounting/", label: $_('app.generic.accounting') },
+            !validatePermission(data.user, "pm", "r") ? undefined : { icon: CircleStack, href: "/app/pm/", label: $_('app.generic.project_manager')}
         ]}>{$_('app.generic.modules')}</MenuSeparator>
 
         <MenuSeparator items={[

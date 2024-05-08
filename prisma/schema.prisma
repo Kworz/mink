@@ -50,6 +50,7 @@ model user_group {
   admin       Boolean @default(false)
   name        String
 
+  /// SCM permission zone
   scm                   permission?
 
   article               permission?
@@ -57,25 +58,39 @@ model user_group {
   store                 permission?
   buylist               permission?
   assembly              permission?
-  inbound_supplies      permission?
-  fabrication_orders    permission?
+  inbound_supply        permission?
 
+ /// Project permission zone
+  pm                    permission?
+  
+  project               permission?
+  manufacturing_order   permission?
+
+  /// CRM permission zone
   crm                   permission?
 
-  leads                 permission?
-  companies             permission?
-  contacts              permission?
-  interests             permission?
+  lead                  permission?
+  company               permission?
+  contact               permission?
+  interest              permission?
 
+  /// Accounting permission zone
   accounting            permission?
 
-  orders                permission?
-  invoices              permission?
-  payments              permission?
-  transactions          permission?
+  order                 permission?
+  invoice               permission?
+  transaction           permission?
 
+  /// Tools permission zone
   tools                 permission?
+
   qr_code_scanner       permission?
+
+  /// Settings permission zone
+  settings              permission?
+
+  user                  permission?
+  user_group            permission?
   
   users       user[]
 

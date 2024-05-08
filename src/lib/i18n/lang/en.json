@@ -123,7 +123,12 @@
             "user": "User",
             "user_count": "Users count",
             "generic": "Generic",
-            "lang": "Language"
+            "lang": "Language",
+            "financial_flows": "Finance flows",
+            "transactions": "Transactions",
+            "invoices": "Invoices",
+            "quotations": "Quotations",
+            "project_manager": "Project manager"
         },
         "time": {
             "hours": "Hours"
@@ -195,6 +200,9 @@
             "personal_parameters": "My profile parameters",
             "mink_personal_parameters": "Personal mink parameters",
             "updated_personal_parameters": "Updated settings"
+        },
+        "pm": {
+            "description": "Manage all of your company projects"
         }
     },
     "scm": {
