@@ -1,6 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
-import type { Actions, PageServerLoad } from "./$types";
+import type { Actions } from "./$types";
 import type { scm_order, scm_order_state } from "@prisma/client";
+import { validatePermission } from "$lib/permission";
 
 export const load = (async ({ locals, url }) => {
 
@@ -22,17 +23,19 @@ export const load = (async ({ locals, url }) => {
         suppliers
     };
 
-}) satisfies PageServerLoad;
+});
 
 export const actions: Actions = {
     createOrder: async ({ request, locals }) => {
+
+        if(!validatePermission(locals.user, "order", "c"))
+            return fail(403, { createOrder: { error: "app.user.error.no_permission" }});
 
         let createdOrder: scm_order | undefined = undefined;
 
         try
         {
-            if(locals.user === null)
-                return fail(403, { createdOrder: { error: "app.user.error.no_auth" }});
+
 
             const form = await request.formData();
 
@@ -57,7 +60,7 @@ export const actions: Actions = {
                 data: {
                     name: orderName,
                     supplier_id: supplierId,
-                    issuer_id: locals.user?.id,
+                    issuer_id: locals.user!.id,
                     sub_id: orderSubId,
 
                     vat: Number(locals.appSettings?.company_default_vat || 0)
