@@ -5,7 +5,7 @@ import { getSettings, getUserSettings } from '$lib/server/settings';
 import { getS3Client } from '$lib/server/s3';
 import { locale } from 'svelte-i18n';
 import { isEnvironementValid } from '$lib/server/environment';
-import { validateRoute } from '$lib/permission';
+import { validateRoute } from '$lib/server/permission';
 
 export const handle = (async ({ event, resolve }) => {
 
