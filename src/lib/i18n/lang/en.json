@@ -128,7 +128,9 @@
             "transactions": "Transactions",
             "invoices": "Invoices",
             "quotations": "Quotations",
-            "project_manager": "Project manager"
+            "project_manager": "Project manager",
+            "text": "Text",
+            "designation": "Designation"
         },
         "time": {
             "hours": "Hours"
@@ -149,7 +151,8 @@
             "confirm": "Confirm",
             "cancel": "Cancel",
             "delete-force": "Confirm delete",
-            "add_file": "Add file"
+            "add_file": "Add file",
+            "add_row_to_order": "Add a new row to the order"
         },
         "setup_s3": {
             "s3_bucket": "S3 Bucket name",

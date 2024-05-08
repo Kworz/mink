@@ -30,7 +30,7 @@
     $: showCancelledOrders, showCompletedOrders, refresh();
 
     const refresh = () => { 
-        if(browser) return; 
+        if(!browser) return; 
         goto(`?show_completed=${showCompletedOrders}&show_cancelled=${showCancelledOrders}`);
     };
 
@@ -67,7 +67,7 @@
     <Table headers={[{ label: $_('app.generic.order_number') }, {label: $_('app.generic.supplier') }, {label: $_('scm.orders.amount_gross')}, {label: $_('scm.orders.amount_net')}, {label: $_('app.generic.state')}, { label: $_('app.generic.user_requesting') }]} class="mt-6">
             
         {#each data.orders as order}
-            {@const orderGrossPrice = order.order_rows.reduce((p, c) => p = p + c.needed_quantity * (c.ack_price ?? 0), 0)}
+            {@const orderGrossPrice = [...order.order_rows, ...order.text_rows].reduce((p, c) => p = p + c.needed_quantity * (c.ack_price ?? 0), 0)}
             <TableCell>
                 <a href="/app/accounting/orders/{order.id}">
                     <Flex direction="col" gap={1}>

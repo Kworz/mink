@@ -23,6 +23,9 @@
     import { _ } from "svelte-i18n";
     import { browser } from "$app/environment";
     import { scm_order_state } from "$lib/prisma-enums";
+    import TableFootCell from "$lib/components/generics/table/TableFootCell.svelte";
+
+    let orderRowMode: "article" | "text" = "article";
 
     let selectedArticle: scm_articleWithIncludes | undefined = undefined;
     let selectedArticleQuantity = 0;
@@ -34,7 +37,7 @@
 
     let articleFilter = $page.url.searchParams.has("articleFilter") ? JSON.parse(decodeURIComponent($page.url.searchParams.get("articleFilter") as string)) : {};
 
-    const refresh = () => { if(browser) goto(`?articleFilter=${encodeURIComponent(JSON.stringify(articleFilter))}`); }
+    const refresh = () => { if(!browser) return; goto(`?articleFilter=${encodeURIComponent(JSON.stringify(articleFilter))}`); }
 
     export let data: PageData;
     export let form: ActionData;
@@ -54,9 +57,9 @@
     <title>{$_('app.generic.order')} {data.order.sub_id} - mink</title>
 </svelte:head>
 
-{#if form?.createOrderRow?.error}
+{#if form?.createArticleOrderRow?.error || form?.createTextOrderRow?.error}
     <Modal title={$_('app.generic.error')} on:close={() => form = null}>
-        <p class="my-2">{$_(form.createOrderRow.error)}</p>
+        <p class="my-2">{$_(form?.createArticleOrderRow?.error || form?.createTextOrderRow?.error || "errors.generic")}</p>
     </Modal>
 {/if}
 
@@ -136,7 +139,7 @@
     <Table headers={[
             "selectAll",
             { label: $_('app.generic.project') },
-            { label: $_('app.generic.article') },
+            { label: $_('app.generic.designation') },
             { label: $_('app.generic.sku') },
             { label: $_('app.generic.quantity') },
             { label: $_('app.generic.acknowledged_delay') },
@@ -188,7 +191,10 @@
             {/if}
         {/if}
 
-        {#each data.order.order_rows as order_row (order_row.id)}
+        {#each [...data.order.order_rows, ...data.order.text_rows] as order_row (order_row.id)}
+
+            {@const isTextRow = order_row.text !== undefined}
+
             <TableCell position="center">
                 <input type="checkbox" bind:group={selectedOrderRows} value={order_row.id} />
             </TableCell>
@@ -207,13 +213,23 @@
                     {order_row.project?.name ?? "—"}
                 {/if}
             </TableCell>
-            <TableCell><a href="/app/scm/articles/{order_row.article.id}">{order_row.article.name}</a></TableCell>
-            <TableCell>{order_row.article.reference}</TableCell>
+            {#if !isTextRow}
+                <TableCell><a href="/app/scm/articles/{order_row.article.id}">{order_row.article.name}</a></TableCell>
+                <TableCell>{order_row.article.reference}</TableCell>
+            {:else}
+                <TableCell>{order_row.text}</TableCell>
+                <TableCell>{order_row.reference}</TableCell>
+            {/if}
+            
             <TableCell>
                 {#if data.order.state === scm_order_state.draft}
                     <form action="?/editOrderRows" method="post" use:enhanceNoReset>
                         <input type="hidden" name="id" value={order_row.id} />
-                        <FormInput type="number" name="needed_quantity" bind:value={order_row.needed_quantity} validateOnChange={true} min={order_row.article.order_quantity} step={order_row.article.order_quantity}/>
+                        {#if isTextRow}
+                            <FormInput type="number" name="needed_quantity" bind:value={order_row.needed_quantity} validateOnChange={true} min={0} step={1}/>
+                        {:else}
+                            <FormInput type="number" name="needed_quantity" bind:value={order_row.needed_quantity} validateOnChange={true} min={order_row.article.order_quantity} step={order_row.article.order_quantity}/>
+                        {/if}
                     </form>
                 {:else}
                     {order_row.needed_quantity}
@@ -251,18 +267,33 @@
 
 {#if data.order.state === scm_order_state.draft}
     <Wrapper class="mt-6">
-        <h3 class="mb-3">{$_('app.action.add_article_to_order')}</h3>
-        <form action="?/createOrderRow" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
-            <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
-                <ArticleFinder articles={data.articles} bind:selectedArticle bind:filter={articleFilter} on:filter={() => invalidateAll()} />
-            </div>     
-             
-            {#if selectedArticle !== undefined}
-                <input type="hidden" name="article_id" value={selectedArticle?.id} />
-                <FormInput name="needed_quantity" type="number" bind:value={selectedArticleQuantity} min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" required />
-                <Button class="ml-auto">{$_('app.action.add')}</Button>
-            {/if}
-        </form>
+        <h3 class="mb-3">{$_('app.action.add_row_to_order')}</h3>
+
+        <FormInput type="select" label={$_('app.order.mode')} name="new_order_row_mode" bind:value={orderRowMode} required class="mb-4 w-fit">
+            <option value="article">{$_('app.generic.article')}</option>
+            <option value="text">{$_('app.generic.text')}</option>
+        </FormInput>
+
+        {#if orderRowMode === "text"}
+            <form action="?/createTextOrderRow" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
+                <FormInput type="text" name="text" label={$_('app.generic.designation')} required />
+                <FormInput type="text" name="reference" label={$_('app.generic.sku')} />
+                <FormInput type="number" name="needed_quantity" label={$_('app.generic.quantity')} required min={0} step={0} />
+                <Button>{$_('app.action.add')}</Button>
+            </form>
+        {:else}
+            <form action="?/createArticleOrderRow" method="post" use:enhanceNoReset class="flex flex-row gap-4 items-end">
+                <div class="{selectedArticle !== undefined ? "w-2/3" : "w-full"}">
+                    <ArticleFinder articles={data.articles} bind:selectedArticle bind:filter={articleFilter} on:filter={() => invalidateAll()} />
+                </div>     
+                
+                {#if selectedArticle !== undefined}
+                    <input type="hidden" name="article_id" value={selectedArticle?.id} />
+                    <FormInput name="needed_quantity" type="number" bind:value={selectedArticleQuantity} min={selectedArticle?.order_quantity} step={selectedArticle?.order_quantity} label="Quantité à commander" required />
+                    <Button class="ml-auto">{$_('app.action.add')}</Button>
+                {/if}
+            </form>
+        {/if}
     </Wrapper>
 {/if}
 

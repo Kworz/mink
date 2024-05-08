@@ -462,6 +462,8 @@ model scm_order_text_rows {
   
   text                String @default("")
 
+  reference           String?
+
   needed_date         DateTime?
   needed_quantity     Float  @default(0)
 

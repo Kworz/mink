@@ -1,6 +1,5 @@
 import { articleIncludeQuery } from "$lib/components/derived/article/article";
 import Prisma, { type scm_order_state } from "@prisma/client";
-import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
 import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { validatePermission } from "$lib/permission";
@@ -9,7 +8,10 @@ export const load = (async ({ params, locals, url }) => {
 
     const articleFilter = url.searchParams.has("articleFilter") ? JSON.parse(decodeURIComponent(url.searchParams.get("articleFilter") as string)) : undefined;
 
-    const order = await locals.prisma.scm_order.findUniqueOrThrow({ where: { id: params.id }, include: { order_rows: { orderBy: { created: "asc" }, include: { article: true, project: true }}, text_rows: { orderBy: { created: "asc" }, include: { project: true }}, supplier: true, issuer: true }});
+    const order = await locals.prisma.scm_order.findUnique({ where: { id: params.id }, include: { order_rows: { orderBy: { created: "asc" }, include: { article: true, project: true }}, text_rows: { orderBy: { created: "asc" }, include: { project: true }}, supplier: true, issuer: true }});
+
+    if(order === null)
+        return redirect(302, "/app/accounting/orders?notFound=true");
 
     /// — Secondary data
     const projects = await locals.prisma.pr_project.findMany({ where: { closed: false }})
@@ -26,9 +28,9 @@ export const load = (async ({ params, locals, url }) => {
         orderFiles: orderFiles.Contents || []
     }
 
-}) satisfies PageServerLoad;
+});
 
-export const actions: Actions = {
+export const actions = {
     /** Update order with the specified body */
     editOrder: async ({ params, request, locals }) => {
 
@@ -110,7 +112,11 @@ export const actions: Actions = {
             const form = await request.formData();
 
             const text = form.get("text")?.toString();
+            const reference = form.get("reference")?.toString();
             const neededQuantity = Number(form.get("needed_quantity"));
+
+            if(text === undefined || text.length === 0)
+                return fail(400, { createTextOrderRow: { error: "errors.scm.order.create_order_row.text_invalid" }});
 
             if(Number.isNaN(neededQuantity) || neededQuantity <= 0)
                 return fail(400, { createTextOrderRow: { error: "errors.scm.order.create_order_row.needed_quantity_invalid" }});
@@ -118,7 +124,8 @@ export const actions: Actions = {
             await locals.prisma.scm_order_text_rows.create({
                 data: {
                     order_id: params.id,
-                    text: text || "",
+                    text,
+                    reference,
                     needed_quantity: neededQuantity,
                 }
             });
@@ -167,6 +174,42 @@ export const actions: Actions = {
         {
             console.log(ex);
             return fail(500, { editArticleOrderRow: { error: "errors.scm.order.edit_order_row.failed" }});
+        }
+    },
+
+    /** Update a text order row */
+    editTextOrderRow: async ({ request, locals }) => {
+
+        if(!validatePermission(locals.user, "order", "u"))
+            return fail(403, { editTextOrderRow: { error: "errors.permission.u" }});
+
+        try
+        {
+            const form = await request.formData();
+            let rowsId: string[] | string | undefined = form.get("id")?.toString();
+
+            if(rowsId !== undefined)
+                rowsId = rowsId.split(',');
+            else
+                return fail(400, { editTextOrderRow: { error: "errors.scm.order.edit_order_row.row_id_not_found" }});
+
+            const neededQuantity = form.has("needed_quantity") ? Number(form.get("needed_quantity")) : undefined;
+            const ackDate = form.has("ack_date") ? form.get("ack_date")?.toString() : undefined;
+
+            const { count } = await locals.prisma.scm_order_text_rows.updateMany({ where: { id: { in: rowsId }}, data: {
+                needed_quantity: neededQuantity,
+                ack_date: ackDate,
+            }});
+
+            if(count !== rowsId.length)
+                return fail(400, { editTextOrderRow: { error: "errors.scm.order.edit_order_row.failed" }});
+
+            return { editTextOrderRow: { success: "scm.order.edit_row.success" }};
+        }
+        catch(ex)
+        {
+            console.log(ex);
+            return fail(500, { editTextOrderRow: { error: "errors.scm.order.edit_order_row.failed" }});
         }
     },
 
