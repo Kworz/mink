@@ -1,6 +1,6 @@
 import { articleIncludeQuery, computeArticlePrice } from "$lib/components/derived/article/article";
 import { LabelDocument } from "$lib/label/labelDocument";
-import type jsPDF from "jspdf";
+import { type jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { RequestHandler } from "./$types";
 
@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     {
         const order = await locals.prisma.scm_order.findUnique({ where: { id: params.id }, include: { supplier: true, order_rows: { include: { article: { include: articleIncludeQuery }, project: true }}}});
 
-        if(order === null) return new Response("Could not find order " + params.id, { status: 404})
+        if(order === null) return new Response("Could not find order " + params.id, { status: 404});
 
         const doc = new LabelDocument(297, 210, "p") as (jsPDF & LabelDocument);
 
@@ -55,7 +55,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
             doc.setFontSize(14);
             doc.text(order.supplier.name, 7.5, 35);
-            doc.text(locals.appSettings!.company_name, 210 / 2 + 7.5, 35);
+            //doc.text(locals.appSettings?.company_name || "", 210 / 2 + 7.5, 35);
             doc.setFontSize(12);
 
             const supplierAddress = [order.supplier.address_road, order.supplier.address_postal_code, order.supplier.address_city, order.supplier.address_city].filter(k => k !== null) as string[];

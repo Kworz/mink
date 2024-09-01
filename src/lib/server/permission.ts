@@ -33,6 +33,7 @@ export const validateRoute = (routeId: string, user: userWithIncludes | null): b
         "/app/(scm)/scm/inbound_supplies": "inbound_supply",
         "/app/(scm)/scm/lists": "buylist",
         "/app/(scm)/scm/suppliers": "supplier",
+        "/app/(scm)/scm/stores": "store",
 
         /// PROJECTS Permission zone
         "/app/(pm)/pm": "pm",
@@ -50,6 +51,7 @@ export const validateRoute = (routeId: string, user: userWithIncludes | null): b
         "/app/(accounting)/accounting": "accounting",
         "/app/(accounting)/accounting/orders": "order",
         "/app/(accounting)/accounting/orders/[id]": "order",
+        "/app/(accounting)/accounting/orders/[id]/export": "order",
 
         "/app/(accounting)/accounting/invoices": "invoice",
         "/app/(accounting)/accounting/invoices/[id]": "invoice",
@@ -74,7 +76,6 @@ export const validateRoute = (routeId: string, user: userWithIncludes | null): b
 
     if(route === undefined) { throw new Error(`No permission associated with route ${routeId}`); } 
 
-    // @ts-ignore
     const validation = validatePermission(user, associatedPermissionForRoute[route], "r");
 
     if(!validation) console.error(`User's group ${user?.group?.name || "—"} does not have enough permission to access ${routeId}`);

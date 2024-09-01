@@ -4,7 +4,7 @@ import type { UserConfig } from 'vite';
 const config: UserConfig = {
 	plugins: [sveltekit()],
 	ssr:{
-		noExternal: ["@fontsource/inter", 'three']
+		noExternal: ["@fontsource/inter", 'three', 'jspdf', 'jspdf-autotable']
 	},
 	server: {
 		hmr: {

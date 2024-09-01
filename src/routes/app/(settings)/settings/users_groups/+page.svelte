@@ -8,7 +8,7 @@
     import Modal from "$lib/components/generics/modal/Modal.svelte";
     import Button from "$lib/components/generics/Button.svelte";
     import { groupPermissions } from "$lib/permission";
-    import PermissionLabelGroup from "$lib/components/derived/PermissionLabelGroup.svelte";
+    import PermissionLabelGroup from "$lib/components/derived/labels/PermissionLabelGroup.svelte";
 
     export let data: PageData;
 

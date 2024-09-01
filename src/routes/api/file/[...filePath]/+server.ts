@@ -4,9 +4,6 @@ import type { RequestHandler } from "./$types";
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const GET: RequestHandler = async ({ locals, params }) => {
 
-    if(locals.session === null || locals.user === null)
-        return new Response("Not authorized", { status: 401 });
-
     try
     {
         const result = await locals.s3.send(new GetObjectCommand({

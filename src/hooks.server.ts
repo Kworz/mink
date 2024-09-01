@@ -82,6 +82,7 @@ export const handle = (async ({ event, resolve }) => {
         }
         else
         {    
+            console.log(event.route, event.url);
             if(event.route.id === null || !validateRoute(event.route.id, event.locals.user))
             {
                 return new Response(null, { status: 303, headers: { 'Location': `/error?error=${encodeURIComponent(JSON.stringify({ error: "Permission denied", message: "You don't have enough permission to access this ressource" }))}` }});
