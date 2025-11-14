@@ -31,7 +31,7 @@
     let createSupplier = false;
 
     $: if(form !== null) { editSupplier = undefined; createSupplier = false; upsertSent = false; invalidateAll(); };
-    $: if(supplierToRemove !== undefined) { setTimeout(() => supplierToRemove = undefined, 5000); }
+    $: if(supplierToRemove !== undefined) { setTimeout(() => { supplierToRemove = undefined }, 5000); }
 
 </script>
 
@@ -65,12 +65,10 @@
 
                 <FormInput name="website" label="Site web" value={editSupplier?.website ?? ""} autocomplete="website" />
 
-                <FormInput name="address_road" label="Rue" value={editSupplier?.address_road ?? ""} autocomplete="address-line1" />
+                <FormInput name="address_street" label="Rue" value={editSupplier?.address_street ?? ""} autocomplete="address-line1" />
                 <FormInput name="address_postal_code" label="Code postal" value={editSupplier?.address_postal_code ?? ""} autocomplete="postal-code" />
                 <FormInput name="address_city" label="Ville" value={editSupplier?.address_city ?? ""} autocomplete="address-level2" />
                 <FormInput name="address_country" label="Pays" value={editSupplier?.address_country ?? ""} autocomplete="country" />
-
-                <FormInput type="email" name="email" label="Email de contact" value={editSupplier?.email ?? ""} autocomplete="email" />
 
                 <FormInput type="select" name="payment_rule" value={editSupplier?.payment_rule ?? ""} label="Conditions de paiement">
                     <option value={undefined}>—</option>
@@ -92,7 +90,7 @@
     </MenuSide>
 {/if}
 
-{#if form?.deleteSupplier?.error !== undefined}
+{#if form?.deleteSupplier && "error" in form.deleteSupplier}
     <Modal title={$_('app.generic.error')} on:close={() => form = null}>
     
         <form slot="form" action="?/deleteSupplier" method="post" use:enhance class="flex gap-2">
@@ -146,7 +144,8 @@
                 </Flex>
             </TableCell>
             <TableCell>
-                <p>{supplier.address_road}</p>
+                <p>{supplier.address_street}</p>
+                <p>{supplier.address_street2}</p>
                 <p>{supplier.address_city}, {supplier.address_postal_code}</p>
                 <p class="uppercase">{supplier.address_country}</p>
             </TableCell>

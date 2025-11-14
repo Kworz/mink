@@ -8,7 +8,8 @@
     export let form: string | undefined = undefined;
     export let preventSend = false;
     
-    export let confirm = false; // To be used only when role="danger2"
+    /** Applies only when `role=danger` */
+    export let confirm = false;
     export let suspense = false;
     
     const sizes: Record<typeof size, string> = {

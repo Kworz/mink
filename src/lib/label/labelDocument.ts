@@ -1,14 +1,16 @@
-//@ts-nocheck
+import jsPDF from 'jspdf';
+// @ts-nocheck
 
-import { jsPDF, type TextOptionsLight } from "jspdf";
+import type { TextOptionsLight } from "jspdf";
 import qrcode from "qrcode";
 
 import { font } from "./noto-b64";
 
-export class LabelDocument {
+export class LabelDocument extends jsPDF {
 
     constructor(height: number, width: number, orientation: 'l' | 'p' = 'l')
     {
+        super();
         Object.assign(this, new jsPDF({
             orientation: orientation,
             unit: 'mm',

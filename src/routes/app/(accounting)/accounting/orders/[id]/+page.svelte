@@ -99,7 +99,7 @@
 {/if}
 
 <PillMenu>
-    <PillMenuButton icon={Printer} click={() => window.open(`/app/scm/orders/${data.order.id}/export`, '_blank')?.focus()}>{$_('scm.orders.action.export.title')}</PillMenuButton>
+    <PillMenuButton icon={Printer} click={() => window.open(`/app/accounting/orders/${data.order.id}/export`, '_blank')?.focus()}>{$_('scm.orders.action.export.title')}</PillMenuButton>
     <PillMenuButton icon={Trash} click={() => deleteOrder = true }>{$_('scm.orders.action.delete.title')}</PillMenuButton>
 </PillMenu>
 

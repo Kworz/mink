@@ -1,0 +1,129 @@
+model user {
+  id                     String  @id @unique @default(uuid())
+
+  email                  String  @unique
+  username               String  @unique
+
+  hashed_password        String
+
+  avatar                 String?
+
+  group_id               String?
+  group                  user_group? @relation(references: [id], fields: [group_id], onDelete: SetNull)
+
+  updated                DateTime @updatedAt
+  created                DateTime @default(now())
+
+  auth_session           auth_session[]
+
+  user_settings          user_settings[]
+
+  article_movements      scm_article_movements[]
+  
+  attached_projects      pr_project_attached_user[]
+
+  orders                 scm_order[]
+  order_state_changes    scm_order_state_change[]
+
+  manufacturing_orders_asked            scm_manufacturing_order[] @relation("manufacturing_order_asked")
+  manufacturing_orders_received         scm_manufacturing_order[] @relation("manufacturing_order_received")
+  manufacturing_orders_state_changes    scm_manufacturing_oder_state_change[]
+
+}
+
+model user_group {
+
+  id          String @id @unique @default(uuid())
+  admin       Boolean @default(false)
+  name        String
+
+  /// SCM permission zone
+  scm                   permission?
+
+  article               permission?
+  supplier              permission?
+  store                 permission?
+  buylist               permission?
+  assembly              permission?
+  inbound_supply        permission?
+
+ /// Project permission zone
+  pm                    permission?
+  
+  project               permission?
+  manufacturing_order   permission?
+
+  /// CRM permission zone
+  crm                   permission?
+
+  lead                  permission?
+  company               permission?
+  contact               permission?
+  interest              permission?
+
+  /// Accounting permission zone
+  accounting            permission?
+
+  order                 permission?
+  invoice               permission?
+  quotation             permission?
+  transaction           permission?
+
+  /// Tools permission zone
+  tools                 permission?
+
+  qr_code_scanner       permission?
+
+  /// Settings permission zone
+  settings              permission?
+
+  user                  permission?
+  user_group            permission?
+  
+  users       user[]
+
+}
+
+enum permission {
+
+  r // Can read
+  rc // Can read and create
+  ru // Can read and update
+  rcu // Can read, create and update
+  rcud // can read, create, update and delete
+
+}
+
+model auth_session {
+  id                String  @id
+  userId            String
+  expiresAt         DateTime
+  user              user @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model user_invitation {
+
+  id                     String  @id @unique @default(uuid())
+  email                  String  @unique
+
+  created                DateTime @default(now())
+  
+}
+
+model user_settings {
+  key             user_settings_keys
+  value           String
+
+  user_id         String
+  user            user @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@id([user_id, key])
+}
+
+enum user_settings_keys {
+
+  app_language
+  app_menu_left
+  app_pages_top_of_table
+
+}

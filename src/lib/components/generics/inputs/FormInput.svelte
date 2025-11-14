@@ -9,7 +9,7 @@
     }>();
 
     export let type: "number" | "text" | "password" | "email" | "file" | "select" | "date" | "checkbox" = "text";
-    export let name: string;
+    export let name: string | string[];
 
     export let label: string | undefined = undefined;
 

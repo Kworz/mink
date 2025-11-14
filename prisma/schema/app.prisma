@@ -1,0 +1,18 @@
+model app_settings {
+  key             app_settings_keys  @id @unique
+  value           String
+}
+
+enum app_settings_keys {
+
+  // company settings
+  company_name
+
+  company_address_road
+  company_address_city
+  company_address_postal_code
+  company_address_country
+
+  company_default_vat
+
+}

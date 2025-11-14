@@ -1,0 +1,34 @@
+model pr_project {
+  id                  String   @id @default(uuid()) @unique
+  name                String?  @default("")
+
+  created             DateTime @default(now())
+  end_date            DateTime?
+  start_date          DateTime?
+
+  customer            String?
+  closed              Boolean @default(false)
+
+  assembly_buylists   scm_assembly_buylist[]
+  order_rows          scm_order_rows[]
+  text_order_rows     scm_order_text_rows[]
+  
+  attached_users      pr_project_attached_user[]
+
+  manufacturing_orders  scm_manufacturing_order[]
+
+}
+
+model pr_project_attached_user {
+
+  id                  String   @id @default(uuid()) @unique
+
+  role                String?
+
+  project_id          String
+  project             pr_project @relation(references: [id], fields: [project_id], onDelete: Cascade)
+
+  user_id             String
+  user                user @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+}

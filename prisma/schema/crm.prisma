@@ -1,0 +1,115 @@
+
+
+model crm_company {
+
+  id      String  @id @default(uuid()) @unique
+
+  name    String
+  size    crm_company_size
+  
+  country String?
+  sector  String?
+  type    String?
+  
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+
+  contacts crm_company_contact[]
+  leads crm_leads[]
+
+}
+
+enum crm_company_size {
+
+  tiny
+  small
+  medium
+  big
+  large
+  huge
+
+}
+
+model crm_company_contact {
+
+  id           String  @id @default(uuid()) @unique
+  
+  name         String
+  position     String?
+  address      String?
+  phone        String?
+  email        String?
+  spoken_langs String[]
+
+  company_id   String
+  company      crm_company @relation(references: [id], fields: [company_id], onDelete: Cascade)      
+
+  created       DateTime @default(now())
+  updated       DateTime @updatedAt
+
+  attached_leads crm_leads_contacts[]
+
+}
+
+model crm_interest {
+
+  id                  String  @id @default(uuid()) @unique
+
+  name                String
+  description         String?
+  color               String?
+
+  created             DateTime @default(now())
+  updated             DateTime @updatedAt
+
+  leads crm_leads_interests[]
+
+}
+
+model crm_leads {
+
+  id               String  @id @default(uuid()) @unique
+
+  comment          String?
+  origin           String?
+  state            String?
+
+  company_id       String
+  company          crm_company @relation(references: [id], fields: [company_id], onDelete: Cascade)
+
+  created          DateTime @default(now())
+  updated          DateTime @updatedAt
+
+  contacts crm_leads_contacts[]
+  interests crm_leads_interests[]
+
+}
+
+model crm_leads_contacts {
+
+  id               String  @id @default(uuid()) @unique
+
+  lead_id          String
+  lead             crm_leads @relation(references: [id], fields: [lead_id], onDelete: Cascade)
+
+  contact_id       String
+  contact          crm_company_contact @relation(references: [id], fields: [contact_id], onDelete: Cascade)
+
+}
+
+model crm_leads_interests {
+
+  id              String   @id @default(uuid()) @unique
+
+  order           Decimal? @default(0)
+
+  interest_id     String
+  interest        crm_interest @relation(references: [id], fields: [interest_id], onDelete: Cascade)
+
+  lead_id         String
+  lead            crm_leads @relation(references: [id], fields: [lead_id], onDelete: Cascade)
+
+  created         DateTime @default(now())
+  updated         DateTime @updatedAt
+
+}

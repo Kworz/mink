@@ -37,7 +37,7 @@
     }
     
     .inactive {
-        @apply hover:bg-violet-200 hover:text-violet-700 text-zinc-800 dark:text-white;
+        @apply hover:bg-violet-200 hover:text-violet-700 text-white;
     }
 
 </style>

@@ -1,6 +1,7 @@
 import type { userWithIncludes } from "$lib/components/derived/user/user";
 import type { user_group } from "@prisma/client";
 
+export type PermissionLevel = "r" | "c" | "u" | "d";
 export type GroupPermissions = keyof Omit<user_group, "admin" | "id" | "name">;
 export const groupPermissions: Array<GroupPermissions> = ["scm", "article", "supplier", "store", "buylist", "assembly", "inbound_supply", "pm", "project", "manufacturing_order", "crm", "lead", "company", "contact", "interest", "accounting", "order", "invoice", "quotation", "transaction", "tools", "qr_code_scanner", "settings", "user", "user_group"];
 
