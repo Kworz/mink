@@ -48,7 +48,7 @@ jobs:
   
   docker-release:
     needs: release
-    if: needs.release.outputs.published == 'true'
+    if: needs.release.outputs.hasChangesets == 'false'
 
     name: 🐳 Docker release
     uses: kworz/mink/.github/workflows/docker-release.yaml@main
