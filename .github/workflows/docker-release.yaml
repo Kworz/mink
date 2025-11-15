@@ -13,7 +13,7 @@ jobs:
 
       - name: ❓ Get current published version
         id: get_version
-        run: cat package.json | echo "version=$(jq -r '.version')" >> $GITHUB_OUPUT
+        run: cat package.json | echo "version=$(jq -r '.version')" >> "$GITHUB_OUPUT"
 
       - name: 🔐 Docker login
         uses: docker/login-action@v1
