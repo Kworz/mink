@@ -1,5 +1,11 @@
 # mink
 
+## 0.0.5
+
+### Patch Changes
+
+- [`865cb0f`](https://github.com/Kworz/mink/commit/865cb0f705ef7b20f12753f8f53f8a65ea9f9910) Thanks [@Kworz](https://github.com/Kworz)! - chore: test build
+
 ## 0.0.4
 
 ### Patch Changes
