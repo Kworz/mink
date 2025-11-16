@@ -13,7 +13,7 @@ jobs:
       issues: read
 
     outputs:
-      hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
+      published: ${{ steps.changesets.outputs.published }}
     
     name: 📦 Final release
     runs-on: ubuntu-latest
@@ -43,12 +43,15 @@ jobs:
       - name: 📝 Create Release Pull Request or keep building
         id: changesets
         uses: changesets/action@v1
+        with:
+          publish: pnpm run release
+          version: pnpm run version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   docker-release:
     needs: release
-    if: needs.release.outputs.hasChangesets == 'false'
+    if: needs.release.outputs.published == 'true'
 
     name: 🐳 Docker release
     uses: kworz/mink/.github/workflows/docker-release.yaml@main

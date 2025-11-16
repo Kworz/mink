@@ -15,7 +15,9 @@
     "sync": "svelte-kit sync",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "release": "changeset publish",
+    "version": "changeset version"
   },
   "devDependencies": {
     "@lucia-auth/adapter-prisma": "^4.0.1",
