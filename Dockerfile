@@ -15,6 +15,7 @@ RUN apk add --no-cache openssl
 COPY package.json ./
 COPY pnpm-lock.yaml ./
 COPY prisma/ /mink/prisma
+COPY prisma.config.ts ./prisma.config.ts
 
 # ——— install build project
 FROM base AS builder
