@@ -35,7 +35,7 @@ jobs:
 
       - name: 📝 Docker tag version (pull request)
         if: github.event_name == 'pull_request'
-        run: docker tag mink ${{ secrets.DOCKER_USERNAME }}/mink:${{ steps.get_version.outputs.version }}-${{ github.event.pull_request.id }}
+        run: docker tag mink ${{ secrets.DOCKER_USERNAME }}/mink:${{ steps.get_version.outputs.version }}-${{ github.event.pull_request.number }}
 
       - name: 📤 Docker push (main)
         if: github.event_name != 'pull_request'
@@ -46,4 +46,4 @@ jobs:
       - name: 📤 Docker push (pull request)
         if: github.event_name == 'pull_request'
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/mink:${{ steps.get_version.outputs.version }}-${{ github.event.pull_request.id }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/mink:${{ steps.get_version.outputs.version }}-${{ github.event.pull_request.number }}
