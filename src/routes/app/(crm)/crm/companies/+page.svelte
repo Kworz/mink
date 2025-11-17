@@ -17,7 +17,7 @@
     import { BuildingOffice, ChevronDown, ChevronUp, Wrench } from "@steeze-ui/heroicons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import type { ActionData, PageData, Snapshot } from "./$types";
-    import { crm_company_size } from "$lib/prisma-enums/index";
+    import { crm_company_size } from "$lib/prisma-enums/index.js";
 
     export let data: PageData;
     export let form: ActionData;

@@ -22,7 +22,7 @@
     import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
     import { _ } from "svelte-i18n";
     import { browser } from "$app/environment";
-    import { scm_order_state } from "$lib/prisma-enums";
+    import { scm_order_state } from "$lib/prisma-enums/index.js";
     import { LCMArray } from "$lib/LCM";
 
     let orderRowMode: "article" | "text" = "article";
