@@ -1,5 +1,5 @@
 import type { scm_articleWithIncludes } from "$lib/components/derived/article/article";
-import { unit_of_work } from "$lib/prisma-enums";
+import { unit_of_work } from "$lib/prisma-enums/index.js";
 
 export function unitOfWork(article: scm_articleWithIncludes): { step: number, min: number } {
 

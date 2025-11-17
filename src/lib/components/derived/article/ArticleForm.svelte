@@ -2,7 +2,7 @@
     import FormInput from "$lib/components/generics/inputs/FormInput.svelte";
     import { page } from "$app/stores";
     import { _ } from "svelte-i18n";
-    import { unit_of_work } from "$lib/prisma-enums";
+    import { unit_of_work } from "$lib/prisma-enums/index.js";
     import type { scm_article } from "@prisma/client";
 
     export let article: scm_article = {

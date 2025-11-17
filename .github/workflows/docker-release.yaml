@@ -2,6 +2,7 @@ name: 🐳 Docker release
 
 on:
   workflow_call:
+  pull_request:
 
 jobs:
   docker-release:
@@ -24,11 +25,17 @@ jobs:
       - name: 🧱 Docker build
         run: docker build -t mink .
 
-      - name: 📝 Docker tag latest
+      - name: 📝 Docker tag latest (main)
+        if: github.event_name != 'pull_request'
         run: docker tag mink ${{ secrets.DOCKER_USERNAME }}/mink:latest
 
-      - name: 📝 Docker tag version
+      - name: 📝 Docker tag version (main)
+        if: github.event_name != 'pull_request'
         run: docker tag mink ${{ secrets.DOCKER_USERNAME }}/mink:${{ steps.get_version.outputs.version }}
+
+      - name: 📝 Docker tag version (pull request)
+        if: github.event_name == 'pull_request'
+        run: docker tag mink ${{ secrets.DOCKER_USERNAME }}/mink:${{ steps.get_version.outputs.version }}-${{ github.event.pull_request.id }}
 
       - name: 📤 Docker push
         run: docker push ${{ secrets.DOCKER_USERNAME }}/mink
